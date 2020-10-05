@@ -15,9 +15,9 @@ repositories {
 
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
-    implementation("com.tsikhe:shardscript-semantics:1.0")
-    implementation("com.tsikhe:shardscript-composition:1.0")
-    implementation("com.tsikhe:shardscript-eval:1.0")
+    implementation(project(":shardscript-semantics"))
+    implementation(project(":shardscript-composition"))
+    implementation(project(":shardscript-eval"))
     implementation("junit:junit:4.12")
 }
 

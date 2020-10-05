@@ -1,6 +1,5 @@
 plugins {
     antlr
-    `maven-publish`
 }
 
 group = "com.tsikhe"
@@ -12,14 +11,6 @@ repositories {
 
 dependencies {
     antlr("org.antlr:antlr4:4.7")
-}
-
-publishing {
-    publications {
-        create<MavenPublication>("default") {
-            from(components["java"])
-        }
-    }
 }
 
 tasks.generateGrammarSource {

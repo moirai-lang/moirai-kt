@@ -2,7 +2,6 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     kotlin("jvm") version "1.3.61"
-    `maven-publish`
 }
 
 group = "com.tsikhe"
@@ -15,9 +14,9 @@ repositories {
 
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
-    implementation("com.tsikhe:shardscript-semantics:1.0")
-    implementation("com.tsikhe:shardscript-grammar:1.0")
-    implementation("com.tsikhe:shardscript-composition:1.0")
+    implementation(project(":shardscript-semantics"))
+    implementation(project(":shardscript-grammar"))
+    implementation(project(":shardscript-composition"))
     implementation("junit:junit:4.12")
 }
 
@@ -29,13 +28,4 @@ tasks.withType<KotlinCompile> {
 tasks.register<Jar>("sourcesJar") {
     from(sourceSets.main.get().allSource)
     archiveClassifier.set("sources")
-}
-
-publishing {
-    publications {
-        create<MavenPublication>("default") {
-            from(components["java"])
-            artifact(tasks["sourcesJar"])
-        }
-    }
 }
