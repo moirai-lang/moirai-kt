@@ -2,6 +2,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     kotlin("jvm") version "1.3.61"
+    `maven-publish`
 }
 
 group = "com.tsikhe"
@@ -28,4 +29,13 @@ tasks.withType<KotlinCompile> {
 tasks.register<Jar>("sourcesJar") {
     from(sourceSets.main.get().allSource)
     archiveClassifier.set("sources")
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("default") {
+            from(components["java"])
+            artifact(tasks["sourcesJar"])
+        }
+    }
 }
