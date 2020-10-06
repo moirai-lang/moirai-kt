@@ -1,3 +1,6 @@
+/**
+ * Copyright 2020 Bryan Croteau
+ */
 lexer grammar ShardScriptLexer;
 
 ADD: '+';

@@ -1,3 +1,6 @@
+/**
+ * Copyright 2020 Bryan Croteau
+ */
 package com.tsikhe.shardscript.composition
 
 import com.tsikhe.shardscript.grammar.ShardScriptParser

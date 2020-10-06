@@ -1,3 +1,6 @@
+/**
+ * Copyright 2020 Bryan Croteau
+ */
 package com.tsikhe.shardscript.eval
 
 import com.tsikhe.shardscript.semantics.core.*

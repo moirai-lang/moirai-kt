@@ -1,3 +1,6 @@
+/**
+ * Copyright 2020 Bryan Croteau
+ */
 parser grammar ShardScriptParser;
 
 options { tokenVocab=ShardScriptLexer; }
