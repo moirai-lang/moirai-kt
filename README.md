@@ -74,7 +74,7 @@ Includes an AST visitor that can map an AST to a Value
 
 Full suite of acceptance tests for the ShardScript language
 
-#Etymology
+# Etymology
 The word "shard" in ShardScript comes from Massively Multiplayer Online games in the 1990s. Sharding is a server programming technique that allows several players to inhabit the same location, fighting the same enemies and collecting the same resources, without seeing or interacting with each other.
 
 The metaphor here is that ShardScript is well-suited for multi-tenet environments where the different tenets can execute their code independently on the same hardware.
