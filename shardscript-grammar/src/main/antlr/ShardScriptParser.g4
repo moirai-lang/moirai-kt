@@ -54,8 +54,8 @@ typeParams
     ;
 
 typeParam
-    :   contextualId  # IdentifierTypeParam
-    |   OMICRON     # OmicronTypeParam
+    :   contextualId    # IdentifierTypeParam
+    |   OMICRON         # OmicronTypeParam
     ;
 
 paramDef
@@ -98,17 +98,17 @@ enumDefBodyStat
 
 expr
     :   LPAREN inner=expr RPAREN                                                        # ParenExpr
-    |   left=expr DOT id=contextualId params=typeExprParams LPAREN args=exprSeq? RPAREN   # ParamDotApply
-    |   left=expr DOT id=contextualId LPAREN args=exprSeq? RPAREN                         # DotApply
-    |   left=expr DOT id=contextualId                                                     # DotExpr
-    |   id=contextualId params=typeExprParams LPAREN args=exprSeq? RPAREN                 # ParamApplyExpr
-    |   id=contextualId LPAREN args=exprSeq? RPAREN                                       # ApplyExpr
+    |   left=expr DOT id=contextualId params=typeExprParams LPAREN args=exprSeq? RPAREN # ParamDotApply
+    |   left=expr DOT id=contextualId LPAREN args=exprSeq? RPAREN                       # DotApply
+    |   left=expr DOT id=contextualId                                                   # DotExpr
+    |   id=contextualId params=typeExprParams LPAREN args=exprSeq? RPAREN               # ParamApplyExpr
+    |   id=contextualId LPAREN args=exprSeq? RPAREN                                     # ApplyExpr
     |   left=expr LBRACK right=expr RBRACK                                              # IndexExpr
     |   anyif=ifExpr                                                                    # AnyIf
     |   op=NOT right=expr                                                               # UnaryNot
     |   op=SUB right=expr                                                               # UnaryNegate
-    |   MAP LPAREN id=contextualId of=ofType? IN source=expr RPAREN body=block            # MapExpr
-    |   FLATMAP LPAREN id=contextualId of=ofType? IN source=expr RPAREN body=block        # FlatMapExpr
+    |   MAP LPAREN id=contextualId of=ofType? IN source=expr RPAREN body=block          # MapExpr
+    |   FLATMAP LPAREN id=contextualId of=ofType? IN source=expr RPAREN body=block      # FlatMapExpr
     |   SWITCH LPAREN source=expr RPAREN alternatives=switchBody                        # SwitchExpr
     |   left=expr op=(MUL|DIV|MOD) right=expr                                           # InfixMulDivMod
     |   left=expr op=(ADD|SUB) right=expr                                               # InfixAddSub
@@ -130,7 +130,7 @@ expr
     |   value=CHAR                                                                      # LiteralChar
     |   value=string                                                                    # StringExpr
     |   left=expr op=TO right=expr                                                      # ToExpr
-    |   id=contextualId                                                                   # RefExpr
+    |   id=contextualId                                                                 # RefExpr
     ;
 
 ifExpr
@@ -183,7 +183,7 @@ typeExpr
 
 typePath
     :   contextualId (DOT contextualId)+    # MultiTypePath
-    |   contextualId                      # SingleTypePath
+    |   contextualId                        # SingleTypePath
     ;
 
 typeExprWithOmicron
@@ -201,17 +201,16 @@ typeExprSeq
     ;
 
 contextualId
-    :   WHERE
-    |   SELECT
+    :   ASCENDING
+    |   BY
+    |   DESCENDING
+    |   EQUALS
     |   GROUP
     |   INTO
-    |   ORDERBY
     |   JOIN
-    |   LET
-    |   ASCENDING
-    |   DESCENDING
     |   ON
-    |   EQUALS
-    |   BY
+    |   ORDERBY
+    |   SELECT
+    |   WHERE
     |   IDENTIFIER
     ;
