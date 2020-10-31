@@ -1,6 +1,3 @@
-/**
- * Copyright 2020 Bryan Croteau
- */
 package com.tsikhe.shardscript.semantics.core
 
 import java.math.BigDecimal
