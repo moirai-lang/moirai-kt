@@ -1,6 +1,3 @@
-/**
- * Copyright 2020 Bryan Croteau
- */
 lexer grammar ShardScriptLexer;
 
 ADD: '+';
@@ -31,13 +28,11 @@ BOOL_FALSE: 'false';
 AS: 'as';
 ASCENDING: 'ascending';
 BIND: 'bind';
-BY: 'by';
 CASE: 'case';
 DEF: 'def';
 DESCENDING: 'descending';
 ELSE: 'else';
 ENUM: 'enum';
-EQUALS: 'equals';
 FLATMAP: 'flatmap';
 FOR: 'for';
 FROM: 'from';
