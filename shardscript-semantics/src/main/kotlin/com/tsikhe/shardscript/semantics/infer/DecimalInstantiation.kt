@@ -2,7 +2,7 @@ package com.tsikhe.shardscript.semantics.infer
 
 import com.tsikhe.shardscript.semantics.core.*
 
-internal class DecimalInstantiation : SingleTypeInstantiation {
+class DecimalInstantiation : SingleTypeInstantiation {
     override fun apply(
         ctx: SourceContext,
         errors: LanguageErrors,

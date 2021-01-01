@@ -111,7 +111,7 @@ private fun createRemoveFunction(
     dictionaryType.define(removeId, removeMemberFunction)
 }
 
-internal fun createToImmutableDictionaryPlugin(
+fun createToImmutableDictionaryPlugin(
     mutableDictionaryType: ParameterizedBasicTypeSymbol,
     keyType: StandardTypeParameter,
     valueType: StandardTypeParameter,
@@ -140,7 +140,7 @@ internal fun createToImmutableDictionaryPlugin(
     mutableDictionaryType.define(plugin.gid, plugin)
 }
 
-internal fun dictionaryCollectionType(
+fun dictionaryCollectionType(
     architecture: Architecture,
     langNS: Namespace,
     booleanType: BasicTypeSymbol,
@@ -208,7 +208,7 @@ internal fun dictionaryCollectionType(
     return dictionaryType
 }
 
-internal fun mutableDictionaryCollectionType(
+fun mutableDictionaryCollectionType(
     architecture: Architecture,
     langNS: Namespace,
     booleanType: BasicTypeSymbol,

@@ -2,7 +2,7 @@ package com.tsikhe.shardscript.semantics.prelude
 
 import com.tsikhe.shardscript.semantics.core.*
 
-internal fun insertIntegerConversionMembers(
+fun insertIntegerConversionMembers(
     architecture: Architecture,
     integerType: BasicTypeSymbol,
     integerTypes: Map<GroundIdentifier, BasicTypeSymbol>
@@ -16,7 +16,7 @@ internal fun insertIntegerConversionMembers(
     }
 }
 
-internal object IntegerConversionsMembers {
+object IntegerConversionsMembers {
     fun members(
         integerType: SymbolTable,
         costExpression: CostExpression,

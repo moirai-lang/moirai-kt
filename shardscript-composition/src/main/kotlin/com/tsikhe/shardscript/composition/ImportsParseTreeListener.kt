@@ -15,7 +15,7 @@ internal class ImportsParseTreeListener(private val fileName: String, val errors
     private val fileNamespace = fileName.split(".")
 
     override fun enterImportStat(ctx: ShardScriptParser.ImportStatContext) {
-        val import = ctx.importIdSeq().contextualId().map { it.start.text }
+        val import = ctx.importIdSeq().IDENTIFIER().map { it.symbol.text }
         val sourceContext = createContext(fileName, ctx.start)
         if (wildcardImports.contains(import)) {
             errors.add(sourceContext, DuplicateImport(import))

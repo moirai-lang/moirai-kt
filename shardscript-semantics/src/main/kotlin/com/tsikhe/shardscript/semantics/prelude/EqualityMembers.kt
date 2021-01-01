@@ -8,7 +8,7 @@ import com.tsikhe.shardscript.semantics.infer.TripleParentSingleOmicronPluginIns
 /**
  * List Equality
  */
-internal fun createListEqualsMember(
+fun createListEqualsMember(
     listSymbol: ParameterizedBasicTypeSymbol,
     listElementType: StandardTypeParameter,
     listOmicron: ImmutableOmicronTypeParameter,
@@ -43,7 +43,7 @@ internal fun createListEqualsMember(
     listSymbol.define(equalsMemberFunction.gid, equalsMemberFunction)
 }
 
-internal fun createListNotEqualsMember(
+fun createListNotEqualsMember(
     listSymbol: ParameterizedBasicTypeSymbol,
     listElementType: StandardTypeParameter,
     listOmicron: ImmutableOmicronTypeParameter,
@@ -78,7 +78,7 @@ internal fun createListNotEqualsMember(
     listSymbol.define(notEqualsMemberFunction.gid, notEqualsMemberFunction)
 }
 
-internal fun createMutableListEqualsMember(
+fun createMutableListEqualsMember(
     mutableListSymbol: ParameterizedBasicTypeSymbol,
     mutableListElementType: StandardTypeParameter,
     mutableListOmicron: MutableOmicronTypeParameter,
@@ -114,7 +114,7 @@ internal fun createMutableListEqualsMember(
     mutableListSymbol.define(equalsMemberFunction.gid, equalsMemberFunction)
 }
 
-internal fun createMutableListNotEqualsMember(
+fun createMutableListNotEqualsMember(
     mutableListSymbol: ParameterizedBasicTypeSymbol,
     mutableListElementType: StandardTypeParameter,
     mutableListOmicron: MutableOmicronTypeParameter,
@@ -153,7 +153,7 @@ internal fun createMutableListNotEqualsMember(
 /**
  * Dictionary Equality
  */
-internal fun createDictionaryEqualsMember(
+fun createDictionaryEqualsMember(
     dictionarySymbol: ParameterizedBasicTypeSymbol,
     dictionaryKeyType: StandardTypeParameter,
     dictionaryValueType: StandardTypeParameter,
@@ -191,7 +191,7 @@ internal fun createDictionaryEqualsMember(
     dictionarySymbol.define(equalsMemberFunction.gid, equalsMemberFunction)
 }
 
-internal fun createDictionaryNotEqualsMember(
+fun createDictionaryNotEqualsMember(
     dictionarySymbol: ParameterizedBasicTypeSymbol,
     dictionaryKeyType: StandardTypeParameter,
     dictionaryValueType: StandardTypeParameter,
@@ -229,7 +229,7 @@ internal fun createDictionaryNotEqualsMember(
     dictionarySymbol.define(notEqualsMemberFunction.gid, notEqualsMemberFunction)
 }
 
-internal fun createMutableDictionaryEqualsMember(
+fun createMutableDictionaryEqualsMember(
     mutableDictionarySymbol: ParameterizedBasicTypeSymbol,
     mutableDictionaryKeyType: StandardTypeParameter,
     mutableDictionaryValueType: StandardTypeParameter,
@@ -270,7 +270,7 @@ internal fun createMutableDictionaryEqualsMember(
     mutableDictionarySymbol.define(equalsMemberFunction.gid, equalsMemberFunction)
 }
 
-internal fun createMutableDictionaryNotEqualsMember(
+fun createMutableDictionaryNotEqualsMember(
     mutableDictionarySymbol: ParameterizedBasicTypeSymbol,
     mutableDictionaryKeyType: StandardTypeParameter,
     mutableDictionaryValueType: StandardTypeParameter,
@@ -314,7 +314,7 @@ internal fun createMutableDictionaryNotEqualsMember(
 /**
  * Set Equality
  */
-internal fun createSetEqualsMember(
+fun createSetEqualsMember(
     setSymbol: ParameterizedBasicTypeSymbol,
     setElementType: StandardTypeParameter,
     setOmicron: ImmutableOmicronTypeParameter,
@@ -349,7 +349,7 @@ internal fun createSetEqualsMember(
     setSymbol.define(equalsMemberFunction.gid, equalsMemberFunction)
 }
 
-internal fun createSetNotEqualsMember(
+fun createSetNotEqualsMember(
     setSymbol: ParameterizedBasicTypeSymbol,
     setElementType: StandardTypeParameter,
     setOmicron: ImmutableOmicronTypeParameter,
@@ -384,7 +384,7 @@ internal fun createSetNotEqualsMember(
     setSymbol.define(notEqualsMemberFunction.gid, notEqualsMemberFunction)
 }
 
-internal fun createMutableSetEqualsMember(
+fun createMutableSetEqualsMember(
     mutableSetSymbol: ParameterizedBasicTypeSymbol,
     mutableSetElementType: StandardTypeParameter,
     mutableSetOmicron: MutableOmicronTypeParameter,
@@ -420,7 +420,7 @@ internal fun createMutableSetEqualsMember(
     mutableSetSymbol.define(equalsMemberFunction.gid, equalsMemberFunction)
 }
 
-internal fun createMutableSetNotEqualsMember(
+fun createMutableSetNotEqualsMember(
     mutableSetSymbol: ParameterizedBasicTypeSymbol,
     mutableSetElementType: StandardTypeParameter,
     mutableSetOmicron: MutableOmicronTypeParameter,

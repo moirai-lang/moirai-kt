@@ -74,28 +74,6 @@ object Lang {
     val mutableSetOmicronTypeId = GroundIdentifier("#O")
     val mutableSetInputOmicronTypeId = GroundIdentifier("#P")
 
-    val optionId = GroundIdentifier("Option")
-    val optionTypeParamId = GroundIdentifier("E")
-    val someId = GroundIdentifier("Some")
-    val someFieldId = GroundIdentifier("element")
-    val noneId = GroundIdentifier("None")
-
-    val resultId = GroundIdentifier("Result")
-    val successId = GroundIdentifier("Success")
-    val failureId = GroundIdentifier("Failure")
-    val resultSuccessTypeParamId = GroundIdentifier("S")
-    val resultFailureTypeParamId = GroundIdentifier("F")
-    val successFieldId = GroundIdentifier("info")
-    val failureFieldId = GroundIdentifier("info")
-
-    val eitherId = GroundIdentifier("Either")
-    val rightId = GroundIdentifier("Right")
-    val leftId = GroundIdentifier("Left")
-    val eitherRightTypeParamId = GroundIdentifier("R")
-    val eitherLeftTypeParamId = GroundIdentifier("L")
-    val rightFieldId = GroundIdentifier("value")
-    val leftFieldId = GroundIdentifier("value")
-
     val rangeId = GroundIdentifier("range")
     val rangeTypeId = GroundIdentifier("#O")
     val randomId = GroundIdentifier("random")
@@ -257,15 +235,6 @@ object Lang {
         // MutableSet
         val mutableSetType = mutableSetCollectionType(architecture, langNS, booleanType, intType, unitObject, setType)
 
-        // Option
-        val optionType = createOptionType(langNS)
-
-        // Either
-        val eitherType = createEitherType(langNS)
-
-        // Result
-        val resultType = createResultType(langNS)
-
         // Static
         val rangePlugin = createRangePlugin(langNS, intType, listType)
         val randomPlugin = createRandomPlugin(langNS, constantOmicron)
@@ -282,9 +251,6 @@ object Lang {
         langNS.define(mutableDictionaryId, mutableDictionaryType)
         langNS.define(setId, setType)
         langNS.define(mutableSetId, mutableSetType)
-        langNS.define(optionId, optionType)
-        langNS.define(eitherId, eitherType)
-        langNS.define(resultId, resultType)
         langNS.define(charId, charType)
         langNS.define(stringId, stringType)
         langNS.define(sByteId, sByteType)
@@ -311,15 +277,6 @@ object Lang {
         prelude.register(mutableDictionaryId, langNS)
         prelude.register(setId, langNS)
         prelude.register(mutableSetId, langNS)
-        prelude.register(optionId, langNS)
-        prelude.register(someId, optionType)
-        prelude.register(noneId, optionType)
-        prelude.register(eitherId, langNS)
-        prelude.register(rightId, eitherType)
-        prelude.register(leftId, eitherType)
-        prelude.register(resultId, langNS)
-        prelude.register(successId, resultType)
-        prelude.register(failureId, resultType)
         prelude.register(charId, langNS)
         prelude.register(stringId, langNS)
         prelude.register(sByteId, langNS)

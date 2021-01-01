@@ -57,54 +57,6 @@ class TutorialTests {
     }
 
     @Test
-    fun enumExampleTest() {
-        splitTest(
-            """
-                enum E {
-                    object A
-                    object B
-                }
-            
-                val e = A
-                ^^^^^
-                Unit
-            """.trimIndent()
-        )
-    }
-
-    @Test
-    fun enumRecordTest() {
-        splitTest(
-            """
-                enum E {
-                    object A
-                    record B(val x: Int, val y: Int)
-                }
-            
-                val e = B(5, 6)
-                ^^^^^
-                Unit
-            """.trimIndent()
-        )
-    }
-
-    @Test
-    fun parameterizedEnumExampleTest() {
-        splitTest(
-            """
-                enum E<T> {
-                    object A
-                    record B<T>(val x: T, val y: T)
-                }
-            
-                val e = B(5, 6)
-                ^^^^^
-                Unit
-            """.trimIndent()
-        )
-    }
-
-    @Test
     fun forLoopTest() {
         splitTest(
             """
@@ -118,22 +70,6 @@ class TutorialTests {
                 max
                 ^^^^^
                 9
-            """.trimIndent()
-        )
-    }
-
-    @Test
-    fun forLoopOptionTest() {
-        splitTest(
-            """
-                val o: Option<Int> = Some(10)
-                mutable value = 0
-                for(x in o) {
-                    value = x
-                }
-                value
-                ^^^^^
-                10
             """.trimIndent()
         )
     }
@@ -385,25 +321,6 @@ class TutorialTests {
                 val b = B
                 ^^^^^
                 Unit
-            """.trimIndent()
-        )
-    }
-
-    @Test
-    fun resultExampleTest() {
-        splitTest(
-            """
-                def guess(x: Int): Result<String<100>, Int> {
-                    if(x == 5) {
-                        Success(x) as Result<String<100>, Int>
-                    } else {
-                        Failure("You guessed wrong!") as Result<String<100>, Int>
-                    }
-                }
-                
-                guess(5)
-                ^^^^^
-                Success(5)
             """.trimIndent()
         )
     }

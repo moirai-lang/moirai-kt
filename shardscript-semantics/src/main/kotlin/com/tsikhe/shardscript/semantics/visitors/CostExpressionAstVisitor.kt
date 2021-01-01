@@ -2,7 +2,7 @@ package com.tsikhe.shardscript.semantics.visitors
 
 import com.tsikhe.shardscript.semantics.core.*
 
-internal class CostExpressionAstVisitor(private val architecture: Architecture) : UnitAstVisitor() {
+class CostExpressionAstVisitor(private val architecture: Architecture) : UnitAstVisitor() {
     private fun addDefault(costExpression: CostExpression): CostExpression =
         SumCostExpression(listOf(OmicronTypeSymbol(architecture.defaultNodeCost), costExpression))
 
@@ -141,11 +141,6 @@ internal class CostExpressionAstVisitor(private val architecture: Architecture) 
         ast.costExpression = OmicronTypeSymbol(architecture.defaultNodeCost)
     }
 
-    override fun visit(ast: EnumDefinitionAst) {
-        super.visit(ast)
-        ast.costExpression = OmicronTypeSymbol(architecture.defaultNodeCost)
-    }
-
     override fun visit(ast: DotAst) {
         super.visit(ast)
         ast.costExpression = addDefault(ast.lhs.costExpression)
@@ -225,28 +220,6 @@ internal class CostExpressionAstVisitor(private val architecture: Architecture) 
         ast.costExpression = addDefault(ProductCostExpression(listOf(multiplier, ast.body.costExpression)))
     }
 
-    override fun visit(ast: MapAst) {
-        super.visit(ast)
-        val multiplier = when (val omicron = ast.sourceOmicronSymbol) {
-            is CostExpression -> omicron
-            else -> {
-                langThrow(ast.ctx, TypeSystemBug)
-            }
-        }
-        ast.costExpression = addDefault(ProductCostExpression(listOf(multiplier, ast.body.costExpression)))
-    }
-
-    override fun visit(ast: FlatMapAst) {
-        super.visit(ast)
-        val multiplier = when (val omicron = ast.sourceOmicronSymbol) {
-            is CostExpression -> omicron
-            else -> {
-                langThrow(ast.ctx, TypeSystemBug)
-            }
-        }
-        ast.costExpression = addDefault(ProductCostExpression(listOf(multiplier, ast.body.costExpression)))
-    }
-
     override fun visit(ast: AssignAst) {
         super.visit(ast)
         ast.costExpression = OmicronTypeSymbol(architecture.defaultNodeCost)
@@ -268,20 +241,6 @@ internal class CostExpressionAstVisitor(private val architecture: Architecture) 
                             ast.trueBranch.costExpression,
                             ast.falseBranch.costExpression
                         )
-                    )
-                )
-            )
-        )
-    }
-
-    override fun visit(ast: SwitchAst) {
-        super.visit(ast)
-        ast.costExpression = addDefault(
-            SumCostExpression(
-                listOf(
-                    ast.source.costExpression,
-                    MaxCostExpression(
-                        ast.cases.map { it.body.costExpression }
                     )
                 )
             )

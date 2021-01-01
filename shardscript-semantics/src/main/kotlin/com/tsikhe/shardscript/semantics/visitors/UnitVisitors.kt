@@ -61,11 +61,6 @@ open class UnitAstVisitor : AstVisitor<Unit> {
 
     override fun visit(ast: ObjectDefinitionAst) = Unit
 
-    override fun visit(ast: EnumDefinitionAst) {
-        ast.records.forEach { it.accept(this) }
-        ast.objects.forEach { it.accept(this) }
-    }
-
     override fun visit(ast: DotAst) {
         ast.lhs.accept(this)
     }
@@ -88,16 +83,6 @@ open class UnitAstVisitor : AstVisitor<Unit> {
         ast.body.accept(this)
     }
 
-    override fun visit(ast: MapAst) {
-        ast.source.accept(this)
-        ast.body.accept(this)
-    }
-
-    override fun visit(ast: FlatMapAst) {
-        ast.source.accept(this)
-        ast.body.accept(this)
-    }
-
     override fun visit(ast: AssignAst) {
         ast.rhs.accept(this)
     }
@@ -111,11 +96,6 @@ open class UnitAstVisitor : AstVisitor<Unit> {
         ast.condition.accept(this)
         ast.trueBranch.accept(this)
         ast.falseBranch.accept(this)
-    }
-
-    override fun visit(ast: SwitchAst) {
-        ast.source.accept(this)
-        ast.cases.forEach { it.body.accept(this) }
     }
 
     override fun visit(ast: AsAst) {
@@ -186,11 +166,6 @@ open class ParameterizedUnitAstVisitor<P> : ParameterizedAstVisitor<P, Unit> {
 
     override fun visit(ast: ObjectDefinitionAst, param: P) = Unit
 
-    override fun visit(ast: EnumDefinitionAst, param: P) {
-        ast.records.forEach { it.accept(this, param) }
-        ast.objects.forEach { it.accept(this, param) }
-    }
-
     override fun visit(ast: DotAst, param: P) {
         ast.lhs.accept(this, param)
     }
@@ -213,16 +188,6 @@ open class ParameterizedUnitAstVisitor<P> : ParameterizedAstVisitor<P, Unit> {
         ast.body.accept(this, param)
     }
 
-    override fun visit(ast: MapAst, param: P) {
-        ast.source.accept(this, param)
-        ast.body.accept(this, param)
-    }
-
-    override fun visit(ast: FlatMapAst, param: P) {
-        ast.source.accept(this, param)
-        ast.body.accept(this, param)
-    }
-
     override fun visit(ast: AssignAst, param: P) {
         ast.rhs.accept(this, param)
     }
@@ -236,11 +201,6 @@ open class ParameterizedUnitAstVisitor<P> : ParameterizedAstVisitor<P, Unit> {
         ast.condition.accept(this, param)
         ast.trueBranch.accept(this, param)
         ast.falseBranch.accept(this, param)
-    }
-
-    override fun visit(ast: SwitchAst, param: P) {
-        ast.source.accept(this, param)
-        ast.cases.forEach { it.body.accept(this, param) }
     }
 
     override fun visit(ast: AsAst, param: P) {

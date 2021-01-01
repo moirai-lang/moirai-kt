@@ -2,7 +2,7 @@ package com.tsikhe.shardscript.semantics.infer
 
 import com.tsikhe.shardscript.semantics.core.*
 
-internal class StringInstantiation : SingleTypeInstantiation {
+class StringInstantiation : SingleTypeInstantiation {
     override fun apply(
         ctx: SourceContext,
         errors: LanguageErrors,

@@ -106,7 +106,7 @@ private fun createRemoveAtFunction(
     listType.define(removeAtId, removeAtMemberFunction)
 }
 
-internal fun createToImmutableListPlugin(
+fun createToImmutableListPlugin(
     mutableListType: ParameterizedBasicTypeSymbol,
     elementType: StandardTypeParameter,
     omicron: MutableOmicronTypeParameter,
@@ -135,7 +135,7 @@ internal fun createToImmutableListPlugin(
     mutableListType.define(plugin.gid, plugin)
 }
 
-internal fun listCollectionType(
+fun listCollectionType(
     architecture: Architecture,
     langNS: Namespace,
     intType: BasicTypeSymbol,
@@ -180,7 +180,7 @@ internal fun listCollectionType(
     return listType
 }
 
-internal fun mutableListCollectionType(
+fun mutableListCollectionType(
     architecture: Architecture,
     langNS: Namespace,
     intType: BasicTypeSymbol,

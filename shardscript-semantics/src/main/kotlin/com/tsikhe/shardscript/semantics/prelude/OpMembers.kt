@@ -2,7 +2,7 @@ package com.tsikhe.shardscript.semantics.prelude
 
 import com.tsikhe.shardscript.semantics.core.*
 
-internal object IntegerMathOpMembers {
+object IntegerMathOpMembers {
     fun members(valueType: SymbolTable, costExpression: CostExpression): Map<String, GroundMemberPluginSymbol> = mapOf(
         BinaryOperator.Add.idStr to pluginAdd(valueType, costExpression),
         BinaryOperator.Sub.idStr to pluginSub(valueType, costExpression),
@@ -111,7 +111,7 @@ internal object IntegerMathOpMembers {
     }
 }
 
-internal object IntegerOrderOpMembers {
+object IntegerOrderOpMembers {
     fun members(
         valueType: SymbolTable,
         costExpression: CostExpression,
@@ -208,7 +208,7 @@ internal object IntegerOrderOpMembers {
     }
 }
 
-internal object ValueEqualityOpMembers {
+object ValueEqualityOpMembers {
     fun members(
         valueType: SymbolTable,
         costExpression: CostExpression,
@@ -261,7 +261,7 @@ internal object ValueEqualityOpMembers {
     }
 }
 
-internal object ValueLogicalOpMembers {
+object ValueLogicalOpMembers {
     fun members(logicalType: BasicTypeSymbol, costExpression: CostExpression): Map<String, GroundMemberPluginSymbol> =
         mapOf(
             BinaryOperator.And.idStr to pluginAnd(logicalType, costExpression),

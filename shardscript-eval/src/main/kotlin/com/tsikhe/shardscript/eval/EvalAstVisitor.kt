@@ -1,13 +1,8 @@
 package com.tsikhe.shardscript.eval
 
 import com.tsikhe.shardscript.semantics.core.*
-import com.tsikhe.shardscript.semantics.prelude.Lang
 
 class EvalAstVisitor(prelude: PreludeTable) : ParameterizedAstVisitor<ValueTable, Value> {
-    private val someConstructor = RecordConstructorValue(prelude, prelude.fetch(Lang.someId))
-    private val rightConstructor = RecordConstructorValue(prelude, prelude.fetch(Lang.rightId))
-    private val successConstructor = RecordConstructorValue(prelude, prelude.fetch(Lang.successId))
-
     override fun visit(ast: FileAst, param: ValueTable): Value {
         val blockScope = ValueTable(param)
         val resLines = ast.lines.map { it.accept(this, blockScope) }
@@ -96,9 +91,6 @@ class EvalAstVisitor(prelude: PreludeTable) : ParameterizedAstVisitor<ValueTable
         UnitValue
 
     override fun visit(ast: ObjectDefinitionAst, param: ValueTable): Value =
-        UnitValue
-
-    override fun visit(ast: EnumDefinitionAst, param: ValueTable): Value =
         UnitValue
 
     override fun visit(ast: DotAst, param: ValueTable): Value {
@@ -244,131 +236,6 @@ class EvalAstVisitor(prelude: PreludeTable) : ParameterizedAstVisitor<ValueTable
                 }
                 return UnitValue
             }
-            is ObjectValue -> {
-                when (generatePath(source.symbol)) {
-                    listOf(
-                        Lang.shardId.name,
-                        Lang.langId.name,
-                        Lang.optionId.name,
-                        Lang.noneId.name
-                    ) -> return UnitValue
-                    else -> langThrow(ast.ctx, TypeSystemBug)
-                }
-            }
-            is RecordValue -> {
-                return when (generatePath(source.symbol)) {
-                    listOf(Lang.shardId.name, Lang.langId.name, Lang.optionId.name, Lang.someId.name) -> {
-                        val bodyScope = ValueTable(param)
-                        bodyScope.define(ast.gid, source.fields.fetchHere(Lang.someFieldId))
-                        ast.body.accept(this, bodyScope)
-                        UnitValue
-                    }
-                    listOf(Lang.shardId.name, Lang.langId.name, Lang.eitherId.name, Lang.rightId.name) -> {
-                        val bodyScope = ValueTable(param)
-                        bodyScope.define(ast.gid, source.fields.fetchHere(Lang.rightFieldId))
-                        ast.body.accept(this, bodyScope)
-                        UnitValue
-                    }
-                    listOf(Lang.shardId.name, Lang.langId.name, Lang.resultId.name, Lang.successId.name) -> {
-                        val bodyScope = ValueTable(param)
-                        bodyScope.define(ast.gid, source.fields.fetchHere(Lang.successFieldId))
-                        ast.body.accept(this, bodyScope)
-                        UnitValue
-                    }
-                    listOf(Lang.shardId.name, Lang.langId.name, Lang.eitherId.name, Lang.leftId.name),
-                    listOf(Lang.shardId.name, Lang.langId.name, Lang.resultId.name, Lang.failureId.name) -> UnitValue
-                    else -> langThrow(ast.ctx, TypeSystemBug)
-                }
-            }
-            else -> {
-                langThrow(ast.ctx, TypeSystemBug)
-            }
-        }
-    }
-
-    override fun visit(ast: MapAst, param: ValueTable): Value {
-        when (val source = ast.source.accept(this, param)) {
-            is ListValue -> {
-                return ListValue(ImmutableBasicTypeMode, source.elements.map {
-                    val bodyScope = ValueTable(param)
-                    bodyScope.define(ast.gid, it)
-                    ast.body.accept(this, bodyScope)
-                }.toMutableList())
-            }
-            is ObjectValue -> {
-                when (generatePath(source.symbol)) {
-                    listOf(Lang.shardId.name, Lang.langId.name, Lang.optionId.name, Lang.noneId.name) -> return source
-                    else -> langThrow(ast.ctx, TypeSystemBug)
-                }
-            }
-            is RecordValue -> {
-                return when (generatePath(source.symbol)) {
-                    listOf(Lang.shardId.name, Lang.langId.name, Lang.optionId.name, Lang.someId.name) -> {
-                        val bodyScope = ValueTable(param)
-                        bodyScope.define(ast.gid, source.fields.fetchHere(Lang.someFieldId))
-                        val bodyRes = ast.body.accept(this, bodyScope)
-                        someConstructor.apply(listOf(bodyRes))
-                    }
-                    listOf(Lang.shardId.name, Lang.langId.name, Lang.eitherId.name, Lang.rightId.name) -> {
-                        val bodyScope = ValueTable(param)
-                        bodyScope.define(ast.gid, source.fields.fetchHere(Lang.rightFieldId))
-                        val bodyRes = ast.body.accept(this, bodyScope)
-                        rightConstructor.apply(listOf(bodyRes))
-                    }
-                    listOf(Lang.shardId.name, Lang.langId.name, Lang.resultId.name, Lang.successId.name) -> {
-                        val bodyScope = ValueTable(param)
-                        bodyScope.define(ast.gid, source.fields.fetchHere(Lang.successFieldId))
-                        val bodyRes = ast.body.accept(this, bodyScope)
-                        successConstructor.apply(listOf(bodyRes))
-                    }
-                    listOf(Lang.shardId.name, Lang.langId.name, Lang.eitherId.name, Lang.leftId.name),
-                    listOf(Lang.shardId.name, Lang.langId.name, Lang.resultId.name, Lang.failureId.name) -> UnitValue
-                    else -> langThrow(ast.ctx, TypeSystemBug)
-                }
-            }
-            else -> {
-                langThrow(ast.ctx, TypeSystemBug)
-            }
-        }
-    }
-
-    override fun visit(ast: FlatMapAst, param: ValueTable): Value {
-        when (val source = ast.source.accept(this, param)) {
-            is ListValue -> {
-                return ListValue(ImmutableBasicTypeMode, source.elements.flatMap {
-                    val bodyScope = ValueTable(param)
-                    bodyScope.define(ast.gid, it)
-                    (ast.body.accept(this, bodyScope) as ListValue).elements
-                }.toMutableList())
-            }
-            is ObjectValue -> {
-                when (generatePath(source.symbol)) {
-                    listOf(Lang.shardId.name, Lang.langId.name, Lang.optionId.name, Lang.noneId.name) -> return source
-                    else -> langThrow(ast.ctx, TypeSystemBug)
-                }
-            }
-            is RecordValue -> {
-                return when (generatePath(source.symbol)) {
-                    listOf(Lang.shardId.name, Lang.langId.name, Lang.optionId.name, Lang.someId.name) -> {
-                        val bodyScope = ValueTable(param)
-                        bodyScope.define(ast.gid, source.fields.fetchHere(Lang.someFieldId))
-                        ast.body.accept(this, bodyScope)
-                    }
-                    listOf(Lang.shardId.name, Lang.langId.name, Lang.eitherId.name, Lang.rightId.name) -> {
-                        val bodyScope = ValueTable(param)
-                        bodyScope.define(ast.gid, source.fields.fetchHere(Lang.rightFieldId))
-                        ast.body.accept(this, bodyScope)
-                    }
-                    listOf(Lang.shardId.name, Lang.langId.name, Lang.resultId.name, Lang.successId.name) -> {
-                        val bodyScope = ValueTable(param)
-                        bodyScope.define(ast.gid, source.fields.fetchHere(Lang.successFieldId))
-                        ast.body.accept(this, bodyScope)
-                    }
-                    listOf(Lang.shardId.name, Lang.langId.name, Lang.eitherId.name, Lang.leftId.name),
-                    listOf(Lang.shardId.name, Lang.langId.name, Lang.resultId.name, Lang.failureId.name) -> UnitValue
-                    else -> langThrow(ast.ctx, TypeSystemBug)
-                }
-            }
             else -> {
                 langThrow(ast.ctx, TypeSystemBug)
             }
@@ -405,27 +272,6 @@ class EvalAstVisitor(prelude: PreludeTable) : ParameterizedAstVisitor<ValueTable
         } else {
             langThrow(ast.ctx, TypeSystemBug)
         }
-    }
-
-    override fun visit(ast: SwitchAst, param: ValueTable): Value {
-        val path = when (val source = ast.source.accept(this, param)) {
-            is ObjectValue -> source.path
-            is RecordValue -> source.path
-            else -> langThrow(ast.ctx, TypeSystemBug)
-        }
-        ast.cases.forEach {
-            when (it) {
-                is CoproductBranch -> {
-                    if (it.path == path) {
-                        return it.body.accept(this, param)
-                    }
-                }
-                is ElseBranch -> {
-                    return it.body.accept(this, param)
-                }
-            }
-        }
-        langThrow(ast.ctx, TypeSystemBug)
     }
 
     override fun visit(ast: AsAst, param: ValueTable): Value {

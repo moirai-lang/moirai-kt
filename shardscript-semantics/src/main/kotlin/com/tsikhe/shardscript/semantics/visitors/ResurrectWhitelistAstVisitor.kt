@@ -2,7 +2,7 @@ package com.tsikhe.shardscript.semantics.visitors
 
 import com.tsikhe.shardscript.semantics.core.*
 
-internal class ResurrectWhitelistAstVisitor : UnitAstVisitor() {
+class ResurrectWhitelistAstVisitor : UnitAstVisitor() {
     override fun visit(ast: StringInterpolationAst) {
         errors.add(ast.ctx, ResurrectWhitelistError)
     }
@@ -31,10 +31,6 @@ internal class ResurrectWhitelistAstVisitor : UnitAstVisitor() {
         errors.add(ast.ctx, ResurrectWhitelistError)
     }
 
-    override fun visit(ast: EnumDefinitionAst) {
-        errors.add(ast.ctx, ResurrectWhitelistError)
-    }
-
     override fun visit(ast: DotAst) {
         errors.add(ast.ctx, ResurrectWhitelistError)
     }
@@ -47,14 +43,6 @@ internal class ResurrectWhitelistAstVisitor : UnitAstVisitor() {
         errors.add(ast.ctx, ResurrectWhitelistError)
     }
 
-    override fun visit(ast: MapAst) {
-        errors.add(ast.ctx, ResurrectWhitelistError)
-    }
-
-    override fun visit(ast: FlatMapAst) {
-        errors.add(ast.ctx, ResurrectWhitelistError)
-    }
-
     override fun visit(ast: AssignAst) {
         errors.add(ast.ctx, ResurrectWhitelistError)
     }
@@ -64,10 +52,6 @@ internal class ResurrectWhitelistAstVisitor : UnitAstVisitor() {
     }
 
     override fun visit(ast: IfAst) {
-        errors.add(ast.ctx, ResurrectWhitelistError)
-    }
-
-    override fun visit(ast: SwitchAst) {
         errors.add(ast.ctx, ResurrectWhitelistError)
     }
 

@@ -26,14 +26,6 @@ internal class AstParseTreeVisitor(private val fileName: String, val errors: Lan
         return res
     }
 
-    override fun visitEnumDefBody(ctx: ShardScriptParser.EnumDefBodyContext): Ast {
-        val stats = ctx.enumDefBodyStat().map { visit(it) }
-
-        val res = BlockAst(stats.toMutableList())
-        res.ctx = createContext(fileName, ctx.start)
-        return res
-    }
-
     override fun visitMutableLet(ctx: ShardScriptParser.MutableLetContext): Ast {
         val right = visit(ctx.right)
         val identifier = GroundIdentifier(ctx.id.text)
@@ -44,7 +36,7 @@ internal class AstParseTreeVisitor(private val fileName: String, val errors: Lan
         }
 
         val res = LetAst(identifier, of, right, true)
-        res.ctx = createContext(fileName, ctx.id.start)
+        res.ctx = createContext(fileName, ctx.id)
         return res
     }
 
@@ -58,7 +50,7 @@ internal class AstParseTreeVisitor(private val fileName: String, val errors: Lan
         }
 
         val res = LetAst(identifier, of, right, false)
-        res.ctx = createContext(fileName, ctx.id.start)
+        res.ctx = createContext(fileName, ctx.id)
         return res
     }
 
@@ -343,8 +335,8 @@ internal class AstParseTreeVisitor(private val fileName: String, val errors: Lan
             ctx.tp.typeParam().forEach {
                 when (it) {
                     is ShardScriptParser.IdentifierTypeParamContext -> {
-                        val typeParam = GroundIdentifier(it.contextualId().text)
-                        typeParam.ctx = createContext(fileName, it.contextualId().start)
+                        val typeParam = GroundIdentifier(it.IDENTIFIER().text)
+                        typeParam.ctx = createContext(fileName, it.IDENTIFIER().symbol)
                         typeParams.add(typeParam)
                     }
                     is ShardScriptParser.OmicronTypeParamContext -> {
@@ -373,10 +365,10 @@ internal class AstParseTreeVisitor(private val fileName: String, val errors: Lan
         val body = visit(ctx.body) as BlockAst
 
         val id = GroundIdentifier(ctx.id.text)
-        id.ctx = createContext(fileName, ctx.id.start)
+        id.ctx = createContext(fileName, ctx.id)
 
         val res = FunctionAst(id, typeParams, params, ret, body)
-        res.ctx = createContext(fileName, ctx.id.start)
+        res.ctx = createContext(fileName, ctx.id)
         return res
     }
 
@@ -390,7 +382,7 @@ internal class AstParseTreeVisitor(private val fileName: String, val errors: Lan
 
         val id = GroundIdentifier(ctx.id.text)
         val res = GroundApplyAst(id, args)
-        res.ctx = createContext(fileName, ctx.id.start)
+        res.ctx = createContext(fileName, ctx.id)
         return res
     }
 
@@ -408,57 +400,14 @@ internal class AstParseTreeVisitor(private val fileName: String, val errors: Lan
 
         val id = ParameterizedIdentifier(GroundIdentifier(ctx.id.text), typeArgs)
         val res = GroundApplyAst(id, args)
-        res.ctx = createContext(fileName, ctx.id.start)
-        return res
-    }
-
-    override fun visitEnumDefStat(ctx: ShardScriptParser.EnumDefStatContext): Ast {
-        val typeParams: MutableList<GroundIdentifier> = ArrayList()
-        if (ctx.tp != null) {
-            ctx.tp.typeParam().forEach {
-                when (it) {
-                    is ShardScriptParser.IdentifierTypeParamContext -> {
-                        val typeParam = GroundIdentifier(it.contextualId().text)
-                        typeParam.ctx = createContext(fileName, it.contextualId().start)
-                        typeParams.add(typeParam)
-                    }
-                    is ShardScriptParser.OmicronTypeParamContext -> {
-                        val typeParam = GroundIdentifier(it.OMICRON().text)
-                        typeParam.ctx = createContext(fileName, it.OMICRON().symbol)
-                        typeParams.add(typeParam)
-                    }
-                }
-            }
-        }
-
-        val records: MutableList<RecordDefinitionAst> = ArrayList()
-        val objects: MutableList<ObjectDefinitionAst> = ArrayList()
-        if (ctx.body != null) {
-            val block = visit(ctx.body) as BlockAst
-            block.lines.forEach {
-                when (it) {
-                    is RecordDefinitionAst -> records.add(it)
-                    is ObjectDefinitionAst -> objects.add(it)
-                    else -> errors.add(it.ctx, InvalidEnumMember)
-                }
-            }
-        }
-
-        val id = GroundIdentifier(ctx.id.text)
-        val res = EnumDefinitionAst(
-            id,
-            typeParams,
-            records,
-            objects
-        )
-        res.ctx = createContext(fileName, ctx.id.start)
+        res.ctx = createContext(fileName, ctx.id)
         return res
     }
 
     override fun visitObjectDefStat(ctx: ShardScriptParser.ObjectDefStatContext): Ast {
         val id = GroundIdentifier(ctx.id.text)
         val res = ObjectDefinitionAst(id)
-        res.ctx = createContext(fileName, ctx.id.start)
+        res.ctx = createContext(fileName, ctx.id)
         return res
     }
 
@@ -468,8 +417,8 @@ internal class AstParseTreeVisitor(private val fileName: String, val errors: Lan
             ctx.tp.typeParam().forEach {
                 when (it) {
                     is ShardScriptParser.IdentifierTypeParamContext -> {
-                        val typeParam = GroundIdentifier(it.contextualId().text)
-                        typeParam.ctx = createContext(fileName, it.contextualId().start)
+                        val typeParam = GroundIdentifier(it.IDENTIFIER().text)
+                        typeParam.ctx = createContext(fileName, it.IDENTIFIER().symbol)
                         typeParams.add(typeParam)
                     }
                     is ShardScriptParser.OmicronTypeParamContext -> {
@@ -505,7 +454,7 @@ internal class AstParseTreeVisitor(private val fileName: String, val errors: Lan
             typeParams,
             fields
         )
-        res.ctx = createContext(fileName, ctx.id.start)
+        res.ctx = createContext(fileName, ctx.id)
         return res
     }
 
@@ -513,7 +462,7 @@ internal class AstParseTreeVisitor(private val fileName: String, val errors: Lan
         val lhs = visit(ctx.left)
         val id = GroundIdentifier(ctx.id.text)
         val res = DotAst(lhs, id)
-        res.ctx = createContext(fileName, ctx.id.start)
+        res.ctx = createContext(fileName, ctx.id)
         return res
     }
 
@@ -532,7 +481,7 @@ internal class AstParseTreeVisitor(private val fileName: String, val errors: Lan
 
         val id = ParameterizedIdentifier(GroundIdentifier(ctx.id.text), typeArgs)
         val res = DotApplyAst(lhs, id, args)
-        res.ctx = createContext(fileName, ctx.id.start)
+        res.ctx = createContext(fileName, ctx.id)
         return res
     }
 
@@ -547,7 +496,7 @@ internal class AstParseTreeVisitor(private val fileName: String, val errors: Lan
 
         val id = GroundIdentifier(ctx.id.text)
         val res = DotApplyAst(lhs, id, args)
-        res.ctx = createContext(fileName, ctx.id.start)
+        res.ctx = createContext(fileName, ctx.id)
         return res
     }
 
@@ -572,39 +521,7 @@ internal class AstParseTreeVisitor(private val fileName: String, val errors: Lan
         val body = visit(ctx.body)
 
         val res = ForEachAst(identifier, of, right, body)
-        res.ctx = createContext(fileName, ctx.id.start)
-        return res
-    }
-
-    override fun visitMapExpr(ctx: ShardScriptParser.MapExprContext): Ast {
-        val right = visit(ctx.source)
-        val identifier = GroundIdentifier(ctx.id.text)
-        val of = if (ctx.of != null) {
-            typeVisitor.visit(ctx.of)
-        } else {
-            ImplicitTypeLiteral()
-        }
-
-        val body = visit(ctx.body)
-
-        val res = MapAst(identifier, of, right, body)
-        res.ctx = createContext(fileName, ctx.id.start)
-        return res
-    }
-
-    override fun visitFlatMapExpr(ctx: ShardScriptParser.FlatMapExprContext): Ast {
-        val right = visit(ctx.source)
-        val identifier = GroundIdentifier(ctx.id.text)
-        val of = if (ctx.of != null) {
-            typeVisitor.visit(ctx.of)
-        } else {
-            ImplicitTypeLiteral()
-        }
-
-        val body = visit(ctx.body)
-
-        val res = FlatMapAst(identifier, of, right, body)
-        res.ctx = createContext(fileName, ctx.id.start)
+        res.ctx = createContext(fileName, ctx.id)
         return res
     }
 
@@ -678,29 +595,6 @@ internal class AstParseTreeVisitor(private val fileName: String, val errors: Lan
         val falseBranch = BlockAst(mutableListOf(RefAst(Lang.unitId)))
         val res = IfAst(condition, trueBranch, falseBranch)
         res.ctx = sourceContext
-        return res
-    }
-
-    override fun visitSwitchExpr(ctx: ShardScriptParser.SwitchExprContext): Ast {
-        val right = visit(ctx.source)
-
-        val cases: MutableList<CaseBranch> = ArrayList()
-        ctx.alternatives.enumCase().forEach {
-            val branchCtx = createContext(fileName, it.id.start)
-            val body = visit(it.body) as BlockAst
-            val gid = GroundIdentifier(it.id.text)
-            gid.ctx = branchCtx
-            cases.add(CoproductBranch(branchCtx, gid, body))
-        }
-        if (ctx.alternatives.elseCase() != null) {
-            val elseCase = ctx.alternatives.elseCase()
-            val branchCtx = createContext(fileName, elseCase.start)
-            val body = visit(elseCase.body) as BlockAst
-            cases.add(ElseBranch(branchCtx, body))
-        }
-
-        val res = SwitchAst(right, cases)
-        res.ctx = createContext(fileName, ctx.start)
         return res
     }
 }

@@ -2,7 +2,7 @@ package com.tsikhe.shardscript.semantics.core
 
 import com.tsikhe.shardscript.semantics.prelude.StringMethods
 
-internal fun isValidStringType(symbol: Symbol): Boolean =
+fun isValidStringType(symbol: Symbol): Boolean =
     when (symbol) {
         is ObjectSymbol,
         is BasicTypeSymbol -> {
@@ -20,7 +20,7 @@ internal fun isValidStringType(symbol: Symbol): Boolean =
     }
 
 @UseExperimental(ExperimentalUnsignedTypes::class)
-internal fun costExpressionFromValidStringType(symbol: Symbol): CostExpression {
+fun costExpressionFromValidStringType(symbol: Symbol): CostExpression {
     val member = when (symbol) {
         is ObjectSymbol,
         is BasicTypeSymbol -> (symbol as SymbolTable).fetchHere(GroundIdentifier(StringMethods.ToString.idStr))

@@ -26,36 +26,4 @@ class StaticPluginHappyTests {
         """.trimIndent()
         )
     }
-
-    @Test
-    fun basicRandomTest() {
-        splitTest(
-            """
-            map(x in range(0, 100)) {
-                val r = random(45, 90)
-                r < 90 && r >= 45
-            }
-            ^^^^^
-            map(x in range(0, 100)) {
-                true
-            }
-        """.trimIndent()
-        )
-    }
-
-    @Test
-    fun basicRandomReverseTest() {
-        splitTest(
-            """
-            map(x in range(0, 100)) {
-                val r = random(90, 45)
-                r <= 90 && r > 45
-            }
-            ^^^^^
-            map(x in range(0, 100)) {
-                true
-            }
-        """.trimIndent()
-        )
-    }
 }

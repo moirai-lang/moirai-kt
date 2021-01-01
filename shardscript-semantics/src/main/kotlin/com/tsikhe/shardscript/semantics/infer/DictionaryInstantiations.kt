@@ -2,7 +2,7 @@ package com.tsikhe.shardscript.semantics.infer
 
 import com.tsikhe.shardscript.semantics.core.*
 
-internal class DictionaryInstantiation(private val pairTypeSymbol: ParameterizedRecordTypeSymbol) :
+class DictionaryInstantiation(private val pairTypeSymbol: ParameterizedRecordTypeSymbol) :
     SingleTypeInstantiation {
     override fun apply(
         ctx: SourceContext,
@@ -89,7 +89,7 @@ internal class DictionaryInstantiation(private val pairTypeSymbol: Parameterized
     }
 }
 
-internal class MutableDictionaryInstantiation(private val pairTypeSymbol: ParameterizedRecordTypeSymbol) :
+class MutableDictionaryInstantiation(private val pairTypeSymbol: ParameterizedRecordTypeSymbol) :
     SingleTypeInstantiation {
     override fun apply(
         ctx: SourceContext,

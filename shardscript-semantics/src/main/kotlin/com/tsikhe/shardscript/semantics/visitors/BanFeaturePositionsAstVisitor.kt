@@ -2,13 +2,12 @@ package com.tsikhe.shardscript.semantics.visitors
 
 import com.tsikhe.shardscript.semantics.core.*
 
-internal class BanFeaturePositionsAstVisitor : UnitAstVisitor() {
+class BanFeaturePositionsAstVisitor : UnitAstVisitor() {
     override fun visit(ast: FunctionAst) {
         super.visit(ast)
         when (val returnType = ast.scope.fetch(ast.returnType)) {
             is ParameterizedBasicTypeSymbol,
-            is ParameterizedRecordTypeSymbol,
-            is ParameterizedCoproductSymbol -> errors.add(ast.ctx, CannotUseRawType(returnType))
+            is ParameterizedRecordTypeSymbol -> errors.add(ast.ctx, CannotUseRawType(returnType))
             is FunctionTypeSymbol -> errors.add(ast.ctx, FunctionReturnType(ast.gid))
             is ObjectSymbol -> {
                 if (!returnType.featureSupport.returnType) {
@@ -32,8 +31,7 @@ internal class BanFeaturePositionsAstVisitor : UnitAstVisitor() {
         ast.formalParams.forEach {
             when (val formalParamType = ast.scope.fetch(it.ofType)) {
                 is ParameterizedBasicTypeSymbol,
-                is ParameterizedRecordTypeSymbol,
-                is ParameterizedCoproductSymbol -> errors.add(ast.ctx, CannotUseRawType(formalParamType))
+                is ParameterizedRecordTypeSymbol -> errors.add(ast.ctx, CannotUseRawType(formalParamType))
                 is ObjectSymbol -> {
                     if (!formalParamType.featureSupport.paramType) {
                         errors.add(ast.ctx, FormalParamFeatureBan(formalParamType))
@@ -60,8 +58,7 @@ internal class BanFeaturePositionsAstVisitor : UnitAstVisitor() {
         super.visit(ast)
         when (val ofTypeSymbol = ast.ofTypeSymbol) {
             is ParameterizedBasicTypeSymbol,
-            is ParameterizedRecordTypeSymbol,
-            is ParameterizedCoproductSymbol -> errors.add(ast.ctx, CannotUseRawType(ofTypeSymbol))
+            is ParameterizedRecordTypeSymbol -> errors.add(ast.ctx, CannotUseRawType(ofTypeSymbol))
             is FunctionTypeSymbol -> errors.add(ast.ctx, FunctionAssign(ast.gid))
             else -> Unit
         }
@@ -72,8 +69,7 @@ internal class BanFeaturePositionsAstVisitor : UnitAstVisitor() {
         ast.fields.forEach {
             when (val fieldType = ast.scope.fetch(it.ofType)) {
                 is ParameterizedBasicTypeSymbol,
-                is ParameterizedRecordTypeSymbol,
-                is ParameterizedCoproductSymbol -> errors.add(ast.ctx, CannotUseRawType(fieldType))
+                is ParameterizedRecordTypeSymbol -> errors.add(ast.ctx, CannotUseRawType(fieldType))
                 is FunctionTypeSymbol -> errors.add(ast.ctx, RecordFieldFunctionType(ast.gid, it.gid))
                 is ObjectSymbol -> {
                     if (!fieldType.featureSupport.recordField) {

@@ -6,9 +6,9 @@ import com.tsikhe.shardscript.semantics.core.*
 
 internal class TypeLiteralParseTreeVisitor(private val fileName: String) : ShardScriptParserBaseVisitor<Identifier>() {
     override fun visitMultiTypePath(ctx: ShardScriptParser.MultiTypePathContext): Identifier {
-        val res = PathIdentifier(ctx.contextualId().map {
+        val res = PathIdentifier(ctx.IDENTIFIER().map {
             val gid = GroundIdentifier(it.text)
-            gid.ctx = createContext(fileName, it.start)
+            gid.ctx = createContext(fileName, it.symbol)
             gid
         })
         res.ctx = createContext(fileName, ctx.start)
@@ -16,8 +16,8 @@ internal class TypeLiteralParseTreeVisitor(private val fileName: String) : Shard
     }
 
     override fun visitSingleTypePath(ctx: ShardScriptParser.SingleTypePathContext): Identifier {
-        val res = GroundIdentifier(ctx.contextualId().text.toString())
-        res.ctx = createContext(fileName, ctx.contextualId().start)
+        val res = GroundIdentifier(ctx.IDENTIFIER().text.toString())
+        res.ctx = createContext(fileName, ctx.IDENTIFIER().symbol)
         return res
     }
 

@@ -2,7 +2,7 @@ package com.tsikhe.shardscript.semantics.visitors
 
 import com.tsikhe.shardscript.semantics.core.*
 
-internal class RecordScanAstVisitor : UnitAstVisitor() {
+class RecordScanAstVisitor : UnitAstVisitor() {
     private fun scanRecord(ast: RecordDefinitionAst) {
         val recordSymbol = if (ast.typeParams.isEmpty()) {
             val groundRecordTypeSymbol = ast.scope as GroundRecordTypeSymbol
@@ -30,36 +30,6 @@ internal class RecordScanAstVisitor : UnitAstVisitor() {
         try {
             scanRecord(ast)
             super.visit(ast)
-        } catch (ex: LanguageException) {
-            errors.addAll(ast.ctx, ex.errors)
-        }
-    }
-
-    override fun visit(ast: EnumDefinitionAst) {
-        try {
-            val alternatives: MutableList<Symbol> = ArrayList()
-            ast.records.forEach {
-                alternatives.add(it.scope as Symbol)
-            }
-            ast.objects.forEach {
-                alternatives.add(it.scope as Symbol)
-            }
-            if (ast.typeParams.isEmpty()) {
-                val groundEnumTypeSymbol = ast.scope as GroundCoproductSymbol
-                groundEnumTypeSymbol.alternatives = alternatives
-                groundEnumTypeSymbol.define(Identifier.thisId(), groundEnumTypeSymbol)
-                ast.records.forEach {
-                    scanRecord(it)
-                }
-            } else {
-                val parameterizedEnumSymbol = ast.scope as ParameterizedCoproductSymbol
-                parameterizedEnumSymbol.alternatives = alternatives
-                parameterizedEnumSymbol.define(Identifier.thisId(), parameterizedEnumSymbol)
-                ast.records.forEach {
-                    scanRecord(it)
-                    super.visit(it)
-                }
-            }
         } catch (ex: LanguageException) {
             errors.addAll(ast.ctx, ex.errors)
         }

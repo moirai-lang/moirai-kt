@@ -2,7 +2,7 @@ package com.tsikhe.shardscript.semantics.visitors
 
 import com.tsikhe.shardscript.semantics.core.*
 
-internal class FunctionScanAstVisitor : UnitAstVisitor() {
+class FunctionScanAstVisitor : UnitAstVisitor() {
     override fun visit(ast: FunctionAst) {
         try {
             if (ast.typeParams.isEmpty()) {

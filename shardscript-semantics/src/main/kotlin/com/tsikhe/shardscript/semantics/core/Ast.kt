@@ -215,19 +215,6 @@ data class ObjectDefinitionAst(
         visitor.visit(this, param)
 }
 
-data class EnumDefinitionAst(
-    val gid: GroundIdentifier,
-    val typeParams: List<GroundIdentifier>,
-    val records: List<RecordDefinitionAst>,
-    val objects: List<ObjectDefinitionAst>
-) : DefinitionAst() {
-    override fun <R> accept(visitor: AstVisitor<R>): R =
-        visitor.visit(this)
-
-    override fun <P, R> accept(visitor: ParameterizedAstVisitor<P, R>, param: P): R =
-        visitor.visit(this, param)
-}
-
 data class DotAst(
     val lhs: Ast,
     val gid: GroundIdentifier
@@ -283,42 +270,6 @@ data class ForEachAst(
         visitor.visit(this, param)
 }
 
-data class MapAst(
-    val gid: GroundIdentifier,
-    val ofType: Identifier,
-    val source: Ast,
-    val body: Ast
-) : Ast() {
-    lateinit var ofTypeSymbol: Symbol
-    lateinit var sourceTypeSymbol: Symbol
-    lateinit var sourceOmicronSymbol: Symbol
-    lateinit var bodyTypeSymbol: Symbol
-
-    override fun <R> accept(visitor: AstVisitor<R>): R =
-        visitor.visit(this)
-
-    override fun <P, R> accept(visitor: ParameterizedAstVisitor<P, R>, param: P): R =
-        visitor.visit(this, param)
-}
-
-data class FlatMapAst(
-    val gid: GroundIdentifier,
-    val ofType: Identifier,
-    val source: Ast,
-    val body: Ast
-) : Ast() {
-    lateinit var ofTypeSymbol: Symbol
-    lateinit var sourceTypeSymbol: Symbol
-    lateinit var sourceOmicronSymbol: Symbol
-    lateinit var bodyTypeSymbol: Symbol
-
-    override fun <R> accept(visitor: AstVisitor<R>): R =
-        visitor.visit(this)
-
-    override fun <P, R> accept(visitor: ParameterizedAstVisitor<P, R>, param: P): R =
-        visitor.visit(this, param)
-}
-
 data class AssignAst(
     val gid: GroundIdentifier,
     val rhs: Ast
@@ -347,19 +298,6 @@ data class IfAst(
     val trueBranch: Ast,
     val falseBranch: Ast
 ) : Ast() {
-    override fun <R> accept(visitor: AstVisitor<R>): R =
-        visitor.visit(this)
-
-    override fun <P, R> accept(visitor: ParameterizedAstVisitor<P, R>, param: P): R =
-        visitor.visit(this, param)
-}
-
-data class SwitchAst(
-    val source: Ast,
-    val cases: List<CaseBranch>
-) : Ast() {
-    lateinit var sourceTypeSymbol: Symbol
-
     override fun <R> accept(visitor: AstVisitor<R>): R =
         visitor.visit(this)
 

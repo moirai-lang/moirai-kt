@@ -80,7 +80,7 @@ private fun createRemoveFunction(
     setType.define(removeId, removeMemberFunction)
 }
 
-internal fun createToImmutableSetPlugin(
+fun createToImmutableSetPlugin(
     mutableSetType: ParameterizedBasicTypeSymbol,
     elementType: StandardTypeParameter,
     omicron: MutableOmicronTypeParameter,
@@ -109,7 +109,7 @@ internal fun createToImmutableSetPlugin(
     mutableSetType.define(plugin.gid, plugin)
 }
 
-internal fun setCollectionType(
+fun setCollectionType(
     architecture: Architecture,
     langNS: Namespace,
     booleanType: BasicTypeSymbol,
@@ -155,7 +155,7 @@ internal fun setCollectionType(
     return setType
 }
 
-internal fun mutableSetCollectionType(
+fun mutableSetCollectionType(
     architecture: Architecture,
     langNS: Namespace,
     booleanType: BasicTypeSymbol,

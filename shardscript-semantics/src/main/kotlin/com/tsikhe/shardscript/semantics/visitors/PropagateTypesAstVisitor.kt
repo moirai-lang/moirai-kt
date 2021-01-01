@@ -6,7 +6,7 @@ import com.tsikhe.shardscript.semantics.infer.instantiateFunction
 import com.tsikhe.shardscript.semantics.infer.instantiateRecord
 import com.tsikhe.shardscript.semantics.prelude.Lang
 
-internal class PropagateTypesAstVisitor(
+class PropagateTypesAstVisitor(
     private val architecture: Architecture,
     private val preludeTable: PreludeTable
 ) : UnitAstVisitor() {
@@ -433,16 +433,6 @@ internal class PropagateTypesAstVisitor(
         }
     }
 
-    override fun visit(ast: EnumDefinitionAst) {
-        try {
-            super.visit(ast)
-            ast.assignType(errors, preludeTable.fetch(Lang.unitId))
-        } catch (ex: LanguageException) {
-            errors.addAll(ast.ctx, ex.errors)
-            ast.assignType(errors, ErrorSymbol)
-        }
-    }
-
     override fun visit(ast: DotAst) {
         try {
             super.visit(ast)
@@ -576,23 +566,6 @@ internal class PropagateTypesAstVisitor(
                         }
                     }
                 }
-                is GroundCoproductSymbol -> {
-                    val member = lhsType.fetchHere(ast.tti)
-                    filterValidDotApply(ast.ctx, errors, member, ast.identifier)
-                    ast.symbolRef = member
-                    when (member) {
-                        is GroundMemberPluginSymbol -> {
-                            if (ast.identifier is ParameterizedIdentifier) {
-                                errors.add(ast.identifier.ctx, SymbolHasNoParameters(ast.identifier))
-                            }
-                            ast.assignType(errors, member.returnType)
-                        }
-                        else -> {
-                            errors.add(ast.ctx, SymbolCouldNotBeApplied(ast.identifier))
-                            ast.assignType(errors, ErrorSymbol)
-                        }
-                    }
-                }
                 is GroundRecordTypeSymbol -> {
                     val member = lhsType.fetchHere(ast.tti)
                     filterValidDotApply(ast.ctx, errors, member, ast.identifier)
@@ -685,23 +658,6 @@ internal class PropagateTypesAstVisitor(
                                 }
                             }
                         }
-                        is ParameterizedCoproductSymbol -> {
-                            val member = parameterizedSymbol.fetchHere(ast.tti)
-                            filterValidDotApply(ast.ctx, errors, member, ast.identifier)
-                            ast.symbolRef = member
-                            when (member) {
-                                is GroundMemberPluginSymbol -> {
-                                    if (ast.identifier is ParameterizedIdentifier) {
-                                        errors.add(ast.identifier.ctx, SymbolHasNoParameters(ast.identifier))
-                                    }
-                                    ast.assignType(errors, member.returnType)
-                                }
-                                else -> {
-                                    errors.add(ast.ctx, SymbolCouldNotBeApplied(ast.identifier))
-                                    ast.assignType(errors, ErrorSymbol)
-                                }
-                            }
-                        }
                         else -> {
                             errors.add(ast.ctx, SymbolCouldNotBeApplied(ast.identifier))
                             ast.assignType(errors, ErrorSymbol)
@@ -743,23 +699,6 @@ internal class PropagateTypesAstVisitor(
                                 errors.add(ast.source.ctx, ForEachFeatureBan(ast.source.readType()))
                             }
                         }
-                        is ParameterizedCoproductSymbol -> {
-                            if (parameterizedSymbol.featureSupport.forEachBlock) {
-                                ast.sourceTypeSymbol =
-                                    sourceType.substitutionChain.replay(parameterizedSymbol.sourceType!!)
-                                ast.sourceOmicronSymbol = OmicronTypeSymbol(architecture.defaultNodeCost)
-                                if (ast.ofType is ImplicitTypeLiteral) {
-                                    ast.ofTypeSymbol = ast.sourceTypeSymbol
-                                } else {
-                                    validateExplicitSymbol(ast.ctx, errors, ast.ofType, ast.scope)
-                                    ast.ofTypeSymbol = ast.scope.fetch(ast.ofType)
-                                }
-                                ast.body.scope.define(ast.gid, ast.ofTypeSymbol)
-                                ast.body.accept(this)
-                            } else {
-                                errors.add(ast.source.ctx, ForEachFeatureBan(ast.source.readType()))
-                            }
-                        }
                         else -> {
                             errors.add(ast.source.ctx, InvalidSource(ast.source.readType()))
                         }
@@ -767,273 +706,6 @@ internal class PropagateTypesAstVisitor(
                 }
                 else -> {
                     errors.add(ast.source.ctx, InvalidSource(ast.source.readType()))
-                }
-            }
-        } catch (ex: LanguageException) {
-            errors.addAll(ast.ctx, ex.errors)
-            ast.assignType(errors, ErrorSymbol)
-        }
-    }
-
-    // Do not call super for collection iterators
-    override fun visit(ast: MapAst) {
-        try {
-            ast.source.accept(this)
-            when (val sourceType = ast.source.readType()) {
-                is SymbolInstantiation -> {
-                    when (val parameterizedSymbol = sourceType.substitutionChain.originalSymbol) {
-                        is ParameterizedBasicTypeSymbol -> {
-                            if (parameterizedSymbol.featureSupport.mapBlock) {
-                                ast.sourceTypeSymbol = sourceType.substitutionChain.replayArgs().first()
-                                ast.sourceOmicronSymbol = sourceType.substitutionChain.replayArgs()[1]
-                                if (ast.ofType is ImplicitTypeLiteral) {
-                                    ast.ofTypeSymbol = sourceType.substitutionChain.replayArgs().first()
-                                } else {
-                                    validateExplicitSymbol(ast.ctx, errors, ast.ofType, ast.scope)
-                                    ast.ofTypeSymbol = ast.scope.fetch(ast.ofType)
-                                }
-                                ast.body.scope.define(ast.gid, ast.ofTypeSymbol)
-                                ast.body.accept(this)
-                                ast.bodyTypeSymbol = ast.body.readType()
-                                val typeArgs = listOf(ast.bodyTypeSymbol, sourceType.substitutionChain.replayArgs()[1])
-                                val bodySubstitution = Substitution(parameterizedSymbol.typeParams, typeArgs)
-                                ast.assignType(errors, bodySubstitution.apply(parameterizedSymbol))
-                            } else {
-                                errors.add(ast.source.ctx, MapFeatureBan(ast.source.readType()))
-                                ast.assignType(errors, ErrorSymbol)
-                            }
-                        }
-                        is ParameterizedCoproductSymbol -> {
-                            if (parameterizedSymbol.featureSupport.mapBlock) {
-                                val sourceSubstitution = sourceType.substitutionChain
-                                ast.sourceTypeSymbol =
-                                    sourceSubstitution.replay(parameterizedSymbol.sourceType!!)
-                                ast.sourceOmicronSymbol = OmicronTypeSymbol(architecture.defaultNodeCost)
-                                if (ast.ofType is ImplicitTypeLiteral) {
-                                    ast.ofTypeSymbol = ast.sourceTypeSymbol
-                                } else {
-                                    validateExplicitSymbol(ast.ctx, errors, ast.ofType, ast.scope)
-                                    ast.ofTypeSymbol = ast.scope.fetch(ast.ofType)
-                                }
-                                ast.body.scope.define(ast.gid, ast.ofTypeSymbol)
-                                ast.body.accept(this)
-                                ast.bodyTypeSymbol = ast.body.readType()
-                                val typeArgs = parameterizedSymbol.replaceParameters(
-                                    ast.bodyTypeSymbol,
-                                    sourceSubstitution.replayArgs()
-                                )
-                                val bodySubstitution = Substitution(parameterizedSymbol.typeParams, typeArgs)
-                                ast.assignType(errors, bodySubstitution.apply(parameterizedSymbol))
-                            } else {
-                                errors.add(ast.source.ctx, MapFeatureBan(ast.source.readType()))
-                                ast.assignType(errors, ErrorSymbol)
-                            }
-                        }
-                        else -> {
-                            errors.add(ast.source.ctx, InvalidSource(ast.source.readType()))
-                            ast.assignType(errors, ErrorSymbol)
-                        }
-                    }
-                }
-                else -> {
-                    errors.add(ast.source.ctx, InvalidSource(ast.source.readType()))
-                    ast.assignType(errors, ErrorSymbol)
-                }
-            }
-        } catch (ex: LanguageException) {
-            errors.addAll(ast.ctx, ex.errors)
-            ast.assignType(errors, ErrorSymbol)
-        }
-    }
-
-    // Do not call super for collection iterators
-    override fun visit(ast: FlatMapAst) {
-        try {
-            ast.source.accept(this)
-            when (val sourceType = ast.source.readType()) {
-                is SymbolInstantiation -> {
-                    when (val parameterizedSourceSymbol = sourceType.substitutionChain.originalSymbol) {
-                        is ParameterizedBasicTypeSymbol -> {
-                            if (parameterizedSourceSymbol.featureSupport.flatMapBlock) {
-                                ast.sourceTypeSymbol = sourceType.substitutionChain.replayArgs().first()
-                                ast.sourceOmicronSymbol = sourceType.substitutionChain.replayArgs()[1]
-                                if (ast.ofType is ImplicitTypeLiteral) {
-                                    ast.ofTypeSymbol = sourceType.substitutionChain.replayArgs().first()
-                                } else {
-                                    validateExplicitSymbol(ast.ctx, errors, ast.ofType, ast.scope)
-                                    ast.ofTypeSymbol = ast.scope.fetch(ast.ofType)
-                                }
-                                ast.body.scope.define(ast.gid, ast.ofTypeSymbol)
-                                ast.body.accept(this)
-                                when (val bodyTypeSymbol = ast.body.readType()) {
-                                    is SymbolInstantiation -> {
-                                        when (val parameterizedBodySymbol =
-                                            bodyTypeSymbol.substitutionChain.originalSymbol) {
-                                            is ParameterizedBasicTypeSymbol -> {
-                                                if (generatePath(parameterizedBodySymbol) == generatePath(
-                                                        parameterizedSourceSymbol
-                                                    )
-                                                ) {
-                                                    ast.bodyTypeSymbol = bodyTypeSymbol
-                                                    val lhs: CostExpression = when (val sourceTypeArg =
-                                                        sourceType.substitutionChain.replayArgs()[1]) {
-                                                        is ImmutableOmicronTypeParameter -> {
-                                                            sourceTypeArg
-                                                        }
-                                                        is OmicronTypeSymbol -> {
-                                                            sourceTypeArg
-                                                        }
-                                                        else -> {
-                                                            errors.add(ast.ctx, TypeSystemBug)
-                                                            OmicronTypeSymbol(architecture.defaultNodeCost)
-                                                        }
-                                                    }
-                                                    val rhs: CostExpression = when (val bodyTypeSymbolArg =
-                                                        bodyTypeSymbol.substitutionChain.replayArgs()[1]) {
-                                                        is ImmutableOmicronTypeParameter -> {
-                                                            bodyTypeSymbolArg
-                                                        }
-                                                        is OmicronTypeSymbol -> {
-                                                            bodyTypeSymbolArg
-                                                        }
-                                                        else -> {
-                                                            errors.add(ast.ctx, TypeSystemBug)
-                                                            OmicronTypeSymbol(architecture.defaultNodeCost)
-                                                        }
-                                                    }
-                                                    val cost = ProductCostExpression(
-                                                        listOf(
-                                                            lhs,
-                                                            rhs
-                                                        )
-                                                    )
-                                                    val typeArgs =
-                                                        listOf(
-                                                            bodyTypeSymbol.substitutionChain.replayArgs().first(),
-                                                            cost
-                                                        )
-                                                    val substitution = Substitution(
-                                                        parameterizedBodySymbol.typeParams,
-                                                        typeArgs
-                                                    )
-                                                    ast.assignType(errors, substitution.apply(parameterizedBodySymbol))
-                                                } else {
-                                                    errors.add(ast.source.ctx, InvalidBodyType(bodyTypeSymbol))
-                                                    ast.assignType(errors, ErrorSymbol)
-                                                }
-                                            }
-                                            else -> {
-                                                errors.add(ast.source.ctx, InvalidBodyType(bodyTypeSymbol))
-                                                ast.assignType(errors, ErrorSymbol)
-                                            }
-                                        }
-                                    }
-                                    else -> {
-                                        errors.add(ast.source.ctx, InvalidBodyType(bodyTypeSymbol))
-                                        ast.assignType(errors, ErrorSymbol)
-                                    }
-                                }
-                            } else {
-                                errors.add(ast.source.ctx, FlatMapFeatureBan(ast.source.readType()))
-                                ast.assignType(errors, ErrorSymbol)
-                            }
-                        }
-                        is ParameterizedCoproductSymbol -> {
-                            if (parameterizedSourceSymbol.featureSupport.flatMapBlock) {
-                                val sourceSubstitution = sourceType.substitutionChain
-                                ast.sourceTypeSymbol = sourceSubstitution.replay(parameterizedSourceSymbol.sourceType!!)
-                                ast.sourceOmicronSymbol = OmicronTypeSymbol(architecture.defaultNodeCost)
-                                if (ast.ofType is ImplicitTypeLiteral) {
-                                    ast.ofTypeSymbol = ast.sourceTypeSymbol
-                                } else {
-                                    validateExplicitSymbol(ast.ctx, errors, ast.ofType, ast.scope)
-                                    ast.ofTypeSymbol = ast.scope.fetch(ast.ofType)
-                                }
-                                ast.body.scope.define(ast.gid, ast.ofTypeSymbol)
-                                ast.body.accept(this)
-                                when (val bodyTypeSymbol = ast.body.readType()) {
-                                    is SymbolInstantiation -> {
-                                        val bodySubstitution = bodyTypeSymbol.substitutionChain
-                                        when (val parameterizedBodySymbol =
-                                            bodyTypeSymbol.substitutionChain.originalSymbol) {
-                                            is ParameterizedCoproductSymbol -> {
-                                                if (generatePath(parameterizedBodySymbol) == generatePath(
-                                                        parameterizedSourceSymbol
-                                                    )
-                                                ) {
-                                                    ast.bodyTypeSymbol = bodyTypeSymbol
-                                                    val bodySourceType =
-                                                        bodySubstitution.replay(parameterizedBodySymbol.sourceType!!)
-                                                    val typeArgs =
-                                                        parameterizedBodySymbol.replaceParameters(
-                                                            bodySourceType,
-                                                            sourceSubstitution.replayArgs()
-                                                        )
-                                                    val substitution = Substitution(
-                                                        parameterizedSourceSymbol.typeParams,
-                                                        typeArgs
-                                                    )
-                                                    ast.assignType(
-                                                        errors,
-                                                        substitution.apply(parameterizedSourceSymbol)
-                                                    )
-                                                } else {
-                                                    errors.add(ast.source.ctx, InvalidBodyType(bodyTypeSymbol))
-                                                    ast.assignType(errors, ErrorSymbol)
-                                                }
-                                            }
-                                            is ParameterizedRecordTypeSymbol -> {
-                                                if (generatePath(parameterizedBodySymbol.parent as Symbol) == generatePath(
-                                                        parameterizedSourceSymbol
-                                                    )
-                                                ) {
-                                                    ast.bodyTypeSymbol = bodyTypeSymbol
-                                                    val typeArgs = parameterizedSourceSymbol.replaceParameters(
-                                                        bodySubstitution.replay(parameterizedBodySymbol.typeParams.first()),
-                                                        sourceSubstitution.replayArgs()
-                                                    )
-                                                    val substitution = Substitution(
-                                                        parameterizedSourceSymbol.typeParams,
-                                                        typeArgs
-                                                    )
-                                                    ast.assignType(
-                                                        errors,
-                                                        substitution.apply(parameterizedSourceSymbol)
-                                                    )
-                                                } else {
-                                                    errors.add(ast.source.ctx, InvalidBodyType(bodyTypeSymbol))
-                                                    ast.assignType(errors, ErrorSymbol)
-                                                }
-                                            }
-                                            else -> {
-                                                errors.add(ast.source.ctx, InvalidBodyType(bodyTypeSymbol))
-                                                ast.assignType(errors, ErrorSymbol)
-                                            }
-                                        }
-                                    }
-                                    is ObjectSymbol -> {
-                                        ast.bodyTypeSymbol = bodyTypeSymbol
-                                        ast.assignType(errors, sourceType)
-                                    }
-                                    else -> {
-                                        errors.add(ast.source.ctx, InvalidBodyType(bodyTypeSymbol))
-                                        ast.assignType(errors, ErrorSymbol)
-                                    }
-                                }
-                            } else {
-                                errors.add(ast.source.ctx, FlatMapFeatureBan(ast.source.readType()))
-                                ast.assignType(errors, ErrorSymbol)
-                            }
-                        }
-                        else -> {
-                            errors.add(ast.source.ctx, InvalidSource(ast.source.readType()))
-                            ast.assignType(errors, ErrorSymbol)
-                        }
-                    }
-                }
-                else -> {
-                    errors.add(ast.source.ctx, InvalidSource(ast.source.readType()))
-                    ast.assignType(errors, ErrorSymbol)
                 }
             }
         } catch (ex: LanguageException) {
@@ -1122,63 +794,6 @@ internal class PropagateTypesAstVisitor(
                     )
                 )
             )
-        } catch (ex: LanguageException) {
-            errors.addAll(ast.ctx, ex.errors)
-            ast.assignType(errors, ErrorSymbol)
-        }
-    }
-
-    // Do not call super for switch case
-    override fun visit(ast: SwitchAst) {
-        try {
-            super.visit(ast)
-            when (val source = ast.source.readType()) {
-                is GroundCoproductSymbol -> {
-                    if (!source.featureSupport.switchExpr) {
-                        errors.add(ast.source.ctx, SwitchFeatureBan(source))
-                        ast.assignType(errors, ErrorSymbol)
-                    } else {
-                        ast.sourceTypeSymbol = source
-                    }
-                }
-                is GroundRecordTypeSymbol -> {
-                    if (!source.featureSupport.switchExpr) {
-                        errors.add(ast.source.ctx, SwitchFeatureBan(source))
-                        ast.assignType(errors, ErrorSymbol)
-                    } else {
-                        ast.sourceTypeSymbol = source.parent as GroundCoproductSymbol
-                    }
-                }
-                is SymbolInstantiation -> {
-                    when (val parameterizedSymbol = source.substitutionChain.originalSymbol) {
-                        is ParameterizedCoproductSymbol -> {
-                            if (!parameterizedSymbol.featureSupport.switchExpr) {
-                                errors.add(ast.source.ctx, SwitchFeatureBan(source))
-                                ast.assignType(errors, ErrorSymbol)
-                            } else {
-                                ast.sourceTypeSymbol = source
-                            }
-                        }
-                        else -> {
-                            errors.add(ast.source.ctx, InvalidSwitchSource(source))
-                            ast.assignType(errors, ErrorSymbol)
-                        }
-                    }
-                }
-                is ObjectSymbol -> {
-                    if (!source.featureSupport.switchExpr) {
-                        errors.add(ast.source.ctx, SwitchFeatureBan(source))
-                        ast.assignType(errors, ErrorSymbol)
-                    } else {
-                        ast.sourceTypeSymbol = source.parent as GroundCoproductSymbol
-                    }
-                }
-                else -> {
-                    errors.add(ast.source.ctx, InvalidSwitchSource(source))
-                    ast.assignType(errors, ErrorSymbol)
-                }
-            }
-            ast.assignType(errors, findBestType(ast.ctx, errors, ast.cases.map { it.body.readType() }))
         } catch (ex: LanguageException) {
             errors.addAll(ast.ctx, ex.errors)
             ast.assignType(errors, ErrorSymbol)

@@ -3,8 +3,6 @@ package com.tsikhe.shardscript.semantics.core
 data class FeatureSupport(
     val switchExpr: Boolean,
     val forEachBlock: Boolean,
-    val mapBlock: Boolean,
-    val flatMapBlock: Boolean,
     val recordField: Boolean,
     val paramType: Boolean,
     val returnType: Boolean,
@@ -14,8 +12,6 @@ data class FeatureSupport(
 val immutableOrderedFeatureSupport = FeatureSupport(
     switchExpr = false,
     forEachBlock = true,
-    mapBlock = true,
-    flatMapBlock = true,
     recordField = true,
     paramType = true,
     returnType = true,
@@ -25,8 +21,6 @@ val immutableOrderedFeatureSupport = FeatureSupport(
 val immutableUnorderedFeatureSupport = FeatureSupport(
     switchExpr = false,
     forEachBlock = false,
-    mapBlock = false,
-    flatMapBlock = false,
     recordField = true,
     paramType = true,
     returnType = true,
@@ -36,8 +30,6 @@ val immutableUnorderedFeatureSupport = FeatureSupport(
 val noFeatureSupport = FeatureSupport(
     switchExpr = false,
     forEachBlock = false,
-    mapBlock = false,
-    flatMapBlock = false,
     recordField = false,
     paramType = false,
     returnType = false,
@@ -47,8 +39,6 @@ val noFeatureSupport = FeatureSupport(
 val coproductFeatureSupport = FeatureSupport(
     switchExpr = true,
     forEachBlock = true,
-    mapBlock = true,
-    flatMapBlock = true,
     recordField = true,
     paramType = true,
     returnType = true,
@@ -58,8 +48,6 @@ val coproductFeatureSupport = FeatureSupport(
 val userGroundCoproductFeatureSupport = FeatureSupport(
     switchExpr = true,
     forEachBlock = false,
-    mapBlock = false,
-    flatMapBlock = false,
     recordField = true,
     paramType = true,
     returnType = true,
@@ -69,8 +57,6 @@ val userGroundCoproductFeatureSupport = FeatureSupport(
 val userTypeFeatureSupport = FeatureSupport(
     switchExpr = false,
     forEachBlock = false,
-    mapBlock = false,
-    flatMapBlock = false,
     recordField = true,
     paramType = true,
     returnType = true,

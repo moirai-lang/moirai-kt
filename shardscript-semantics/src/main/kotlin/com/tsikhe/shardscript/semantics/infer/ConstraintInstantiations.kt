@@ -2,7 +2,7 @@ package com.tsikhe.shardscript.semantics.infer
 
 import com.tsikhe.shardscript.semantics.core.*
 
-internal fun createSubstitution(
+fun createSubstitution(
     ctx: SourceContext,
     constraints: MutableList<Constraint<TypeParameter, Symbol>>,
     parameterSet: Set<TypeParameter>,
@@ -98,7 +98,7 @@ fun instantiateRecord(
     return substitution.apply(parameterizedRecordTypeSymbol)
 }
 
-internal fun constrainSymbol(
+fun constrainSymbol(
     ctx: SourceContext,
     typeParams: Set<TypeParameter>,
     expected: Symbol,
@@ -172,7 +172,7 @@ internal fun constrainSymbol(
         }
     }
 
-internal fun constrainCost(
+fun constrainCost(
     ctx: SourceContext,
     typeParams: Set<TypeParameter>,
     expected: CostExpression,

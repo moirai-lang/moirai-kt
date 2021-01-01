@@ -2,21 +2,21 @@ package com.tsikhe.shardscript.semantics.visitors
 
 import com.tsikhe.shardscript.semantics.core.*
 
-internal data class TypeParamChildren(val typeParam: TypeParameter, val children: Set<LinearizedSymbol>)
+data class TypeParamChildren(val typeParam: TypeParameter, val children: Set<LinearizedSymbol>)
 
-internal sealed class LinearizedSymbol {
+sealed class LinearizedSymbol {
     abstract val ctx: SourceContext
     abstract val symbol: Symbol
 }
 
-internal data class SymbolOnly(override val ctx: SourceContext, override val symbol: Symbol) : LinearizedSymbol()
-internal data class TypeArgChildren(
+data class SymbolOnly(override val ctx: SourceContext, override val symbol: Symbol) : LinearizedSymbol()
+data class TypeArgChildren(
     override val ctx: SourceContext,
     override val symbol: Symbol,
     val typeParamChildren: List<TypeParamChildren>
 ) : LinearizedSymbol()
 
-internal fun linearize(ctx: SourceContext, symbol: Symbol): Set<LinearizedSymbol> =
+fun linearize(ctx: SourceContext, symbol: Symbol): Set<LinearizedSymbol> =
     when (symbol) {
         ErrorSymbol -> setOf()
         NullSymbolTable -> setOf()
@@ -43,16 +43,6 @@ internal fun linearize(ctx: SourceContext, symbol: Symbol): Set<LinearizedSymbol
                     res
                 }
                 is ParameterizedBasicTypeSymbol -> {
-                    val res: MutableSet<LinearizedSymbol> = HashSet()
-                    val paramChildren: MutableList<TypeParamChildren> = ArrayList()
-                    parameterizedSymbol.typeParams.zip(symbol.substitutionChain.replayArgs()).forEach {
-                        val children = linearize(ctx, it.second)
-                        paramChildren.add(TypeParamChildren(it.first, children))
-                    }
-                    res.add(TypeArgChildren(ctx, symbol, paramChildren))
-                    res
-                }
-                is ParameterizedCoproductSymbol -> {
                     val res: MutableSet<LinearizedSymbol> = HashSet()
                     val paramChildren: MutableList<TypeParamChildren> = ArrayList()
                     parameterizedSymbol.typeParams.zip(symbol.substitutionChain.replayArgs()).forEach {
@@ -112,11 +102,6 @@ internal fun linearize(ctx: SourceContext, symbol: Symbol): Set<LinearizedSymbol
                 }
             }
         }
-        is GroundCoproductSymbol -> {
-            val res: MutableSet<LinearizedSymbol> = HashSet()
-            res.add(SymbolOnly(ctx, symbol))
-            res
-        }
         is SystemRootNamespace -> setOf()
         is UserRootNamespace -> setOf()
         is Namespace -> setOf()
@@ -156,13 +141,12 @@ internal fun linearize(ctx: SourceContext, symbol: Symbol): Set<LinearizedSymbol
         is PlatformFieldSymbol -> setOf(SymbolOnly(ctx, symbol))
         is LocalVariableSymbol -> setOf(SymbolOnly(ctx, symbol))
         is ParameterizedFunctionSymbol -> setOf(SymbolOnly(ctx, symbol))
-        is ParameterizedCoproductSymbol -> setOf(SymbolOnly(ctx, symbol))
         is ParameterizedBasicTypeSymbol -> setOf(SymbolOnly(ctx, symbol))
         is ParameterizedMemberPluginSymbol -> setOf(SymbolOnly(ctx, symbol))
         is ParameterizedStaticPluginSymbol -> setOf(SymbolOnly(ctx, symbol))
     }
 
-internal class LinearizedTypesAstVisitor : UnitAstVisitor() {
+class LinearizedTypesAstVisitor : UnitAstVisitor() {
     val linearized: MutableSet<LinearizedSymbol> = HashSet()
 
     override fun visit(ast: SByteLiteralAst) {
@@ -267,11 +251,6 @@ internal class LinearizedTypesAstVisitor : UnitAstVisitor() {
         }
     }
 
-    override fun visit(ast: EnumDefinitionAst) {
-        super.visit(ast)
-        linearized.addAll(linearize(ast.ctx, ast.readType()))
-    }
-
     override fun visit(ast: ObjectDefinitionAst) {
         super.visit(ast)
         linearized.addAll(linearize(ast.ctx, ast.readType()))
@@ -297,16 +276,6 @@ internal class LinearizedTypesAstVisitor : UnitAstVisitor() {
         linearized.addAll(linearize(ast.ctx, ast.readType()))
     }
 
-    override fun visit(ast: MapAst) {
-        super.visit(ast)
-        linearized.addAll(linearize(ast.ctx, ast.readType()))
-    }
-
-    override fun visit(ast: FlatMapAst) {
-        super.visit(ast)
-        linearized.addAll(linearize(ast.ctx, ast.readType()))
-    }
-
     override fun visit(ast: AssignAst) {
         super.visit(ast)
         linearized.addAll(linearize(ast.ctx, ast.readType()))
@@ -318,11 +287,6 @@ internal class LinearizedTypesAstVisitor : UnitAstVisitor() {
     }
 
     override fun visit(ast: IfAst) {
-        super.visit(ast)
-        linearized.addAll(linearize(ast.ctx, ast.readType()))
-    }
-
-    override fun visit(ast: SwitchAst) {
         super.visit(ast)
         linearized.addAll(linearize(ast.ctx, ast.readType()))
     }

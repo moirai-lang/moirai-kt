@@ -2,7 +2,7 @@ package com.tsikhe.shardscript.semantics.infer
 
 import com.tsikhe.shardscript.semantics.core.*
 
-internal class SetInstantiation : SingleTypeInstantiation {
+class SetInstantiation : SingleTypeInstantiation {
     override fun apply(
         ctx: SourceContext,
         errors: LanguageErrors,
@@ -62,7 +62,7 @@ internal class SetInstantiation : SingleTypeInstantiation {
     }
 }
 
-internal class MutableSetInstantiation : SingleTypeInstantiation {
+class MutableSetInstantiation : SingleTypeInstantiation {
     override fun apply(
         ctx: SourceContext,
         errors: LanguageErrors,

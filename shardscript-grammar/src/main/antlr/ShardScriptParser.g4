@@ -11,7 +11,7 @@ importStat
     ;
 
 importIdSeq
-    :   contextualId (DOT contextualId)*
+    :   IDENTIFIER (DOT IDENTIFIER)*
     ;
 
 stat
@@ -20,7 +20,6 @@ stat
     |   funDefStat
     |   objectDefStat
     |   recordDefStat
-    |   enumDefStat
     |   assignStat
     |   expr
     ;
@@ -34,16 +33,16 @@ block
     ;
 
 letStat
-    :   VAL id=contextualId of=ofType? ASSIGN right=expr     # ImmutableLet
-    |   MUTABLE id=contextualId of=ofType? ASSIGN right=expr # MutableLet
+    :   VAL id=IDENTIFIER of=ofType? ASSIGN right=expr     # ImmutableLet
+    |   MUTABLE id=IDENTIFIER of=ofType? ASSIGN right=expr # MutableLet
     ;
 
 forStat
-    :   FOR LPAREN id=contextualId of=ofType? IN source=expr RPAREN body=block
+    :   FOR LPAREN id=IDENTIFIER of=ofType? IN source=expr RPAREN body=block
     ;
 
 funDefStat
-    :   DEF id=contextualId tp=typeParams? LPAREN params=paramSeq? RPAREN ret=ofType? body=block
+    :   DEF id=IDENTIFIER tp=typeParams? LPAREN params=paramSeq? RPAREN ret=ofType? body=block
     ;
 
 typeParams
@@ -51,12 +50,12 @@ typeParams
     ;
 
 typeParam
-    :   contextualId  # IdentifierTypeParam
+    :   IDENTIFIER  # IdentifierTypeParam
     |   OMICRON     # OmicronTypeParam
     ;
 
 paramDef
-    :   id=contextualId of=ofType
+    :   id=IDENTIFIER of=ofType
     ;
 
 paramSeq
@@ -64,11 +63,11 @@ paramSeq
     ;
 
 objectDefStat
-    :   OBJECT id=contextualId
+    :   OBJECT id=IDENTIFIER
     ;
 
 recordDefStat
-    :   RECORD id=contextualId tp=typeParams? LPAREN fields=fieldSeq RPAREN
+    :   RECORD id=IDENTIFIER tp=typeParams? LPAREN fields=fieldSeq RPAREN
     ;
 
 fieldSeq
@@ -76,37 +75,21 @@ fieldSeq
     ;
 
 fieldDef
-    :   VAL id=contextualId of=ofType     # ImmutableField
-    |   MUTABLE id=contextualId of=ofType # MutableField
-    ;
-
-enumDefStat
-    :   ENUM id=contextualId tp=typeParams? body=enumDefBody
-    ;
-
-enumDefBody
-    :   LCURLY stats=enumDefBodyStat* RCURLY
-    ;
-
-enumDefBodyStat
-    :   recordDefStat
-    |   objectDefStat
+    :   VAL id=IDENTIFIER of=ofType     # ImmutableField
+    |   MUTABLE id=IDENTIFIER of=ofType # MutableField
     ;
 
 expr
     :   LPAREN inner=expr RPAREN                                                        # ParenExpr
-    |   left=expr DOT id=contextualId params=typeExprParams LPAREN args=exprSeq? RPAREN   # ParamDotApply
-    |   left=expr DOT id=contextualId LPAREN args=exprSeq? RPAREN                         # DotApply
-    |   left=expr DOT id=contextualId                                                     # DotExpr
-    |   id=contextualId params=typeExprParams LPAREN args=exprSeq? RPAREN                 # ParamApplyExpr
-    |   id=contextualId LPAREN args=exprSeq? RPAREN                                       # ApplyExpr
+    |   left=expr DOT id=IDENTIFIER params=typeExprParams LPAREN args=exprSeq? RPAREN   # ParamDotApply
+    |   left=expr DOT id=IDENTIFIER LPAREN args=exprSeq? RPAREN                         # DotApply
+    |   left=expr DOT id=IDENTIFIER                                                     # DotExpr
+    |   id=IDENTIFIER params=typeExprParams LPAREN args=exprSeq? RPAREN                 # ParamApplyExpr
+    |   id=IDENTIFIER LPAREN args=exprSeq? RPAREN                                       # ApplyExpr
     |   left=expr LBRACK right=expr RBRACK                                              # IndexExpr
     |   anyif=ifExpr                                                                    # AnyIf
     |   op=NOT right=expr                                                               # UnaryNot
     |   op=SUB right=expr                                                               # UnaryNegate
-    |   MAP LPAREN id=contextualId of=ofType? IN source=expr RPAREN body=block            # MapExpr
-    |   FLATMAP LPAREN id=contextualId of=ofType? IN source=expr RPAREN body=block        # FlatMapExpr
-    |   SWITCH LPAREN source=expr RPAREN alternatives=switchBody                        # SwitchExpr
     |   left=expr op=(MUL|DIV|MOD) right=expr                                           # InfixMulDivMod
     |   left=expr op=(ADD|SUB) right=expr                                               # InfixAddSub
     |   left=expr op=(GT|GTE|LT|LTE) right=expr                                         # InfixOrder
@@ -127,21 +110,13 @@ expr
     |   value=CHAR                                                                      # LiteralChar
     |   value=string                                                                    # StringExpr
     |   left=expr op=TO right=expr                                                      # ToExpr
-    |   id=contextualId                                                                   # RefExpr
+    |   id=IDENTIFIER                                                                   # RefExpr
     ;
 
 ifExpr
     :   op=IF LPAREN condition=expr RPAREN trueb=block ELSE elif=ifExpr     # IfElseIfExpr
     |   op=IF LPAREN condition=expr RPAREN trueb=block ELSE falseb=block    # IfElseExpr
     |   op=IF LPAREN condition=expr RPAREN trueb=block                      # StandaloneIfExpr
-    ;
-
-switchBody
-    :   LCURLY enumCase+ elseCase? RCURLY
-    ;
-
-enumCase
-    :   CASE id=contextualId body=block
     ;
 
 elseCase
@@ -179,8 +154,8 @@ typeExpr
     ;
 
 typePath
-    :   contextualId (DOT contextualId)+    # MultiTypePath
-    |   contextualId                      # SingleTypePath
+    :   IDENTIFIER (DOT IDENTIFIER)+    # MultiTypePath
+    |   IDENTIFIER                        # SingleTypePath
     ;
 
 typeExprWithOmicron
@@ -195,17 +170,4 @@ typeExprParams
 
 typeExprSeq
     :   typeExpr (COMMA typeExpr)*
-    ;
-
-contextualId
-    :   WHERE
-    |   SELECT
-    |   GROUP
-    |   INTO
-    |   ORDERBY
-    |   JOIN
-    |   ASCENDING
-    |   DESCENDING
-    |   ON
-    |   IDENTIFIER
     ;

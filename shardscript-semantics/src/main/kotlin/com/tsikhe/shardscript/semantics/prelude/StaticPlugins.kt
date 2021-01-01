@@ -6,7 +6,7 @@ import com.tsikhe.shardscript.semantics.infer.RangeInstantiation
 import com.tsikhe.shardscript.semantics.infer.Substitution
 import kotlin.random.Random
 
-internal fun createRangePlugin(
+fun createRangePlugin(
     langNS: Namespace,
     intType: BasicTypeSymbol,
     listType: ParameterizedBasicTypeSymbol
@@ -57,7 +57,7 @@ internal fun createRangePlugin(
     return rangePlugin
 }
 
-internal fun createRandomPlugin(
+fun createRandomPlugin(
     langNS: Namespace,
     omicron: CostExpression
 ): ParameterizedStaticPluginSymbol {

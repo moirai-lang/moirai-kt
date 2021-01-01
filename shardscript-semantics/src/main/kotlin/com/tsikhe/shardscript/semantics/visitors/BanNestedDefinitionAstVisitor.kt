@@ -2,14 +2,14 @@ package com.tsikhe.shardscript.semantics.visitors
 
 import com.tsikhe.shardscript.semantics.core.*
 
-internal sealed class NestedDefinitionIndicator
+sealed class NestedDefinitionIndicator
 
-internal object TopLevelIndicator : NestedDefinitionIndicator()
-internal object WithinEnumIndicator : NestedDefinitionIndicator()
-internal object WithinRecordIndicator : NestedDefinitionIndicator()
-internal object OtherIndicator : NestedDefinitionIndicator()
+object TopLevelIndicator : NestedDefinitionIndicator()
+object WithinEnumIndicator : NestedDefinitionIndicator()
+object WithinRecordIndicator : NestedDefinitionIndicator()
+object OtherIndicator : NestedDefinitionIndicator()
 
-internal class BanNestedDefinitionAstVisitor : ParameterizedUnitAstVisitor<NestedDefinitionIndicator>() {
+class BanNestedDefinitionAstVisitor : ParameterizedUnitAstVisitor<NestedDefinitionIndicator>() {
     override fun visit(ast: StringInterpolationAst, param: NestedDefinitionIndicator) {
         super.visit(ast, OtherIndicator)
     }
@@ -53,14 +53,6 @@ internal class BanNestedDefinitionAstVisitor : ParameterizedUnitAstVisitor<Neste
         super.visit(ast, OtherIndicator)
     }
 
-    override fun visit(ast: EnumDefinitionAst, param: NestedDefinitionIndicator) {
-        when (param) {
-            is TopLevelIndicator -> Unit
-            else -> errors.add(ast.ctx, InvalidDefinitionLocation(ast.gid))
-        }
-        super.visit(ast, WithinEnumIndicator)
-    }
-
     override fun visit(ast: DotAst, param: NestedDefinitionIndicator) {
         super.visit(ast, OtherIndicator)
     }
@@ -77,14 +69,6 @@ internal class BanNestedDefinitionAstVisitor : ParameterizedUnitAstVisitor<Neste
         super.visit(ast, OtherIndicator)
     }
 
-    override fun visit(ast: MapAst, param: NestedDefinitionIndicator) {
-        super.visit(ast, OtherIndicator)
-    }
-
-    override fun visit(ast: FlatMapAst, param: NestedDefinitionIndicator) {
-        super.visit(ast, OtherIndicator)
-    }
-
     override fun visit(ast: AssignAst, param: NestedDefinitionIndicator) {
         super.visit(ast, OtherIndicator)
     }
@@ -94,10 +78,6 @@ internal class BanNestedDefinitionAstVisitor : ParameterizedUnitAstVisitor<Neste
     }
 
     override fun visit(ast: IfAst, param: NestedDefinitionIndicator) {
-        super.visit(ast, OtherIndicator)
-    }
-
-    override fun visit(ast: SwitchAst, param: NestedDefinitionIndicator) {
         super.visit(ast, OtherIndicator)
     }
 

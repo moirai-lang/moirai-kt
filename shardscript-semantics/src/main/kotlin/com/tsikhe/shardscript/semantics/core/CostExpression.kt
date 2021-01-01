@@ -4,7 +4,7 @@ import java.math.BigInteger
 
 interface CostExpression
 
-internal fun evalCostExpression(costExpression: CostExpression): BigInteger =
+fun evalCostExpression(costExpression: CostExpression): BigInteger =
     when (costExpression) {
         is OmicronTypeSymbol -> {
             if (costExpression.magnitude <= BigInteger.ZERO) {
@@ -66,7 +66,7 @@ fun canEvalImmediately(costExpression: CostExpression): Boolean =
         else -> langThrow(TypeSystemBug)
     }
 
-internal fun validateCostExpression(costExpression: CostExpression) {
+fun validateCostExpression(costExpression: CostExpression) {
     when (costExpression) {
         is ImmutableOmicronTypeParameter -> {
             langThrow(TypeSystemBug)

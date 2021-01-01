@@ -79,34 +79,6 @@ class DictionaryErrorTests {
     }
 
     @Test
-    fun invalidSourceTypeMapDictionaryTest() {
-        failTest(
-            """
-            val x = Dictionary<Int, Int, 3>(1 to 2, 2 to 3, 3 to 4)
-            map(y in x) {
-                y
-            }
-        """.trimIndent(), 1
-        ) {
-            it.error is MapFeatureBan
-        }
-    }
-
-    @Test
-    fun invalidSourceTypeFlatMapDictionaryTest() {
-        failTest(
-            """
-            val x = Dictionary<Int, Int, 3>(1 to 2, 2 to 3, 3 to 4)
-            flatmap(y in x) {
-                List(y)
-            }
-        """.trimIndent(), 1
-        ) {
-            it.error is FlatMapFeatureBan
-        }
-    }
-
-    @Test
     fun incorrectOmicronMutableDictionaryTest() {
         failTest(
             """
@@ -190,34 +162,6 @@ class DictionaryErrorTests {
         """.trimIndent(), 1
         ) {
             it.error is ForEachFeatureBan
-        }
-    }
-
-    @Test
-    fun invalidSourceTypeMapMutableDictionaryTest() {
-        failTest(
-            """
-            val x = MutableDictionary<Int, Int, 3>(1 to 2, 2 to 3, 3 to 4)
-            map(y in x) {
-                y
-            }
-        """.trimIndent(), 1
-        ) {
-            it.error is MapFeatureBan
-        }
-    }
-
-    @Test
-    fun invalidSourceTypeFlatMapMutableDictionaryTest() {
-        failTest(
-            """
-            val x = MutableDictionary<Int, Int, 3>(1 to 2, 2 to 3, 3 to 4)
-            flatmap(y in x) {
-                List(y)
-            }
-        """.trimIndent(), 1
-        ) {
-            it.error is FlatMapFeatureBan
         }
     }
 }

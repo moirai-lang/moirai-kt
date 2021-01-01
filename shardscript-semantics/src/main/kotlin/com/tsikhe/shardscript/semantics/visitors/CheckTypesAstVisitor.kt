@@ -3,7 +3,7 @@ package com.tsikhe.shardscript.semantics.visitors
 import com.tsikhe.shardscript.semantics.core.*
 import com.tsikhe.shardscript.semantics.prelude.Lang
 
-internal class CheckTypesAstVisitor(private val prelude: PreludeTable) : UnitAstVisitor() {
+class CheckTypesAstVisitor(private val prelude: PreludeTable) : UnitAstVisitor() {
     override fun visit(ast: StringInterpolationAst) {
         try {
             super.visit(ast)
@@ -85,25 +85,6 @@ internal class CheckTypesAstVisitor(private val prelude: PreludeTable) : UnitAst
         }
     }
 
-    override fun visit(ast: MapAst) {
-        try {
-            super.visit(ast)
-            checkTypes(ast.ctx, prelude, errors, ast.ofTypeSymbol, ast.sourceTypeSymbol)
-        } catch (ex: LanguageException) {
-            errors.addAll(ast.ctx, ex.errors)
-        }
-
-    }
-
-    override fun visit(ast: FlatMapAst) {
-        try {
-            super.visit(ast)
-            checkTypes(ast.ctx, prelude, errors, ast.ofTypeSymbol, ast.sourceTypeSymbol)
-        } catch (ex: LanguageException) {
-            errors.addAll(ast.ctx, ex.errors)
-        }
-    }
-
     override fun visit(ast: AssignAst) {
         try {
             super.visit(ast)
@@ -134,114 +115,6 @@ internal class CheckTypesAstVisitor(private val prelude: PreludeTable) : UnitAst
         try {
             super.visit(ast)
             checkTypes(ast.condition.ctx, prelude, errors, prelude.fetch(Lang.booleanId), ast.condition.readType())
-        } catch (ex: LanguageException) {
-            errors.addAll(ast.ctx, ex.errors)
-        }
-    }
-
-    override fun visit(ast: SwitchAst) {
-        try {
-            super.visit(ast)
-            val caseMap: MutableMap<GroundIdentifier, Symbol> = HashMap()
-            val seenCases: MutableSet<Symbol> = HashSet()
-            val unseenCases = caseMap.values.toMutableSet()
-            var elseCount = 0
-            when (val sourceType = ast.sourceTypeSymbol) {
-                is GroundCoproductSymbol -> {
-                    sourceType.alternatives.forEach {
-                        when (it) {
-                            is GroundRecordTypeSymbol -> {
-                                caseMap[it.gid] = it
-                            }
-                            is ObjectSymbol -> {
-                                caseMap[it.gid] = it
-                            }
-                            else -> {
-                                errors.add(ast.ctx, TypeSystemBug)
-                            }
-                        }
-                    }
-                    ast.cases.forEach {
-                        when (it) {
-                            is CoproductBranch -> {
-                                if (caseMap.containsKey(it.gid)) {
-                                    val symbol = caseMap[it.gid]!!
-                                    if (!seenCases.contains(symbol)) {
-                                        seenCases.add(symbol)
-                                        unseenCases.remove(symbol)
-                                        it.path = generatePath(symbol)
-                                    } else {
-                                        errors.add(it.ctx, DuplicateCase(it.gid))
-                                    }
-                                } else {
-                                    errors.add(it.ctx, InvalidCase(it.gid))
-                                }
-                            }
-                            else -> {
-                                elseCount += 1
-                            }
-                        }
-                    }
-                }
-                is SymbolInstantiation -> {
-                    when (val parameterizedSymbol = sourceType.substitutionChain.originalSymbol) {
-                        is ParameterizedCoproductSymbol -> {
-                            parameterizedSymbol.alternatives.forEach {
-                                when (it) {
-                                    is ParameterizedRecordTypeSymbol -> {
-                                        caseMap[it.gid] = sourceType.substitutionChain.replay(it)
-                                    }
-                                    is ObjectSymbol -> {
-                                        caseMap[it.gid] = it
-                                    }
-                                    else -> {
-                                        errors.add(ast.ctx, TypeSystemBug)
-                                    }
-                                }
-                            }
-                            ast.cases.forEach {
-                                when (it) {
-                                    is CoproductBranch -> {
-                                        if (caseMap.containsKey(it.gid)) {
-                                            val symbol = caseMap[it.gid]!!
-                                            if (!seenCases.contains(symbol)) {
-                                                seenCases.add(symbol)
-                                                unseenCases.remove(symbol)
-                                                it.path = generatePath(symbol)
-                                            } else {
-                                                errors.add(it.ctx, DuplicateCase(it.gid))
-                                            }
-                                        } else {
-                                            errors.add(it.ctx, InvalidCase(it.gid))
-                                        }
-                                    }
-                                    else -> {
-                                        elseCount += 1
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-                else -> {
-                    errors.add(ast.ctx, TypeSystemBug)
-                }
-            }
-            val alternativeCount = caseMap.size
-            val seenCount = seenCases.size
-            if (elseCount == 0) {
-                if (seenCount < alternativeCount) {
-                    unseenCases.forEach {
-                        errors.add(ast.ctx, MissingCase(it))
-                    }
-                }
-            } else if (elseCount == 1) {
-                if (seenCount == alternativeCount) {
-                    errors.add(ast.ctx, UnnecessaryElse)
-                }
-            } else {
-                errors.add(ast.ctx, DuplicateElse(elseCount))
-            }
         } catch (ex: LanguageException) {
             errors.addAll(ast.ctx, ex.errors)
         }

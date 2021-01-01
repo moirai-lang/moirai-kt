@@ -12,12 +12,12 @@ sealed class Symbol {
     abstract val parent: Scope<Symbol>
 }
 
-internal object ErrorSymbol : Symbol() {
+object ErrorSymbol : Symbol() {
     override val parent: Scope<Symbol>
         get() = langThrow(NoOwnerAccess)
 }
 
-internal object NullSymbolTable : Symbol(), Scope<Symbol> {
+object NullSymbolTable : Symbol(), Scope<Symbol> {
     override val parent: Scope<Symbol>
         get() = langThrow(NoOwnerAccess)
 
@@ -158,18 +158,6 @@ sealed class SymbolTable : Symbol(), Scope<Symbol> {
                         }
                     }
                     is ParameterizedBasicTypeSymbol -> {
-                        val typeArgs = identifier.args.map { fetch(it) }
-                        if (typeArgs.size != symbol.typeParams.size) {
-                            langThrow(
-                                identifier.ctx,
-                                IncorrectNumberOfTypeArgs(symbol.typeParams.size, typeArgs.size)
-                            )
-                        } else {
-                            val substitution = Substitution(symbol.typeParams, typeArgs)
-                            substitution.apply(symbol)
-                        }
-                    }
-                    is ParameterizedCoproductSymbol -> {
                         val typeArgs = identifier.args.map { fetch(it) }
                         if (typeArgs.size != symbol.typeParams.size) {
                             langThrow(
@@ -575,26 +563,6 @@ data class ParameterizedRecordTypeSymbol(
 ) : ParameterizedSymbol() {
     override lateinit var typeParams: List<TypeParameter>
     lateinit var fields: List<FieldSymbol>
-}
-
-data class GroundCoproductSymbol(
-    override val parent: Scope<Symbol>,
-    override val gid: GroundIdentifier,
-    val featureSupport: FeatureSupport
-) : NamedSymbolTable() {
-    lateinit var alternatives: List<Symbol>
-}
-
-data class ParameterizedCoproductSymbol(
-    override val parent: Scope<Symbol>,
-    override val gid: GroundIdentifier,
-    val featureSupport: FeatureSupport
-) : ParameterizedSymbol() {
-    override lateinit var typeParams: List<TypeParameter>
-    lateinit var alternatives: List<Symbol>
-
-    var sourceType: TypeParameter? = null
-    var replaceParameters: (Symbol, List<Symbol>) -> List<Symbol> = { _, params -> params }
 }
 
 /**

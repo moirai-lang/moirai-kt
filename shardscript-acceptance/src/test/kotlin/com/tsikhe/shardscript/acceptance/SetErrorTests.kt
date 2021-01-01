@@ -114,32 +114,4 @@ class SetErrorTests {
             it.error is ForEachFeatureBan
         }
     }
-
-    @Test
-    fun invalidSourceTypeMapMutableSetTest() {
-        failTest(
-            """
-            val x = MutableSet<Int, 3>(1, 2, 3)
-            map(y in x) {
-                y
-            }
-        """.trimIndent(), 1
-        ) {
-            it.error is MapFeatureBan
-        }
-    }
-
-    @Test
-    fun invalidSourceTypeFlatMapMutableSetTest() {
-        failTest(
-            """
-            val x = MutableSet<Int, 3>(1, 2, 3)
-            flatmap(y in x) {
-                Set(y)
-            }
-        """.trimIndent(), 1
-        ) {
-            it.error is FlatMapFeatureBan
-        }
-    }
 }

@@ -4,7 +4,7 @@ import com.tsikhe.shardscript.semantics.core.*
 import com.tsikhe.shardscript.semantics.prelude.Lang
 import kotlin.math.abs
 
-internal object RangeInstantiation : SingleTypeInstantiation {
+object RangeInstantiation : SingleTypeInstantiation {
     override fun apply(
         ctx: SourceContext,
         errors: LanguageErrors,
@@ -40,7 +40,7 @@ internal object RangeInstantiation : SingleTypeInstantiation {
     }
 }
 
-internal object RandomInstantiation : SingleTypeInstantiation {
+object RandomInstantiation : SingleTypeInstantiation {
     override fun apply(
         ctx: SourceContext,
         errors: LanguageErrors,

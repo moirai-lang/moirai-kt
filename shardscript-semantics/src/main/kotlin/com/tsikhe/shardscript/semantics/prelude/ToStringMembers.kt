@@ -4,7 +4,7 @@ import com.tsikhe.shardscript.semantics.core.*
 import com.tsikhe.shardscript.semantics.infer.SingleParentArgInstantiation
 import com.tsikhe.shardscript.semantics.infer.Substitution
 
-internal fun insertSByteToStringMember(
+fun insertSByteToStringMember(
     sByteType: BasicTypeSymbol,
     stringType: ParameterizedBasicTypeSymbol
 ) {
@@ -24,7 +24,7 @@ internal fun insertSByteToStringMember(
     sByteType.define(res.gid, res)
 }
 
-internal fun insertShortToStringMember(
+fun insertShortToStringMember(
     shortType: BasicTypeSymbol,
     stringType: ParameterizedBasicTypeSymbol
 ) {
@@ -44,7 +44,7 @@ internal fun insertShortToStringMember(
     shortType.define(res.gid, res)
 }
 
-internal fun insertIntegerToStringMember(
+fun insertIntegerToStringMember(
     integerType: BasicTypeSymbol,
     stringType: ParameterizedBasicTypeSymbol
 ) {
@@ -64,7 +64,7 @@ internal fun insertIntegerToStringMember(
     integerType.define(res.gid, res)
 }
 
-internal fun insertLongToStringMember(
+fun insertLongToStringMember(
     longType: BasicTypeSymbol,
     stringType: ParameterizedBasicTypeSymbol
 ) {
@@ -85,7 +85,7 @@ internal fun insertLongToStringMember(
 }
 
 @UseExperimental(ExperimentalUnsignedTypes::class)
-internal fun insertByteToStringMember(
+fun insertByteToStringMember(
     sByteType: BasicTypeSymbol,
     stringType: ParameterizedBasicTypeSymbol
 ) {
@@ -106,7 +106,7 @@ internal fun insertByteToStringMember(
 }
 
 @UseExperimental(ExperimentalUnsignedTypes::class)
-internal fun insertUShortToStringMember(
+fun insertUShortToStringMember(
     shortType: BasicTypeSymbol,
     stringType: ParameterizedBasicTypeSymbol
 ) {
@@ -127,7 +127,7 @@ internal fun insertUShortToStringMember(
 }
 
 @UseExperimental(ExperimentalUnsignedTypes::class)
-internal fun insertUIntToStringMember(
+fun insertUIntToStringMember(
     integerType: BasicTypeSymbol,
     stringType: ParameterizedBasicTypeSymbol
 ) {
@@ -148,7 +148,7 @@ internal fun insertUIntToStringMember(
 }
 
 @UseExperimental(ExperimentalUnsignedTypes::class)
-internal fun insertULongToStringMember(
+fun insertULongToStringMember(
     longType: BasicTypeSymbol,
     stringType: ParameterizedBasicTypeSymbol
 ) {
@@ -168,7 +168,7 @@ internal fun insertULongToStringMember(
     longType.define(res.gid, res)
 }
 
-internal fun insertUnitToStringMember(
+fun insertUnitToStringMember(
     unitType: ObjectSymbol,
     stringType: ParameterizedBasicTypeSymbol
 ) {
@@ -188,7 +188,7 @@ internal fun insertUnitToStringMember(
     unitType.define(res.gid, res)
 }
 
-internal fun insertBooleanToStringMember(
+fun insertBooleanToStringMember(
     booleanType: BasicTypeSymbol,
     stringType: ParameterizedBasicTypeSymbol
 ) {
@@ -208,7 +208,7 @@ internal fun insertBooleanToStringMember(
     booleanType.define(res.gid, res)
 }
 
-internal fun insertDecimalToStringMember(
+fun insertDecimalToStringMember(
     decimalType: ParameterizedBasicTypeSymbol,
     stringType: ParameterizedBasicTypeSymbol
 ) {
@@ -230,7 +230,7 @@ internal fun insertDecimalToStringMember(
     decimalType.define(res.gid, res)
 }
 
-internal fun insertStringToStringMember(
+fun insertStringToStringMember(
     stringType: ParameterizedBasicTypeSymbol
 ) {
     val res = ParameterizedMemberPluginSymbol(
@@ -251,7 +251,7 @@ internal fun insertStringToStringMember(
     stringType.define(res.gid, res)
 }
 
-internal fun insertCharToStringMember(
+fun insertCharToStringMember(
     charType: BasicTypeSymbol,
     stringType: ParameterizedBasicTypeSymbol
 ) {

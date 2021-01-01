@@ -3,11 +3,10 @@ package com.tsikhe.shardscript.semantics.core
 import com.tsikhe.shardscript.semantics.infer.Substitution
 import com.tsikhe.shardscript.semantics.prelude.Lang
 
-internal fun filterValidTypes(ctx: SourceContext, errors: LanguageErrors, symbol: Symbol): Symbol =
+fun filterValidTypes(ctx: SourceContext, errors: LanguageErrors, symbol: Symbol): Symbol =
     when (symbol) {
         ErrorSymbol,
         is GroundRecordTypeSymbol,
-        is GroundCoproductSymbol,
         is Namespace,
         is BasicTypeSymbol,
         is ObjectSymbol,
@@ -30,7 +29,6 @@ internal fun filterValidTypes(ctx: SourceContext, errors: LanguageErrors, symbol
             }
         }
         is ParameterizedBasicTypeSymbol,
-        is ParameterizedCoproductSymbol,
         is ParameterizedRecordTypeSymbol -> {
             errors.add(ctx, CannotUseRawType(symbol))
             ErrorSymbol
@@ -64,7 +62,7 @@ internal fun filterValidTypes(ctx: SourceContext, errors: LanguageErrors, symbol
         }
     }
 
-internal fun filterValidGroundApply(
+fun filterValidGroundApply(
     ctx: SourceContext,
     errors: LanguageErrors,
     symbol: Symbol,
@@ -98,7 +96,6 @@ internal fun filterValidGroundApply(
         }
         is FunctionTypeSymbol,
         is ParameterizedMemberPluginSymbol,
-        is ParameterizedCoproductSymbol,
         is OmicronTypeSymbol,
         is ImmutableOmicronTypeParameter,
         is MutableOmicronTypeParameter,
@@ -114,7 +111,6 @@ internal fun filterValidGroundApply(
         is SumCostExpression,
         is ProductCostExpression,
         is MaxCostExpression,
-        is GroundCoproductSymbol,
         is PreludeTable,
         is ImportTable,
         is FieldSymbol,
@@ -125,7 +121,7 @@ internal fun filterValidGroundApply(
         }
     }
 
-internal fun filterValidDotApply(
+fun filterValidDotApply(
     ctx: SourceContext,
     errors: LanguageErrors,
     symbol: Symbol,
@@ -152,15 +148,10 @@ internal fun filterValidDotApply(
                     }
                     symbol
                 }
-                else -> {
-                    errors.add(ctx, SymbolCouldNotBeApplied(identifier))
-                    ErrorSymbol
-                }
             }
         }
         is FunctionTypeSymbol,
         is ParameterizedMemberPluginSymbol,
-        is ParameterizedCoproductSymbol,
         is OmicronTypeSymbol,
         is ImmutableOmicronTypeParameter,
         is MutableOmicronTypeParameter,
@@ -175,7 +166,6 @@ internal fun filterValidDotApply(
         is SumCostExpression,
         is ProductCostExpression,
         is MaxCostExpression,
-        is GroundCoproductSymbol,
         is PreludeTable,
         is ImportTable,
         is FunctionFormalParameterSymbol,
@@ -193,7 +183,7 @@ fun generatePath(symbol: Symbol): List<String> {
     return inline.toList()
 }
 
-internal fun inlineGeneratePath(symbol: Symbol, path: MutableList<String>) {
+fun inlineGeneratePath(symbol: Symbol, path: MutableList<String>) {
     when (symbol) {
         is GroundRecordTypeSymbol -> {
             if (symbol.parent is Symbol) {
@@ -216,12 +206,6 @@ internal fun inlineGeneratePath(symbol: Symbol, path: MutableList<String>) {
                     path.add(parameterizedType.gid.name)
                 }
                 is ParameterizedRecordTypeSymbol -> {
-                    if (symbol.parent is Symbol) {
-                        inlineGeneratePath(symbol.parent as Symbol, path)
-                    }
-                    path.add(parameterizedType.gid.name)
-                }
-                is ParameterizedCoproductSymbol -> {
                     if (symbol.parent is Symbol) {
                         inlineGeneratePath(symbol.parent as Symbol, path)
                     }
@@ -266,12 +250,6 @@ internal fun inlineGeneratePath(symbol: Symbol, path: MutableList<String>) {
             }
             path.add(symbol.gid.name)
         }
-        is ParameterizedCoproductSymbol -> {
-            if (symbol.parent is Symbol) {
-                inlineGeneratePath(symbol.parent as Symbol, path)
-            }
-            path.add(symbol.gid.name)
-        }
         is StandardTypeParameter -> {
             if (symbol.parent is Symbol) {
                 inlineGeneratePath(symbol.parent as Symbol, path)
@@ -294,7 +272,7 @@ internal fun inlineGeneratePath(symbol: Symbol, path: MutableList<String>) {
     }
 }
 
-internal fun checkTypes(
+fun checkTypes(
     ctx: SourceContext,
     prelude: PreludeTable,
     errors: LanguageErrors,
@@ -331,33 +309,6 @@ internal fun checkTypes(
                         actual.substitutionChain.replayArgs()
                     )
                 }
-                expectedParameterized is ParameterizedCoproductSymbol && actualParameterized is ParameterizedCoproductSymbol -> {
-                    checkTypes(ctx, prelude, errors, expectedParameterized, actualParameterized)
-                    checkTypes(
-                        ctx,
-                        prelude,
-                        errors,
-                        expected.substitutionChain.replayArgs(),
-                        actual.substitutionChain.replayArgs()
-                    )
-                }
-                expectedParameterized is ParameterizedCoproductSymbol && actualParameterized is ParameterizedRecordTypeSymbol -> {
-                    if (expectedParameterized.existsHere(actualParameterized.gid)) {
-                        val member = expectedParameterized.fetchHere(actualParameterized.gid)
-                        if (member is ParameterizedRecordTypeSymbol) {
-                            checkTypes(ctx, prelude, errors, member, actualParameterized)
-                            member.typeParams.map {
-                                expected.substitutionChain.replay(it)
-                            }.zip(actual.substitutionChain.replayArgs()).forEach {
-                                checkTypes(ctx, prelude, errors, it.first, it.second)
-                            }
-                        } else {
-                            errors.add(ctx, TypeMismatch(expectedParameterized, actualParameterized))
-                        }
-                    } else {
-                        errors.add(ctx, TypeMismatch(expectedParameterized, actualParameterized))
-                    }
-                }
                 expectedParameterized is ParameterizedBasicTypeSymbol && actualParameterized is ParameterizedBasicTypeSymbol -> {
                     checkTypes(ctx, prelude, errors, expectedParameterized, actualParameterized)
                     checkTypes(
@@ -370,47 +321,6 @@ internal fun checkTypes(
                 }
             }
         }
-        expected is SymbolInstantiation && actual is ObjectSymbol -> {
-            when (val expectedParameterized = expected.substitutionChain.originalSymbol) {
-                is ParameterizedCoproductSymbol -> {
-                    if (expectedParameterized.existsHere(actual.gid)) {
-                        val member = expectedParameterized.fetchHere(actual.gid)
-                        if (member is ObjectSymbol) {
-                            checkTypes(ctx, prelude, errors, member, actual)
-                        } else {
-                            errors.add(ctx, TypeMismatch(expectedParameterized, actual))
-                        }
-                    } else {
-                        errors.add(ctx, TypeMismatch(expectedParameterized, actual))
-                    }
-                }
-                else -> Unit
-            }
-        }
-        expected is GroundCoproductSymbol && actual is GroundRecordTypeSymbol -> {
-            if (expected.existsHere(actual.gid)) {
-                val member = expected.fetchHere(actual.gid)
-                if (member is GroundRecordTypeSymbol) {
-                    checkTypes(ctx, prelude, errors, member, actual)
-                } else {
-                    errors.add(ctx, TypeMismatch(expected, actual))
-                }
-            } else {
-                errors.add(ctx, TypeMismatch(expected, actual))
-            }
-        }
-        expected is GroundCoproductSymbol && actual is ObjectSymbol -> {
-            if (expected.existsHere(actual.gid)) {
-                val member = expected.fetchHere(actual.gid)
-                if (member is ObjectSymbol) {
-                    checkTypes(ctx, prelude, errors, member, actual)
-                } else {
-                    errors.add(ctx, TypeMismatch(expected, actual))
-                }
-            } else {
-                errors.add(ctx, TypeMismatch(expected, actual))
-            }
-        }
         else -> {
             val expectedPath = generatePath(expected)
             val actualPath = generatePath(actual)
@@ -421,7 +331,7 @@ internal fun checkTypes(
     }
 }
 
-internal fun checkTypes(
+fun checkTypes(
     ctx: SourceContext,
     prelude: PreludeTable,
     errors: LanguageErrors,
@@ -437,7 +347,7 @@ internal fun checkTypes(
     }
 }
 
-internal fun checkApply(prelude: PreludeTable, errors: LanguageErrors, ast: ApplyAst) {
+fun checkApply(prelude: PreludeTable, errors: LanguageErrors, ast: ApplyAst) {
     when (val symbol = ast.symbolRef) {
         is GroundFunctionSymbol -> {
             checkArgs(prelude, errors, symbol.type(), ast)
@@ -495,7 +405,7 @@ internal fun checkApply(prelude: PreludeTable, errors: LanguageErrors, ast: Appl
     }
 }
 
-internal fun checkArgs(prelude: PreludeTable, errors: LanguageErrors, type: FunctionTypeSymbol, ast: ApplyAst) {
+fun checkArgs(prelude: PreludeTable, errors: LanguageErrors, type: FunctionTypeSymbol, ast: ApplyAst) {
     if (type.formalParamTypes.size != ast.args.size) {
         errors.add(ast.ctx, IncorrectNumberOfArgs(type.formalParamTypes.size, ast.args.size))
     } else {
@@ -506,7 +416,7 @@ internal fun checkArgs(prelude: PreludeTable, errors: LanguageErrors, type: Func
     }
 }
 
-internal fun checkArgs(prelude: PreludeTable, errors: LanguageErrors, type: GroundRecordTypeSymbol, ast: ApplyAst) {
+fun checkArgs(prelude: PreludeTable, errors: LanguageErrors, type: GroundRecordTypeSymbol, ast: ApplyAst) {
     if (type.fields.size != ast.args.size) {
         errors.add(ast.ctx, IncorrectNumberOfArgs(type.fields.size, ast.args.size))
     } else {
@@ -516,7 +426,7 @@ internal fun checkArgs(prelude: PreludeTable, errors: LanguageErrors, type: Grou
     }
 }
 
-internal fun checkArgs(
+fun checkArgs(
     prelude: PreludeTable,
     errors: LanguageErrors,
     instantiation: SymbolInstantiation,
@@ -533,7 +443,7 @@ internal fun checkArgs(
     }
 }
 
-internal fun checkArgs(
+fun checkArgs(
     prelude: PreludeTable,
     errors: LanguageErrors,
     instantiation: SymbolInstantiation,
@@ -579,44 +489,7 @@ private fun <T> transpose(table: List<List<T>>): List<List<T>> {
     return res
 }
 
-private fun extractCommonCoproduct(
-    types: List<Symbol>,
-    errors: LanguageErrors,
-    ctx: SourceContext
-): Symbol {
-    val groundCoproducts: MutableList<Symbol> = ArrayList()
-    types.forEach {
-        when (it) {
-            is GroundRecordTypeSymbol -> if (it.parent is GroundCoproductSymbol) {
-                groundCoproducts.add(it.parent as GroundCoproductSymbol)
-            } else {
-                errors.add(ctx, CannotFindBestType(types))
-            }
-            is ObjectSymbol -> if (it.parent is GroundCoproductSymbol) {
-                groundCoproducts.add(it.parent as GroundCoproductSymbol)
-            } else {
-                errors.add(ctx, CannotFindBestType(types))
-            }
-            is GroundCoproductSymbol -> groundCoproducts.add(it)
-            else -> errors.add(ctx, TypeSystemBug)
-        }
-    }
-    return if (groundCoproducts.isNotEmpty()) {
-        val firstCoproduct = groundCoproducts.first()
-        val firstCoproductPath = generatePath(firstCoproduct)
-        if (groundCoproducts.all { firstCoproductPath == generatePath(it) }) {
-            firstCoproduct
-        } else {
-            errors.add(ctx, CannotFindBestType(types))
-            ErrorSymbol
-        }
-    } else {
-        errors.add(ctx, CannotFindBestType(types))
-        ErrorSymbol
-    }
-}
-
-internal fun findBestType(ctx: SourceContext, errors: LanguageErrors, types: List<Symbol>): Symbol {
+fun findBestType(ctx: SourceContext, errors: LanguageErrors, types: List<Symbol>): Symbol {
     if (types.isEmpty()) {
         errors.add(ctx, TypeSystemBug)
         return ErrorSymbol
@@ -629,9 +502,6 @@ internal fun findBestType(ctx: SourceContext, errors: LanguageErrors, types: Lis
                 types.all { it is GroundRecordTypeSymbol && firstPath == generatePath(it) } -> {
                     first
                 }
-                types.all { it is GroundRecordTypeSymbol || it is ObjectSymbol || it is GroundCoproductSymbol } -> {
-                    extractCommonCoproduct(types, errors, ctx)
-                }
                 else -> {
                     errors.add(ctx, CannotFindBestType(types))
                     ErrorSymbol
@@ -643,21 +513,10 @@ internal fun findBestType(ctx: SourceContext, errors: LanguageErrors, types: Lis
                 types.all { it is ObjectSymbol && firstPath == generatePath(it) } -> {
                     first
                 }
-                types.all { it is GroundRecordTypeSymbol || it is ObjectSymbol || it is GroundCoproductSymbol } -> {
-                    extractCommonCoproduct(types, errors, ctx)
-                }
                 else -> {
                     errors.add(ctx, CannotFindBestType(types))
                     ErrorSymbol
                 }
-            }
-        }
-        is GroundCoproductSymbol -> {
-            if (types.all { it is GroundCoproductSymbol && firstPath == generatePath(it) }) {
-                first
-            } else {
-                errors.add(ctx, CannotFindBestType(types))
-                ErrorSymbol
             }
         }
         is SymbolInstantiation -> {
@@ -686,26 +545,6 @@ internal fun findBestType(ctx: SourceContext, errors: LanguageErrors, types: Lis
                     if (types.all {
                             it is SymbolInstantiation &&
                                     it.substitutionChain.originalSymbol is ParameterizedBasicTypeSymbol &&
-                                    firstPath == generatePath(it.substitutionChain.originalSymbol) &&
-                                    first.substitutionChain.replayArgs().size ==
-                                    it.substitutionChain.replayArgs().size
-                        }) {
-                        val typeArgs = transpose(types.map {
-                            (it as SymbolInstantiation).substitutionChain.replayArgs()
-                        }).map {
-                            findBestType(ctx, errors, it)
-                        }
-                        val substitution = Substitution(parameterizedType.typeParams, typeArgs)
-                        substitution.apply(parameterizedType)
-                    } else {
-                        errors.add(ctx, CannotFindBestType(types))
-                        ErrorSymbol
-                    }
-                }
-                is ParameterizedCoproductSymbol -> {
-                    if (types.all {
-                            it is SymbolInstantiation &&
-                                    it.substitutionChain.originalSymbol is ParameterizedCoproductSymbol &&
                                     firstPath == generatePath(it.substitutionChain.originalSymbol) &&
                                     first.substitutionChain.replayArgs().size ==
                                     it.substitutionChain.replayArgs().size
@@ -785,7 +624,7 @@ internal fun findBestType(ctx: SourceContext, errors: LanguageErrors, types: Lis
     }
 }
 
-internal fun validateExplicitSymbol(
+fun validateExplicitSymbol(
     ctx: SourceContext,
     errors: LanguageErrors,
     identifier: Identifier,
@@ -793,8 +632,7 @@ internal fun validateExplicitSymbol(
 ) {
     fun isValidTarget(candidate: Symbol): Boolean {
         return when (candidate) {
-            is ParameterizedRecordTypeSymbol,
-            is ParameterizedCoproductSymbol -> true
+            is ParameterizedRecordTypeSymbol -> true
             else -> false
         }
     }
@@ -816,11 +654,6 @@ internal fun validateExplicitSymbol(
                                     errors.add(ctx, ForeignTypeParameter(gid))
                                 }
                             }
-                            is ParameterizedCoproductSymbol -> {
-                                if (!targetParent.existsHere(gid)) {
-                                    errors.add(ctx, ForeignTypeParameter(gid))
-                                }
-                            }
                             is NullSymbolTable -> {
                                 errors.add(ctx, TypeSystemBug)
                             }
@@ -836,7 +669,7 @@ internal fun validateExplicitSymbol(
     }
 }
 
-internal fun validateSubstitution(
+fun validateSubstitution(
     ctx: SourceContext,
     errors: LanguageErrors,
     typeParameter: TypeParameter,
@@ -845,7 +678,6 @@ internal fun validateSubstitution(
     when (typeParameter) {
         is StandardTypeParameter -> when (substitutedSymbol) {
             is GroundRecordTypeSymbol,
-            is GroundCoproductSymbol,
             is BasicTypeSymbol,
             is StandardTypeParameter -> Unit
             is SymbolInstantiation -> {
@@ -854,9 +686,6 @@ internal fun validateSubstitution(
                         errors.add(ctx, TypeArgFeatureBan(substitutedSymbol))
                     }
                     is ParameterizedRecordTypeSymbol -> if (!parameterizedType.featureSupport.typeArg) {
-                        errors.add(ctx, TypeArgFeatureBan(substitutedSymbol))
-                    }
-                    is ParameterizedCoproductSymbol -> if (!parameterizedType.featureSupport.typeArg) {
                         errors.add(ctx, TypeArgFeatureBan(substitutedSymbol))
                     }
                     else -> Unit

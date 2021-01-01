@@ -116,34 +116,6 @@ class ListErrorTests {
     }
 
     @Test
-    fun invalidSourceTypeMapMutableListTest() {
-        failTest(
-            """
-            val x = MutableList<Int, 3>(1, 2, 3)
-            map(y in x) {
-                y
-            }
-        """.trimIndent(), 1
-        ) {
-            it.error is MapFeatureBan
-        }
-    }
-
-    @Test
-    fun invalidSourceTypeFlatMapMutableListTest() {
-        failTest(
-            """
-            val x = MutableList<Int, 3>(1, 2, 3)
-            flatmap(y in x) {
-                List(y)
-            }
-        """.trimIndent(), 1
-        ) {
-            it.error is FlatMapFeatureBan
-        }
-    }
-
-    @Test
     fun omicronTypeParamMutableListTest() {
         failTest(
             """

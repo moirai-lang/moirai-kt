@@ -2,7 +2,7 @@ package com.tsikhe.shardscript.semantics.visitors
 
 import com.tsikhe.shardscript.semantics.core.*
 
-internal class OmicronDebuggerAstVisitor(val architecture: Architecture) : UnitAstVisitor() {
+class OmicronDebuggerAstVisitor(val architecture: Architecture) : UnitAstVisitor() {
     fun testNode(ast: Ast) {
         val cost = evalCostExpression(ast.costExpression)
         if (cost > architecture.costUpperLimit) {
@@ -110,11 +110,6 @@ internal class OmicronDebuggerAstVisitor(val architecture: Architecture) : UnitA
         testNode(ast)
     }
 
-    override fun visit(ast: EnumDefinitionAst) {
-        super.visit(ast)
-        testNode(ast)
-    }
-
     override fun visit(ast: DotAst) {
         super.visit(ast)
         testNode(ast)
@@ -135,16 +130,6 @@ internal class OmicronDebuggerAstVisitor(val architecture: Architecture) : UnitA
         testNode(ast)
     }
 
-    override fun visit(ast: MapAst) {
-        super.visit(ast)
-        testNode(ast)
-    }
-
-    override fun visit(ast: FlatMapAst) {
-        super.visit(ast)
-        testNode(ast)
-    }
-
     override fun visit(ast: AssignAst) {
         super.visit(ast)
         testNode(ast)
@@ -156,11 +141,6 @@ internal class OmicronDebuggerAstVisitor(val architecture: Architecture) : UnitA
     }
 
     override fun visit(ast: IfAst) {
-        super.visit(ast)
-        testNode(ast)
-    }
-
-    override fun visit(ast: SwitchAst) {
         super.visit(ast)
         testNode(ast)
     }

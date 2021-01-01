@@ -2,7 +2,7 @@ package com.tsikhe.shardscript.semantics.visitors
 
 import com.tsikhe.shardscript.semantics.core.*
 
-internal class BanSecondDegreeAstVisitor : UnitAstVisitor() {
+class BanSecondDegreeAstVisitor : UnitAstVisitor() {
     private fun checkForSecondDegree(ctx: SourceContext, gid: GroundIdentifier, ofTypeSymbol: FunctionTypeSymbol) {
         if (ofTypeSymbol.returnType is FunctionTypeSymbol) {
             errors.add(ctx, FunctionReturnType(gid))

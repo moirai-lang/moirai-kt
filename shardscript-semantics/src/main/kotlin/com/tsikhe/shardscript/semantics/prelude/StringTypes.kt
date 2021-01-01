@@ -3,7 +3,7 @@ package com.tsikhe.shardscript.semantics.prelude
 import com.tsikhe.shardscript.semantics.core.*
 import com.tsikhe.shardscript.semantics.infer.StringInstantiation
 
-internal fun stringType(
+fun stringType(
     booleanType: BasicTypeSymbol,
     intType: BasicTypeSymbol,
     charType: BasicTypeSymbol,

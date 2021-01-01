@@ -3,7 +3,7 @@ package com.tsikhe.shardscript.semantics.prelude
 import com.tsikhe.shardscript.semantics.core.*
 import com.tsikhe.shardscript.semantics.infer.DecimalInstantiation
 
-internal fun intType(
+fun intType(
     architecture: Architecture,
     numericId: GroundIdentifier,
     booleanType: BasicTypeSymbol,
@@ -33,7 +33,7 @@ internal fun intType(
     return intType
 }
 
-internal fun decimalType(
+fun decimalType(
     numericId: GroundIdentifier,
     booleanType: BasicTypeSymbol,
     langNS: Namespace

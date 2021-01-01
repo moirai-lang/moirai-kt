@@ -2,7 +2,7 @@ package com.tsikhe.shardscript.semantics.visitors
 
 import com.tsikhe.shardscript.semantics.core.*
 
-internal fun addFunctionEdge(
+fun addFunctionEdge(
     processFirst: Symbol,
     processSecond: Symbol,
     edges: MutableSet<DependencyEdge<Symbol>>,
@@ -35,7 +35,7 @@ internal fun addFunctionEdge(
     edges.add(DependencyEdge(first, second))
 }
 
-internal fun higherOrderEdges(
+fun higherOrderEdges(
     args: List<Ast>,
     astSymbolRef: Symbol,
     edges: MutableSet<DependencyEdge<Symbol>>,
@@ -65,7 +65,7 @@ internal fun higherOrderEdges(
     }
 }
 
-internal class GenerateFunctionEdgesAstVisitor : UnitAstVisitor() {
+class GenerateFunctionEdgesAstVisitor : UnitAstVisitor() {
     val edges: MutableSet<DependencyEdge<Symbol>> = HashSet()
     val nodes: MutableSet<Symbol> = HashSet()
 

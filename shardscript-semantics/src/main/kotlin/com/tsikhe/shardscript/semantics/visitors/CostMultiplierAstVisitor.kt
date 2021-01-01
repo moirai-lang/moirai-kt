@@ -2,12 +2,12 @@ package com.tsikhe.shardscript.semantics.visitors
 
 import com.tsikhe.shardscript.semantics.core.*
 
-internal data class ParamCostExMultiplier(
+data class ParamCostExMultiplier(
     val formalParameterSymbol: FunctionFormalParameterSymbol,
     val costExpression: CostExpression
 )
 
-internal class CostMultiplierAstVisitor(val architecture: Architecture) : AstVisitor<List<ParamCostExMultiplier>> {
+class CostMultiplierAstVisitor(val architecture: Architecture) : AstVisitor<List<ParamCostExMultiplier>> {
     override fun visit(ast: SByteLiteralAst): List<ParamCostExMultiplier> {
         return listOf()
     }
@@ -103,12 +103,6 @@ internal class CostMultiplierAstVisitor(val architecture: Architecture) : AstVis
         return listOf()
     }
 
-    override fun visit(ast: EnumDefinitionAst): List<ParamCostExMultiplier> {
-        val res = ast.records.flatMap { it.accept(this) }.toMutableList()
-        res.addAll(ast.objects.flatMap { it.accept(this) })
-        return res
-    }
-
     override fun visit(ast: DotAst): List<ParamCostExMultiplier> {
         return ast.lhs.accept(this)
     }
@@ -159,48 +153,6 @@ internal class CostMultiplierAstVisitor(val architecture: Architecture) : AstVis
         return res
     }
 
-    override fun visit(ast: MapAst): List<ParamCostExMultiplier> {
-        val res = ast.source.accept(this).toMutableList()
-        val multiplier: CostExpression = when (val omicron = ast.sourceOmicronSymbol) {
-            is ImmutableOmicronTypeParameter -> omicron
-            is OmicronTypeSymbol -> omicron
-            else -> {
-                langThrow(ast.ctx, TypeSystemBug)
-            }
-        }
-        val body = ast.body.accept(this)
-        body.forEach {
-            res.add(
-                ParamCostExMultiplier(
-                    it.formalParameterSymbol,
-                    ProductCostExpression(listOf(it.costExpression, multiplier))
-                )
-            )
-        }
-        return res
-    }
-
-    override fun visit(ast: FlatMapAst): List<ParamCostExMultiplier> {
-        val res = ast.source.accept(this).toMutableList()
-        val multiplier: CostExpression = when (val omicron = ast.sourceOmicronSymbol) {
-            is ImmutableOmicronTypeParameter -> omicron
-            is OmicronTypeSymbol -> omicron
-            else -> {
-                langThrow(ast.ctx, TypeSystemBug)
-            }
-        }
-        val body = ast.body.accept(this)
-        body.forEach {
-            res.add(
-                ParamCostExMultiplier(
-                    it.formalParameterSymbol,
-                    ProductCostExpression(listOf(it.costExpression, multiplier))
-                )
-            )
-        }
-        return res
-    }
-
     override fun visit(ast: AssignAst): List<ParamCostExMultiplier> {
         return ast.rhs.accept(this).toMutableList()
     }
@@ -215,14 +167,6 @@ internal class CostMultiplierAstVisitor(val architecture: Architecture) : AstVis
         val res = ast.condition.accept(this).toMutableList()
         res.addAll(ast.trueBranch.accept(this))
         res.addAll(ast.falseBranch.accept(this))
-        return res
-    }
-
-    override fun visit(ast: SwitchAst): List<ParamCostExMultiplier> {
-        val res = ast.source.accept(this).toMutableList()
-        ast.cases.forEach {
-            res.addAll(it.body.accept(this))
-        }
         return res
     }
 

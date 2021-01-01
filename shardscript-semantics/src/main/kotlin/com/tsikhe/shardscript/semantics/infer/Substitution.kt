@@ -40,7 +40,6 @@ class Substitution(
         when (symbol) {
             is FunctionTypeSymbol -> applyFunctionType(symbol)
             is ParameterizedRecordTypeSymbol -> apply(symbol)
-            is ParameterizedCoproductSymbol -> apply(symbol)
             is ParameterizedBasicTypeSymbol -> apply(symbol)
             is SymbolInstantiation -> apply(symbol)
             is StandardTypeParameter -> {

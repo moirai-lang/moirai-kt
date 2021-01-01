@@ -5,7 +5,7 @@ import com.tsikhe.shardscript.semantics.infer.DualOmicronPluginInstantiation
 import com.tsikhe.shardscript.semantics.infer.SingleParentArgInstantiation
 import com.tsikhe.shardscript.semantics.infer.Substitution
 
-internal object DecimalMathOpMembers {
+object DecimalMathOpMembers {
     fun members(
         decimalType: ParameterizedBasicTypeSymbol,
         decimalTypeParam: ImmutableOmicronTypeParameter
@@ -235,7 +235,7 @@ internal object DecimalMathOpMembers {
     }
 }
 
-internal object DecimalOrderOpMembers {
+object DecimalOrderOpMembers {
     fun members(
         decimalType: ParameterizedBasicTypeSymbol,
         decimalTypeParam: ImmutableOmicronTypeParameter,
@@ -408,7 +408,7 @@ internal object DecimalOrderOpMembers {
     }
 }
 
-internal object DecimalEqualityOpMembers {
+object DecimalEqualityOpMembers {
     fun members(
         decimalType: ParameterizedBasicTypeSymbol,
         decimalTypeParam: ImmutableOmicronTypeParameter,

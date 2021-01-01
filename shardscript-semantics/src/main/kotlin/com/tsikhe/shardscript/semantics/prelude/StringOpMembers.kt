@@ -5,7 +5,7 @@ import com.tsikhe.shardscript.semantics.infer.DualOmicronPluginInstantiation
 import com.tsikhe.shardscript.semantics.infer.SingleParentArgInstantiation
 import com.tsikhe.shardscript.semantics.infer.Substitution
 
-internal fun pluginToCharArray(
+fun pluginToCharArray(
     stringType: ParameterizedBasicTypeSymbol,
     stringTypeParam: ImmutableOmicronTypeParameter,
     charType: BasicTypeSymbol,
@@ -28,7 +28,7 @@ internal fun pluginToCharArray(
     return res
 }
 
-internal object StringEqualityOpMembers {
+object StringEqualityOpMembers {
     fun members(
         stringType: ParameterizedBasicTypeSymbol,
         stringTypeParam: ImmutableOmicronTypeParameter,

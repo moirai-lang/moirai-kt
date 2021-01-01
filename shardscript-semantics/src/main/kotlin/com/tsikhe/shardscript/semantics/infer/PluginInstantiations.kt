@@ -2,7 +2,7 @@ package com.tsikhe.shardscript.semantics.infer
 
 import com.tsikhe.shardscript.semantics.core.*
 
-internal object DualOmicronPluginInstantiation : TwoTypeInstantiation {
+object DualOmicronPluginInstantiation : TwoTypeInstantiation {
     override fun apply(
         ctx: SourceContext,
         errors: LanguageErrors,
@@ -39,7 +39,7 @@ internal object DualOmicronPluginInstantiation : TwoTypeInstantiation {
     }
 }
 
-internal object DoubleParentSingleOmicronPluginInstantiation : TwoTypeInstantiation {
+object DoubleParentSingleOmicronPluginInstantiation : TwoTypeInstantiation {
     override fun apply(
         ctx: SourceContext,
         errors: LanguageErrors,
@@ -77,7 +77,7 @@ internal object DoubleParentSingleOmicronPluginInstantiation : TwoTypeInstantiat
     }
 }
 
-internal object TripleParentSingleOmicronPluginInstantiation : TwoTypeInstantiation {
+object TripleParentSingleOmicronPluginInstantiation : TwoTypeInstantiation {
     override fun apply(
         ctx: SourceContext,
         errors: LanguageErrors,
@@ -116,7 +116,7 @@ internal object TripleParentSingleOmicronPluginInstantiation : TwoTypeInstantiat
     }
 }
 
-internal object SingleParentArgInstantiation : TwoTypeInstantiation {
+object SingleParentArgInstantiation : TwoTypeInstantiation {
     override fun apply(
         ctx: SourceContext,
         errors: LanguageErrors,
@@ -144,7 +144,7 @@ internal object SingleParentArgInstantiation : TwoTypeInstantiation {
     }
 }
 
-internal object DoubleParentArgInstantiation : TwoTypeInstantiation {
+object DoubleParentArgInstantiation : TwoTypeInstantiation {
     override fun apply(
         ctx: SourceContext,
         errors: LanguageErrors,
@@ -173,7 +173,7 @@ internal object DoubleParentArgInstantiation : TwoTypeInstantiation {
     }
 }
 
-internal object TripleParentArgInstantiation : TwoTypeInstantiation {
+object TripleParentArgInstantiation : TwoTypeInstantiation {
     override fun apply(
         ctx: SourceContext,
         errors: LanguageErrors,
