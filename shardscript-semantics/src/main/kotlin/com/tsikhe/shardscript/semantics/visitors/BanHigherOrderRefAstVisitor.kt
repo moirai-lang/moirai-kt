@@ -9,7 +9,7 @@ class BanHigherOrderRefAstVisitor : UnitAstVisitor() {
     override fun visit(ast: RefAst) {
         if (ast.symbolRef is FunctionFormalParameterSymbol) {
             if (ast.readType() is FunctionTypeSymbol) {
-                errors.add(ast.ctx, CannotRefFunctionParam(ast.gid))
+                errors.add(ast.ctx, CannotRefFunctionParam(ast.identifier))
             }
         }
     }

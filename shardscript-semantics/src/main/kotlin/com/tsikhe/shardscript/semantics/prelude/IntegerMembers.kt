@@ -5,22 +5,22 @@ import com.tsikhe.shardscript.semantics.core.*
 fun insertIntegerConversionMembers(
     architecture: Architecture,
     integerType: BasicTypeSymbol,
-    integerTypes: Map<GroundIdentifier, BasicTypeSymbol>
+    integerTypes: Map<Identifier, BasicTypeSymbol>
 ) {
-    val filters = setOf(integerType.gid.name)
+    val filters = setOf(integerType.identifier.name)
     val constantOmicron = OmicronTypeSymbol(architecture.defaultNodeCost)
     IntegerConversionsMembers.members(integerType, constantOmicron, integerTypes).forEach { (name, plugin) ->
         if (!filters.contains(name)) {
-            integerType.define(GroundIdentifier(name), plugin)
+            integerType.define(Identifier(name), plugin)
         }
     }
 }
 
 object IntegerConversionsMembers {
     fun members(
-        integerType: SymbolTable,
+        integerType: Scope<Symbol>,
         costExpression: CostExpression,
-        integerTypes: Map<GroundIdentifier, BasicTypeSymbol>
+        integerTypes: Map<Identifier, BasicTypeSymbol>
     ): Map<String, GroundMemberPluginSymbol> = mapOf(
         IntegerConversions.ToSigned8.idStr to pluginToSigned8(integerType, costExpression, integerTypes),
         IntegerConversions.ToSigned16.idStr to pluginToSigned16(integerType, costExpression, integerTypes),
@@ -33,21 +33,21 @@ object IntegerConversionsMembers {
     )
 
     private fun pluginToSigned8(
-        integerType: SymbolTable,
+        integerType: Scope<Symbol>,
         costExpression: CostExpression,
-        integerTypes: Map<GroundIdentifier, BasicTypeSymbol>
+        integerTypes: Map<Identifier, BasicTypeSymbol>
     ): GroundMemberPluginSymbol {
         val res = GroundMemberPluginSymbol(
             integerType,
-            Lang.sByteId
-        ) { t: Value, _: List<Value> ->
+            Lang.sByteId,
+        { t: Value, _: List<Value> ->
             try {
                 (t as IntegerConversionsValue).evalToSigned8()
             } catch (_: Exception) {
                 langThrow(NotInSource, RuntimeIntegerConversion)
             }
-        }
-        val outputType = integerTypes[res.gid]!!
+        })
+        val outputType = integerTypes[res.identifier]!!
         res.costExpression = costExpression
         res.formalParams = listOf()
         res.returnType = outputType
@@ -55,21 +55,21 @@ object IntegerConversionsMembers {
     }
 
     private fun pluginToSigned16(
-        integerType: SymbolTable,
+        integerType: Scope<Symbol>,
         costExpression: CostExpression,
-        integerTypes: Map<GroundIdentifier, BasicTypeSymbol>
+        integerTypes: Map<Identifier, BasicTypeSymbol>
     ): GroundMemberPluginSymbol {
         val res = GroundMemberPluginSymbol(
             integerType,
-            Lang.shortId
-        ) { t: Value, _: List<Value> ->
+            Lang.shortId,
+        { t: Value, _: List<Value> ->
             try {
                 (t as IntegerConversionsValue).evalToSigned16()
             } catch (_: Exception) {
                 langThrow(NotInSource, RuntimeIntegerConversion)
             }
-        }
-        val outputType = integerTypes[res.gid]!!
+        })
+        val outputType = integerTypes[res.identifier]!!
         res.costExpression = costExpression
         res.formalParams = listOf()
         res.returnType = outputType
@@ -77,21 +77,21 @@ object IntegerConversionsMembers {
     }
 
     private fun pluginToSigned32(
-        integerType: SymbolTable,
+        integerType: Scope<Symbol>,
         costExpression: CostExpression,
-        integerTypes: Map<GroundIdentifier, BasicTypeSymbol>
+        integerTypes: Map<Identifier, BasicTypeSymbol>
     ): GroundMemberPluginSymbol {
         val res = GroundMemberPluginSymbol(
             integerType,
-            Lang.intId
-        ) { t: Value, _: List<Value> ->
+            Lang.intId,
+        { t: Value, _: List<Value> ->
             try {
                 (t as IntegerConversionsValue).evalToSigned32()
             } catch (_: Exception) {
                 langThrow(NotInSource, RuntimeIntegerConversion)
             }
-        }
-        val outputType = integerTypes[res.gid]!!
+        })
+        val outputType = integerTypes[res.identifier]!!
         res.costExpression = costExpression
         res.formalParams = listOf()
         res.returnType = outputType
@@ -99,21 +99,21 @@ object IntegerConversionsMembers {
     }
 
     private fun pluginToSigned64(
-        integerType: SymbolTable,
+        integerType: Scope<Symbol>,
         costExpression: CostExpression,
-        integerTypes: Map<GroundIdentifier, BasicTypeSymbol>
+        integerTypes: Map<Identifier, BasicTypeSymbol>
     ): GroundMemberPluginSymbol {
         val res = GroundMemberPluginSymbol(
             integerType,
-            Lang.longId
-        ) { t: Value, _: List<Value> ->
+            Lang.longId,
+        { t: Value, _: List<Value> ->
             try {
                 (t as IntegerConversionsValue).evalToSigned64()
             } catch (_: Exception) {
                 langThrow(NotInSource, RuntimeIntegerConversion)
             }
-        }
-        val outputType = integerTypes[res.gid]!!
+        })
+        val outputType = integerTypes[res.identifier]!!
         res.costExpression = costExpression
         res.formalParams = listOf()
         res.returnType = outputType
@@ -121,21 +121,21 @@ object IntegerConversionsMembers {
     }
 
     private fun pluginToUnsigned8(
-        integerType: SymbolTable,
+        integerType: Scope<Symbol>,
         costExpression: CostExpression,
-        integerTypes: Map<GroundIdentifier, BasicTypeSymbol>
+        integerTypes: Map<Identifier, BasicTypeSymbol>
     ): GroundMemberPluginSymbol {
         val res = GroundMemberPluginSymbol(
             integerType,
-            Lang.byteId
-        ) { t: Value, _: List<Value> ->
+            Lang.byteId,
+        { t: Value, _: List<Value> ->
             try {
                 (t as IntegerConversionsValue).evalToUnsigned8()
             } catch (_: Exception) {
                 langThrow(NotInSource, RuntimeIntegerConversion)
             }
-        }
-        val outputType = integerTypes[res.gid]!!
+        })
+        val outputType = integerTypes[res.identifier]!!
         res.costExpression = costExpression
         res.formalParams = listOf()
         res.returnType = outputType
@@ -143,21 +143,21 @@ object IntegerConversionsMembers {
     }
 
     private fun pluginToUnsigned16(
-        integerType: SymbolTable,
+        integerType: Scope<Symbol>,
         costExpression: CostExpression,
-        integerTypes: Map<GroundIdentifier, BasicTypeSymbol>
+        integerTypes: Map<Identifier, BasicTypeSymbol>
     ): GroundMemberPluginSymbol {
         val res = GroundMemberPluginSymbol(
             integerType,
-            Lang.uShortId
-        ) { t: Value, _: List<Value> ->
+            Lang.uShortId,
+        { t: Value, _: List<Value> ->
             try {
                 (t as IntegerConversionsValue).evalToUnsigned16()
             } catch (_: Exception) {
                 langThrow(NotInSource, RuntimeIntegerConversion)
             }
-        }
-        val outputType = integerTypes[res.gid]!!
+        })
+        val outputType = integerTypes[res.identifier]!!
         res.costExpression = costExpression
         res.formalParams = listOf()
         res.returnType = outputType
@@ -165,21 +165,21 @@ object IntegerConversionsMembers {
     }
 
     private fun pluginToUnsigned32(
-        integerType: SymbolTable,
+        integerType: Scope<Symbol>,
         costExpression: CostExpression,
-        integerTypes: Map<GroundIdentifier, BasicTypeSymbol>
+        integerTypes: Map<Identifier, BasicTypeSymbol>
     ): GroundMemberPluginSymbol {
         val res = GroundMemberPluginSymbol(
             integerType,
-            Lang.uIntId
-        ) { t: Value, _: List<Value> ->
+            Lang.uIntId,
+        { t: Value, _: List<Value> ->
             try {
                 (t as IntegerConversionsValue).evalToUnsigned32()
             } catch (_: Exception) {
                 langThrow(NotInSource, RuntimeIntegerConversion)
             }
-        }
-        val outputType = integerTypes[res.gid]!!
+        })
+        val outputType = integerTypes[res.identifier]!!
         res.costExpression = costExpression
         res.formalParams = listOf()
         res.returnType = outputType
@@ -187,21 +187,21 @@ object IntegerConversionsMembers {
     }
 
     private fun pluginToUnsigned64(
-        integerType: SymbolTable,
+        integerType: Scope<Symbol>,
         costExpression: CostExpression,
-        integerTypes: Map<GroundIdentifier, BasicTypeSymbol>
+        integerTypes: Map<Identifier, BasicTypeSymbol>
     ): GroundMemberPluginSymbol {
         val res = GroundMemberPluginSymbol(
             integerType,
-            Lang.uLongId
-        ) { t: Value, _: List<Value> ->
+            Lang.uLongId,
+        { t: Value, _: List<Value> ->
             try {
                 (t as IntegerConversionsValue).evalToUnsigned64()
             } catch (_: Exception) {
                 langThrow(NotInSource, RuntimeIntegerConversion)
             }
-        }
-        val outputType = integerTypes[res.gid]!!
+        })
+        val outputType = integerTypes[res.identifier]!!
         res.costExpression = costExpression
         res.formalParams = listOf()
         res.returnType = outputType

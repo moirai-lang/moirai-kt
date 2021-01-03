@@ -6,31 +6,39 @@ import com.tsikhe.shardscript.semantics.visitors.*
 fun createFileScope(
     sourceContext: SourceContext,
     namespaceParts: List<String>,
-    root: Scope<Symbol>
+    root: NamespaceBase
 ): Namespace {
     if (namespaceParts.isEmpty()) {
         val error = LanguageError(sourceContext, FilesMustHaveNamespace)
         filterThrow(setOf(error))
     }
 
-    var owner: Scope<Symbol> = root
-    namespaceParts.forEach { current ->
-        val currentId = GroundIdentifier(current)
-        owner = if (!owner.existsHere(currentId)) {
-            val currentSymbol = Namespace(owner, currentId)
-            owner.define(currentId, currentSymbol)
-            currentSymbol
-        } else {
-            val currentSymbol = owner.fetchHere(currentId)
-            if (currentSymbol is Namespace) {
-                currentSymbol
-            } else {
-                langThrow(sourceContext, IdentifierAlreadyExists(currentId))
-            }
-        }
+    var owner: Namespace = namespaceParts.first().let { current ->
+        navigateDown(root, Identifier(current), sourceContext)
     }
 
-    return owner as Namespace
+    namespaceParts.drop(1).forEach { current ->
+        owner = navigateDown(owner, Identifier(current), sourceContext)
+    }
+
+    return owner
+}
+
+private fun navigateDown(
+    namespaceBase: NamespaceBase,
+    currentId: Identifier,
+    sourceContext: SourceContext
+) = if (!namespaceBase.existsHere(currentId)) {
+    val currentSymbol = Namespace(namespaceBase, currentId)
+    namespaceBase.define(currentId, currentSymbol)
+    currentSymbol
+} else {
+    val currentSymbol = namespaceBase.fetchHere(currentId)
+    if (currentSymbol is Namespace) {
+        currentSymbol
+    } else {
+        langThrow(sourceContext, IdentifierAlreadyExists(currentId))
+    }
 }
 
 fun bindScopes(
@@ -178,8 +186,8 @@ fun calculateCost(symbol: Symbol, architecture: Architecture) {
         is GroundFunctionSymbol -> {
             symbol.body.accept(costExpressionAstVisitor)
             val bodyCost = symbol.body.costExpression
-            symbol.costExpression = if (canEvalImmediately(bodyCost)) {
-                OmicronTypeSymbol(evalCostExpression(bodyCost))
+            symbol.costExpression = if (bodyCost.accept(CanEvalCostExpressionVisitor)) {
+                OmicronTypeSymbol(bodyCost.accept(EvalCostExpressionVisitor(architecture)))
             } else {
                 bodyCost
             }
@@ -187,8 +195,8 @@ fun calculateCost(symbol: Symbol, architecture: Architecture) {
         is ParameterizedFunctionSymbol -> {
             symbol.body.accept(costExpressionAstVisitor)
             val bodyCost = symbol.body.costExpression
-            symbol.costExpression = if (canEvalImmediately(bodyCost)) {
-                OmicronTypeSymbol(evalCostExpression(bodyCost))
+            symbol.costExpression = if (bodyCost.accept(CanEvalCostExpressionVisitor)) {
+                OmicronTypeSymbol(bodyCost.accept(EvalCostExpressionVisitor(architecture)))
             } else {
                 bodyCost
             }
@@ -215,7 +223,7 @@ fun calculateCost(ast: FileAst, architecture: Architecture) {
 }
 
 fun enforceCostLimit(ast: FileAst, architecture: Architecture) {
-    val cost = evalCostExpression(ast.costExpression)
+    val cost = ast.costExpression.accept(EvalCostExpressionVisitor(architecture))
     if (cost > architecture.costUpperLimit) {
         filterThrow(setOf(LanguageError(NotInSource, CostOverLimit)))
     }

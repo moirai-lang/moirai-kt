@@ -29,7 +29,7 @@ object RangeInstantiation : SingleTypeInstantiation {
                 val second = intArgs[1].canonicalForm
                 val min = first.coerceAtMost(second)
                 val max = first.coerceAtLeast(second)
-                val omicron = OmicronTypeSymbol(abs(max - min).toBigInteger())
+                val omicron = OmicronTypeSymbol(abs(max - min).toLong())
                 val substitution = Substitution(parameterized.typeParams, listOf(omicron))
                 return substitution.apply(parameterized)
             } else {

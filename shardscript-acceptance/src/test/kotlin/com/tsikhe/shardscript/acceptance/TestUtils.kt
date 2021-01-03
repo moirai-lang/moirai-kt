@@ -8,19 +8,18 @@ import com.tsikhe.shardscript.semantics.core.*
 import com.tsikhe.shardscript.semantics.workflow.createSystemScopes
 import org.junit.Assert
 import java.math.BigDecimal
-import java.math.BigInteger
 
 object TestArchitecture : Architecture {
-    override val defaultNodeCost: BigInteger = (1).toBigInteger()
-    override val distributedPluginCost: BigInteger = (1000).toBigInteger()
-    override val costUpperLimit: BigInteger = (5000).toBigInteger()
+    override val defaultNodeCost: Long = (1).toLong()
+    override val distributedPluginCost: Long = (1000).toLong()
+    override val costUpperLimit: Long = (5000).toLong()
 }
 
 
 object LargeComputationArchitecture : Architecture {
-    override val defaultNodeCost: BigInteger = (1).toBigInteger()
-    override val distributedPluginCost: BigInteger = (1000).toBigInteger()
-    override val costUpperLimit: BigInteger = (100000000).toBigInteger()
+    override val defaultNodeCost: Long = (1).toLong()
+    override val distributedPluginCost: Long = (1000).toLong()
+    override val costUpperLimit: Long = (100000000).toLong()
 }
 
 fun eval(
@@ -42,7 +41,7 @@ fun eval(
         executionArtifacts.semanticArtifacts.file
     )
     val globalScope = ValueTable(router)
-    val evalVisitor = EvalAstVisitor(prelude)
+    val evalVisitor = EvalAstVisitor()
 
     router.initFunctionCallback = { fv ->
         fv.globalScope = globalScope

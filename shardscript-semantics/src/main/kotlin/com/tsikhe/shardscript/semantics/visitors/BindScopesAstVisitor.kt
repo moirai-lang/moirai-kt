@@ -155,22 +155,22 @@ class BindScopesAstVisitor(
 
     override fun visit(ast: FunctionAst, param: Scope<Symbol>) {
         try {
-            val symbol = if (ast.typeParams.isEmpty()) {
-                GroundFunctionSymbol(param, ast.gid, ast.ctx, ast.body)
+            val symbol: SymbolWithMembers = if (ast.typeParams.isEmpty()) {
+                GroundFunctionSymbol(param, ast.identifier, ast.ctx, ast.body)
             } else {
                 ast.typeParams.forEach {
-                    if (it == ast.gid) {
+                    if (it == ast.identifier) {
                         errors.add(it.ctx, MaskingTypeParameter(it))
                     }
                 }
-                ParameterizedFunctionSymbol(param, ast.gid, ast.ctx, ast.body)
+                ParameterizedFunctionSymbol(param, ast.identifier, ast.ctx, ast.body)
             }
             ast.definitionSpace = param
-            if (ast.definitionSpace.existsHere(ast.gid)) {
-                errors.add(ast.ctx, IdentifierAlreadyExists(ast.gid))
+            if (ast.definitionSpace.existsHere(ast.identifier)) {
+                errors.add(ast.ctx, IdentifierAlreadyExists(ast.identifier))
             } else {
                 ast.definitionSpace.define(
-                    ast.gid,
+                    ast.identifier,
                     symbol
                 )
             }
@@ -183,32 +183,32 @@ class BindScopesAstVisitor(
 
     override fun visit(ast: RecordDefinitionAst, param: Scope<Symbol>) {
         try {
-            val symbol = if (ast.typeParams.isEmpty()) {
+            val symbol: SymbolWithMembers = if (ast.typeParams.isEmpty()) {
                 val res = GroundRecordTypeSymbol(
                     param,
-                    ast.gid,
+                    ast.identifier,
                     userTypeFeatureSupport
                 )
                 res
             } else {
                 val res = ParameterizedRecordTypeSymbol(
                     param,
-                    ast.gid,
+                    ast.identifier,
                     userTypeFeatureSupport
                 )
                 ast.typeParams.forEach {
-                    if (it == ast.gid) {
+                    if (it == ast.identifier) {
                         errors.add(it.ctx, MaskingTypeParameter(it))
                     }
                 }
                 res
             }
             ast.definitionSpace = param
-            if (ast.definitionSpace.existsHere(ast.gid)) {
-                errors.add(ast.ctx, IdentifierAlreadyExists(ast.gid))
+            if (ast.definitionSpace.existsHere(ast.identifier)) {
+                errors.add(ast.ctx, IdentifierAlreadyExists(ast.identifier))
             } else {
                 ast.definitionSpace.define(
-                    ast.gid,
+                    ast.identifier,
                     symbol
                 )
             }
@@ -223,15 +223,15 @@ class BindScopesAstVisitor(
         try {
             val symbol = ObjectSymbol(
                 param,
-                ast.gid,
+                ast.identifier,
                 userTypeFeatureSupport
             )
             ast.definitionSpace = param
-            if (ast.definitionSpace.existsHere(ast.gid)) {
-                errors.add(ast.ctx, IdentifierAlreadyExists(ast.gid))
+            if (ast.definitionSpace.existsHere(ast.identifier)) {
+                errors.add(ast.ctx, IdentifierAlreadyExists(ast.identifier))
             } else {
                 ast.definitionSpace.define(
-                    ast.gid,
+                    ast.identifier,
                     symbol
                 )
             }

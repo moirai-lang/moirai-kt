@@ -9,17 +9,17 @@ private fun createContainsFunction(
     booleanType: BasicTypeSymbol,
     setElementTypeParam: StandardTypeParameter
 ) {
-    val containsId = GroundIdentifier(CollectionMethods.Contains.idStr)
+    val containsId = Identifier(CollectionMethods.Contains.idStr)
     val containsMemberFunction = ParameterizedMemberPluginSymbol(
         setType,
         containsId,
-        SingleParentArgInstantiation
-    ) { t: Value, args: List<Value> ->
+        SingleParentArgInstantiation,
+    { t: Value, args: List<Value> ->
         (t as SetValue).evalContains(args.first())
-    }
+    })
     containsMemberFunction.typeParams = listOf(setElementTypeParam)
     containsMemberFunction.costExpression = costExpression
-    val containsFormalParamId = GroundIdentifier("element")
+    val containsFormalParamId = Identifier("element")
     val containsFormalParam =
         FunctionFormalParameterSymbol(containsMemberFunction, containsFormalParamId, setElementTypeParam)
     containsMemberFunction.define(containsFormalParamId, containsFormalParam)
@@ -35,17 +35,17 @@ private fun createAddFunction(
     unitType: ObjectSymbol,
     setElementTypeParam: StandardTypeParameter
 ) {
-    val addId = GroundIdentifier(CollectionMethods.InsertElement.idStr)
+    val addId = Identifier(CollectionMethods.InsertElement.idStr)
     val addMemberFunction = ParameterizedMemberPluginSymbol(
         setType,
         addId,
-        SingleParentArgInstantiation
-    ) { t: Value, args: List<Value> ->
+        SingleParentArgInstantiation,
+    { t: Value, args: List<Value> ->
         (t as SetValue).evalAdd(args.first())
-    }
+    })
     addMemberFunction.typeParams = listOf(setElementTypeParam)
     addMemberFunction.costExpression = costExpression
-    val addFormalParamId = GroundIdentifier("element")
+    val addFormalParamId = Identifier("element")
     val addFormalParam = FunctionFormalParameterSymbol(addMemberFunction, addFormalParamId, setElementTypeParam)
     addMemberFunction.define(addFormalParamId, addFormalParam)
 
@@ -60,17 +60,17 @@ private fun createRemoveFunction(
     unitType: ObjectSymbol,
     setElementTypeParam: StandardTypeParameter
 ) {
-    val removeId = GroundIdentifier(CollectionMethods.Remove.idStr)
+    val removeId = Identifier(CollectionMethods.Remove.idStr)
     val removeMemberFunction = ParameterizedMemberPluginSymbol(
         setType,
         removeId,
-        SingleParentArgInstantiation
-    ) { t: Value, args: List<Value> ->
+        SingleParentArgInstantiation,
+    { t: Value, args: List<Value> ->
         (t as SetValue).evalRemove(args.first())
-    }
+    })
     removeMemberFunction.typeParams = listOf(setElementTypeParam)
     removeMemberFunction.costExpression = costExpression
-    val removeFormalParamId = GroundIdentifier("element")
+    val removeFormalParamId = Identifier("element")
     val removeFormalParam =
         FunctionFormalParameterSymbol(removeMemberFunction, removeFormalParamId, setElementTypeParam)
     removeMemberFunction.define(removeFormalParamId, removeFormalParam)
@@ -88,11 +88,11 @@ fun createToImmutableSetPlugin(
 ) {
     val plugin = ParameterizedMemberPluginSymbol(
         mutableSetType,
-        GroundIdentifier(CollectionMethods.ToImmutableSet.idStr),
-        DoubleParentArgInstantiation
-    ) { t: Value, _: List<Value> ->
+        Identifier(CollectionMethods.ToImmutableSet.idStr),
+        DoubleParentArgInstantiation,
+    { t: Value, _: List<Value> ->
         (t as SetValue).evalToSet()
-    }
+    })
     plugin.typeParams = listOf(elementType, omicron)
     plugin.formalParams = listOf()
     val outputSubstitution = Substitution(setType.typeParams, listOf(elementType, omicron))
@@ -106,7 +106,7 @@ fun createToImmutableSetPlugin(
                 omicron
             )
         )
-    mutableSetType.define(plugin.gid, plugin)
+    mutableSetType.define(plugin.identifier, plugin)
 }
 
 fun setCollectionType(
@@ -137,7 +137,7 @@ fun setCollectionType(
         setElementTypeParam
     )
 
-    val sizeId = GroundIdentifier(CollectionFields.Size.idStr)
+    val sizeId = Identifier(CollectionFields.Size.idStr)
     val sizeFieldSymbol = PlatformFieldSymbol(
         setType,
         sizeId,
@@ -215,7 +215,7 @@ fun mutableSetCollectionType(
         setType
     )
 
-    val sizeId = GroundIdentifier(CollectionFields.Size.idStr)
+    val sizeId = Identifier(CollectionFields.Size.idStr)
     val sizeFieldSymbol = PlatformFieldSymbol(
         mutableSetType,
         sizeId,

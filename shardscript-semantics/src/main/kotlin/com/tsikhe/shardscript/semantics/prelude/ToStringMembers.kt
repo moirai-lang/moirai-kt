@@ -10,10 +10,10 @@ fun insertSByteToStringMember(
 ) {
     val res = GroundMemberPluginSymbol(
         sByteType,
-        GroundIdentifier(StringMethods.ToString.idStr)
-    ) { t: Value, _: List<Value> ->
+        Identifier(StringMethods.ToString.idStr),
+    { t: Value, _: List<Value> ->
         (t as SByteValue).evalToString()
-    }
+    })
     val omicron = OmicronTypeSymbol(Lang.sByteOmicron)
     res.costExpression = omicron
 
@@ -21,7 +21,7 @@ fun insertSByteToStringMember(
     val stringInstantiation = substitution.apply(stringType)
     res.formalParams = listOf()
     res.returnType = stringInstantiation
-    sByteType.define(res.gid, res)
+    sByteType.define(res.identifier, res)
 }
 
 fun insertShortToStringMember(
@@ -30,10 +30,10 @@ fun insertShortToStringMember(
 ) {
     val res = GroundMemberPluginSymbol(
         shortType,
-        GroundIdentifier(StringMethods.ToString.idStr)
-    ) { t: Value, _: List<Value> ->
+        Identifier(StringMethods.ToString.idStr),
+    { t: Value, _: List<Value> ->
         (t as ShortValue).evalToString()
-    }
+    })
     val omicron = OmicronTypeSymbol(Lang.shortOmicron)
     res.costExpression = omicron
 
@@ -41,7 +41,7 @@ fun insertShortToStringMember(
     val stringInstantiation = substitution.apply(stringType)
     res.formalParams = listOf()
     res.returnType = stringInstantiation
-    shortType.define(res.gid, res)
+    shortType.define(res.identifier, res)
 }
 
 fun insertIntegerToStringMember(
@@ -50,10 +50,10 @@ fun insertIntegerToStringMember(
 ) {
     val res = GroundMemberPluginSymbol(
         integerType,
-        GroundIdentifier(StringMethods.ToString.idStr)
-    ) { t: Value, _: List<Value> ->
+        Identifier(StringMethods.ToString.idStr),
+    { t: Value, _: List<Value> ->
         (t as IntValue).evalToString()
-    }
+    })
     val omicron = OmicronTypeSymbol(Lang.intOmicron)
     res.costExpression = omicron
 
@@ -61,7 +61,7 @@ fun insertIntegerToStringMember(
     val stringInstantiation = substitution.apply(stringType)
     res.formalParams = listOf()
     res.returnType = stringInstantiation
-    integerType.define(res.gid, res)
+    integerType.define(res.identifier, res)
 }
 
 fun insertLongToStringMember(
@@ -70,10 +70,10 @@ fun insertLongToStringMember(
 ) {
     val res = GroundMemberPluginSymbol(
         longType,
-        GroundIdentifier(StringMethods.ToString.idStr)
-    ) { t: Value, _: List<Value> ->
+        Identifier(StringMethods.ToString.idStr),
+    { t: Value, _: List<Value> ->
         (t as LongValue).evalToString()
-    }
+    })
     val omicron = OmicronTypeSymbol(Lang.longOmicron)
     res.costExpression = omicron
 
@@ -81,7 +81,7 @@ fun insertLongToStringMember(
     val stringInstantiation = substitution.apply(stringType)
     res.formalParams = listOf()
     res.returnType = stringInstantiation
-    longType.define(res.gid, res)
+    longType.define(res.identifier, res)
 }
 
 @UseExperimental(ExperimentalUnsignedTypes::class)
@@ -91,10 +91,10 @@ fun insertByteToStringMember(
 ) {
     val res = GroundMemberPluginSymbol(
         sByteType,
-        GroundIdentifier(StringMethods.ToString.idStr)
-    ) { t: Value, _: List<Value> ->
+        Identifier(StringMethods.ToString.idStr),
+    { t: Value, _: List<Value> ->
         (t as ByteValue).evalToString()
-    }
+    })
     val omicron = OmicronTypeSymbol(Lang.byteOmicron)
     res.costExpression = omicron
 
@@ -102,7 +102,7 @@ fun insertByteToStringMember(
     val stringInstantiation = substitution.apply(stringType)
     res.formalParams = listOf()
     res.returnType = stringInstantiation
-    sByteType.define(res.gid, res)
+    sByteType.define(res.identifier, res)
 }
 
 @UseExperimental(ExperimentalUnsignedTypes::class)
@@ -112,10 +112,10 @@ fun insertUShortToStringMember(
 ) {
     val res = GroundMemberPluginSymbol(
         shortType,
-        GroundIdentifier(StringMethods.ToString.idStr)
-    ) { t: Value, _: List<Value> ->
+        Identifier(StringMethods.ToString.idStr),
+    { t: Value, _: List<Value> ->
         (t as UShortValue).evalToString()
-    }
+    })
     val omicron = OmicronTypeSymbol(Lang.uShortOmicron)
     res.costExpression = omicron
 
@@ -123,7 +123,7 @@ fun insertUShortToStringMember(
     val stringInstantiation = substitution.apply(stringType)
     res.formalParams = listOf()
     res.returnType = stringInstantiation
-    shortType.define(res.gid, res)
+    shortType.define(res.identifier, res)
 }
 
 @UseExperimental(ExperimentalUnsignedTypes::class)
@@ -133,10 +133,10 @@ fun insertUIntToStringMember(
 ) {
     val res = GroundMemberPluginSymbol(
         integerType,
-        GroundIdentifier(StringMethods.ToString.idStr)
-    ) { t: Value, _: List<Value> ->
+        Identifier(StringMethods.ToString.idStr),
+    { t: Value, _: List<Value> ->
         (t as UIntValue).evalToString()
-    }
+    })
     val omicron = OmicronTypeSymbol(Lang.uIntOmicron)
     res.costExpression = omicron
 
@@ -144,7 +144,7 @@ fun insertUIntToStringMember(
     val stringInstantiation = substitution.apply(stringType)
     res.formalParams = listOf()
     res.returnType = stringInstantiation
-    integerType.define(res.gid, res)
+    integerType.define(res.identifier, res)
 }
 
 @UseExperimental(ExperimentalUnsignedTypes::class)
@@ -154,10 +154,10 @@ fun insertULongToStringMember(
 ) {
     val res = GroundMemberPluginSymbol(
         longType,
-        GroundIdentifier(StringMethods.ToString.idStr)
-    ) { t: Value, _: List<Value> ->
+        Identifier(StringMethods.ToString.idStr),
+    { t: Value, _: List<Value> ->
         (t as ULongValue).evalToString()
-    }
+    })
     val omicron = OmicronTypeSymbol(Lang.uLongOmicron)
     res.costExpression = omicron
 
@@ -165,7 +165,7 @@ fun insertULongToStringMember(
     val stringInstantiation = substitution.apply(stringType)
     res.formalParams = listOf()
     res.returnType = stringInstantiation
-    longType.define(res.gid, res)
+    longType.define(res.identifier, res)
 }
 
 fun insertUnitToStringMember(
@@ -174,10 +174,10 @@ fun insertUnitToStringMember(
 ) {
     val res = GroundMemberPluginSymbol(
         unitType,
-        GroundIdentifier(StringMethods.ToString.idStr)
-    ) { t: Value, _: List<Value> ->
+        Identifier(StringMethods.ToString.idStr),
+    { t: Value, _: List<Value> ->
         (t as UnitValue).evalToString()
-    }
+    })
     val omicron = OmicronTypeSymbol(Lang.unitOmicron)
     res.costExpression = omicron
 
@@ -185,7 +185,7 @@ fun insertUnitToStringMember(
     val stringInstantiation = substitution.apply(stringType)
     res.formalParams = listOf()
     res.returnType = stringInstantiation
-    unitType.define(res.gid, res)
+    unitType.define(res.identifier, res)
 }
 
 fun insertBooleanToStringMember(
@@ -194,10 +194,10 @@ fun insertBooleanToStringMember(
 ) {
     val res = GroundMemberPluginSymbol(
         booleanType,
-        GroundIdentifier(StringMethods.ToString.idStr)
-    ) { t: Value, _: List<Value> ->
+        Identifier(StringMethods.ToString.idStr),
+    { t: Value, _: List<Value> ->
         (t as BooleanValue).evalToString()
-    }
+    })
     val omicron = OmicronTypeSymbol(Lang.booleanOmicron)
     res.costExpression = omicron
 
@@ -205,7 +205,7 @@ fun insertBooleanToStringMember(
     val stringInstantiation = substitution.apply(stringType)
     res.formalParams = listOf()
     res.returnType = stringInstantiation
-    booleanType.define(res.gid, res)
+    booleanType.define(res.identifier, res)
 }
 
 fun insertDecimalToStringMember(
@@ -214,11 +214,11 @@ fun insertDecimalToStringMember(
 ) {
     val res = ParameterizedMemberPluginSymbol(
         decimalType,
-        GroundIdentifier(StringMethods.ToString.idStr),
-        SingleParentArgInstantiation
-    ) { t: Value, _: List<Value> ->
+        Identifier(StringMethods.ToString.idStr),
+        SingleParentArgInstantiation,
+    { t: Value, _: List<Value> ->
         (t as DecimalValue).evalToString()
-    }
+    })
     val omicron = decimalType.typeParams.first()
     res.costExpression = omicron as ImmutableOmicronTypeParameter
     res.typeParams = listOf(omicron)
@@ -227,7 +227,7 @@ fun insertDecimalToStringMember(
     val stringInstantiation = substitution.apply(stringType)
     res.formalParams = listOf()
     res.returnType = stringInstantiation
-    decimalType.define(res.gid, res)
+    decimalType.define(res.identifier, res)
 }
 
 fun insertStringToStringMember(
@@ -235,11 +235,11 @@ fun insertStringToStringMember(
 ) {
     val res = ParameterizedMemberPluginSymbol(
         stringType,
-        GroundIdentifier(StringMethods.ToString.idStr),
-        SingleParentArgInstantiation
-    ) { t: Value, _: List<Value> ->
+        Identifier(StringMethods.ToString.idStr),
+        SingleParentArgInstantiation,
+    { t: Value, _: List<Value> ->
         (t as StringValue).evalToString()
-    }
+    })
     val omicron = stringType.typeParams.first()
     res.costExpression = omicron as ImmutableOmicronTypeParameter
     res.typeParams = listOf(omicron)
@@ -248,7 +248,7 @@ fun insertStringToStringMember(
     val substitution = Substitution(stringType.typeParams, listOf(omicron))
     val outputType = substitution.apply(stringType)
     res.returnType = outputType
-    stringType.define(res.gid, res)
+    stringType.define(res.identifier, res)
 }
 
 fun insertCharToStringMember(
@@ -257,15 +257,15 @@ fun insertCharToStringMember(
 ) {
     val res = GroundMemberPluginSymbol(
         charType,
-        GroundIdentifier(StringMethods.ToString.idStr)
-    ) { t: Value, _: List<Value> ->
+        Identifier(StringMethods.ToString.idStr),
+    { t: Value, _: List<Value> ->
         (t as CharValue).evalToString()
-    }
+    })
     val omicron = OmicronTypeSymbol(Lang.charOmicron)
     res.costExpression = omicron
     val substitution = Substitution(stringType.typeParams, listOf(omicron))
     val stringInstantiation = substitution.apply(stringType)
     res.formalParams = listOf()
     res.returnType = stringInstantiation
-    charType.define(res.gid, res)
+    charType.define(res.identifier, res)
 }

@@ -2,6 +2,7 @@ package com.tsikhe.shardscript.semantics.workflow
 
 import com.tsikhe.shardscript.semantics.core.*
 import com.tsikhe.shardscript.semantics.prelude.Lang
+import kotlin.math.sqrt
 
 data class SystemScopes(
     val prelude: PreludeTable,
@@ -90,7 +91,7 @@ fun processAstAllPhases(
     val userScopes = createUserScopes(systemScopes)
     existingArtifacts.forEach { artifacts ->
         registerImports(artifacts.processedAst, userScopes.imports)
-        artifacts.userScopes.userRoot.toMap().forEach { entry ->
+        artifacts.userScopes.userRoot.symbolTable.toMap().forEach { entry ->
             userScopes.userRoot.define(entry.key, entry.value)
         }
     }

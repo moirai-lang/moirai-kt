@@ -19,7 +19,6 @@ data class TypeArgChildren(
 fun linearize(ctx: SourceContext, symbol: Symbol): Set<LinearizedSymbol> =
     when (symbol) {
         ErrorSymbol -> setOf()
-        NullSymbolTable -> setOf()
         is GroundRecordTypeSymbol -> {
             val res: MutableSet<LinearizedSymbol> = HashSet()
             res.add(SymbolOnly(ctx, symbol))

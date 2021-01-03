@@ -1,95 +1,94 @@
 package com.tsikhe.shardscript.semantics.prelude
 
 import com.tsikhe.shardscript.semantics.core.*
-import java.math.BigInteger
 
 @UseExperimental(ExperimentalUnsignedTypes::class)
 object Lang {
-    val shardId = GroundIdentifier("shard")
-    val langId = GroundIdentifier("lang")
-    val unitId = GroundIdentifier("Unit")
-    val booleanId = GroundIdentifier("Boolean")
+    val shardId = Identifier("shard")
+    val langId = Identifier("lang")
+    val unitId = Identifier("Unit")
+    val booleanId = Identifier("Boolean")
 
-    val sByteId = GroundIdentifier("SByte")
+    val sByteId = Identifier("SByte")
     const val sByteSuffix = "s8"
-    val shortId = GroundIdentifier("Short")
+    val shortId = Identifier("Short")
     const val shortSuffix = "s16"
-    val intId = GroundIdentifier("Int")
-    val longId = GroundIdentifier("Long")
+    val intId = Identifier("Int")
+    val longId = Identifier("Long")
     const val longSuffix = "s64"
 
-    val byteId = GroundIdentifier("Byte")
+    val byteId = Identifier("Byte")
     const val byteSuffix = "u8"
-    val uShortId = GroundIdentifier("UShort")
+    val uShortId = Identifier("UShort")
     const val uShortSuffix = "u16"
-    val uIntId = GroundIdentifier("UInt")
+    val uIntId = Identifier("UInt")
     const val uIntSuffix = "u32"
-    val uLongId = GroundIdentifier("ULong")
+    val uLongId = Identifier("ULong")
     const val uLongSuffix = "u64"
 
-    val charId = GroundIdentifier("Char")
-    val stringId = GroundIdentifier("String")
-    val stringTypeId = GroundIdentifier("#O")
-    val stringInputTypeId = GroundIdentifier("#P")
+    val charId = Identifier("Char")
+    val stringId = Identifier("String")
+    val stringTypeId = Identifier("#O")
+    val stringInputTypeId = Identifier("#P")
 
-    val decimalId = GroundIdentifier("Decimal")
-    val decimalTypeId = GroundIdentifier("#O")
-    val decimalInputTypeId = GroundIdentifier("#P")
+    val decimalId = Identifier("Decimal")
+    val decimalTypeId = Identifier("#O")
+    val decimalInputTypeId = Identifier("#P")
 
-    val listId = GroundIdentifier("List")
-    val listElementTypeId = GroundIdentifier("E")
-    val listOmicronTypeId = GroundIdentifier("#O")
-    val listInputOmicronTypeId = GroundIdentifier("#P")
+    val listId = Identifier("List")
+    val listElementTypeId = Identifier("E")
+    val listOmicronTypeId = Identifier("#O")
+    val listInputOmicronTypeId = Identifier("#P")
 
-    val mutableListId = GroundIdentifier("MutableList")
-    val mutableListElementTypeId = GroundIdentifier("E")
-    val mutableListOmicronTypeId = GroundIdentifier("#O")
-    val mutableListInputOmicronTypeId = GroundIdentifier("#P")
+    val mutableListId = Identifier("MutableList")
+    val mutableListElementTypeId = Identifier("E")
+    val mutableListOmicronTypeId = Identifier("#O")
+    val mutableListInputOmicronTypeId = Identifier("#P")
 
-    val pairId = GroundIdentifier("Pair")
-    val pairFirstTypeId = GroundIdentifier("A")
-    val pairSecondTypeId = GroundIdentifier("B")
-    val pairFirstId = GroundIdentifier("first")
-    val pairSecondId = GroundIdentifier("second")
+    val pairId = Identifier("Pair")
+    val pairFirstTypeId = Identifier("A")
+    val pairSecondTypeId = Identifier("B")
+    val pairFirstId = Identifier("first")
+    val pairSecondId = Identifier("second")
 
-    val dictionaryId = GroundIdentifier("Dictionary")
-    val dictionaryKeyTypeId = GroundIdentifier("K")
-    val dictionaryValueTypeId = GroundIdentifier("V")
-    val dictionaryOmicronTypeId = GroundIdentifier("#O")
-    val dictionaryInputOmicronTypeId = GroundIdentifier("#P")
+    val dictionaryId = Identifier("Dictionary")
+    val dictionaryKeyTypeId = Identifier("K")
+    val dictionaryValueTypeId = Identifier("V")
+    val dictionaryOmicronTypeId = Identifier("#O")
+    val dictionaryInputOmicronTypeId = Identifier("#P")
 
-    val mutableDictionaryId = GroundIdentifier("MutableDictionary")
-    val mutableDictionaryKeyTypeId = GroundIdentifier("K")
-    val mutableDictionaryValueTypeId = GroundIdentifier("V")
-    val mutableDictionaryOmicronTypeId = GroundIdentifier("#O")
-    val mutableDictionaryInputOmicronTypeId = GroundIdentifier("#P")
+    val mutableDictionaryId = Identifier("MutableDictionary")
+    val mutableDictionaryKeyTypeId = Identifier("K")
+    val mutableDictionaryValueTypeId = Identifier("V")
+    val mutableDictionaryOmicronTypeId = Identifier("#O")
+    val mutableDictionaryInputOmicronTypeId = Identifier("#P")
 
-    val setId = GroundIdentifier("Set")
-    val setElementTypeId = GroundIdentifier("E")
-    val setOmicronTypeId = GroundIdentifier("#O")
-    val setInputOmicronTypeId = GroundIdentifier("#P")
+    val setId = Identifier("Set")
+    val setElementTypeId = Identifier("E")
+    val setOmicronTypeId = Identifier("#O")
+    val setInputOmicronTypeId = Identifier("#P")
 
-    val mutableSetId = GroundIdentifier("MutableSet")
-    val mutableSetElementTypeId = GroundIdentifier("E")
-    val mutableSetOmicronTypeId = GroundIdentifier("#O")
-    val mutableSetInputOmicronTypeId = GroundIdentifier("#P")
+    val mutableSetId = Identifier("MutableSet")
+    val mutableSetElementTypeId = Identifier("E")
+    val mutableSetOmicronTypeId = Identifier("#O")
+    val mutableSetInputOmicronTypeId = Identifier("#P")
 
-    val rangeId = GroundIdentifier("range")
-    val rangeTypeId = GroundIdentifier("#O")
-    val randomId = GroundIdentifier("random")
-    val randomTypeId = GroundIdentifier("A")
+    val rangeId = Identifier("range")
+    val rangeTypeId = Identifier("#O")
+    val randomId = Identifier("random")
+    val randomTypeId = Identifier("A")
 
-    val sByteOmicron: BigInteger = (Byte.MIN_VALUE.toString().length + sByteSuffix.length).toBigInteger()
-    val shortOmicron: BigInteger = (Short.MIN_VALUE.toString().length + shortSuffix.length).toBigInteger()
-    val intOmicron: BigInteger = (Int.MIN_VALUE.toString().length).toBigInteger()
-    val longOmicron: BigInteger = (Long.MIN_VALUE.toString().length + longSuffix.length).toBigInteger()
-    val byteOmicron: BigInteger = (UByte.MIN_VALUE.toString().length + byteSuffix.length).toBigInteger()
-    val uShortOmicron: BigInteger = (UShort.MIN_VALUE.toString().length + uShortSuffix.length).toBigInteger()
-    val uIntOmicron: BigInteger = (UInt.MIN_VALUE.toString().length + uIntSuffix.length).toBigInteger()
-    val uLongOmicron: BigInteger = (ULong.MIN_VALUE.toString().length + uLongSuffix.length).toBigInteger()
-    val unitOmicron: BigInteger = unitId.name.length.toBigInteger()
-    val booleanOmicron: BigInteger = false.toString().length.toBigInteger()
-    val charOmicron: BigInteger = BigInteger.ONE
+    val sByteOmicron: Long = (Byte.MIN_VALUE.toString().length + sByteSuffix.length).toLong()
+    val shortOmicron: Long = (Short.MIN_VALUE.toString().length + shortSuffix.length).toLong()
+    val intOmicron: Long = (Int.MIN_VALUE.toString().length).toLong()
+    val longOmicron: Long = (Long.MIN_VALUE.toString().length + longSuffix.length).toLong()
+    val byteOmicron: Long = (UByte.MIN_VALUE.toString().length + byteSuffix.length).toLong()
+    val uShortOmicron: Long = (UShort.MIN_VALUE.toString().length + uShortSuffix.length).toLong()
+    val uIntOmicron: Long = (UInt.MIN_VALUE.toString().length + uIntSuffix.length).toLong()
+    val uLongOmicron: Long = (ULong.MIN_VALUE.toString().length + uLongSuffix.length).toLong()
+    val unitOmicron: Long = unitId.name.length.toLong()
+    val booleanOmicron: Long = false.toString().length.toLong()
+    val charOmicron: Long = 1L
 
     fun isUnitExactly(symbol: Symbol): Boolean =
         when (generatePath(symbol)) {
@@ -124,11 +123,11 @@ object Lang {
         )
         val constantOmicron = OmicronTypeSymbol(architecture.defaultNodeCost)
         ValueEqualityOpMembers.members(booleanType, constantOmicron, booleanType).forEach { (name, plugin) ->
-            booleanType.define(GroundIdentifier(name), plugin)
+            booleanType.define(Identifier(name), plugin)
         }
 
         ValueLogicalOpMembers.members(booleanType, constantOmicron).forEach { (name, plugin) ->
-            booleanType.define(GroundIdentifier(name), plugin)
+            booleanType.define(Identifier(name), plugin)
         }
 
         // Integer Types
@@ -151,7 +150,7 @@ object Lang {
             charId
         )
         ValueEqualityOpMembers.members(charType, constantOmicron, charType).forEach { (name, plugin) ->
-            charType.define(GroundIdentifier(name), plugin)
+            charType.define(Identifier(name), plugin)
         }
 
         // List
@@ -181,14 +180,14 @@ object Lang {
 
         // Integer Conversions
         val integerTypes = mapOf(
-            sByteType.gid to sByteType,
-            shortType.gid to shortType,
-            intType.gid to intType,
-            longType.gid to longType,
-            byteType.gid to byteType,
-            uShortType.gid to uShortType,
-            uIntType.gid to uIntType,
-            uLongType.gid to uLongType
+            sByteType.identifier to sByteType,
+            shortType.identifier to shortType,
+            intType.identifier to intType,
+            longType.identifier to longType,
+            byteType.identifier to byteType,
+            uShortType.identifier to uShortType,
+            uIntType.identifier to uIntType,
+            uLongType.identifier to uLongType
         )
         insertIntegerConversionMembers(architecture, sByteType, integerTypes)
         insertIntegerConversionMembers(architecture, shortType, integerTypes)

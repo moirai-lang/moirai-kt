@@ -4,7 +4,7 @@ import com.tsikhe.shardscript.semantics.core.*
 
 class OmicronDebuggerAstVisitor(val architecture: Architecture) : UnitAstVisitor() {
     fun testNode(ast: Ast) {
-        val cost = evalCostExpression(ast.costExpression)
+        val cost = ast.costExpression.accept(EvalCostExpressionVisitor(architecture))
         if (cost > architecture.costUpperLimit) {
             filterThrow(setOf(LanguageError(NotInSource, CostOverLimit)))
         }

@@ -2,7 +2,7 @@ package com.tsikhe.shardscript.eval
 
 import com.tsikhe.shardscript.semantics.core.*
 
-class EvalAstVisitor(prelude: PreludeTable) : ParameterizedAstVisitor<ValueTable, Value> {
+class EvalAstVisitor : ParameterizedAstVisitor<ValueTable, Value> {
     override fun visit(ast: FileAst, param: ValueTable): Value {
         val blockScope = ValueTable(param)
         val resLines = ast.lines.map { it.accept(this, blockScope) }
@@ -17,12 +17,12 @@ class EvalAstVisitor(prelude: PreludeTable) : ParameterizedAstVisitor<ValueTable
 
     override fun visit(ast: LetAst, param: ValueTable): Value {
         val right = ast.rhs.accept(this, param)
-        param.define(ast.gid, right)
+        param.define(ast.identifier, right)
         return UnitValue
     }
 
     override fun visit(ast: RefAst, param: ValueTable): Value {
-        return param.fetch(ast.gid)
+        return param.fetch(ast.identifier)
     }
 
     override fun visit(ast: SByteLiteralAst, param: ValueTable): Value =
@@ -96,7 +96,7 @@ class EvalAstVisitor(prelude: PreludeTable) : ParameterizedAstVisitor<ValueTable
     override fun visit(ast: DotAst, param: ValueTable): Value {
         return when (val lhs = ast.lhs.accept(this, param)) {
             is RecordValue -> {
-                lhs.fields.fetch(ast.gid)
+                lhs.fields.fetch(ast.identifier)
             }
             is ListValue -> {
                 (ast.symbolRef as PlatformFieldSymbol).accessor(lhs)
@@ -111,7 +111,7 @@ class EvalAstVisitor(prelude: PreludeTable) : ParameterizedAstVisitor<ValueTable
                 (ast.symbolRef as PlatformFieldSymbol).accessor(lhs)
             }
             is NamespaceValue -> {
-                lhs.router.fetchHere(ast.gid)
+                lhs.router.fetchHere(ast.identifier)
             }
             else -> {
                 langThrow(ast.ctx, TypeSystemBug)
@@ -182,7 +182,7 @@ class EvalAstVisitor(prelude: PreludeTable) : ParameterizedAstVisitor<ValueTable
                                             val functionScope = ValueTable(lhs.fields)
                                             val function = parameterizedType.body
                                             parameterizedType.formalParams.zip(args).forEach {
-                                                functionScope.define(it.first.gid, it.second)
+                                                functionScope.define(it.first.identifier, it.second)
                                             }
                                             return function.accept(this, functionScope)
                                         }
@@ -206,7 +206,7 @@ class EvalAstVisitor(prelude: PreludeTable) : ParameterizedAstVisitor<ValueTable
                                     val functionScope = ValueTable(lhs.fields)
                                     val function = toApply.body
                                     toApply.formalParams.zip(args).forEach {
-                                        functionScope.define(it.first.gid, it.second)
+                                        functionScope.define(it.first.identifier, it.second)
                                     }
                                     return function.accept(this, functionScope)
                                 }
@@ -231,7 +231,7 @@ class EvalAstVisitor(prelude: PreludeTable) : ParameterizedAstVisitor<ValueTable
             is ListValue -> {
                 source.elements.forEach {
                     val bodyScope = ValueTable(param)
-                    bodyScope.define(ast.gid, it)
+                    bodyScope.define(ast.identifier, it)
                     ast.body.accept(this, bodyScope)
                 }
                 return UnitValue
@@ -244,7 +244,7 @@ class EvalAstVisitor(prelude: PreludeTable) : ParameterizedAstVisitor<ValueTable
 
     override fun visit(ast: AssignAst, param: ValueTable): Value {
         val rhs = ast.rhs.accept(this, param)
-        param.assign(ast.gid, rhs)
+        param.assign(ast.identifier, rhs)
         return UnitValue
     }
 
@@ -252,7 +252,7 @@ class EvalAstVisitor(prelude: PreludeTable) : ParameterizedAstVisitor<ValueTable
         return when (val lhs = ast.lhs.accept(this, param)) {
             is RecordValue -> {
                 val rhs = ast.rhs.accept(this, param)
-                lhs.fields.assign(ast.gid, rhs)
+                lhs.fields.assign(ast.identifier, rhs)
                 UnitValue
             }
             else -> {

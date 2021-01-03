@@ -25,7 +25,7 @@ class StringInstantiation : SingleTypeInstantiation {
             when {
                 args.size == 1 && args.first() is StringLiteralAst -> {
                     val stringAst = args.first() as StringLiteralAst
-                    val omicron = OmicronTypeSymbol(stringAst.canonicalForm.length.toBigInteger())
+                    val omicron = OmicronTypeSymbol(stringAst.canonicalForm.length.toLong())
                     val substitution = Substitution(inOrderParameters, listOf(omicron))
                     return substitution.apply(parameterized)
                 }

@@ -25,7 +25,7 @@ class DecimalInstantiation : SingleTypeInstantiation {
             if (args.isNotEmpty()) {
                 val decimalAst = args.first() as DecimalLiteralAst
                 val decimalString = decimalAst.canonicalForm.toPlainString()
-                val omicron = OmicronTypeSymbol(decimalString.length.toBigInteger())
+                val omicron = OmicronTypeSymbol(decimalString.length.toLong())
                 val substitution = Substitution(inOrderParameters, listOf(omicron))
                 return substitution.apply(parameterized)
             } else {

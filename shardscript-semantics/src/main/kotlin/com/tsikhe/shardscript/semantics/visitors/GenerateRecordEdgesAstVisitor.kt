@@ -20,7 +20,7 @@ class GenerateRecordEdgesAstVisitor : UnitAstVisitor() {
     override fun visit(ast: RecordDefinitionAst) {
         super.visit(ast)
         val linearized = linearizeIdentifiers(ast.fields.map { it.ofType })
-            .filterIsInstance<GroundIdentifier>()
+            .filterIsInstance<Identifier>()
             .map { ast.scope.fetch(it) }
         val symbol = ast.scope as Symbol
         linearized.forEach {

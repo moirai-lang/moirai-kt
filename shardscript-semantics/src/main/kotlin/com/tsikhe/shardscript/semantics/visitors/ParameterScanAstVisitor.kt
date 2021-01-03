@@ -4,7 +4,7 @@ import com.tsikhe.shardscript.semantics.core.*
 
 sealed class RecordMode
 
-data class EnumRecord(val enumGid: GroundIdentifier) : RecordMode()
+data class EnumRecord(val enumGid: Identifier) : RecordMode()
 object RecordDef : RecordMode()
 
 class ParameterScanAstVisitor : UnitAstVisitor() {
@@ -15,7 +15,7 @@ class ParameterScanAstVisitor : UnitAstVisitor() {
                 is EnumRecord -> {
                     errors.add(
                         ast.ctx,
-                        ParameterizedGroundMismatch(recordMode.enumGid, parameterizedRecordSymbol.gid)
+                        ParameterizedGroundMismatch(recordMode.enumGid, parameterizedRecordSymbol.identifier)
                     )
                 }
                 is RecordDef -> {

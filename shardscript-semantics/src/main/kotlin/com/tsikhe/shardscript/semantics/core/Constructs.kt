@@ -1,16 +1,14 @@
 package com.tsikhe.shardscript.semantics.core
 
-import java.math.BigInteger
-
 interface LanguageElement {
     var ctx: SourceContext
 }
 
-data class Binder(val gid: GroundIdentifier, val ofType: Identifier) {
+data class Binder(val identifier: Identifier, val ofType: Signifier) {
     lateinit var symbol: Symbol
 }
 
-data class FieldDef(val gid: GroundIdentifier, val ofType: Identifier, val mutable: Boolean) {
+data class FieldDef(val identifier: Identifier, val ofType: Signifier, val mutable: Boolean) {
     lateinit var symbol: Symbol
 }
 
@@ -20,7 +18,7 @@ sealed class CaseBranch : LanguageElement {
 
 data class CoproductBranch(
     override var ctx: SourceContext,
-    val gid: GroundIdentifier,
+    val identifier: Identifier,
     override val body: BlockAst
 ) : CaseBranch() {
     lateinit var path: List<String>
@@ -51,5 +49,5 @@ interface TwoTypeInstantiation {
 
 sealed class BasicTypeMode
 
-data class MutableBasicTypeMode(val omicron: BigInteger) : BasicTypeMode()
+data class MutableBasicTypeMode(val omicron: Long) : BasicTypeMode()
 object ImmutableBasicTypeMode : BasicTypeMode()

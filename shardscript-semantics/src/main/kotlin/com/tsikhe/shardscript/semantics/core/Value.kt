@@ -58,7 +58,7 @@ data class FunctionValue(
     fun invoke(args: List<Value>): Value {
         val functionScope = ValueTable(globalScope)
         formalParams.zip(args).forEach {
-            functionScope.define(it.first.gid, it.second)
+            functionScope.define(it.first.identifier, it.second)
         }
         return evalCallback(body, functionScope)
     }
@@ -102,7 +102,7 @@ data class RecordConstructorValue(val prelude: PreludeTable, val symbol: Symbol)
                     SymbolRouterValueTable(prelude, symbol)
                 )
                 symbol.fields.zip(args).forEach {
-                    fields.define(it.first.gid, it.second)
+                    fields.define(it.first.identifier, it.second)
                 }
                 val res = RecordValue(symbol, fields)
                 res.scope = symbol
@@ -113,7 +113,7 @@ data class RecordConstructorValue(val prelude: PreludeTable, val symbol: Symbol)
                     SymbolRouterValueTable(prelude, symbol)
                 )
                 symbol.fields.zip(args).forEach {
-                    fields.define(it.first.gid, it.second)
+                    fields.define(it.first.identifier, it.second)
                 }
                 val res = RecordValue(symbol, fields)
                 res.scope = symbol
@@ -643,8 +643,8 @@ data class ListValue(val mode: BasicTypeMode, val elements: MutableList<Value>) 
             }
             is MutableBasicTypeMode -> {
                 elements.add(value)
-                if (elements.size.toBigInteger() > mode.omicron) {
-                    langThrow(NotInSource, RuntimeOmicronViolation(mode.omicron, elements.size.toBigInteger()))
+                if (elements.size.toLong() > mode.omicron) {
+                    langThrow(NotInSource, RuntimeOmicronViolation(mode.omicron, elements.size.toLong()))
                 }
                 return UnitValue
             }
@@ -710,8 +710,8 @@ data class SetValue(val mode: BasicTypeMode, val elements: MutableSet<Value>) : 
             }
             is MutableBasicTypeMode -> {
                 elements.add(value)
-                if (elements.size.toBigInteger() > mode.omicron) {
-                    langThrow(NotInSource, RuntimeOmicronViolation(mode.omicron, elements.size.toBigInteger()))
+                if (elements.size.toLong() > mode.omicron) {
+                    langThrow(NotInSource, RuntimeOmicronViolation(mode.omicron, elements.size.toLong()))
                 }
                 return UnitValue
             }
@@ -772,8 +772,8 @@ data class DictionaryValue(
             }
             is MutableBasicTypeMode -> {
                 dictionary[key] = value
-                if (dictionary.size.toBigInteger() > mode.omicron) {
-                    langThrow(NotInSource, RuntimeOmicronViolation(mode.omicron, dictionary.size.toBigInteger()))
+                if (dictionary.size.toLong() > mode.omicron) {
+                    langThrow(NotInSource, RuntimeOmicronViolation(mode.omicron, dictionary.size.toLong()))
                 }
                 return UnitValue
             }
@@ -807,18 +807,18 @@ data class DictionaryValue(
 class SymbolRouterValueTable(private val prelude: PreludeTable, private val symbols: Scope<Symbol>) : Scope<Value> {
     lateinit var initFunctionCallback: (FunctionValue) -> Unit
 
-    override fun define(gid: GroundIdentifier, definition: Value) {
-        langThrow(gid.ctx, IdentifierCouldNotBeDefined(gid))
+    override fun define(identifier: Identifier, definition: Value) {
+        langThrow(identifier.ctx, IdentifierCouldNotBeDefined(identifier))
     }
 
-    override fun exists(identifier: Identifier): Boolean =
-        symbols.exists(identifier)
+    override fun exists(signifier: Signifier): Boolean =
+        symbols.exists(signifier)
 
-    override fun existsHere(identifier: Identifier): Boolean =
-        symbols.existsHere(identifier)
+    override fun existsHere(signifier: Signifier): Boolean =
+        symbols.existsHere(signifier)
 
-    override fun fetch(identifier: Identifier): Value =
-        when (val res = symbols.fetch(identifier)) {
+    override fun fetch(signifier: Signifier): Value =
+        when (val res = symbols.fetch(signifier)) {
             is GroundFunctionSymbol -> {
                 val fv = FunctionValue(res.formalParams, res.body)
                 initFunctionCallback(fv)
@@ -832,11 +832,11 @@ class SymbolRouterValueTable(private val prelude: PreludeTable, private val symb
             is ParameterizedStaticPluginSymbol -> PluginValue(res.plugin)
             is GroundRecordTypeSymbol -> RecordConstructorValue(prelude, res)
             is ParameterizedRecordTypeSymbol -> RecordConstructorValue(prelude, res)
-            is ParameterizedBasicTypeSymbol -> when (res.gid) {
+            is ParameterizedBasicTypeSymbol -> when (res.identifier) {
                 Lang.listId, Lang.mutableListId -> ListConstructorValue(res.modeSelector)
                 Lang.dictionaryId, Lang.mutableDictionaryId -> DictionaryConstructorValue(res.modeSelector)
                 Lang.setId, Lang.mutableSetId -> SetConstructorValue(res.modeSelector)
-                else -> langThrow(identifier.ctx, IdentifierNotFound(identifier))
+                else -> langThrow(signifier.ctx, IdentifierNotFound(signifier))
             }
             is ObjectSymbol -> {
                 when (generatePath(res)) {
@@ -849,11 +849,11 @@ class SymbolRouterValueTable(private val prelude: PreludeTable, private val symb
                 router.initFunctionCallback = initFunctionCallback
                 NamespaceValue(router)
             }
-            else -> langThrow(identifier.ctx, IdentifierNotFound(identifier))
+            else -> langThrow(signifier.ctx, IdentifierNotFound(signifier))
         }
 
-    override fun fetchHere(identifier: Identifier): Value =
-        when (val res = symbols.fetchHere(identifier)) {
+    override fun fetchHere(signifier: Signifier): Value =
+        when (val res = symbols.fetchHere(signifier)) {
             is GroundFunctionSymbol -> {
                 val fv = FunctionValue(res.formalParams, res.body)
                 initFunctionCallback(fv)
@@ -867,11 +867,11 @@ class SymbolRouterValueTable(private val prelude: PreludeTable, private val symb
             is ParameterizedStaticPluginSymbol -> PluginValue(res.plugin)
             is GroundRecordTypeSymbol -> RecordConstructorValue(prelude, res)
             is ParameterizedRecordTypeSymbol -> RecordConstructorValue(prelude, res)
-            is ParameterizedBasicTypeSymbol -> when (res.gid) {
+            is ParameterizedBasicTypeSymbol -> when (res.identifier) {
                 Lang.listId, Lang.mutableListId -> ListConstructorValue(res.modeSelector)
                 Lang.dictionaryId, Lang.mutableDictionaryId -> DictionaryConstructorValue(res.modeSelector)
                 Lang.setId, Lang.mutableSetId -> SetConstructorValue(res.modeSelector)
-                else -> langThrow(identifier.ctx, IdentifierNotFound(identifier))
+                else -> langThrow(signifier.ctx, IdentifierNotFound(signifier))
             }
             is ObjectSymbol -> ObjectValue(res)
             is Namespace -> {
@@ -879,88 +879,88 @@ class SymbolRouterValueTable(private val prelude: PreludeTable, private val symb
                 router.initFunctionCallback = initFunctionCallback
                 NamespaceValue(router)
             }
-            else -> langThrow(identifier.ctx, IdentifierNotFound(identifier))
+            else -> langThrow(signifier.ctx, IdentifierNotFound(signifier))
         }
 }
 
 object NullValueTable : Scope<Value> {
-    override fun define(gid: GroundIdentifier, definition: Value) {
-        langThrow(gid.ctx, IdentifierCouldNotBeDefined(gid))
+    override fun define(identifier: Identifier, definition: Value) {
+        langThrow(identifier.ctx, IdentifierCouldNotBeDefined(identifier))
     }
 
-    override fun exists(identifier: Identifier): Boolean = false
+    override fun exists(signifier: Signifier): Boolean = false
 
-    override fun existsHere(identifier: Identifier): Boolean = false
+    override fun existsHere(signifier: Signifier): Boolean = false
 
-    override fun fetch(identifier: Identifier): Value {
-        langThrow(identifier.ctx, IdentifierNotFound(identifier))
+    override fun fetch(signifier: Signifier): Value {
+        langThrow(signifier.ctx, IdentifierNotFound(signifier))
     }
 
-    override fun fetchHere(identifier: Identifier): Value {
-        langThrow(identifier.ctx, IdentifierNotFound(identifier))
+    override fun fetchHere(signifier: Signifier): Value {
+        langThrow(signifier.ctx, IdentifierNotFound(signifier))
     }
 }
 
 class ValueTable(private val parent: Scope<Value>) : Scope<Value> {
     data class ScopeSlot(var value: Value)
 
-    private val slotTable: MutableMap<GroundIdentifier, ScopeSlot> = HashMap()
+    private val slotTable: MutableMap<Identifier, ScopeSlot> = HashMap()
 
     fun valuesHere() = slotTable.map { Pair(it.key, it.value.value) }.toMap()
 
-    override fun define(gid: GroundIdentifier, definition: Value) {
-        slotTable[gid] = ScopeSlot(definition)
+    override fun define(identifier: Identifier, definition: Value) {
+        slotTable[identifier] = ScopeSlot(definition)
     }
 
-    fun assign(gid: GroundIdentifier, definition: Value) {
-        val slot = fetchSlot(gid)
+    fun assign(identifier: Identifier, definition: Value) {
+        val slot = fetchSlot(identifier)
         slot.value = definition
     }
 
-    private fun fetchSlot(gid: GroundIdentifier): ScopeSlot =
-        if (slotTable.containsKey(gid)) {
-            slotTable[gid]!!
+    private fun fetchSlot(identifier: Identifier): ScopeSlot =
+        if (slotTable.containsKey(identifier)) {
+            slotTable[identifier]!!
         } else {
             if (parent is ValueTable) {
-                parent.fetchSlot(gid)
+                parent.fetchSlot(identifier)
             } else {
-                langThrow(gid.ctx, TypeSystemBug)
+                langThrow(identifier.ctx, TypeSystemBug)
             }
         }
 
-    override fun exists(identifier: Identifier): Boolean =
-        when (identifier) {
-            is GroundIdentifier -> slotTable.containsKey(identifier) || parent.exists(identifier)
+    override fun exists(signifier: Signifier): Boolean =
+        when (signifier) {
+            is Identifier -> slotTable.containsKey(signifier) || parent.exists(signifier)
             else -> false
         }
 
-    override fun existsHere(identifier: Identifier): Boolean =
-        when (identifier) {
-            is GroundIdentifier -> slotTable.containsKey(identifier)
+    override fun existsHere(signifier: Signifier): Boolean =
+        when (signifier) {
+            is Identifier -> slotTable.containsKey(signifier)
             else -> false
         }
 
-    override fun fetch(identifier: Identifier): Value =
-        when (identifier) {
-            is GroundIdentifier -> {
-                if (slotTable.containsKey(identifier)) {
-                    slotTable[identifier]!!.value
+    override fun fetch(signifier: Signifier): Value =
+        when (signifier) {
+            is Identifier -> {
+                if (slotTable.containsKey(signifier)) {
+                    slotTable[signifier]!!.value
                 } else {
-                    parent.fetch(identifier)
+                    parent.fetch(signifier)
                 }
             }
-            else -> langThrow(identifier.ctx, TypeSystemBug)
+            else -> langThrow(signifier.ctx, TypeSystemBug)
         }
 
-    override fun fetchHere(identifier: Identifier): Value =
-        when (identifier) {
-            is GroundIdentifier -> {
-                if (slotTable.containsKey(identifier)) {
-                    slotTable[identifier]!!.value
+    override fun fetchHere(signifier: Signifier): Value =
+        when (signifier) {
+            is Identifier -> {
+                if (slotTable.containsKey(signifier)) {
+                    slotTable[signifier]!!.value
                 } else {
-                    langThrow(identifier.ctx, IdentifierNotFound(identifier))
+                    langThrow(signifier.ctx, IdentifierNotFound(signifier))
                 }
             }
-            else -> langThrow(identifier.ctx, TypeSystemBug)
+            else -> langThrow(signifier.ctx, TypeSystemBug)
         }
 }

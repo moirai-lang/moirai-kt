@@ -8,7 +8,7 @@ class BanFeaturePositionsAstVisitor : UnitAstVisitor() {
         when (val returnType = ast.scope.fetch(ast.returnType)) {
             is ParameterizedBasicTypeSymbol,
             is ParameterizedRecordTypeSymbol -> errors.add(ast.ctx, CannotUseRawType(returnType))
-            is FunctionTypeSymbol -> errors.add(ast.ctx, FunctionReturnType(ast.gid))
+            is FunctionTypeSymbol -> errors.add(ast.ctx, FunctionReturnType(ast.identifier))
             is ObjectSymbol -> {
                 if (!returnType.featureSupport.returnType) {
                     errors.add(ast.ctx, ReturnTypeFeatureBan(returnType))
@@ -59,7 +59,7 @@ class BanFeaturePositionsAstVisitor : UnitAstVisitor() {
         when (val ofTypeSymbol = ast.ofTypeSymbol) {
             is ParameterizedBasicTypeSymbol,
             is ParameterizedRecordTypeSymbol -> errors.add(ast.ctx, CannotUseRawType(ofTypeSymbol))
-            is FunctionTypeSymbol -> errors.add(ast.ctx, FunctionAssign(ast.gid))
+            is FunctionTypeSymbol -> errors.add(ast.ctx, FunctionAssign(ast.identifier))
             else -> Unit
         }
     }
@@ -70,7 +70,7 @@ class BanFeaturePositionsAstVisitor : UnitAstVisitor() {
             when (val fieldType = ast.scope.fetch(it.ofType)) {
                 is ParameterizedBasicTypeSymbol,
                 is ParameterizedRecordTypeSymbol -> errors.add(ast.ctx, CannotUseRawType(fieldType))
-                is FunctionTypeSymbol -> errors.add(ast.ctx, RecordFieldFunctionType(ast.gid, it.gid))
+                is FunctionTypeSymbol -> errors.add(ast.ctx, RecordFieldFunctionType(ast.identifier, it.identifier))
                 is ObjectSymbol -> {
                     if (!fieldType.featureSupport.recordField) {
                         errors.add(ast.ctx, RecordFieldFeatureBan(fieldType))
@@ -96,17 +96,17 @@ class BanFeaturePositionsAstVisitor : UnitAstVisitor() {
 
     override fun visit(ast: AsAst) {
         super.visit(ast)
-        val asType = ast.scope.fetch(ast.identifier)
+        val asType = ast.scope.fetch(ast.signifier)
         if (asType is FunctionTypeSymbol) {
-            errors.add(ast.ctx, InvalidAsCast(ast.identifier))
+            errors.add(ast.ctx, InvalidAsCast(ast.signifier))
         }
     }
 
     override fun visit(ast: IsAst) {
         super.visit(ast)
-        val isType = ast.scope.fetch(ast.identifier)
+        val isType = ast.scope.fetch(ast.signifier)
         if (isType is FunctionTypeSymbol) {
-            errors.add(ast.ctx, InvalidIsCheck(ast.identifier))
+            errors.add(ast.ctx, InvalidIsCheck(ast.signifier))
         }
     }
 }

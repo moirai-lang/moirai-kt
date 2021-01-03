@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "com.tsikhe"
-version = "0.2"
+version = "0.2.1"
 
 repositories {
     jcenter()

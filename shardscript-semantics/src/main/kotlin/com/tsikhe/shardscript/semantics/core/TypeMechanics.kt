@@ -39,7 +39,6 @@ fun filterValidTypes(ctx: SourceContext, errors: LanguageErrors, symbol: Symbol)
             errors.add(ctx, ExpectOtherError)
             ErrorSymbol
         }
-        NullSymbolTable,
         is SystemRootNamespace,
         is UserRootNamespace,
         is Block,
@@ -66,7 +65,7 @@ fun filterValidGroundApply(
     ctx: SourceContext,
     errors: LanguageErrors,
     symbol: Symbol,
-    identifier: Identifier
+    signifier: Signifier
 ): Symbol =
     when (symbol) {
         ErrorSymbol,
@@ -89,7 +88,7 @@ fun filterValidGroundApply(
                     symbol
                 }
                 else -> {
-                    errors.add(ctx, SymbolCouldNotBeApplied(identifier))
+                    errors.add(ctx, SymbolCouldNotBeApplied(signifier))
                     ErrorSymbol
                 }
             }
@@ -99,7 +98,6 @@ fun filterValidGroundApply(
         is OmicronTypeSymbol,
         is ImmutableOmicronTypeParameter,
         is MutableOmicronTypeParameter,
-        NullSymbolTable,
         is GroundMemberPluginSymbol,
         is BasicTypeSymbol,
         is ObjectSymbol,
@@ -116,7 +114,7 @@ fun filterValidGroundApply(
         is FieldSymbol,
         is PlatformFieldSymbol,
         is LocalVariableSymbol -> {
-            errors.add(ctx, SymbolCouldNotBeApplied(identifier))
+            errors.add(ctx, SymbolCouldNotBeApplied(signifier))
             ErrorSymbol
         }
     }
@@ -125,7 +123,7 @@ fun filterValidDotApply(
     ctx: SourceContext,
     errors: LanguageErrors,
     symbol: Symbol,
-    identifier: Identifier
+    signifier: Signifier
 ): Symbol =
     when (symbol) {
         ErrorSymbol,
@@ -155,7 +153,6 @@ fun filterValidDotApply(
         is OmicronTypeSymbol,
         is ImmutableOmicronTypeParameter,
         is MutableOmicronTypeParameter,
-        NullSymbolTable,
         is BasicTypeSymbol,
         is ObjectSymbol,
         is StandardTypeParameter,
@@ -172,7 +169,7 @@ fun filterValidDotApply(
         is FieldSymbol,
         is PlatformFieldSymbol,
         is LocalVariableSymbol -> {
-            errors.add(ctx, SymbolCouldNotBeApplied(identifier))
+            errors.add(ctx, SymbolCouldNotBeApplied(signifier))
             ErrorSymbol
         }
     }
@@ -189,13 +186,13 @@ fun inlineGeneratePath(symbol: Symbol, path: MutableList<String>) {
             if (symbol.parent is Symbol) {
                 inlineGeneratePath(symbol.parent as Symbol, path)
             }
-            path.add(symbol.gid.name)
+            path.add(symbol.identifier.name)
         }
         is ParameterizedRecordTypeSymbol -> {
             if (symbol.parent is Symbol) {
                 inlineGeneratePath(symbol.parent as Symbol, path)
             }
-            path.add(symbol.gid.name)
+            path.add(symbol.identifier.name)
         }
         is SymbolInstantiation -> {
             when (val parameterizedType = symbol.substitutionChain.originalSymbol) {
@@ -203,19 +200,19 @@ fun inlineGeneratePath(symbol: Symbol, path: MutableList<String>) {
                     if (symbol.parent is Symbol) {
                         inlineGeneratePath(symbol.parent as Symbol, path)
                     }
-                    path.add(parameterizedType.gid.name)
+                    path.add(parameterizedType.identifier.name)
                 }
                 is ParameterizedRecordTypeSymbol -> {
                     if (symbol.parent is Symbol) {
                         inlineGeneratePath(symbol.parent as Symbol, path)
                     }
-                    path.add(parameterizedType.gid.name)
+                    path.add(parameterizedType.identifier.name)
                 }
                 is ParameterizedStaticPluginSymbol -> {
                     if (symbol.parent is Symbol) {
                         inlineGeneratePath(symbol.parent as Symbol, path)
                     }
-                    path.add(parameterizedType.gid.name)
+                    path.add(parameterizedType.identifier.name)
                 }
                 else -> Unit
             }
@@ -224,49 +221,49 @@ fun inlineGeneratePath(symbol: Symbol, path: MutableList<String>) {
             if (symbol.parent is Symbol) {
                 inlineGeneratePath(symbol.parent as Symbol, path)
             }
-            path.add(symbol.gid.name)
+            path.add(symbol.identifier.name)
         }
         is ParameterizedStaticPluginSymbol -> {
             if (symbol.parent is Symbol) {
                 inlineGeneratePath(symbol.parent as Symbol, path)
             }
-            path.add(symbol.gid.name)
+            path.add(symbol.identifier.name)
         }
         is Namespace -> {
             if (symbol.parent is Symbol) {
                 inlineGeneratePath(symbol.parent as Symbol, path)
             }
-            path.add(symbol.gid.name)
+            path.add(symbol.identifier.name)
         }
         is BasicTypeSymbol -> {
             if (symbol.parent is Symbol) {
                 inlineGeneratePath(symbol.parent as Symbol, path)
             }
-            path.add(symbol.gid.name)
+            path.add(symbol.identifier.name)
         }
         is ObjectSymbol -> {
             if (symbol.parent is Symbol) {
                 inlineGeneratePath(symbol.parent as Symbol, path)
             }
-            path.add(symbol.gid.name)
+            path.add(symbol.identifier.name)
         }
         is StandardTypeParameter -> {
             if (symbol.parent is Symbol) {
                 inlineGeneratePath(symbol.parent as Symbol, path)
             }
-            path.add(symbol.gid.name)
+            path.add(symbol.identifier.name)
         }
         is ImmutableOmicronTypeParameter -> {
             if (symbol.parent is Symbol) {
                 inlineGeneratePath(symbol.parent as Symbol, path)
             }
-            path.add(symbol.gid.name)
+            path.add(symbol.identifier.name)
         }
         is MutableOmicronTypeParameter -> {
             if (symbol.parent is Symbol) {
                 inlineGeneratePath(symbol.parent as Symbol, path)
             }
-            path.add(symbol.gid.name)
+            path.add(symbol.identifier.name)
         }
         else -> Unit
     }
@@ -450,7 +447,7 @@ fun checkArgs(
     parameterizedType: ParameterizedBasicTypeSymbol,
     ast: ApplyAst
 ) {
-    if (parameterizedType.gid == Lang.dictionaryId || parameterizedType.gid == Lang.mutableDictionaryId) {
+    if (parameterizedType.identifier == Lang.dictionaryId || parameterizedType.identifier == Lang.mutableDictionaryId) {
         val pairType = prelude.fetch(Lang.pairId) as ParameterizedRecordTypeSymbol
         val pairSubstitution = Substitution(
             pairType.typeParams,
@@ -627,7 +624,7 @@ fun findBestType(ctx: SourceContext, errors: LanguageErrors, types: List<Symbol>
 fun validateExplicitSymbol(
     ctx: SourceContext,
     errors: LanguageErrors,
-    identifier: Identifier,
+    signifier: Signifier,
     scope: Scope<Symbol>
 ) {
     fun isValidTarget(candidate: Symbol): Boolean {
@@ -636,26 +633,23 @@ fun validateExplicitSymbol(
             else -> false
         }
     }
-    if (scope is Symbol) {
-        val linearized = linearizeIdentifiers(listOf(identifier))
-        linearized.forEach { gid ->
-            if (gid is GroundIdentifier) {
-                when (scope.fetch(gid)) {
+    if (scope is SymbolTableElement) {
+        val linearized = linearizeIdentifiers(listOf(signifier))
+        linearized.forEach { identifier ->
+            if (identifier is Identifier) {
+                when (scope.fetch(identifier)) {
                     is StandardTypeParameter,
                     is ImmutableOmicronTypeParameter,
                     is MutableOmicronTypeParameter -> {
-                        var targetParent: Symbol = scope
-                        while (targetParent !is NullSymbolTable && !isValidTarget(targetParent)) {
-                            targetParent = targetParent.parent as Symbol
+                        var targetParent: SymbolTableElement = scope
+                        while (!isValidTarget(targetParent)) {
+                            targetParent = targetParent.parent as SymbolTableElement
                         }
                         when (targetParent) {
                             is ParameterizedRecordTypeSymbol -> {
-                                if (!targetParent.existsHere(gid)) {
-                                    errors.add(ctx, ForeignTypeParameter(gid))
+                                if (!targetParent.existsHere(identifier)) {
+                                    errors.add(ctx, ForeignTypeParameter(identifier))
                                 }
-                            }
-                            is NullSymbolTable -> {
-                                errors.add(ctx, TypeSystemBug)
                             }
                             else -> errors.add(ctx, TypeSystemBug)
                         }

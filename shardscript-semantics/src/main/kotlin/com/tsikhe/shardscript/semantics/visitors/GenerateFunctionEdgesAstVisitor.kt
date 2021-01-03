@@ -8,7 +8,7 @@ fun addFunctionEdge(
     edges: MutableSet<DependencyEdge<Symbol>>,
     nodes: MutableSet<Symbol>
 ) {
-    val first = when (processFirst) {
+    val first: Symbol = when (processFirst) {
         is GroundFunctionSymbol -> processFirst
         is ParameterizedFunctionSymbol -> processFirst
         is SymbolInstantiation -> {
@@ -19,7 +19,7 @@ fun addFunctionEdge(
         }
         else -> processFirst
     }
-    val second = when (processSecond) {
+    val second: Symbol = when (processSecond) {
         is GroundFunctionSymbol -> processSecond
         is ParameterizedFunctionSymbol -> processSecond
         is SymbolInstantiation -> {

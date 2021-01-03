@@ -30,7 +30,6 @@ class Substitution(
         val formalParams = typeSymbol.formalParamTypes.map { applySymbol(it) }
         val returnType = applySymbol(typeSymbol.returnType)
         return FunctionTypeSymbol(
-            typeSymbol.parent,
             formalParams,
             returnType
         )
@@ -65,7 +64,7 @@ class Substitution(
         }
 
     fun applyCost(costExpression: CostExpression): CostExpression {
-        val res = when (costExpression) {
+        return when (costExpression) {
             is ImmutableOmicronTypeParameter -> {
                 val res = if (solutions.containsKey(costExpression)) {
                     when (val solution = solutions[costExpression]!!) {
@@ -93,11 +92,6 @@ class Substitution(
             is ProductCostExpression -> ProductCostExpression(costExpression.children.map { applyCost(it) })
             is MaxCostExpression -> MaxCostExpression(costExpression.children.map { applyCost(it) })
             else -> langThrow(TypeSystemBug)
-        }
-        return if (canEvalImmediately(res)) {
-            OmicronTypeSymbol(evalCostExpression(res))
-        } else {
-            res
         }
     }
 }

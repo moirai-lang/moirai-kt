@@ -29,7 +29,7 @@ internal fun createContext(fileName: String, token: Token): SourceContext =
 
 internal fun rewriteAsGroundApply(
     args: List<Ast>,
-    gid: GroundIdentifier,
+    gid: Identifier,
     sourceContext: SourceContext
 ): GroundApplyAst {
     val res = GroundApplyAst(gid, args)
@@ -43,7 +43,7 @@ internal fun rewriteAsDotApply(
     op: BinaryOperator,
     sourceContext: SourceContext
 ): DotApplyAst {
-    val res = DotApplyAst(left, GroundIdentifier(op.idStr), args)
+    val res = DotApplyAst(left, Identifier(op.idStr), args)
     res.ctx = sourceContext
     return res
 }
@@ -54,7 +54,7 @@ internal fun rewriteAsDotApply(
     collectionMethod: CollectionMethods,
     sourceContext: SourceContext
 ): DotApplyAst {
-    val res = DotApplyAst(left, GroundIdentifier(collectionMethod.idStr), args)
+    val res = DotApplyAst(left, Identifier(collectionMethod.idStr), args)
     res.ctx = sourceContext
     return res
 }

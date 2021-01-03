@@ -20,8 +20,8 @@ class ListInstantiation : SingleTypeInstantiation {
                 validateSubstitution(ctx, errors, parameterized.typeParams[1], explicitTypeArgs[1])
                 if (explicitTypeArgs[1] is OmicronTypeSymbol) {
                     val omicron = explicitTypeArgs[1] as OmicronTypeSymbol
-                    if (args.size.toBigInteger() > omicron.magnitude) {
-                        errors.add(ctx, TooManyElements(omicron.magnitude, args.size.toBigInteger()))
+                    if (args.size.toLong() > omicron.magnitude) {
+                        errors.add(ctx, TooManyElements(omicron.magnitude, args.size.toLong()))
                     }
                 }
                 val substitution = Substitution(parameterized.typeParams, explicitTypeArgs)
@@ -44,7 +44,7 @@ class ListInstantiation : SingleTypeInstantiation {
                 constraints.add(
                     Constraint(
                         Left(inOrderParameters[1]),
-                        Right(OmicronTypeSymbol(args.size.toBigInteger()))
+                        Right(OmicronTypeSymbol(args.size.toLong()))
                     )
                 )
                 val substitution = createSubstitution(ctx, constraints, parameterSet, inOrderParameters, errors)
@@ -85,15 +85,15 @@ class MutableListInstantiation : SingleTypeInstantiation {
                 validateSubstitution(ctx, errors, parameterized.typeParams[1], explicitTypeArgs[1])
                 if (explicitTypeArgs[1] is OmicronTypeSymbol) {
                     val omicron = explicitTypeArgs[1] as OmicronTypeSymbol
-                    if (args.size.toBigInteger() > omicron.magnitude) {
-                        errors.add(ctx, TooManyElements(omicron.magnitude, args.size.toBigInteger()))
+                    if (args.size.toLong() > omicron.magnitude) {
+                        errors.add(ctx, TooManyElements(omicron.magnitude, args.size.toLong()))
                     }
                 }
                 val substitution = Substitution(parameterized.typeParams, explicitTypeArgs)
                 return substitution.apply(parameterized)
             }
         } else {
-            langThrow(ctx, TypeRequiresExplicit(parameterized.gid))
+            langThrow(ctx, TypeRequiresExplicit(parameterized.identifier))
         }
     }
 }

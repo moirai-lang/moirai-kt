@@ -24,18 +24,18 @@ object DecimalMathOpMembers {
     ): ParameterizedMemberPluginSymbol {
         val res = ParameterizedMemberPluginSymbol(
             decimalType,
-            GroundIdentifier(BinaryOperator.Add.idStr),
-            DualOmicronPluginInstantiation
-        ) { t: Value, args: List<Value> ->
+            Identifier(BinaryOperator.Add.idStr),
+            DualOmicronPluginInstantiation,
+        { t: Value, args: List<Value> ->
             (t as MathValue).evalAdd(args.first())
-        }
+        })
         val inputTypeArg = ImmutableOmicronTypeParameter(res, Lang.decimalInputTypeId)
-        res.define(inputTypeArg.gid, inputTypeArg)
+        res.define(inputTypeArg.identifier, inputTypeArg)
         res.typeParams = listOf(decimalTypeParam, inputTypeArg)
 
         val inputSubstitution = Substitution(listOf(decimalTypeParam), listOf(inputTypeArg))
         val inputType = inputSubstitution.apply(decimalType)
-        val formalParamId = GroundIdentifier("other")
+        val formalParamId = Identifier("other")
         val formalParam = FunctionFormalParameterSymbol(res, formalParamId, inputType)
         res.define(formalParamId, formalParam)
         res.formalParams = listOf(formalParam)
@@ -65,18 +65,18 @@ object DecimalMathOpMembers {
     ): ParameterizedMemberPluginSymbol {
         val res = ParameterizedMemberPluginSymbol(
             decimalType,
-            GroundIdentifier(BinaryOperator.Sub.idStr),
-            DualOmicronPluginInstantiation
-        ) { t: Value, args: List<Value> ->
+            Identifier(BinaryOperator.Sub.idStr),
+            DualOmicronPluginInstantiation,
+        { t: Value, args: List<Value> ->
             (t as MathValue).evalSub(args.first())
-        }
+        })
         val inputTypeArg = ImmutableOmicronTypeParameter(res, Lang.decimalInputTypeId)
-        res.define(inputTypeArg.gid, inputTypeArg)
+        res.define(inputTypeArg.identifier, inputTypeArg)
         res.typeParams = listOf(decimalTypeParam, inputTypeArg)
 
         val inputSubstitution = Substitution(listOf(decimalTypeParam), listOf(inputTypeArg))
         val inputType = inputSubstitution.apply(decimalType)
-        val formalParamId = GroundIdentifier("other")
+        val formalParamId = Identifier("other")
         val formalParam = FunctionFormalParameterSymbol(res, formalParamId, inputType)
         res.define(formalParamId, formalParam)
         res.formalParams = listOf(formalParam)
@@ -106,18 +106,18 @@ object DecimalMathOpMembers {
     ): ParameterizedMemberPluginSymbol {
         val res = ParameterizedMemberPluginSymbol(
             decimalType,
-            GroundIdentifier(BinaryOperator.Mul.idStr),
-            DualOmicronPluginInstantiation
-        ) { t: Value, args: List<Value> ->
+            Identifier(BinaryOperator.Mul.idStr),
+            DualOmicronPluginInstantiation,
+        { t: Value, args: List<Value> ->
             (t as MathValue).evalMul(args.first())
-        }
+        })
         val inputTypeArg = ImmutableOmicronTypeParameter(res, Lang.decimalInputTypeId)
-        res.define(inputTypeArg.gid, inputTypeArg)
+        res.define(inputTypeArg.identifier, inputTypeArg)
         res.typeParams = listOf(decimalTypeParam, inputTypeArg)
 
         val inputSubstitution = Substitution(listOf(decimalTypeParam), listOf(inputTypeArg))
         val inputType = inputSubstitution.apply(decimalType)
-        val formalParamId = GroundIdentifier("other")
+        val formalParamId = Identifier("other")
         val formalParam = FunctionFormalParameterSymbol(res, formalParamId, inputType)
         res.define(formalParamId, formalParam)
         res.formalParams = listOf(formalParam)
@@ -147,18 +147,18 @@ object DecimalMathOpMembers {
     ): ParameterizedMemberPluginSymbol {
         val res = ParameterizedMemberPluginSymbol(
             decimalType,
-            GroundIdentifier(BinaryOperator.Div.idStr),
-            DualOmicronPluginInstantiation
-        ) { t: Value, args: List<Value> ->
+            Identifier(BinaryOperator.Div.idStr),
+            DualOmicronPluginInstantiation,
+        { t: Value, args: List<Value> ->
             (t as MathValue).evalDiv(args.first())
-        }
+        })
         val inputTypeArg = ImmutableOmicronTypeParameter(res, Lang.decimalInputTypeId)
-        res.define(inputTypeArg.gid, inputTypeArg)
+        res.define(inputTypeArg.identifier, inputTypeArg)
         res.typeParams = listOf(decimalTypeParam, inputTypeArg)
 
         val inputSubstitution = Substitution(listOf(decimalTypeParam), listOf(inputTypeArg))
         val inputType = inputSubstitution.apply(decimalType)
-        val formalParamId = GroundIdentifier("other")
+        val formalParamId = Identifier("other")
         val formalParam = FunctionFormalParameterSymbol(res, formalParamId, inputType)
         res.define(formalParamId, formalParam)
         res.formalParams = listOf(formalParam)
@@ -183,18 +183,18 @@ object DecimalMathOpMembers {
     ): ParameterizedMemberPluginSymbol {
         val res = ParameterizedMemberPluginSymbol(
             decimalType,
-            GroundIdentifier(BinaryOperator.Mod.idStr),
-            DualOmicronPluginInstantiation
-        ) { t: Value, args: List<Value> ->
+            Identifier(BinaryOperator.Mod.idStr),
+            DualOmicronPluginInstantiation,
+        { t: Value, args: List<Value> ->
             (t as MathValue).evalMod(args.first())
-        }
+        })
         val inputTypeArg = ImmutableOmicronTypeParameter(res, Lang.decimalInputTypeId)
-        res.define(inputTypeArg.gid, inputTypeArg)
+        res.define(inputTypeArg.identifier, inputTypeArg)
         res.typeParams = listOf(decimalTypeParam, inputTypeArg)
 
         val inputSubstitution = Substitution(listOf(decimalTypeParam), listOf(inputTypeArg))
         val inputType = inputSubstitution.apply(decimalType)
-        val formalParamId = GroundIdentifier("other")
+        val formalParamId = Identifier("other")
         val formalParam = FunctionFormalParameterSymbol(res, formalParamId, inputType)
         res.define(formalParamId, formalParam)
         res.formalParams = listOf(formalParam)
@@ -219,11 +219,11 @@ object DecimalMathOpMembers {
     ): ParameterizedMemberPluginSymbol {
         val res = ParameterizedMemberPluginSymbol(
             decimalType,
-            GroundIdentifier(UnaryOperator.Negate.idStr),
-            SingleParentArgInstantiation
-        ) { t: Value, _: List<Value> ->
+            Identifier(UnaryOperator.Negate.idStr),
+            SingleParentArgInstantiation,
+        { t: Value, _: List<Value> ->
             (t as MathValue).evalNegate()
-        }
+        })
         res.typeParams = listOf(decimalTypeParam)
         res.formalParams = listOf()
 
@@ -254,18 +254,18 @@ object DecimalOrderOpMembers {
     ): ParameterizedMemberPluginSymbol {
         val res = ParameterizedMemberPluginSymbol(
             decimalType,
-            GroundIdentifier(BinaryOperator.GreaterThan.idStr),
-            DualOmicronPluginInstantiation
-        ) { t: Value, args: List<Value> ->
+            Identifier(BinaryOperator.GreaterThan.idStr),
+            DualOmicronPluginInstantiation,
+        { t: Value, args: List<Value> ->
             (t as OrderValue).evalGreaterThan(args.first())
-        }
+        })
         val inputTypeArg = ImmutableOmicronTypeParameter(res, Lang.decimalInputTypeId)
-        res.define(inputTypeArg.gid, inputTypeArg)
+        res.define(inputTypeArg.identifier, inputTypeArg)
         res.typeParams = listOf(decimalTypeParam, inputTypeArg)
 
         val inputSubstitution = Substitution(listOf(decimalTypeParam), listOf(inputTypeArg))
         val inputType = inputSubstitution.apply(decimalType)
-        val formalParamId = GroundIdentifier("other")
+        val formalParamId = Identifier("other")
         val formalParam = FunctionFormalParameterSymbol(res, formalParamId, inputType)
         res.define(formalParamId, formalParam)
         res.formalParams = listOf(formalParam)
@@ -294,18 +294,18 @@ object DecimalOrderOpMembers {
     ): ParameterizedMemberPluginSymbol {
         val res = ParameterizedMemberPluginSymbol(
             decimalType,
-            GroundIdentifier(BinaryOperator.GreaterThanEqual.idStr),
-            DualOmicronPluginInstantiation
-        ) { t: Value, args: List<Value> ->
+            Identifier(BinaryOperator.GreaterThanEqual.idStr),
+            DualOmicronPluginInstantiation,
+        { t: Value, args: List<Value> ->
             (t as OrderValue).evalGreaterThanOrEquals(args.first())
-        }
+        })
         val inputTypeArg = ImmutableOmicronTypeParameter(res, Lang.decimalInputTypeId)
-        res.define(inputTypeArg.gid, inputTypeArg)
+        res.define(inputTypeArg.identifier, inputTypeArg)
         res.typeParams = listOf(decimalTypeParam, inputTypeArg)
 
         val inputSubstitution = Substitution(listOf(decimalTypeParam), listOf(inputTypeArg))
         val inputType = inputSubstitution.apply(decimalType)
-        val formalParamId = GroundIdentifier("other")
+        val formalParamId = Identifier("other")
         val formalParam = FunctionFormalParameterSymbol(res, formalParamId, inputType)
         res.define(formalParamId, formalParam)
         res.formalParams = listOf(formalParam)
@@ -334,18 +334,18 @@ object DecimalOrderOpMembers {
     ): ParameterizedMemberPluginSymbol {
         val res = ParameterizedMemberPluginSymbol(
             decimalType,
-            GroundIdentifier(BinaryOperator.LessThan.idStr),
-            DualOmicronPluginInstantiation
-        ) { t: Value, args: List<Value> ->
+            Identifier(BinaryOperator.LessThan.idStr),
+            DualOmicronPluginInstantiation,
+        { t: Value, args: List<Value> ->
             (t as OrderValue).evalLessThan(args.first())
-        }
+        })
         val inputTypeArg = ImmutableOmicronTypeParameter(res, Lang.decimalInputTypeId)
-        res.define(inputTypeArg.gid, inputTypeArg)
+        res.define(inputTypeArg.identifier, inputTypeArg)
         res.typeParams = listOf(decimalTypeParam, inputTypeArg)
 
         val inputSubstitution = Substitution(listOf(decimalTypeParam), listOf(inputTypeArg))
         val inputType = inputSubstitution.apply(decimalType)
-        val formalParamId = GroundIdentifier("other")
+        val formalParamId = Identifier("other")
         val formalParam = FunctionFormalParameterSymbol(res, formalParamId, inputType)
         res.define(formalParamId, formalParam)
         res.formalParams = listOf(formalParam)
@@ -374,18 +374,18 @@ object DecimalOrderOpMembers {
     ): ParameterizedMemberPluginSymbol {
         val res = ParameterizedMemberPluginSymbol(
             decimalType,
-            GroundIdentifier(BinaryOperator.LessThanEqual.idStr),
-            DualOmicronPluginInstantiation
-        ) { t: Value, args: List<Value> ->
+            Identifier(BinaryOperator.LessThanEqual.idStr),
+            DualOmicronPluginInstantiation,
+        { t: Value, args: List<Value> ->
             (t as OrderValue).evalLessThanOrEquals(args.first())
-        }
+        })
         val inputTypeArg = ImmutableOmicronTypeParameter(res, Lang.decimalInputTypeId)
-        res.define(inputTypeArg.gid, inputTypeArg)
+        res.define(inputTypeArg.identifier, inputTypeArg)
         res.typeParams = listOf(decimalTypeParam, inputTypeArg)
 
         val inputSubstitution = Substitution(listOf(decimalTypeParam), listOf(inputTypeArg))
         val inputType = inputSubstitution.apply(decimalType)
-        val formalParamId = GroundIdentifier("other")
+        val formalParamId = Identifier("other")
         val formalParam = FunctionFormalParameterSymbol(res, formalParamId, inputType)
         res.define(formalParamId, formalParam)
         res.formalParams = listOf(formalParam)
@@ -425,18 +425,18 @@ object DecimalEqualityOpMembers {
     ): ParameterizedMemberPluginSymbol {
         val res = ParameterizedMemberPluginSymbol(
             decimalType,
-            GroundIdentifier(BinaryOperator.Equal.idStr),
-            DualOmicronPluginInstantiation
-        ) { t: Value, args: List<Value> ->
+            Identifier(BinaryOperator.Equal.idStr),
+            DualOmicronPluginInstantiation,
+        { t: Value, args: List<Value> ->
             (t as EqualityValue).evalEquals(args.first())
-        }
+        })
         val inputTypeArg = ImmutableOmicronTypeParameter(res, Lang.decimalInputTypeId)
-        res.define(inputTypeArg.gid, inputTypeArg)
+        res.define(inputTypeArg.identifier, inputTypeArg)
         res.typeParams = listOf(decimalTypeParam, inputTypeArg)
 
         val inputSubstitution = Substitution(listOf(decimalTypeParam), listOf(inputTypeArg))
         val inputType = inputSubstitution.apply(decimalType)
-        val formalParamId = GroundIdentifier("other")
+        val formalParamId = Identifier("other")
         val formalParam = FunctionFormalParameterSymbol(res, formalParamId, inputType)
         res.define(formalParamId, formalParam)
         res.formalParams = listOf(formalParam)
@@ -465,18 +465,18 @@ object DecimalEqualityOpMembers {
     ): ParameterizedMemberPluginSymbol {
         val res = ParameterizedMemberPluginSymbol(
             decimalType,
-            GroundIdentifier(BinaryOperator.NotEqual.idStr),
-            DualOmicronPluginInstantiation
-        ) { t: Value, args: List<Value> ->
+            Identifier(BinaryOperator.NotEqual.idStr),
+            DualOmicronPluginInstantiation,
+        { t: Value, args: List<Value> ->
             (t as EqualityValue).evalNotEquals(args.first())
-        }
+        })
         val inputTypeArg = ImmutableOmicronTypeParameter(res, Lang.decimalInputTypeId)
-        res.define(inputTypeArg.gid, inputTypeArg)
+        res.define(inputTypeArg.identifier, inputTypeArg)
         res.typeParams = listOf(decimalTypeParam, inputTypeArg)
 
         val inputSubstitution = Substitution(listOf(decimalTypeParam), listOf(inputTypeArg))
         val inputType = inputSubstitution.apply(decimalType)
-        val formalParamId = GroundIdentifier("other")
+        val formalParamId = Identifier("other")
         val formalParam = FunctionFormalParameterSymbol(res, formalParamId, inputType)
         res.define(formalParamId, formalParam)
         res.formalParams = listOf(formalParam)

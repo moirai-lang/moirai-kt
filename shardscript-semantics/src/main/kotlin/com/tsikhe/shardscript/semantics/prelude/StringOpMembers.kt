@@ -13,11 +13,11 @@ fun pluginToCharArray(
 ): ParameterizedMemberPluginSymbol {
     val res = ParameterizedMemberPluginSymbol(
         stringType,
-        GroundIdentifier(StringMethods.ToCharArray.idStr),
-        SingleParentArgInstantiation
-    ) { t: Value, _: List<Value> ->
+        Identifier(StringMethods.ToCharArray.idStr),
+        SingleParentArgInstantiation,
+    { t: Value, _: List<Value> ->
         (t as StringValue).evalToCharArray()
-    }
+    })
     res.typeParams = listOf(stringTypeParam)
     res.formalParams = listOf()
     val outputSubstitution = Substitution(listType.typeParams, listOf(charType, stringTypeParam))
@@ -45,18 +45,18 @@ object StringEqualityOpMembers {
     ): ParameterizedMemberPluginSymbol {
         val res = ParameterizedMemberPluginSymbol(
             stringType,
-            GroundIdentifier(BinaryOperator.Add.idStr),
-            DualOmicronPluginInstantiation
-        ) { t: Value, args: List<Value> ->
+            Identifier(BinaryOperator.Add.idStr),
+            DualOmicronPluginInstantiation,
+        { t: Value, args: List<Value> ->
             (t as StringValue).evalAdd(args.first())
-        }
+        })
         val inputTypeArg = ImmutableOmicronTypeParameter(res, Lang.stringInputTypeId)
-        res.define(inputTypeArg.gid, inputTypeArg)
+        res.define(inputTypeArg.identifier, inputTypeArg)
         res.typeParams = listOf(stringTypeParam, inputTypeArg)
 
         val inputSubstitution = Substitution(stringType.typeParams, listOf(inputTypeArg))
         val inputType = inputSubstitution.apply(stringType)
-        val formalParamId = GroundIdentifier("other")
+        val formalParamId = Identifier("other")
         val formalParam = FunctionFormalParameterSymbol(res, formalParamId, inputType)
         res.define(formalParamId, formalParam)
         res.formalParams = listOf(formalParam)
@@ -83,18 +83,18 @@ object StringEqualityOpMembers {
     ): ParameterizedMemberPluginSymbol {
         val res = ParameterizedMemberPluginSymbol(
             stringType,
-            GroundIdentifier(BinaryOperator.Equal.idStr),
-            DualOmicronPluginInstantiation
-        ) { t: Value, args: List<Value> ->
+            Identifier(BinaryOperator.Equal.idStr),
+            DualOmicronPluginInstantiation,
+        { t: Value, args: List<Value> ->
             (t as EqualityValue).evalEquals(args.first())
-        }
+        })
         val inputTypeArg = ImmutableOmicronTypeParameter(res, Lang.stringInputTypeId)
-        res.define(inputTypeArg.gid, inputTypeArg)
+        res.define(inputTypeArg.identifier, inputTypeArg)
         res.typeParams = listOf(stringTypeParam, inputTypeArg)
 
         val inputSubstitution = Substitution(stringType.typeParams, listOf(inputTypeArg))
         val inputType = inputSubstitution.apply(stringType)
-        val formalParamId = GroundIdentifier("other")
+        val formalParamId = Identifier("other")
         val formalParam = FunctionFormalParameterSymbol(res, formalParamId, inputType)
         res.define(formalParamId, formalParam)
         res.formalParams = listOf(formalParam)
@@ -124,18 +124,18 @@ object StringEqualityOpMembers {
     ): ParameterizedMemberPluginSymbol {
         val res = ParameterizedMemberPluginSymbol(
             stringType,
-            GroundIdentifier(BinaryOperator.NotEqual.idStr),
-            DualOmicronPluginInstantiation
-        ) { t: Value, args: List<Value> ->
+            Identifier(BinaryOperator.NotEqual.idStr),
+            DualOmicronPluginInstantiation,
+        { t: Value, args: List<Value> ->
             (t as EqualityValue).evalNotEquals(args.first())
-        }
+        })
         val inputTypeArg = ImmutableOmicronTypeParameter(res, Lang.stringInputTypeId)
-        res.define(inputTypeArg.gid, inputTypeArg)
+        res.define(inputTypeArg.identifier, inputTypeArg)
         res.typeParams = listOf(stringTypeParam, inputTypeArg)
 
         val inputSubstitution = Substitution(stringType.typeParams, listOf(inputTypeArg))
         val inputType = inputSubstitution.apply(stringType)
-        val formalParamId = GroundIdentifier("other")
+        val formalParamId = Identifier("other")
         val formalParam = FunctionFormalParameterSymbol(res, formalParamId, inputType)
         res.define(formalParamId, formalParam)
         res.formalParams = listOf(formalParam)

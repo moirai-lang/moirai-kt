@@ -9,17 +9,17 @@ private fun createGetFunction(
     dictionaryKeyTypeParam: StandardTypeParameter,
     dictionaryValueTypeParam: StandardTypeParameter
 ) {
-    val getId = GroundIdentifier(CollectionMethods.KeyLookup.idStr)
+    val getId = Identifier(CollectionMethods.KeyLookup.idStr)
     val getMemberFunction = ParameterizedMemberPluginSymbol(
         dictionaryType,
         getId,
-        DoubleParentArgInstantiation
-    ) { t: Value, args: List<Value> ->
+        DoubleParentArgInstantiation,
+    { t: Value, args: List<Value> ->
         (t as DictionaryValue).evalGet(args.first())
-    }
+    })
     getMemberFunction.typeParams = listOf(dictionaryKeyTypeParam, dictionaryValueTypeParam)
     getMemberFunction.costExpression = costExpression
-    val getFormalParamId = GroundIdentifier("key")
+    val getFormalParamId = Identifier("key")
     val getFormalParam = FunctionFormalParameterSymbol(getMemberFunction, getFormalParamId, dictionaryKeyTypeParam)
     getMemberFunction.define(getFormalParamId, getFormalParam)
 
@@ -34,17 +34,17 @@ private fun createContainsFunction(
     dictionaryKeyTypeParam: StandardTypeParameter,
     booleanType: BasicTypeSymbol
 ) {
-    val containsId = GroundIdentifier(CollectionMethods.Contains.idStr)
+    val containsId = Identifier(CollectionMethods.Contains.idStr)
     val containsMemberFunction = ParameterizedMemberPluginSymbol(
         dictionaryType,
         containsId,
-        SingleParentArgInstantiation
-    ) { t: Value, args: List<Value> ->
+        SingleParentArgInstantiation,
+    { t: Value, args: List<Value> ->
         (t as DictionaryValue).evalContains(args.first())
-    }
+    })
     containsMemberFunction.typeParams = listOf(dictionaryKeyTypeParam)
     containsMemberFunction.costExpression = costExpression
-    val containsFormalParamId = GroundIdentifier("key")
+    val containsFormalParamId = Identifier("key")
     val containsFormalParam =
         FunctionFormalParameterSymbol(containsMemberFunction, containsFormalParamId, dictionaryKeyTypeParam)
     containsMemberFunction.define(containsFormalParamId, containsFormalParam)
@@ -61,21 +61,21 @@ private fun createSetFunction(
     dictionaryKeyTypeParam: StandardTypeParameter,
     dictionaryValueTypeParam: StandardTypeParameter
 ) {
-    val setId = GroundIdentifier(CollectionMethods.KeyAssign.idStr)
+    val setId = Identifier(CollectionMethods.KeyAssign.idStr)
     val setMemberFunction = ParameterizedMemberPluginSymbol(
         dictionaryType,
         setId,
-        DoubleParentArgInstantiation
-    ) { t: Value, args: List<Value> ->
+        DoubleParentArgInstantiation,
+    { t: Value, args: List<Value> ->
         (t as DictionaryValue).evalSet(args.first(), args[1])
-    }
+    })
     setMemberFunction.typeParams = listOf(dictionaryKeyTypeParam, dictionaryValueTypeParam)
     setMemberFunction.costExpression = costExpression
-    val keyFormalParamId = GroundIdentifier("key")
+    val keyFormalParamId = Identifier("key")
     val keyFormalParam = FunctionFormalParameterSymbol(setMemberFunction, keyFormalParamId, dictionaryKeyTypeParam)
     setMemberFunction.define(keyFormalParamId, keyFormalParam)
 
-    val valueFormalParamId = GroundIdentifier("value")
+    val valueFormalParamId = Identifier("value")
     val valueFormalParam =
         FunctionFormalParameterSymbol(setMemberFunction, valueFormalParamId, dictionaryValueTypeParam)
     setMemberFunction.define(valueFormalParamId, valueFormalParam)
@@ -91,17 +91,17 @@ private fun createRemoveFunction(
     unitType: ObjectSymbol,
     dictionaryKeyTypeParam: StandardTypeParameter
 ) {
-    val removeId = GroundIdentifier(CollectionMethods.Remove.idStr)
+    val removeId = Identifier(CollectionMethods.Remove.idStr)
     val removeMemberFunction = ParameterizedMemberPluginSymbol(
         dictionaryType,
         removeId,
-        SingleParentArgInstantiation
-    ) { t: Value, args: List<Value> ->
+        SingleParentArgInstantiation,
+    { t: Value, args: List<Value> ->
         (t as DictionaryValue).evalRemove(args.first())
-    }
+    })
     removeMemberFunction.typeParams = listOf(dictionaryKeyTypeParam)
     removeMemberFunction.costExpression = costExpression
-    val removeFormalParamId = GroundIdentifier("key")
+    val removeFormalParamId = Identifier("key")
     val removeFormalParam =
         FunctionFormalParameterSymbol(removeMemberFunction, removeFormalParamId, dictionaryKeyTypeParam)
     removeMemberFunction.define(removeFormalParamId, removeFormalParam)
@@ -120,11 +120,11 @@ fun createToImmutableDictionaryPlugin(
 ) {
     val plugin = ParameterizedMemberPluginSymbol(
         mutableDictionaryType,
-        GroundIdentifier(CollectionMethods.ToImmutableDictionary.idStr),
-        TripleParentArgInstantiation
-    ) { t: Value, _: List<Value> ->
+        Identifier(CollectionMethods.ToImmutableDictionary.idStr),
+        TripleParentArgInstantiation,
+    { t: Value, _: List<Value> ->
         (t as DictionaryValue).evalToDictionary()
-    }
+    })
     plugin.typeParams = listOf(keyType, valueType, omicron)
     plugin.formalParams = listOf()
     val outputSubstitution = Substitution(dictionaryType.typeParams, listOf(keyType, valueType, omicron))
@@ -137,7 +137,7 @@ fun createToImmutableDictionaryPlugin(
             omicron
         )
     )
-    mutableDictionaryType.define(plugin.gid, plugin)
+    mutableDictionaryType.define(plugin.identifier, plugin)
 }
 
 fun dictionaryCollectionType(
@@ -178,7 +178,7 @@ fun dictionaryCollectionType(
         booleanType
     )
 
-    val sizeId = GroundIdentifier(CollectionFields.Size.idStr)
+    val sizeId = Identifier(CollectionFields.Size.idStr)
     val sizeFieldSymbol = PlatformFieldSymbol(
         dictionaryType,
         sizeId,
@@ -282,7 +282,7 @@ fun mutableDictionaryCollectionType(
         dictionaryType
     )
 
-    val sizeId = GroundIdentifier(CollectionFields.Size.idStr)
+    val sizeId = Identifier(CollectionFields.Size.idStr)
     val sizeFieldSymbol = PlatformFieldSymbol(
         mutableDictionaryType,
         sizeId,

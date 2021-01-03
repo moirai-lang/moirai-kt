@@ -28,8 +28,8 @@ class DictionaryInstantiation(private val pairTypeSymbol: ParameterizedRecordTyp
                 validateSubstitution(ctx, errors, parameterized.typeParams[2], explicitTypeArgs[2])
                 if (explicitTypeArgs[2] is OmicronTypeSymbol) {
                     val omicron = explicitTypeArgs[2] as OmicronTypeSymbol
-                    if (args.size.toBigInteger() > omicron.magnitude) {
-                        errors.add(ctx, TooManyElements(omicron.magnitude, args.size.toBigInteger()))
+                    if (args.size.toLong() > omicron.magnitude) {
+                        errors.add(ctx, TooManyElements(omicron.magnitude, args.size.toLong()))
                     }
                 }
                 val substitution = Substitution(parameterized.typeParams, explicitTypeArgs)
@@ -63,7 +63,7 @@ class DictionaryInstantiation(private val pairTypeSymbol: ParameterizedRecordTyp
                     constraints.add(
                         Constraint(
                             Left(inOrderParameters[2]),
-                            Right(OmicronTypeSymbol(args.size.toBigInteger()))
+                            Right(OmicronTypeSymbol(args.size.toLong()))
                         )
                     )
                     val substitution = createSubstitution(ctx, constraints, parameterSet, inOrderParameters, errors)
@@ -115,15 +115,15 @@ class MutableDictionaryInstantiation(private val pairTypeSymbol: ParameterizedRe
                 validateSubstitution(ctx, errors, parameterized.typeParams[2], explicitTypeArgs[2])
                 if (explicitTypeArgs[2] is OmicronTypeSymbol) {
                     val omicron = explicitTypeArgs[2] as OmicronTypeSymbol
-                    if (args.size.toBigInteger() > omicron.magnitude) {
-                        errors.add(ctx, TooManyElements(omicron.magnitude, args.size.toBigInteger()))
+                    if (args.size.toLong() > omicron.magnitude) {
+                        errors.add(ctx, TooManyElements(omicron.magnitude, args.size.toLong()))
                     }
                 }
                 val substitution = Substitution(parameterized.typeParams, explicitTypeArgs)
                 return substitution.apply(parameterized)
             }
         } else {
-            langThrow(ctx, TypeRequiresExplicit(parameterized.gid))
+            langThrow(ctx, TypeRequiresExplicit(parameterized.identifier))
         }
     }
 }

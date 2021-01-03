@@ -5,7 +5,7 @@ import com.tsikhe.shardscript.semantics.infer.DecimalInstantiation
 
 fun intType(
     architecture: Architecture,
-    numericId: GroundIdentifier,
+    numericId: Identifier,
     booleanType: BasicTypeSymbol,
     langNS: Namespace,
     filters: Set<String>
@@ -17,24 +17,24 @@ fun intType(
     val constantOmicron = OmicronTypeSymbol(architecture.defaultNodeCost)
     IntegerMathOpMembers.members(intType, constantOmicron).forEach { (name, plugin) ->
         if (!filters.contains(name)) {
-            intType.define(GroundIdentifier(name), plugin)
+            intType.define(Identifier(name), plugin)
         }
     }
     IntegerOrderOpMembers.members(intType, constantOmicron, booleanType).forEach { (name, plugin) ->
         if (!filters.contains(name)) {
-            intType.define(GroundIdentifier(name), plugin)
+            intType.define(Identifier(name), plugin)
         }
     }
     ValueEqualityOpMembers.members(intType, constantOmicron, booleanType).forEach { (name, plugin) ->
         if (!filters.contains(name)) {
-            intType.define(GroundIdentifier(name), plugin)
+            intType.define(Identifier(name), plugin)
         }
     }
     return intType
 }
 
 fun decimalType(
-    numericId: GroundIdentifier,
+    numericId: Identifier,
     booleanType: BasicTypeSymbol,
     langNS: Namespace
 ): ParameterizedBasicTypeSymbol {
@@ -54,13 +54,13 @@ fun decimalType(
     decimalType.fields = listOf()
 
     DecimalMathOpMembers.members(decimalType, decimalTypeParam).forEach { (name, plugin) ->
-        decimalType.define(GroundIdentifier(name), plugin)
+        decimalType.define(Identifier(name), plugin)
     }
     DecimalOrderOpMembers.members(decimalType, decimalTypeParam, booleanType).forEach { (name, plugin) ->
-        decimalType.define(GroundIdentifier(name), plugin)
+        decimalType.define(Identifier(name), plugin)
     }
     DecimalEqualityOpMembers.members(decimalType, decimalTypeParam, booleanType).forEach { (name, plugin) ->
-        decimalType.define(GroundIdentifier(name), plugin)
+        decimalType.define(Identifier(name), plugin)
     }
     return decimalType
 }

@@ -88,11 +88,17 @@ class CheckTypesAstVisitor(private val prelude: PreludeTable) : UnitAstVisitor()
     override fun visit(ast: AssignAst) {
         try {
             super.visit(ast)
-            val symbolRef = ast.symbolRef as LocalVariableSymbol
-            if (!symbolRef.mutable) {
-                errors.add(ast.ctx, ImmutableAssign(symbolRef))
+            when (val symbolRef = ast.symbolRef) {
+                is LocalVariableSymbol -> {
+                    if (!symbolRef.mutable) {
+                        errors.add(ast.ctx, ImmutableAssign(symbolRef))
+                    }
+                    checkTypes(ast.ctx, prelude, errors, symbolRef.ofTypeSymbol, ast.rhs.readType())
+                }
+                else -> {
+                    errors.add(ast.ctx, InvalidAssign)
+                }
             }
-            checkTypes(ast.ctx, prelude, errors, symbolRef.ofTypeSymbol, ast.rhs.readType())
         } catch (ex: LanguageException) {
             errors.addAll(ast.ctx, ex.errors)
         }
@@ -101,11 +107,17 @@ class CheckTypesAstVisitor(private val prelude: PreludeTable) : UnitAstVisitor()
     override fun visit(ast: DotAssignAst) {
         try {
             super.visit(ast)
-            val symbolRef = ast.symbolRef as FieldSymbol
-            if (!symbolRef.mutable) {
-                errors.add(ast.ctx, ImmutableAssign(symbolRef))
+            when(val symbolRef = ast.symbolRef) {
+                is FieldSymbol -> {
+                    if (!symbolRef.mutable) {
+                        errors.add(ast.ctx, ImmutableAssign(symbolRef))
+                    }
+                    checkTypes(ast.ctx, prelude, errors, symbolRef.ofTypeSymbol, ast.rhs.readType())
+                }
+                else -> {
+                    errors.add(ast.ctx, SymbolIsNotAField(ast.identifier))
+                }
             }
-            checkTypes(ast.ctx, prelude, errors, symbolRef.ofTypeSymbol, ast.rhs.readType())
         } catch (ex: LanguageException) {
             errors.addAll(ast.ctx, ex.errors)
         }

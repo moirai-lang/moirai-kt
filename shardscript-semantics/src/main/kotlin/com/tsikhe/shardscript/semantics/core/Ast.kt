@@ -141,8 +141,8 @@ data class StringInterpolationAst(val components: List<Ast>) : Ast() {
 }
 
 data class LetAst(
-    val gid: GroundIdentifier,
-    val ofType: Identifier,
+    val identifier: Identifier,
+    val ofType: Signifier,
     val rhs: Ast,
     val mutable: Boolean
 ) : SymbolRefAst() {
@@ -155,7 +155,7 @@ data class LetAst(
         visitor.visit(this, param)
 }
 
-data class RefAst(val gid: GroundIdentifier) : SymbolRefAst() {
+data class RefAst(val identifier: Identifier) : SymbolRefAst() {
     override fun <R> accept(visitor: AstVisitor<R>): R =
         visitor.visit(this)
 
@@ -180,10 +180,10 @@ data class BlockAst(val lines: MutableList<Ast>) : Ast() {
 }
 
 data class FunctionAst(
-    val gid: GroundIdentifier,
-    val typeParams: List<GroundIdentifier>,
+    val identifier: Identifier,
+    val typeParams: List<Identifier>,
     val formalParams: List<Binder>,
-    val returnType: Identifier,
+    val returnType: Signifier,
     val body: BlockAst
 ) : DefinitionAst() {
     override fun <R> accept(visitor: AstVisitor<R>): R =
@@ -194,8 +194,8 @@ data class FunctionAst(
 }
 
 data class RecordDefinitionAst(
-    val gid: GroundIdentifier,
-    val typeParams: List<GroundIdentifier>,
+    val identifier: Identifier,
+    val typeParams: List<Identifier>,
     val fields: List<FieldDef>
 ) : DefinitionAst() {
     override fun <R> accept(visitor: AstVisitor<R>): R =
@@ -206,7 +206,7 @@ data class RecordDefinitionAst(
 }
 
 data class ObjectDefinitionAst(
-    val gid: GroundIdentifier
+    val identifier: Identifier
 ) : DefinitionAst() {
     override fun <R> accept(visitor: AstVisitor<R>): R =
         visitor.visit(this)
@@ -217,7 +217,7 @@ data class ObjectDefinitionAst(
 
 data class DotAst(
     val lhs: Ast,
-    val gid: GroundIdentifier
+    val identifier: Identifier
 ) : SymbolRefAst() {
     override fun <R> accept(visitor: AstVisitor<R>): R =
         visitor.visit(this)
@@ -227,10 +227,10 @@ data class DotAst(
 }
 
 data class GroundApplyAst(
-    val identifier: Identifier,
+    val signifier: Signifier,
     override val args: List<Ast>
 ) : ApplyAst() {
-    lateinit var tti: TerminalTextIdentifier
+    lateinit var tti: TerminalTextSignifier
 
     override fun <R> accept(visitor: AstVisitor<R>): R =
         visitor.visit(this)
@@ -241,10 +241,10 @@ data class GroundApplyAst(
 
 data class DotApplyAst(
     val lhs: Ast,
-    val identifier: Identifier,
+    val signifier: Signifier,
     override val args: List<Ast>
 ) : ApplyAst() {
-    lateinit var tti: TerminalTextIdentifier
+    lateinit var tti: TerminalTextSignifier
 
     override fun <R> accept(visitor: AstVisitor<R>): R =
         visitor.visit(this)
@@ -254,8 +254,8 @@ data class DotApplyAst(
 }
 
 data class ForEachAst(
-    val gid: GroundIdentifier,
-    val ofType: Identifier,
+    val identifier: Identifier,
+    val ofType: Signifier,
     val source: Ast,
     val body: Ast
 ) : Ast() {
@@ -271,7 +271,7 @@ data class ForEachAst(
 }
 
 data class AssignAst(
-    val gid: GroundIdentifier,
+    val identifier: Identifier,
     val rhs: Ast
 ) : SymbolRefAst() {
     override fun <R> accept(visitor: AstVisitor<R>): R =
@@ -283,7 +283,7 @@ data class AssignAst(
 
 data class DotAssignAst(
     val lhs: Ast,
-    val gid: GroundIdentifier,
+    val identifier: Identifier,
     val rhs: Ast
 ) : SymbolRefAst() {
     override fun <R> accept(visitor: AstVisitor<R>): R =
@@ -307,7 +307,7 @@ data class IfAst(
 
 data class AsAst(
     val lhs: Ast,
-    val identifier: Identifier
+    val signifier: Signifier
 ) : Ast() {
     override fun <R> accept(visitor: AstVisitor<R>): R =
         visitor.visit(this)
@@ -318,7 +318,7 @@ data class AsAst(
 
 data class IsAst(
     val lhs: Ast,
-    val identifier: Identifier
+    val signifier: Signifier
 ) : Ast() {
     lateinit var result: BooleanValue
     lateinit var identifierSymbol: Symbol

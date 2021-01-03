@@ -24,8 +24,8 @@ class FunctionScanAstVisitor : UnitAstVisitor() {
         val formalParams: MutableList<FunctionFormalParameterSymbol> = ArrayList()
         ast.formalParams.forEach {
             val ofTypeSymbol = parent.fetch(it.ofType)
-            val paramSymbol = FunctionFormalParameterSymbol(parent, it.gid, ofTypeSymbol)
-            parent.define(it.gid, paramSymbol)
+            val paramSymbol = FunctionFormalParameterSymbol(parent, it.identifier, ofTypeSymbol)
+            parent.define(it.identifier, paramSymbol)
             formalParams.add(paramSymbol)
         }
         return formalParams

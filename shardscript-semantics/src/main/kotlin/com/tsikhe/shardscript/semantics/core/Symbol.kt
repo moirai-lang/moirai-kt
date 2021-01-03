@@ -1,388 +1,170 @@
 package com.tsikhe.shardscript.semantics.core
 
-import com.tsikhe.shardscript.semantics.infer.Substitution
 import com.tsikhe.shardscript.semantics.infer.SubstitutionChain
 import com.tsikhe.shardscript.semantics.prelude.Lang
-import java.math.BigInteger
 
 /**
  * Core Primitives
  */
-sealed class Symbol {
+sealed class Symbol
+
+sealed class SymbolTableElement: Symbol() {
     abstract val parent: Scope<Symbol>
 }
 
-object ErrorSymbol : Symbol() {
-    override val parent: Scope<Symbol>
-        get() = langThrow(NoOwnerAccess)
+sealed class NamedSymbolTableElement: SymbolTableElement() {
+    abstract val identifier: Identifier
 }
 
-object NullSymbolTable : Symbol(), Scope<Symbol> {
-    override val parent: Scope<Symbol>
-        get() = langThrow(NoOwnerAccess)
+sealed class SymbolWithMembers(
+    override val parent: Scope<Symbol>,
+    private val symbolTable: SymbolTable = SymbolTable(parent)
+): NamedSymbolTableElement(), Scope<Symbol> by symbolTable
 
-    override fun define(gid: GroundIdentifier, definition: Symbol) {
-        langThrow(gid.ctx, IdentifierCouldNotBeDefined(gid))
-    }
-
-    override fun exists(identifier: Identifier): Boolean = false
-
-    override fun existsHere(identifier: Identifier): Boolean = false
-
-    override fun fetch(identifier: Identifier): Symbol {
-        langThrow(identifier.ctx, IdentifierNotFound(identifier))
-    }
-
-    override fun fetchHere(identifier: Identifier): Symbol {
-        langThrow(identifier.ctx, IdentifierNotFound(identifier))
-    }
-}
-
-sealed class SymbolTable : Symbol(), Scope<Symbol> {
-    private val gidTable: MutableMap<GroundIdentifier, Symbol> = HashMap()
-
-    fun toMap(): Map<GroundIdentifier, Symbol> = gidTable.toMap()
-
-    override fun define(gid: GroundIdentifier, definition: Symbol) {
-        if (gidTable.containsKey(gid)) {
-            langThrow(gid.ctx, IdentifierAlreadyExists(gid))
-        } else {
-            gidTable[gid] = definition
-        }
-    }
-
-    override fun exists(identifier: Identifier): Boolean =
-        when (identifier) {
-            is GroundIdentifier -> gidTable.containsKey(identifier) || parent.exists(identifier)
-            is PathIdentifier -> {
-                val first = identifier.elements.first()
-                if (gidTable.containsKey(first)) {
-                    val pathRes = gidTable[first]!!
-                    if (pathRes is Namespace) {
-                        val rest = identifier.elements.toMutableList()
-                        rest.removeAt(0)
-                        val next = if (rest.size == 1) {
-                            rest.first()
-                        } else {
-                            PathIdentifier(rest.toList())
-                        }
-                        pathRes.existsHere(next) || parent.exists(identifier)
-                    } else {
-                        parent.exists(identifier)
-                    }
-                } else {
-                    parent.exists(identifier)
-                }
-            }
-            is FunctionTypeLiteral -> identifier.formalParamTypes.all { exists(it) } && exists(identifier.returnType)
-            is ParameterizedIdentifier -> exists(identifier.tti) && identifier.args.all { exists(it) }
-            is ImplicitTypeLiteral -> false
-            is OmicronLiteral -> false
-        }
-
-    override fun existsHere(identifier: Identifier): Boolean =
-        when (identifier) {
-            is GroundIdentifier -> gidTable.containsKey(identifier)
-            is PathIdentifier -> {
-                val first = identifier.elements.first()
-                if (gidTable.containsKey(first)) {
-                    val pathRes = gidTable[first]!!
-                    if (pathRes is Namespace) {
-                        val rest = identifier.elements.toMutableList()
-                        rest.removeAt(0)
-                        val next = if (rest.size == 1) {
-                            rest.first()
-                        } else {
-                            PathIdentifier(rest.toList())
-                        }
-                        pathRes.existsHere(next)
-                    } else {
-                        false
-                    }
-                } else {
-                    false
-                }
-            }
-            is FunctionTypeLiteral -> identifier.formalParamTypes.all { exists(it) } && exists(identifier.returnType)
-            is ParameterizedIdentifier -> existsHere(identifier.tti) && identifier.args.all { exists(it) }
-            is ImplicitTypeLiteral -> false
-            is OmicronLiteral -> false
-        }
-
-    override fun fetch(identifier: Identifier): Symbol =
-        when (identifier) {
-            is GroundIdentifier -> {
-                if (gidTable.containsKey(identifier)) {
-                    gidTable[identifier]!!
-                } else {
-                    parent.fetch(identifier)
-                }
-            }
-            is PathIdentifier -> {
-                val first = identifier.elements.first()
-                if (gidTable.containsKey(first)) {
-                    val pathRes = gidTable[first]!!
-                    if (pathRes is Namespace) {
-                        val rest = identifier.elements.toMutableList()
-                        rest.removeAt(0)
-                        val next = if (rest.size == 1) {
-                            rest.first()
-                        } else {
-                            PathIdentifier(rest.toList())
-                        }
-                        pathRes.fetchHere(next)
-                    } else {
-                        parent.fetch(identifier)
-                    }
-                } else {
-                    parent.fetch(identifier)
-                }
-            }
-            is FunctionTypeLiteral -> FunctionTypeSymbol(
-                NullSymbolTable,
-                identifier.formalParamTypes.map { fetch(it) },
-                fetch(identifier.returnType)
-            )
-            is ParameterizedIdentifier -> {
-                when (val symbol = fetch(identifier.tti)) {
-                    is ParameterizedRecordTypeSymbol -> {
-                        val typeArgs = identifier.args.map { fetch(it) }
-                        if (typeArgs.size != symbol.typeParams.size) {
-                            langThrow(
-                                identifier.ctx,
-                                IncorrectNumberOfTypeArgs(symbol.typeParams.size, typeArgs.size)
-                            )
-                        } else {
-                            val substitution = Substitution(symbol.typeParams, typeArgs)
-                            substitution.apply(symbol)
-                        }
-                    }
-                    is ParameterizedBasicTypeSymbol -> {
-                        val typeArgs = identifier.args.map { fetch(it) }
-                        if (typeArgs.size != symbol.typeParams.size) {
-                            langThrow(
-                                identifier.ctx,
-                                IncorrectNumberOfTypeArgs(symbol.typeParams.size, typeArgs.size)
-                            )
-                        } else {
-                            val substitution = Substitution(symbol.typeParams, typeArgs)
-                            substitution.apply(symbol)
-                        }
-                    }
-                    else -> langThrow(identifier.ctx, SymbolHasNoParameters(identifier))
-                }
-            }
-            is ImplicitTypeLiteral -> langThrow(identifier.ctx, TypeSystemBug)
-            is OmicronLiteral -> OmicronTypeSymbol(identifier.magnitude)
-        }
-
-    override fun fetchHere(identifier: Identifier): Symbol =
-        when (identifier) {
-            is GroundIdentifier -> {
-                if (gidTable.containsKey(identifier)) {
-                    gidTable[identifier]!!
-                } else {
-                    langThrow(identifier.ctx, IdentifierNotFound(identifier))
-                }
-            }
-            is PathIdentifier -> {
-                val first = identifier.elements.first()
-                if (gidTable.containsKey(first)) {
-                    val pathRes = gidTable[first]!!
-                    if (pathRes is Namespace) {
-                        val rest = identifier.elements.toMutableList()
-                        rest.removeAt(0)
-                        val next = if (rest.size == 1) {
-                            rest.first()
-                        } else {
-                            PathIdentifier(rest.toList())
-                        }
-                        pathRes.fetchHere(next)
-                    } else {
-                        langThrow(identifier.ctx, IdentifierNotFound(identifier))
-                    }
-                } else {
-                    langThrow(identifier.ctx, IdentifierNotFound(identifier))
-                }
-            }
-            is FunctionTypeLiteral -> FunctionTypeSymbol(
-                NullSymbolTable,
-                identifier.formalParamTypes.map { fetch(it) },
-                fetch(identifier.returnType)
-            )
-            is ParameterizedIdentifier -> {
-                when (val symbol = fetchHere(identifier.tti)) {
-                    is ParameterizedRecordTypeSymbol -> {
-                        val typeArgs = identifier.args.map { fetch(it) }
-                        if (typeArgs.size != symbol.typeParams.size) {
-                            langThrow(
-                                identifier.ctx,
-                                IncorrectNumberOfTypeArgs(symbol.typeParams.size, typeArgs.size)
-                            )
-                        } else {
-                            val substitution = Substitution(symbol.typeParams, typeArgs)
-                            substitution.apply(symbol)
-                        }
-                    }
-                    is ParameterizedBasicTypeSymbol -> {
-                        val typeArgs = identifier.args.map { fetch(it) }
-                        if (typeArgs.size != symbol.typeParams.size) {
-                            langThrow(
-                                identifier.ctx,
-                                IncorrectNumberOfTypeArgs(symbol.typeParams.size, typeArgs.size)
-                            )
-                        } else {
-                            val substitution = Substitution(symbol.typeParams, typeArgs)
-                            substitution.apply(symbol)
-                        }
-                    }
-                    else -> langThrow(identifier.ctx, SymbolHasNoParameters(identifier))
-                }
-            }
-            is ImplicitTypeLiteral -> langThrow(identifier.ctx, TypeSystemBug)
-            is OmicronLiteral -> OmicronTypeSymbol(identifier.magnitude)
-        }
-}
+object ErrorSymbol : Symbol()
 
 class PreludeTable(
     override val parent: Scope<Symbol>,
-    private val scopeTable: MutableMap<Identifier, Scope<Symbol>> = HashMap()
-) : Symbol(), Scope<Symbol> {
-    fun register(identifier: Identifier, scope: Scope<Symbol>) {
-        if (scopeTable.containsKey(identifier)) {
-            langThrow(identifier.ctx, PreludeScopeAlreadyExists(identifier))
+    private val scopeTable: MutableMap<Signifier, Scope<Symbol>> = HashMap()
+) : SymbolTableElement(), Scope<Symbol> {
+    fun register(signifier: Signifier, scope: Scope<Symbol>) {
+        if (scopeTable.containsKey(signifier)) {
+            langThrow(signifier.ctx, PreludeScopeAlreadyExists(signifier))
         } else {
-            scopeTable[identifier] = scope
+            scopeTable[signifier] = scope
         }
     }
 
-    override fun define(gid: GroundIdentifier, definition: Symbol) {
-        parent.define(gid, definition)
+    override fun define(identifier: Identifier, definition: Symbol) {
+        parent.define(identifier, definition)
     }
 
-    override fun exists(identifier: Identifier): Boolean {
-        return if (scopeTable.containsKey(identifier)) {
-            scopeTable[identifier]!!.exists(identifier)
+    override fun exists(signifier: Signifier): Boolean {
+        return if (scopeTable.containsKey(signifier)) {
+            scopeTable[signifier]!!.exists(signifier)
         } else {
-            parent.exists(identifier)
+            parent.exists(signifier)
         }
     }
 
-    override fun existsHere(identifier: Identifier): Boolean {
-        return if (scopeTable.containsKey(identifier)) {
-            scopeTable[identifier]!!.existsHere(identifier)
+    override fun existsHere(signifier: Signifier): Boolean {
+        return if (scopeTable.containsKey(signifier)) {
+            scopeTable[signifier]!!.existsHere(signifier)
         } else {
-            parent.existsHere(identifier)
+            parent.existsHere(signifier)
         }
     }
 
-    override fun fetch(identifier: Identifier): Symbol {
-        return if (scopeTable.containsKey(identifier)) {
-            scopeTable[identifier]!!.fetch(identifier)
+    override fun fetch(signifier: Signifier): Symbol {
+        return if (scopeTable.containsKey(signifier)) {
+            scopeTable[signifier]!!.fetch(signifier)
         } else {
-            parent.fetch(identifier)
+            parent.fetch(signifier)
         }
     }
 
-    override fun fetchHere(identifier: Identifier): Symbol {
-        return if (scopeTable.containsKey(identifier)) {
-            scopeTable[identifier]!!.fetchHere(identifier)
+    override fun fetchHere(signifier: Signifier): Symbol {
+        return if (scopeTable.containsKey(signifier)) {
+            scopeTable[signifier]!!.fetchHere(signifier)
         } else {
-            parent.fetchHere(identifier)
+            parent.fetchHere(signifier)
         }
     }
 }
 
 class ImportTable(
     override val parent: Scope<Symbol>,
-    private val scopeTable: MutableMap<Identifier, MutableList<Scope<Symbol>>> = HashMap()
-) : Symbol(), Scope<Symbol> {
+    private val scopeTable: MutableMap<Signifier, MutableList<Scope<Symbol>>> = HashMap()
+) : SymbolTableElement(), Scope<Symbol> {
     fun addAll(other: ImportTable) {
         scopeTable.putAll(other.scopeTable)
     }
 
-    fun register(identifier: Identifier, scope: Scope<Symbol>) {
-        if (scopeTable.containsKey(identifier)) {
-            scopeTable[identifier]!!.add(scope)
+    fun register(signifier: Signifier, scope: Scope<Symbol>) {
+        if (scopeTable.containsKey(signifier)) {
+            scopeTable[signifier]!!.add(scope)
         } else {
-            scopeTable[identifier] = mutableListOf(scope)
+            scopeTable[signifier] = mutableListOf(scope)
         }
     }
 
-    override fun define(gid: GroundIdentifier, definition: Symbol) {
-        parent.define(gid, definition)
+    override fun define(identifier: Identifier, definition: Symbol) {
+        parent.define(identifier, definition)
     }
 
-    override fun exists(identifier: Identifier): Boolean {
-        return if (scopeTable.containsKey(identifier)) {
-            val scopes = scopeTable[identifier]!!
+    override fun exists(signifier: Signifier): Boolean {
+        return if (scopeTable.containsKey(signifier)) {
+            val scopes = scopeTable[signifier]!!
             if (scopes.size > 1) {
-                langThrow(identifier.ctx, AmbiguousSymbol(identifier))
+                langThrow(signifier.ctx, AmbiguousSymbol(signifier))
             }
-            scopes.first().exists(identifier)
+            scopes.first().exists(signifier)
         } else {
-            parent.exists(identifier)
+            parent.exists(signifier)
         }
     }
 
-    override fun existsHere(identifier: Identifier): Boolean {
-        return if (scopeTable.containsKey(identifier)) {
-            val scopes = scopeTable[identifier]!!
+    override fun existsHere(signifier: Signifier): Boolean {
+        return if (scopeTable.containsKey(signifier)) {
+            val scopes = scopeTable[signifier]!!
             if (scopes.size > 1) {
-                langThrow(identifier.ctx, AmbiguousSymbol(identifier))
+                langThrow(signifier.ctx, AmbiguousSymbol(signifier))
             }
-            scopes.first().existsHere(identifier)
+            scopes.first().existsHere(signifier)
         } else {
-            parent.existsHere(identifier)
+            parent.existsHere(signifier)
         }
     }
 
-    override fun fetch(identifier: Identifier): Symbol {
-        return if (scopeTable.containsKey(identifier)) {
-            val scopes = scopeTable[identifier]!!
+    override fun fetch(signifier: Signifier): Symbol {
+        return if (scopeTable.containsKey(signifier)) {
+            val scopes = scopeTable[signifier]!!
             if (scopes.size > 1) {
-                langThrow(identifier.ctx, AmbiguousSymbol(identifier))
+                langThrow(signifier.ctx, AmbiguousSymbol(signifier))
             }
-            scopes.first().fetch(identifier)
+            scopes.first().fetch(signifier)
         } else {
-            parent.fetch(identifier)
+            parent.fetch(signifier)
         }
     }
 
-    override fun fetchHere(identifier: Identifier): Symbol {
-        return if (scopeTable.containsKey(identifier)) {
-            val scopes = scopeTable[identifier]!!
+    override fun fetchHere(signifier: Signifier): Symbol {
+        return if (scopeTable.containsKey(signifier)) {
+            val scopes = scopeTable[signifier]!!
             if (scopes.size > 1) {
-                langThrow(identifier.ctx, AmbiguousSymbol(identifier))
+                langThrow(signifier.ctx, AmbiguousSymbol(signifier))
             }
-            scopes.first().fetchHere(identifier)
+            scopes.first().fetchHere(signifier)
         } else {
-            parent.fetchHere(identifier)
+            parent.fetchHere(signifier)
         }
     }
 }
 
-sealed class NamespaceBase : SymbolTable() {
-    override fun define(gid: GroundIdentifier, definition: Symbol) {
+sealed class NamespaceBase(
+    override val parent: Scope<Symbol>,
+    val symbolTable: SymbolTable = SymbolTable(parent)
+) : SymbolTableElement(), Scope<Symbol> by symbolTable {
+    override fun define(identifier: Identifier, definition: Symbol) {
         when (definition) {
             is NamespaceBase -> {
-                if (existsHere(gid)) {
-                    when (val existing = fetchHere(gid)) {
+                if (existsHere(identifier)) {
+                    when (val existing = fetchHere(identifier)) {
                         is NamespaceBase -> {
-                            definition.toMap().entries.forEach {
+                            definition.symbolTable.toMap().entries.forEach {
                                 existing.define(it.key, it.value)
                             }
                         }
                         else -> {
-                            super.define(gid, definition)
+                            symbolTable.define(identifier, definition)
                         }
                     }
                 } else {
-                    super.define(gid, definition)
+                    symbolTable.define(identifier, definition)
                 }
             }
             else -> {
-                super.define(gid, definition)
+                symbolTable.define(identifier, definition)
             }
         }
     }
@@ -390,135 +172,146 @@ sealed class NamespaceBase : SymbolTable() {
 
 data class SystemRootNamespace(
     override val parent: Scope<Symbol>
-) : NamespaceBase()
+) : NamespaceBase(parent)
 
 data class UserRootNamespace(
     override val parent: Scope<Symbol>
-) : NamespaceBase() {
-    override fun define(gid: GroundIdentifier, definition: Symbol) {
-        if (gid == Lang.shardId) {
-            langThrow(gid.ctx, SystemReservedNamespace(gid))
+) : NamespaceBase(parent) {
+    override fun define(identifier: Identifier, definition: Symbol) {
+        if (identifier == Lang.shardId) {
+            langThrow(identifier.ctx, SystemReservedNamespace(identifier))
         }
-        super.define(gid, definition)
+        super.define(identifier, definition)
     }
 }
 
 data class Namespace(
     override val parent: Scope<Symbol>,
-    val gid: GroundIdentifier
-) : NamespaceBase()
+    val identifier: Identifier
+) : NamespaceBase(parent)
 
 data class Block(
-    override val parent: Scope<Symbol>
-) : SymbolTable()
+    override val parent: Scope<Symbol>,
+    private val symbolTable: SymbolTable = SymbolTable(parent)
+) : SymbolTableElement(), Scope<Symbol> by symbolTable
 
 data class LocalVariableSymbol(
     override val parent: Scope<Symbol>,
-    val gid: GroundIdentifier,
+    override val identifier: Identifier,
     val ofTypeSymbol: Symbol,
     val mutable: Boolean
-) : Symbol()
-
-sealed class NamedSymbolTable : SymbolTable() {
-    abstract val gid: GroundIdentifier
-}
+) : NamedSymbolTableElement()
 
 /**
  * Function Primitives
  */
 data class FunctionTypeSymbol(
-    override val parent: Scope<Symbol>,
     val formalParamTypes: List<Symbol>,
     val returnType: Symbol
 ) : Symbol()
 
 data class FunctionFormalParameterSymbol(
     override val parent: Scope<Symbol>,
-    val gid: GroundIdentifier,
+    override val identifier: Identifier,
     val ofTypeSymbol: Symbol
-) : Symbol() {
+) : NamedSymbolTableElement() {
     var costMultiplier: CostExpression = CommonCostExpressions.defaultMultiplier
 }
 
 /**
  * Type/Omicron Primitives
  */
-sealed class TypeParameter : Symbol() {
-    abstract val gid: GroundIdentifier
-}
+sealed class TypeParameter : NamedSymbolTableElement()
 
 data class StandardTypeParameter(
     override val parent: Scope<Symbol>,
-    override val gid: GroundIdentifier
+    override val identifier: Identifier
 ) : TypeParameter()
 
 data class ImmutableOmicronTypeParameter(
     override val parent: Scope<Symbol>,
-    override val gid: GroundIdentifier
-) : TypeParameter(), CostExpression
+    override val identifier: Identifier
+) : TypeParameter(), CostExpression {
+    override fun <R> accept(visitor: CostExpressionVisitor<R>): R {
+        return visitor.visit(this)
+    }
+}
 
 data class MutableOmicronTypeParameter(
     override val parent: Scope<Symbol>,
-    override val gid: GroundIdentifier
-) : TypeParameter(), CostExpression
+    override val identifier: Identifier
+) : TypeParameter(), CostExpression {
+    override fun <R> accept(visitor: CostExpressionVisitor<R>): R {
+        return visitor.visit(this)
+    }
+}
 
-data class OmicronTypeSymbol(val magnitude: BigInteger) : Symbol(), CostExpression {
-    override val parent: Scope<Symbol> = NullSymbolTable
+data class OmicronTypeSymbol(val magnitude: Long) : Symbol(), CostExpression {
+    override fun <R> accept(visitor: CostExpressionVisitor<R>): R {
+        return visitor.visit(this)
+    }
 }
 
 data class SumCostExpression(val children: List<CostExpression>) : Symbol(), CostExpression {
-    override val parent: Scope<Symbol> = NullSymbolTable
+    override fun <R> accept(visitor: CostExpressionVisitor<R>): R {
+        return visitor.visit(this)
+    }
 }
 
 data class ProductCostExpression(val children: List<CostExpression>) : Symbol(), CostExpression {
-    override val parent: Scope<Symbol> = NullSymbolTable
+    override fun <R> accept(visitor: CostExpressionVisitor<R>): R {
+        return visitor.visit(this)
+    }
 }
 
 data class MaxCostExpression(val children: List<CostExpression>) : Symbol(), CostExpression {
-    override val parent: Scope<Symbol> = NullSymbolTable
+    override fun <R> accept(visitor: CostExpressionVisitor<R>): R {
+        return visitor.visit(this)
+    }
 }
 
 /**
  * Generic Primitives
  */
-sealed class ParameterizedSymbol : NamedSymbolTable() {
+sealed class ParameterizedSymbol(override val parent: Scope<Symbol>) : SymbolWithMembers(parent) {
     abstract val typeParams: List<TypeParameter>
 }
 
 data class SymbolInstantiation(
     override val parent: Scope<Symbol>,
-    val substitutionChain: SubstitutionChain
-) : Symbol()
+    val substitutionChain: SubstitutionChain,
+    private val symbolTable: SymbolTable = SymbolTable(parent)
+) : SymbolTableElement(), Scope<Symbol> by symbolTable
 
 /**
  * Function Types
  */
 data class GroundFunctionSymbol(
     override val parent: Scope<Symbol>,
-    override val gid: GroundIdentifier,
+    override val identifier: Identifier,
     val originalCtx: SourceContext,
     val body: Ast
-) : NamedSymbolTable() {
+) : SymbolWithMembers(parent) {
     lateinit var formalParams: List<FunctionFormalParameterSymbol>
     lateinit var returnType: Symbol
     lateinit var costExpression: CostExpression
 
-    fun type() = FunctionTypeSymbol(NullSymbolTable, formalParams.map { it.ofTypeSymbol }, returnType)
+    fun type() = FunctionTypeSymbol(formalParams.map { it.ofTypeSymbol }, returnType)
 }
 
 data class ParameterizedFunctionSymbol(
     override val parent: Scope<Symbol>,
-    override val gid: GroundIdentifier,
+    override val identifier: Identifier,
     val originalCtx: SourceContext,
     val body: Ast
-) : ParameterizedSymbol() {
+) : ParameterizedSymbol(parent) {
     override lateinit var typeParams: List<TypeParameter>
 
     lateinit var formalParams: List<FunctionFormalParameterSymbol>
     lateinit var returnType: Symbol
     lateinit var costExpression: CostExpression
 
-    fun type() = FunctionTypeSymbol(NullSymbolTable, formalParams.map { it.ofTypeSymbol }, returnType)
+    fun type() = FunctionTypeSymbol(formalParams.map { it.ofTypeSymbol }, returnType)
 }
 
 /**
@@ -527,40 +320,40 @@ data class ParameterizedFunctionSymbol(
 
 data class FieldSymbol(
     override val parent: Scope<Symbol>,
-    val gid: GroundIdentifier,
+    override val identifier: Identifier,
     val ofTypeSymbol: Symbol,
     val mutable: Boolean
-) : Symbol()
+) : NamedSymbolTableElement()
 
 data class PlatformFieldSymbol(
     override val parent: Scope<Symbol>,
-    val gid: GroundIdentifier,
+    override val identifier: Identifier,
     val ofTypeSymbol: BasicTypeSymbol,
     val accessor: (Value) -> Value
-) : Symbol()
+) : NamedSymbolTableElement()
 
 /**
  * Data Types
  */
 data class ObjectSymbol(
     override val parent: Scope<Symbol>,
-    override val gid: GroundIdentifier,
+    override val identifier: Identifier,
     val featureSupport: FeatureSupport
-) : NamedSymbolTable()
+) : SymbolWithMembers(parent)
 
 data class GroundRecordTypeSymbol(
     override val parent: Scope<Symbol>,
-    override val gid: GroundIdentifier,
+    override val identifier: Identifier,
     val featureSupport: FeatureSupport
-) : NamedSymbolTable() {
+) : SymbolWithMembers(parent) {
     lateinit var fields: List<FieldSymbol>
 }
 
 data class ParameterizedRecordTypeSymbol(
     override val parent: Scope<Symbol>,
-    override val gid: GroundIdentifier,
+    override val identifier: Identifier,
     val featureSupport: FeatureSupport
-) : ParameterizedSymbol() {
+) : ParameterizedSymbol(parent) {
     override lateinit var typeParams: List<TypeParameter>
     lateinit var fields: List<FieldSymbol>
 }
@@ -570,15 +363,15 @@ data class ParameterizedRecordTypeSymbol(
  */
 data class BasicTypeSymbol(
     override val parent: Scope<Symbol>,
-    override val gid: GroundIdentifier
-) : NamedSymbolTable()
+    override val identifier: Identifier
+) : SymbolWithMembers(parent)
 
 data class ParameterizedBasicTypeSymbol(
     override val parent: Scope<Symbol>,
-    override val gid: GroundIdentifier,
+    override val identifier: Identifier,
     val instantiation: SingleTypeInstantiation,
     val featureSupport: FeatureSupport
-) : ParameterizedSymbol() {
+) : ParameterizedSymbol(parent) {
     override lateinit var typeParams: List<TypeParameter>
     lateinit var modeSelector: (List<Symbol>) -> BasicTypeMode
     lateinit var fields: List<PlatformFieldSymbol>
@@ -589,24 +382,24 @@ data class ParameterizedBasicTypeSymbol(
  */
 data class GroundMemberPluginSymbol(
     override val parent: Scope<Symbol>,
-    override val gid: GroundIdentifier,
+    override val identifier: Identifier,
     val plugin: (Value, List<Value>) -> Value
-) : NamedSymbolTable() {
+) : SymbolWithMembers(parent) {
     fun invoke(t: Value, args: List<Value>): Value = plugin(t, args)
 
     lateinit var formalParams: List<FunctionFormalParameterSymbol>
     lateinit var returnType: Symbol
     lateinit var costExpression: CostExpression
 
-    fun type() = FunctionTypeSymbol(NullSymbolTable, formalParams.map { it.ofTypeSymbol }, returnType)
+    fun type() = FunctionTypeSymbol(formalParams.map { it.ofTypeSymbol }, returnType)
 }
 
 data class ParameterizedMemberPluginSymbol(
     override val parent: Scope<Symbol>,
-    override val gid: GroundIdentifier,
+    override val identifier: Identifier,
     val instantiation: TwoTypeInstantiation,
     val plugin: (Value, List<Value>) -> Value
-) : ParameterizedSymbol() {
+) : ParameterizedSymbol(parent) {
     fun invoke(t: Value, args: List<Value>): Value = plugin(t, args)
     override lateinit var typeParams: List<TypeParameter>
 
@@ -614,21 +407,20 @@ data class ParameterizedMemberPluginSymbol(
     lateinit var returnType: Symbol
     lateinit var costExpression: CostExpression
 
-    fun type() = FunctionTypeSymbol(NullSymbolTable, formalParams.map { it.ofTypeSymbol }, returnType)
-
+    fun type() = FunctionTypeSymbol(formalParams.map { it.ofTypeSymbol }, returnType)
 }
 
 data class ParameterizedStaticPluginSymbol(
     override val parent: Scope<Symbol>,
-    override val gid: GroundIdentifier,
+    override val identifier: Identifier,
     val instantiation: SingleTypeInstantiation,
     val plugin: (List<Value>) -> Value
-) : ParameterizedSymbol() {
+) : ParameterizedSymbol(parent) {
     fun invoke(args: List<Value>): Value = plugin(args)
     override lateinit var typeParams: List<TypeParameter>
     lateinit var formalParams: List<FunctionFormalParameterSymbol>
     lateinit var returnType: Symbol
     lateinit var costExpression: CostExpression
 
-    fun type() = FunctionTypeSymbol(NullSymbolTable, formalParams.map { it.ofTypeSymbol }, returnType)
+    fun type() = FunctionTypeSymbol(formalParams.map { it.ofTypeSymbol }, returnType)
 }

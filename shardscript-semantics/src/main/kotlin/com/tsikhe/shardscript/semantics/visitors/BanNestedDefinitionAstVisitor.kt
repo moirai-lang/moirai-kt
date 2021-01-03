@@ -30,7 +30,7 @@ class BanNestedDefinitionAstVisitor : ParameterizedUnitAstVisitor<NestedDefiniti
         when (param) {
             is WithinRecordIndicator,
             is TopLevelIndicator -> Unit
-            else -> errors.add(ast.ctx, InvalidDefinitionLocation(ast.gid))
+            else -> errors.add(ast.ctx, InvalidDefinitionLocation(ast.identifier))
         }
         super.visit(ast, OtherIndicator)
     }
@@ -39,7 +39,7 @@ class BanNestedDefinitionAstVisitor : ParameterizedUnitAstVisitor<NestedDefiniti
         when (param) {
             is WithinEnumIndicator,
             is TopLevelIndicator -> Unit
-            else -> errors.add(ast.ctx, InvalidDefinitionLocation(ast.gid))
+            else -> errors.add(ast.ctx, InvalidDefinitionLocation(ast.identifier))
         }
         super.visit(ast, WithinRecordIndicator)
     }
@@ -48,7 +48,7 @@ class BanNestedDefinitionAstVisitor : ParameterizedUnitAstVisitor<NestedDefiniti
         when (param) {
             is WithinEnumIndicator,
             is TopLevelIndicator -> Unit
-            else -> errors.add(ast.ctx, InvalidDefinitionLocation(ast.gid))
+            else -> errors.add(ast.ctx, InvalidDefinitionLocation(ast.identifier))
         }
         super.visit(ast, OtherIndicator)
     }
