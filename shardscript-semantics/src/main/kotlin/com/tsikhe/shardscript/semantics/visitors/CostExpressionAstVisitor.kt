@@ -22,15 +22,15 @@ class CostExpressionAstVisitor(private val architecture: Architecture) : UnitAst
         when (val parameterizedSymbol = instantiation.substitutionChain.originalSymbol) {
             is ParameterizedFunctionSymbol -> {
                 val original = parameterizedSymbol.costExpression
-                instantiation.substitutionChain.replay(original as Symbol) as CostExpression
+                instantiation.substitutionChain.replay(original)
             }
             is ParameterizedMemberPluginSymbol -> {
                 val original = parameterizedSymbol.costExpression
-                instantiation.substitutionChain.replay(original as Symbol) as CostExpression
+                instantiation.substitutionChain.replay(original)
             }
             is ParameterizedStaticPluginSymbol -> {
                 val original = parameterizedSymbol.costExpression
-                instantiation.substitutionChain.replay(original as Symbol) as CostExpression
+                instantiation.substitutionChain.replay(original)
             }
             else -> OmicronTypeSymbol(architecture.defaultNodeCost)
         }
@@ -185,7 +185,7 @@ class CostExpressionAstVisitor(private val architecture: Architecture) : UnitAst
                 when (val parameterizedSymbol = symbolRef.substitutionChain.originalSymbol) {
                     is ParameterizedFunctionSymbol -> {
                         parameterizedSymbol.formalParams.map {
-                            symbolRef.substitutionChain.replay(it.costMultiplier as Symbol) as CostExpression
+                            symbolRef.substitutionChain.replay(it.costMultiplier)
                         }
                     }
                     else -> {

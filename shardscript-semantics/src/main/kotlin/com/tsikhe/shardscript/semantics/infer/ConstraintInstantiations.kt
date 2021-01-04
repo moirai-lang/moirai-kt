@@ -185,7 +185,7 @@ fun constrainCost(
             listOf(
                 Constraint(
                     Left<TypeParameter>(expected),
-                    Right(actual as Symbol)
+                    Right(actual.symbolically)
                 )
             )
         } else {
@@ -196,7 +196,7 @@ fun constrainCost(
             listOf(
                 Constraint(
                     Left<TypeParameter>(expected),
-                    Right(actual as Symbol)
+                    Right(actual.symbolically)
                 )
             )
         } else {
@@ -223,7 +223,7 @@ fun constrainCost(
                 errors.add(
                     ctx, TypeMismatch(
                         expected,
-                        actual as Symbol
+                        actual.symbolically
                     )
                 )
                 listOf()
@@ -249,7 +249,7 @@ fun constrainCost(
                 errors.add(
                     ctx, TypeMismatch(
                         expected,
-                        actual as Symbol
+                        actual.symbolically
                     )
                 )
                 listOf()
@@ -275,7 +275,7 @@ fun constrainCost(
                 errors.add(
                     ctx, TypeMismatch(
                         expected,
-                        actual as Symbol
+                        actual.symbolically
                     )
                 )
                 listOf()

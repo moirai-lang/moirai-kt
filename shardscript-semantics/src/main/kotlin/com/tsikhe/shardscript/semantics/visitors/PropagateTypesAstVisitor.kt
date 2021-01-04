@@ -512,10 +512,16 @@ class PropagateTypesAstVisitor(
     override fun visit(ast: GroundApplyAst) {
         try {
             super.visit(ast)
-            ast.tti = if (ast.signifier is ParameterizedSignifier) {
-                ast.signifier.tti
-            } else {
-                ast.signifier as Identifier
+            ast.tti = when(ast.signifier) {
+                is ParameterizedSignifier -> {
+                    ast.signifier.tti
+                }
+                is Identifier -> {
+                    ast.signifier
+                }
+                else -> {
+                    langThrow(ast.ctx, SymbolCouldNotBeApplied(ast.signifier))
+                }
             }
             val symbol = ast.scope.fetch(ast.tti)
             filterValidGroundApply(ast.ctx, errors, symbol, ast.signifier)
@@ -530,10 +536,16 @@ class PropagateTypesAstVisitor(
     override fun visit(ast: DotApplyAst) {
         try {
             super.visit(ast)
-            ast.tti = if (ast.signifier is ParameterizedSignifier) {
-                ast.signifier.tti
-            } else {
-                ast.signifier as Identifier
+            ast.tti = when(ast.signifier) {
+                is ParameterizedSignifier -> {
+                    ast.signifier.tti
+                }
+                is Identifier -> {
+                    ast.signifier
+                }
+                else -> {
+                    langThrow(ast.ctx, SymbolCouldNotBeApplied(ast.signifier))
+                }
             }
             when (val lhsType = ast.lhs.readType()) {
                 is ErrorSymbol -> ast.assignType(errors, ErrorSymbol)

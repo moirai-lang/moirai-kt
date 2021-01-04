@@ -184,13 +184,13 @@ fun inlineGeneratePath(symbol: Symbol, path: MutableList<String>) {
     when (symbol) {
         is GroundRecordTypeSymbol -> {
             if (symbol.parent is Symbol) {
-                inlineGeneratePath(symbol.parent as Symbol, path)
+                inlineGeneratePath(symbol.parent, path)
             }
             path.add(symbol.identifier.name)
         }
         is ParameterizedRecordTypeSymbol -> {
             if (symbol.parent is Symbol) {
-                inlineGeneratePath(symbol.parent as Symbol, path)
+                inlineGeneratePath(symbol.parent, path)
             }
             path.add(symbol.identifier.name)
         }
@@ -198,19 +198,19 @@ fun inlineGeneratePath(symbol: Symbol, path: MutableList<String>) {
             when (val parameterizedType = symbol.substitutionChain.originalSymbol) {
                 is ParameterizedBasicTypeSymbol -> {
                     if (symbol.parent is Symbol) {
-                        inlineGeneratePath(symbol.parent as Symbol, path)
+                        inlineGeneratePath(symbol.parent, path)
                     }
                     path.add(parameterizedType.identifier.name)
                 }
                 is ParameterizedRecordTypeSymbol -> {
                     if (symbol.parent is Symbol) {
-                        inlineGeneratePath(symbol.parent as Symbol, path)
+                        inlineGeneratePath(symbol.parent, path)
                     }
                     path.add(parameterizedType.identifier.name)
                 }
                 is ParameterizedStaticPluginSymbol -> {
                     if (symbol.parent is Symbol) {
-                        inlineGeneratePath(symbol.parent as Symbol, path)
+                        inlineGeneratePath(symbol.parent, path)
                     }
                     path.add(parameterizedType.identifier.name)
                 }
@@ -219,49 +219,49 @@ fun inlineGeneratePath(symbol: Symbol, path: MutableList<String>) {
         }
         is ParameterizedBasicTypeSymbol -> {
             if (symbol.parent is Symbol) {
-                inlineGeneratePath(symbol.parent as Symbol, path)
+                inlineGeneratePath(symbol.parent, path)
             }
             path.add(symbol.identifier.name)
         }
         is ParameterizedStaticPluginSymbol -> {
             if (symbol.parent is Symbol) {
-                inlineGeneratePath(symbol.parent as Symbol, path)
+                inlineGeneratePath(symbol.parent, path)
             }
             path.add(symbol.identifier.name)
         }
         is Namespace -> {
             if (symbol.parent is Symbol) {
-                inlineGeneratePath(symbol.parent as Symbol, path)
+                inlineGeneratePath(symbol.parent, path)
             }
             path.add(symbol.identifier.name)
         }
         is BasicTypeSymbol -> {
             if (symbol.parent is Symbol) {
-                inlineGeneratePath(symbol.parent as Symbol, path)
+                inlineGeneratePath(symbol.parent, path)
             }
             path.add(symbol.identifier.name)
         }
         is ObjectSymbol -> {
             if (symbol.parent is Symbol) {
-                inlineGeneratePath(symbol.parent as Symbol, path)
+                inlineGeneratePath(symbol.parent, path)
             }
             path.add(symbol.identifier.name)
         }
         is StandardTypeParameter -> {
             if (symbol.parent is Symbol) {
-                inlineGeneratePath(symbol.parent as Symbol, path)
+                inlineGeneratePath(symbol.parent, path)
             }
             path.add(symbol.identifier.name)
         }
         is ImmutableOmicronTypeParameter -> {
             if (symbol.parent is Symbol) {
-                inlineGeneratePath(symbol.parent as Symbol, path)
+                inlineGeneratePath(symbol.parent, path)
             }
             path.add(symbol.identifier.name)
         }
         is MutableOmicronTypeParameter -> {
             if (symbol.parent is Symbol) {
-                inlineGeneratePath(symbol.parent as Symbol, path)
+                inlineGeneratePath(symbol.parent, path)
             }
             path.add(symbol.identifier.name)
         }
@@ -370,7 +370,7 @@ fun checkApply(prelude: PreludeTable, errors: LanguageErrors, ast: ApplyAst) {
                     checkArgs(
                         prelude,
                         errors,
-                        symbol.substitutionChain.replay(parameterizedSymbol.type()) as FunctionTypeSymbol,
+                        symbol.substitutionChain.replay(parameterizedSymbol.type()),
                         ast
                     )
                 }
@@ -378,7 +378,7 @@ fun checkApply(prelude: PreludeTable, errors: LanguageErrors, ast: ApplyAst) {
                     checkArgs(
                         prelude,
                         errors,
-                        symbol.substitutionChain.replay(parameterizedSymbol.type()) as FunctionTypeSymbol,
+                        symbol.substitutionChain.replay(parameterizedSymbol.type()),
                         ast
                     )
                 }
@@ -392,7 +392,7 @@ fun checkApply(prelude: PreludeTable, errors: LanguageErrors, ast: ApplyAst) {
                     checkArgs(
                         prelude,
                         errors,
-                        symbol.substitutionChain.replay(parameterizedSymbol.type()) as FunctionTypeSymbol,
+                        symbol.substitutionChain.replay(parameterizedSymbol.type()),
                         ast
                     )
                 }

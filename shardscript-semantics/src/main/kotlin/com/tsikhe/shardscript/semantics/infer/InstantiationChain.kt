@@ -1,5 +1,7 @@
 package com.tsikhe.shardscript.semantics.infer
 
+import com.tsikhe.shardscript.semantics.core.CostExpression
+import com.tsikhe.shardscript.semantics.core.FunctionTypeSymbol
 import com.tsikhe.shardscript.semantics.core.ParameterizedSymbol
 import com.tsikhe.shardscript.semantics.core.Symbol
 
@@ -30,6 +32,28 @@ data class SubstitutionChain(val substitution: Substitution, val chain: Instanti
             }
             is TerminalChain -> {
                 substitution.applySymbol(symbol)
+            }
+        }
+    }
+
+    fun replay(functionTypeSymbol: FunctionTypeSymbol): FunctionTypeSymbol {
+        return when (chain) {
+            is SubstitutionChain -> {
+                substitution.applyFunctionType(chain.replay(functionTypeSymbol))
+            }
+            is TerminalChain -> {
+                substitution.applyFunctionType(functionTypeSymbol)
+            }
+        }
+    }
+
+    fun replay(costExpression: CostExpression): CostExpression {
+        return when (chain) {
+            is SubstitutionChain -> {
+                substitution.applyCost(chain.replay(costExpression))
+            }
+            is TerminalChain -> {
+                substitution.applyCost(costExpression)
             }
         }
     }

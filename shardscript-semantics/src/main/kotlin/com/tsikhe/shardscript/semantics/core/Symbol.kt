@@ -232,6 +232,8 @@ data class ImmutableOmicronTypeParameter(
     override val parent: Scope<Symbol>,
     override val identifier: Identifier
 ) : TypeParameter(), CostExpression {
+    override val symbolically: Symbol = this
+
     override fun <R> accept(visitor: CostExpressionVisitor<R>): R {
         return visitor.visit(this)
     }
@@ -241,30 +243,40 @@ data class MutableOmicronTypeParameter(
     override val parent: Scope<Symbol>,
     override val identifier: Identifier
 ) : TypeParameter(), CostExpression {
+    override val symbolically: Symbol = this
+
     override fun <R> accept(visitor: CostExpressionVisitor<R>): R {
         return visitor.visit(this)
     }
 }
 
 data class OmicronTypeSymbol(val magnitude: Long) : Symbol(), CostExpression {
+    override val symbolically: Symbol = this
+
     override fun <R> accept(visitor: CostExpressionVisitor<R>): R {
         return visitor.visit(this)
     }
 }
 
 data class SumCostExpression(val children: List<CostExpression>) : Symbol(), CostExpression {
+    override val symbolically: Symbol = this
+
     override fun <R> accept(visitor: CostExpressionVisitor<R>): R {
         return visitor.visit(this)
     }
 }
 
 data class ProductCostExpression(val children: List<CostExpression>) : Symbol(), CostExpression {
+    override val symbolically: Symbol = this
+
     override fun <R> accept(visitor: CostExpressionVisitor<R>): R {
         return visitor.visit(this)
     }
 }
 
 data class MaxCostExpression(val children: List<CostExpression>) : Symbol(), CostExpression {
+    override val symbolically: Symbol = this
+
     override fun <R> accept(visitor: CostExpressionVisitor<R>): R {
         return visitor.visit(this)
     }

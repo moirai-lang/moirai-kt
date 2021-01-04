@@ -58,7 +58,7 @@ class Substitution(
                 res
             }
             is CostExpression -> {
-                applyCost(symbol) as Symbol
+                applyCost(symbol).symbolically
             }
             else -> symbol
         }
