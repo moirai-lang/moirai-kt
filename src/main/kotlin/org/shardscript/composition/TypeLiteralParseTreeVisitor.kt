@@ -30,7 +30,7 @@ internal class TypeLiteralParseTreeVisitor(private val fileName: String) : Shard
         tti.ctx = createContext(fileName, ctx.id.start)
 
         val args: MutableList<Signifier> = ArrayList()
-        ctx.params.typeExprWithFin().forEach {
+        ctx.params.typeExprOrLiteral().forEach {
             val param = visit(it)
             args.add(param)
         }
@@ -43,12 +43,6 @@ internal class TypeLiteralParseTreeVisitor(private val fileName: String) : Shard
     override fun visitFinLiteral(ctx: ShardScriptParser.FinLiteralContext): Signifier {
         val res = FinLiteral(ctx.magnitude.text.toLong())
         res.ctx = createContext(fileName, ctx.magnitude)
-        return res
-    }
-
-    override fun visitFinType(ctx: ShardScriptParser.FinTypeContext): Signifier {
-        val res = Identifier(ctx.fin.text.toString())
-        res.ctx = createContext(fileName, ctx.fin)
         return res
     }
 

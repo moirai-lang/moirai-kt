@@ -254,7 +254,7 @@ class TutorialTests {
     fun listParameterizedFunctionTest() {
         splitTest(
             """
-                def maxOf<#O>(list: List<Int, #O>): Int {
+                def maxOf<O: Fin>(list: List<Int, O>): Int {
                     mutable max = 0
                     for(item in list) {
                         if(item > max) {

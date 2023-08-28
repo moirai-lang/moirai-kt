@@ -177,7 +177,7 @@ data class BlockAst(val lines: MutableList<Ast>) : Ast() {
 
 data class FunctionAst(
     val identifier: Identifier,
-    val typeParams: List<Identifier>,
+    val typeParams: List<TypeParameterDefinition>,
     val formalParams: List<Binder>,
     val returnType: Signifier,
     val body: BlockAst
@@ -191,7 +191,7 @@ data class FunctionAst(
 
 data class RecordDefinitionAst(
     val identifier: Identifier,
-    val typeParams: List<Identifier>,
+    val typeParams: List<TypeParameterDefinition>,
     val fields: List<FieldDef>
 ) : DefinitionAst() {
     override fun <R> accept(visitor: AstVisitor<R>): R =

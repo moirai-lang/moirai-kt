@@ -240,7 +240,7 @@ class ListHappyTests {
     fun finTypeParamListTest() {
         splitTest(
             """
-            def size<E, #O>(x: List<E, #O>): Int {
+            def size<E, O: Fin>(x: List<E, O>): Int {
                 mutable res = 0
                 for(e in x) {
                     res = res + 1

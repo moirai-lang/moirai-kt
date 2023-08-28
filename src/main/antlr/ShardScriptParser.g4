@@ -50,8 +50,8 @@ typeParams
     ;
 
 typeParam
-    :   IDENTIFIER  # IdentifierTypeParam
-    |   FIN     # FinTypeParam
+    : id=IDENTIFIER COLON FIN   # FinTypeParam
+    | id=IDENTIFIER             # IdentifierTypeParam
     ;
 
 paramDef
@@ -154,18 +154,17 @@ typeExpr
     ;
 
 typePath
-    :   IDENTIFIER (DOT IDENTIFIER)+    # MultiTypePath
-    |   IDENTIFIER                        # SingleTypePath
+    :   IDENTIFIER (DOT IDENTIFIER)+        # MultiTypePath
+    |   IDENTIFIER                          # SingleTypePath
     ;
 
-typeExprWithFin
-    :   fin=FIN                                             # FinType
-    |   magnitude=INT                                       # FinLiteral
+typeExprOrLiteral
+    :   magnitude=INT                                       # FinLiteral
     |   te=typeExpr                                         # NoFin
     ;
 
 typeExprParams
-    :   LT typeExprWithFin (COMMA typeExprWithFin)* GT
+    :   LT typeExprOrLiteral (COMMA typeExprOrLiteral)* GT
     ;
 
 typeExprSeq

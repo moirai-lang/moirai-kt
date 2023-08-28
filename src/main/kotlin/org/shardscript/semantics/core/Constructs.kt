@@ -12,6 +12,13 @@ data class FieldDef(val identifier: Identifier, val ofType: Signifier, val mutab
     lateinit var symbol: Symbol
 }
 
+enum class TypeParameterKind {
+    Type,
+    Fin
+}
+
+data class TypeParameterDefinition(val identifier: Identifier, val type: TypeParameterKind)
+
 sealed class CaseBranch : LanguageElement {
     abstract val body: BlockAst
 }

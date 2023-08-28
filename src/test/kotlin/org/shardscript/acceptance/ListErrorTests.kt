@@ -119,8 +119,8 @@ class ListErrorTests {
     fun finTypeParamMutableListTest() {
         failTest(
             """
-            def size<E, #O>(x: List<E, #O>): Int {
-                val z = MutableList<E, #O>()
+            def size<E, O: Fin>(x: List<E, O>): Int {
+                val z = MutableList<E, O>()
                 mutable res = 0
                 for(e in x) {
                     z.add(e)

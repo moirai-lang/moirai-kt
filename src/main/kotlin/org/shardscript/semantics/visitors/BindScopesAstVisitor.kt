@@ -159,8 +159,8 @@ class BindScopesAstVisitor(
                 GroundFunctionSymbol(param, ast.identifier, ast.ctx, ast.body)
             } else {
                 ast.typeParams.forEach {
-                    if (it == ast.identifier) {
-                        errors.add(it.ctx, MaskingTypeParameter(it))
+                    if (it.identifier == ast.identifier) {
+                        errors.add(it.identifier.ctx, MaskingTypeParameter(it.identifier))
                     }
                 }
                 ParameterizedFunctionSymbol(param, ast.identifier, ast.ctx, ast.body)
@@ -197,8 +197,8 @@ class BindScopesAstVisitor(
                     userTypeFeatureSupport
                 )
                 ast.typeParams.forEach {
-                    if (it == ast.identifier) {
-                        errors.add(it.ctx, MaskingTypeParameter(it))
+                    if (it.identifier == ast.identifier) {
+                        errors.add(it.identifier.ctx, MaskingTypeParameter(it.identifier))
                     }
                 }
                 res

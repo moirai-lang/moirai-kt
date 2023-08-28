@@ -10,7 +10,7 @@ Because ShardScript cannot access the file system of the host machine, and becau
 # Examples
 The following code can be sent over a network in a POST request to be executed by a server:
 ```
-def maxOf<#O>(list: List<Int, #O>): Int {
+def maxOf<O: Fin>(list: List<Int, O>): Int {
      mutable max = 0
      for(item in list) {
          if(item > max) {
@@ -23,7 +23,7 @@ def maxOf<#O>(list: List<Int, #O>): Int {
  val list = List(4, 7, 2, 1, 9, 8)
  maxOf(list)
 ```
-This code defines a function called maxOf, which accepts a list of unknown size. This function is then called. The server is able to run this code safely because it can infer that the type parameter named #O needs to be substituted with the integer constant 6. This means that the list will only ever have 6 elements, allowing the for loop to iterate only 6 times. The compiler will be OK with this computation, and return a result to the sender.
+This code defines a function called maxOf, which accepts a list of unknown size. This function is then called. The server is able to run this code safely because it can infer that the type parameter named O needs to be substituted with the integer constant 6. This means that the list will only ever have 6 elements, allowing the for loop to iterate only 6 times. The compiler will be OK with this computation, and return a result to the sender.
 
 By contrast, the compiler will reject the following computation:
 ```

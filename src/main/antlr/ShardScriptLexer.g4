@@ -25,6 +25,8 @@ RBRACK: ']';
 BOOL_TRUE: 'true';
 BOOL_FALSE: 'false';
 
+FIN: 'Fin';
+
 AS: 'as';
 DEF: 'def';
 ELSE: 'else';
@@ -85,10 +87,6 @@ DECIMAL
 
 IDENTIFIER
     :   LETTER_OR_UNDERSCORE (LETTER_OR_UNDERSCORE_OR_DIGIT)*
-    ;
-
-FIN
-    :   POUND LETTER+
     ;
 
 CHAR

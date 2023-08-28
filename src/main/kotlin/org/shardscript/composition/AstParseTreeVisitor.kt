@@ -326,19 +326,19 @@ internal class AstParseTreeVisitor(private val fileName: String, val errors: Lan
     }
 
     override fun visitFunDefStat(ctx: ShardScriptParser.FunDefStatContext): Ast {
-        val typeParams: MutableList<Identifier> = ArrayList()
+        val typeParams: MutableList<TypeParameterDefinition> = ArrayList()
         if (ctx.tp != null) {
             ctx.tp.typeParam().forEach {
                 when (it) {
                     is ShardScriptParser.IdentifierTypeParamContext -> {
-                        val typeParam = Identifier(it.IDENTIFIER().text)
+                        val typeParam = Identifier(it.id.text)
                         typeParam.ctx = createContext(fileName, it.IDENTIFIER().symbol)
-                        typeParams.add(typeParam)
+                        typeParams.add(TypeParameterDefinition(typeParam, TypeParameterKind.Type))
                     }
                     is ShardScriptParser.FinTypeParamContext -> {
-                        val typeParam = Identifier(it.FIN().text)
+                        val typeParam = Identifier(it.id.text)
                         typeParam.ctx = createContext(fileName, it.FIN().symbol)
-                        typeParams.add(typeParam)
+                        typeParams.add(TypeParameterDefinition(typeParam, TypeParameterKind.Fin))
                     }
                 }
             }
@@ -390,7 +390,7 @@ internal class AstParseTreeVisitor(private val fileName: String, val errors: Lan
             }
         }
 
-        val typeArgs = ctx.params.typeExprWithFin().map {
+        val typeArgs = ctx.params.typeExprOrLiteral().map {
             typeVisitor.visit(it)
         }
 
@@ -408,19 +408,19 @@ internal class AstParseTreeVisitor(private val fileName: String, val errors: Lan
     }
 
     override fun visitRecordDefStat(ctx: ShardScriptParser.RecordDefStatContext): Ast {
-        val typeParams: MutableList<Identifier> = ArrayList()
+        val typeParams: MutableList<TypeParameterDefinition> = ArrayList()
         if (ctx.tp != null) {
             ctx.tp.typeParam().forEach {
                 when (it) {
                     is ShardScriptParser.IdentifierTypeParamContext -> {
-                        val typeParam = Identifier(it.IDENTIFIER().text)
+                        val typeParam = Identifier(it.id.text)
                         typeParam.ctx = createContext(fileName, it.IDENTIFIER().symbol)
-                        typeParams.add(typeParam)
+                        typeParams.add(TypeParameterDefinition(typeParam, TypeParameterKind.Type))
                     }
                     is ShardScriptParser.FinTypeParamContext -> {
-                        val typeParam = Identifier(it.FIN().text)
+                        val typeParam = Identifier(it.id.text)
                         typeParam.ctx = createContext(fileName, it.FIN().symbol)
-                        typeParams.add(typeParam)
+                        typeParams.add(TypeParameterDefinition(typeParam, TypeParameterKind.Type))
                     }
                 }
             }
@@ -471,7 +471,7 @@ internal class AstParseTreeVisitor(private val fileName: String, val errors: Lan
             }
         }
 
-        val typeArgs = ctx.params.typeExprWithFin().map {
+        val typeArgs = ctx.params.typeExprOrLiteral().map {
             typeVisitor.visit(it)
         }
 

@@ -21,23 +21,23 @@ class ParameterScanAstVisitor : UnitAstVisitor() {
                 is RecordDef -> {
                     val seenTypeParameters: MutableSet<String> = HashSet()
                     parameterizedRecordSymbol.typeParams = ast.typeParams.map {
-                        if (it.name.startsWith("#")) {
-                            val typeParam = ImmutableFinTypeParameter(parameterizedRecordSymbol, it)
-                            val postFix = it.name.substringAfter("#")
+                        if (it.type == TypeParameterKind.Fin) {
+                            val typeParam = ImmutableFinTypeParameter(parameterizedRecordSymbol, it.identifier)
+                            val postFix = it.identifier.name
                             if (seenTypeParameters.contains(postFix)) {
-                                errors.add(it.ctx, DuplicateTypeParameter(it))
+                                errors.add(it.identifier.ctx, DuplicateTypeParameter(it.identifier))
                             } else {
                                 seenTypeParameters.add(postFix)
-                                parameterizedRecordSymbol.define(it, typeParam)
+                                parameterizedRecordSymbol.define(it.identifier, typeParam)
                             }
                             typeParam
                         } else {
-                            val typeParam = StandardTypeParameter(parameterizedRecordSymbol, it)
-                            if (seenTypeParameters.contains(it.name)) {
-                                errors.add(it.ctx, DuplicateTypeParameter(it))
+                            val typeParam = StandardTypeParameter(parameterizedRecordSymbol, it.identifier)
+                            if (seenTypeParameters.contains(it.identifier.name)) {
+                                errors.add(it.identifier.ctx, DuplicateTypeParameter(it.identifier))
                             } else {
-                                seenTypeParameters.add(it.name)
-                                parameterizedRecordSymbol.define(it, typeParam)
+                                seenTypeParameters.add(it.identifier.name)
+                                parameterizedRecordSymbol.define(it.identifier, typeParam)
                             }
                             typeParam
                         }
@@ -53,23 +53,23 @@ class ParameterScanAstVisitor : UnitAstVisitor() {
                 val parameterizedFunctionSymbol = ast.scope as ParameterizedFunctionSymbol
                 val seenTypeParameters: MutableSet<String> = HashSet()
                 parameterizedFunctionSymbol.typeParams = ast.typeParams.map {
-                    if (it.name.startsWith("#")) {
-                        val typeParam = ImmutableFinTypeParameter(parameterizedFunctionSymbol, it)
-                        val postFix = it.name.substringAfter("#")
+                    if (it.type == TypeParameterKind.Fin) {
+                        val typeParam = ImmutableFinTypeParameter(parameterizedFunctionSymbol, it.identifier)
+                        val postFix = it.identifier.name
                         if (seenTypeParameters.contains(postFix)) {
-                            errors.add(it.ctx, DuplicateTypeParameter(it))
+                            errors.add(it.identifier.ctx, DuplicateTypeParameter(it.identifier))
                         } else {
                             seenTypeParameters.add(postFix)
-                            parameterizedFunctionSymbol.define(it, typeParam)
+                            parameterizedFunctionSymbol.define(it.identifier, typeParam)
                         }
                         typeParam
                     } else {
-                        val typeParam = StandardTypeParameter(parameterizedFunctionSymbol, it)
-                        if (seenTypeParameters.contains(it.name)) {
-                            errors.add(it.ctx, DuplicateTypeParameter(it))
+                        val typeParam = StandardTypeParameter(parameterizedFunctionSymbol, it.identifier)
+                        if (seenTypeParameters.contains(it.identifier.name)) {
+                            errors.add(it.identifier.ctx, DuplicateTypeParameter(it.identifier))
                         } else {
-                            seenTypeParameters.add(it.name)
-                            parameterizedFunctionSymbol.define(it, typeParam)
+                            seenTypeParameters.add(it.identifier.name)
+                            parameterizedFunctionSymbol.define(it.identifier, typeParam)
                         }
                         typeParam
                     }
