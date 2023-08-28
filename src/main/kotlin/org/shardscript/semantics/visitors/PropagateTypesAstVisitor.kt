@@ -698,7 +698,7 @@ class PropagateTypesAstVisitor(
                         is ParameterizedBasicTypeSymbol -> {
                             if (parameterizedSymbol.featureSupport.forEachBlock) {
                                 ast.sourceTypeSymbol = sourceType.substitutionChain.replayArgs().first()
-                                ast.sourceOmicronSymbol = sourceType.substitutionChain.replayArgs()[1]
+                                ast.sourceFinSymbol = sourceType.substitutionChain.replayArgs()[1]
                                 if (ast.ofType is ImplicitTypeLiteral) {
                                     ast.ofTypeSymbol = sourceType.substitutionChain.replayArgs().first()
                                 } else {

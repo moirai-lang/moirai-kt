@@ -18,10 +18,10 @@ class SetInstantiation : SingleTypeInstantiation {
             } else {
                 validateSubstitution(ctx, errors, parameterized.typeParams.first(), explicitTypeArgs.first())
                 validateSubstitution(ctx, errors, parameterized.typeParams[1], explicitTypeArgs[1])
-                if (explicitTypeArgs[1] is OmicronTypeSymbol) {
-                    val omicron = explicitTypeArgs[1] as OmicronTypeSymbol
-                    if (args.size.toLong() > omicron.magnitude) {
-                        errors.add(ctx, TooManyElements(omicron.magnitude, args.size.toLong()))
+                if (explicitTypeArgs[1] is FinTypeSymbol) {
+                    val fin = explicitTypeArgs[1] as FinTypeSymbol
+                    if (args.size.toLong() > fin.magnitude) {
+                        errors.add(ctx, TooManyElements(fin.magnitude, args.size.toLong()))
                     }
                 }
                 val substitution = Substitution(parameterized.typeParams, explicitTypeArgs)
@@ -44,7 +44,7 @@ class SetInstantiation : SingleTypeInstantiation {
                 constraints.add(
                     Constraint(
                         Left(inOrderParameters[1]),
-                        Right(OmicronTypeSymbol(args.size.toLong()))
+                        Right(FinTypeSymbol(args.size.toLong()))
                     )
                 )
                 val substitution = createSubstitution(ctx, constraints, parameterSet, inOrderParameters, errors)
@@ -83,10 +83,10 @@ class MutableSetInstantiation : SingleTypeInstantiation {
                     explicitTypeArgs.first()
                 )
                 validateSubstitution(ctx, errors, parameterized.typeParams[1], explicitTypeArgs[1])
-                if (explicitTypeArgs[1] is OmicronTypeSymbol) {
-                    val omicron = explicitTypeArgs[1] as OmicronTypeSymbol
-                    if (args.size.toLong() > omicron.magnitude) {
-                        errors.add(ctx, TooManyElements(omicron.magnitude, args.size.toLong()))
+                if (explicitTypeArgs[1] is FinTypeSymbol) {
+                    val fin = explicitTypeArgs[1] as FinTypeSymbol
+                    if (args.size.toLong() > fin.magnitude) {
+                        errors.add(ctx, TooManyElements(fin.magnitude, args.size.toLong()))
                     }
                 }
                 val substitution = Substitution(parameterized.typeParams, explicitTypeArgs)

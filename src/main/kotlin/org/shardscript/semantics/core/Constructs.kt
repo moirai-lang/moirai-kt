@@ -49,5 +49,5 @@ interface TwoTypeInstantiation {
 
 sealed class BasicTypeMode
 
-data class MutableBasicTypeMode(val omicron: Long) : BasicTypeMode()
+data class MutableBasicTypeMode(val fin: Long) : BasicTypeMode()
 object ImmutableBasicTypeMode : BasicTypeMode()

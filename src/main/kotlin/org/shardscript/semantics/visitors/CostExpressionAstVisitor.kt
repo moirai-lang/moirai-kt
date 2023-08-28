@@ -4,7 +4,7 @@ import org.shardscript.semantics.core.*
 
 class CostExpressionAstVisitor(private val architecture: Architecture) : UnitAstVisitor() {
     private fun addDefault(costExpression: CostExpression): CostExpression =
-        SumCostExpression(listOf(OmicronTypeSymbol(architecture.defaultNodeCost), costExpression))
+        SumCostExpression(listOf(FinTypeSymbol(architecture.defaultNodeCost), costExpression))
 
     private fun convertCostExpression(symbolRef: Symbol): CostExpression =
         when (symbolRef) {
@@ -15,7 +15,7 @@ class CostExpressionAstVisitor(private val architecture: Architecture) : UnitAst
                 symbolRef.costExpression
             }
             is SymbolInstantiation -> replaySubstitutions(symbolRef)
-            else -> OmicronTypeSymbol(architecture.defaultNodeCost)
+            else -> FinTypeSymbol(architecture.defaultNodeCost)
         }
 
     private fun replaySubstitutions(instantiation: SymbolInstantiation): CostExpression =
@@ -32,55 +32,55 @@ class CostExpressionAstVisitor(private val architecture: Architecture) : UnitAst
                 val original = parameterizedSymbol.costExpression
                 instantiation.substitutionChain.replay(original)
             }
-            else -> OmicronTypeSymbol(architecture.defaultNodeCost)
+            else -> FinTypeSymbol(architecture.defaultNodeCost)
         }
 
     override fun visit(ast: SByteLiteralAst) {
-        ast.costExpression = OmicronTypeSymbol(architecture.defaultNodeCost)
+        ast.costExpression = FinTypeSymbol(architecture.defaultNodeCost)
     }
 
     override fun visit(ast: ShortLiteralAst) {
-        ast.costExpression = OmicronTypeSymbol(architecture.defaultNodeCost)
+        ast.costExpression = FinTypeSymbol(architecture.defaultNodeCost)
     }
 
     override fun visit(ast: IntLiteralAst) {
-        ast.costExpression = OmicronTypeSymbol(architecture.defaultNodeCost)
+        ast.costExpression = FinTypeSymbol(architecture.defaultNodeCost)
     }
 
     override fun visit(ast: LongLiteralAst) {
-        ast.costExpression = OmicronTypeSymbol(architecture.defaultNodeCost)
+        ast.costExpression = FinTypeSymbol(architecture.defaultNodeCost)
     }
 
     override fun visit(ast: ByteLiteralAst) {
-        ast.costExpression = OmicronTypeSymbol(architecture.defaultNodeCost)
+        ast.costExpression = FinTypeSymbol(architecture.defaultNodeCost)
     }
 
     override fun visit(ast: UShortLiteralAst) {
-        ast.costExpression = OmicronTypeSymbol(architecture.defaultNodeCost)
+        ast.costExpression = FinTypeSymbol(architecture.defaultNodeCost)
     }
 
     override fun visit(ast: UIntLiteralAst) {
-        ast.costExpression = OmicronTypeSymbol(architecture.defaultNodeCost)
+        ast.costExpression = FinTypeSymbol(architecture.defaultNodeCost)
     }
 
     override fun visit(ast: ULongLiteralAst) {
-        ast.costExpression = OmicronTypeSymbol(architecture.defaultNodeCost)
+        ast.costExpression = FinTypeSymbol(architecture.defaultNodeCost)
     }
 
     override fun visit(ast: DecimalLiteralAst) {
-        ast.costExpression = OmicronTypeSymbol(architecture.defaultNodeCost)
+        ast.costExpression = FinTypeSymbol(architecture.defaultNodeCost)
     }
 
     override fun visit(ast: BooleanLiteralAst) {
-        ast.costExpression = OmicronTypeSymbol(architecture.defaultNodeCost)
+        ast.costExpression = FinTypeSymbol(architecture.defaultNodeCost)
     }
 
     override fun visit(ast: CharLiteralAst) {
-        ast.costExpression = OmicronTypeSymbol(architecture.defaultNodeCost)
+        ast.costExpression = FinTypeSymbol(architecture.defaultNodeCost)
     }
 
     override fun visit(ast: StringLiteralAst) {
-        ast.costExpression = OmicronTypeSymbol(architecture.defaultNodeCost)
+        ast.costExpression = FinTypeSymbol(architecture.defaultNodeCost)
     }
 
     override fun visit(ast: StringInterpolationAst) {
@@ -128,17 +128,17 @@ class CostExpressionAstVisitor(private val architecture: Architecture) : UnitAst
     override fun visit(ast: FunctionAst) {
         // The body cost will be calculated after topological sort of all functions
         // so we do not call super.visit(ast)
-        ast.costExpression = OmicronTypeSymbol(architecture.defaultNodeCost)
+        ast.costExpression = FinTypeSymbol(architecture.defaultNodeCost)
     }
 
     override fun visit(ast: RecordDefinitionAst) {
         super.visit(ast)
-        ast.costExpression = OmicronTypeSymbol(architecture.defaultNodeCost)
+        ast.costExpression = FinTypeSymbol(architecture.defaultNodeCost)
     }
 
     override fun visit(ast: ObjectDefinitionAst) {
         super.visit(ast)
-        ast.costExpression = OmicronTypeSymbol(architecture.defaultNodeCost)
+        ast.costExpression = FinTypeSymbol(architecture.defaultNodeCost)
     }
 
     override fun visit(ast: DotAst) {
@@ -211,8 +211,8 @@ class CostExpressionAstVisitor(private val architecture: Architecture) : UnitAst
 
     override fun visit(ast: ForEachAst) {
         super.visit(ast)
-        val multiplier = when (val omicron = ast.sourceOmicronSymbol) {
-            is CostExpression -> omicron
+        val multiplier = when (val fin = ast.sourceFinSymbol) {
+            is CostExpression -> fin
             else -> {
                 langThrow(ast.ctx, TypeSystemBug)
             }
@@ -222,12 +222,12 @@ class CostExpressionAstVisitor(private val architecture: Architecture) : UnitAst
 
     override fun visit(ast: AssignAst) {
         super.visit(ast)
-        ast.costExpression = OmicronTypeSymbol(architecture.defaultNodeCost)
+        ast.costExpression = FinTypeSymbol(architecture.defaultNodeCost)
     }
 
     override fun visit(ast: DotAssignAst) {
         super.visit(ast)
-        ast.costExpression = OmicronTypeSymbol(architecture.defaultNodeCost)
+        ast.costExpression = FinTypeSymbol(architecture.defaultNodeCost)
     }
 
     override fun visit(ast: IfAst) {

@@ -115,7 +115,7 @@ class CostMultiplierAstVisitor(val architecture: Architecture) : AstVisitor<List
                     is FunctionTypeSymbol -> res.add(
                         ParamCostExMultiplier(
                             symbolRef,
-                            OmicronTypeSymbol(architecture.defaultNodeCost)
+                            FinTypeSymbol(architecture.defaultNodeCost)
                         )
                     )
                     else -> Unit
@@ -134,9 +134,9 @@ class CostMultiplierAstVisitor(val architecture: Architecture) : AstVisitor<List
 
     override fun visit(ast: ForEachAst): List<ParamCostExMultiplier> {
         val res = ast.source.accept(this).toMutableList()
-        val multiplier: CostExpression = when (val omicron = ast.sourceOmicronSymbol) {
-            is ImmutableOmicronTypeParameter -> omicron
-            is OmicronTypeSymbol -> omicron
+        val multiplier: CostExpression = when (val fin = ast.sourceFinSymbol) {
+            is ImmutableFinTypeParameter -> fin
+            is FinTypeSymbol -> fin
             else -> {
                 langThrow(ast.ctx, TypeSystemBug)
             }

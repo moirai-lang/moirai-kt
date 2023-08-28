@@ -1,14 +1,14 @@
 package org.shardscript.semantics.prelude
 
 import org.shardscript.semantics.core.*
-import org.shardscript.semantics.infer.DualOmicronPluginInstantiation
+import org.shardscript.semantics.infer.DualFinPluginInstantiation
 import org.shardscript.semantics.infer.SingleParentArgInstantiation
 import org.shardscript.semantics.infer.Substitution
 
 object DecimalMathOpMembers {
     fun members(
         decimalType: ParameterizedBasicTypeSymbol,
-        decimalTypeParam: ImmutableOmicronTypeParameter
+        decimalTypeParam: ImmutableFinTypeParameter
     ): Map<String, Symbol> = mapOf(
         BinaryOperator.Add.idStr to pluginAdd(decimalType, decimalTypeParam),
         BinaryOperator.Sub.idStr to pluginSub(decimalType, decimalTypeParam),
@@ -20,16 +20,16 @@ object DecimalMathOpMembers {
 
     private fun pluginAdd(
         decimalType: ParameterizedBasicTypeSymbol,
-        decimalTypeParam: ImmutableOmicronTypeParameter
+        decimalTypeParam: ImmutableFinTypeParameter
     ): ParameterizedMemberPluginSymbol {
         val res = ParameterizedMemberPluginSymbol(
             decimalType,
             Identifier(BinaryOperator.Add.idStr),
-            DualOmicronPluginInstantiation,
+            DualFinPluginInstantiation,
         { t: Value, args: List<Value> ->
             (t as MathValue).evalAdd(args.first())
         })
-        val inputTypeArg = ImmutableOmicronTypeParameter(res, Lang.decimalInputTypeId)
+        val inputTypeArg = ImmutableFinTypeParameter(res, Lang.decimalInputTypeId)
         res.define(inputTypeArg.identifier, inputTypeArg)
         res.typeParams = listOf(decimalTypeParam, inputTypeArg)
 
@@ -61,16 +61,16 @@ object DecimalMathOpMembers {
 
     private fun pluginSub(
         decimalType: ParameterizedBasicTypeSymbol,
-        decimalTypeParam: ImmutableOmicronTypeParameter
+        decimalTypeParam: ImmutableFinTypeParameter
     ): ParameterizedMemberPluginSymbol {
         val res = ParameterizedMemberPluginSymbol(
             decimalType,
             Identifier(BinaryOperator.Sub.idStr),
-            DualOmicronPluginInstantiation,
+            DualFinPluginInstantiation,
         { t: Value, args: List<Value> ->
             (t as MathValue).evalSub(args.first())
         })
-        val inputTypeArg = ImmutableOmicronTypeParameter(res, Lang.decimalInputTypeId)
+        val inputTypeArg = ImmutableFinTypeParameter(res, Lang.decimalInputTypeId)
         res.define(inputTypeArg.identifier, inputTypeArg)
         res.typeParams = listOf(decimalTypeParam, inputTypeArg)
 
@@ -102,16 +102,16 @@ object DecimalMathOpMembers {
 
     private fun pluginMul(
         decimalType: ParameterizedBasicTypeSymbol,
-        decimalTypeParam: ImmutableOmicronTypeParameter
+        decimalTypeParam: ImmutableFinTypeParameter
     ): ParameterizedMemberPluginSymbol {
         val res = ParameterizedMemberPluginSymbol(
             decimalType,
             Identifier(BinaryOperator.Mul.idStr),
-            DualOmicronPluginInstantiation,
+            DualFinPluginInstantiation,
         { t: Value, args: List<Value> ->
             (t as MathValue).evalMul(args.first())
         })
-        val inputTypeArg = ImmutableOmicronTypeParameter(res, Lang.decimalInputTypeId)
+        val inputTypeArg = ImmutableFinTypeParameter(res, Lang.decimalInputTypeId)
         res.define(inputTypeArg.identifier, inputTypeArg)
         res.typeParams = listOf(decimalTypeParam, inputTypeArg)
 
@@ -143,16 +143,16 @@ object DecimalMathOpMembers {
 
     private fun pluginDiv(
         decimalType: ParameterizedBasicTypeSymbol,
-        decimalTypeParam: ImmutableOmicronTypeParameter
+        decimalTypeParam: ImmutableFinTypeParameter
     ): ParameterizedMemberPluginSymbol {
         val res = ParameterizedMemberPluginSymbol(
             decimalType,
             Identifier(BinaryOperator.Div.idStr),
-            DualOmicronPluginInstantiation,
+            DualFinPluginInstantiation,
         { t: Value, args: List<Value> ->
             (t as MathValue).evalDiv(args.first())
         })
-        val inputTypeArg = ImmutableOmicronTypeParameter(res, Lang.decimalInputTypeId)
+        val inputTypeArg = ImmutableFinTypeParameter(res, Lang.decimalInputTypeId)
         res.define(inputTypeArg.identifier, inputTypeArg)
         res.typeParams = listOf(decimalTypeParam, inputTypeArg)
 
@@ -179,16 +179,16 @@ object DecimalMathOpMembers {
 
     private fun pluginMod(
         decimalType: ParameterizedBasicTypeSymbol,
-        decimalTypeParam: ImmutableOmicronTypeParameter
+        decimalTypeParam: ImmutableFinTypeParameter
     ): ParameterizedMemberPluginSymbol {
         val res = ParameterizedMemberPluginSymbol(
             decimalType,
             Identifier(BinaryOperator.Mod.idStr),
-            DualOmicronPluginInstantiation,
+            DualFinPluginInstantiation,
         { t: Value, args: List<Value> ->
             (t as MathValue).evalMod(args.first())
         })
-        val inputTypeArg = ImmutableOmicronTypeParameter(res, Lang.decimalInputTypeId)
+        val inputTypeArg = ImmutableFinTypeParameter(res, Lang.decimalInputTypeId)
         res.define(inputTypeArg.identifier, inputTypeArg)
         res.typeParams = listOf(decimalTypeParam, inputTypeArg)
 
@@ -215,7 +215,7 @@ object DecimalMathOpMembers {
 
     private fun pluginNegate(
         decimalType: ParameterizedBasicTypeSymbol,
-        decimalTypeParam: ImmutableOmicronTypeParameter
+        decimalTypeParam: ImmutableFinTypeParameter
     ): ParameterizedMemberPluginSymbol {
         val res = ParameterizedMemberPluginSymbol(
             decimalType,
@@ -238,7 +238,7 @@ object DecimalMathOpMembers {
 object DecimalOrderOpMembers {
     fun members(
         decimalType: ParameterizedBasicTypeSymbol,
-        decimalTypeParam: ImmutableOmicronTypeParameter,
+        decimalTypeParam: ImmutableFinTypeParameter,
         booleanType: BasicTypeSymbol
     ): Map<String, ParameterizedMemberPluginSymbol> = mapOf(
         BinaryOperator.GreaterThan.idStr to pluginGreaterThan(decimalType, decimalTypeParam, booleanType),
@@ -249,17 +249,17 @@ object DecimalOrderOpMembers {
 
     private fun pluginGreaterThan(
         decimalType: ParameterizedBasicTypeSymbol,
-        decimalTypeParam: ImmutableOmicronTypeParameter,
+        decimalTypeParam: ImmutableFinTypeParameter,
         booleanType: BasicTypeSymbol
     ): ParameterizedMemberPluginSymbol {
         val res = ParameterizedMemberPluginSymbol(
             decimalType,
             Identifier(BinaryOperator.GreaterThan.idStr),
-            DualOmicronPluginInstantiation,
+            DualFinPluginInstantiation,
         { t: Value, args: List<Value> ->
             (t as OrderValue).evalGreaterThan(args.first())
         })
-        val inputTypeArg = ImmutableOmicronTypeParameter(res, Lang.decimalInputTypeId)
+        val inputTypeArg = ImmutableFinTypeParameter(res, Lang.decimalInputTypeId)
         res.define(inputTypeArg.identifier, inputTypeArg)
         res.typeParams = listOf(decimalTypeParam, inputTypeArg)
 
@@ -289,17 +289,17 @@ object DecimalOrderOpMembers {
 
     private fun pluginGreaterThanOrEquals(
         decimalType: ParameterizedBasicTypeSymbol,
-        decimalTypeParam: ImmutableOmicronTypeParameter,
+        decimalTypeParam: ImmutableFinTypeParameter,
         booleanType: BasicTypeSymbol
     ): ParameterizedMemberPluginSymbol {
         val res = ParameterizedMemberPluginSymbol(
             decimalType,
             Identifier(BinaryOperator.GreaterThanEqual.idStr),
-            DualOmicronPluginInstantiation,
+            DualFinPluginInstantiation,
         { t: Value, args: List<Value> ->
             (t as OrderValue).evalGreaterThanOrEquals(args.first())
         })
-        val inputTypeArg = ImmutableOmicronTypeParameter(res, Lang.decimalInputTypeId)
+        val inputTypeArg = ImmutableFinTypeParameter(res, Lang.decimalInputTypeId)
         res.define(inputTypeArg.identifier, inputTypeArg)
         res.typeParams = listOf(decimalTypeParam, inputTypeArg)
 
@@ -329,17 +329,17 @@ object DecimalOrderOpMembers {
 
     private fun pluginLessThan(
         decimalType: ParameterizedBasicTypeSymbol,
-        decimalTypeParam: ImmutableOmicronTypeParameter,
+        decimalTypeParam: ImmutableFinTypeParameter,
         booleanType: BasicTypeSymbol
     ): ParameterizedMemberPluginSymbol {
         val res = ParameterizedMemberPluginSymbol(
             decimalType,
             Identifier(BinaryOperator.LessThan.idStr),
-            DualOmicronPluginInstantiation,
+            DualFinPluginInstantiation,
         { t: Value, args: List<Value> ->
             (t as OrderValue).evalLessThan(args.first())
         })
-        val inputTypeArg = ImmutableOmicronTypeParameter(res, Lang.decimalInputTypeId)
+        val inputTypeArg = ImmutableFinTypeParameter(res, Lang.decimalInputTypeId)
         res.define(inputTypeArg.identifier, inputTypeArg)
         res.typeParams = listOf(decimalTypeParam, inputTypeArg)
 
@@ -369,17 +369,17 @@ object DecimalOrderOpMembers {
 
     private fun pluginLessThanOrEquals(
         decimalType: ParameterizedBasicTypeSymbol,
-        decimalTypeParam: ImmutableOmicronTypeParameter,
+        decimalTypeParam: ImmutableFinTypeParameter,
         booleanType: BasicTypeSymbol
     ): ParameterizedMemberPluginSymbol {
         val res = ParameterizedMemberPluginSymbol(
             decimalType,
             Identifier(BinaryOperator.LessThanEqual.idStr),
-            DualOmicronPluginInstantiation,
+            DualFinPluginInstantiation,
         { t: Value, args: List<Value> ->
             (t as OrderValue).evalLessThanOrEquals(args.first())
         })
-        val inputTypeArg = ImmutableOmicronTypeParameter(res, Lang.decimalInputTypeId)
+        val inputTypeArg = ImmutableFinTypeParameter(res, Lang.decimalInputTypeId)
         res.define(inputTypeArg.identifier, inputTypeArg)
         res.typeParams = listOf(decimalTypeParam, inputTypeArg)
 
@@ -411,7 +411,7 @@ object DecimalOrderOpMembers {
 object DecimalEqualityOpMembers {
     fun members(
         decimalType: ParameterizedBasicTypeSymbol,
-        decimalTypeParam: ImmutableOmicronTypeParameter,
+        decimalTypeParam: ImmutableFinTypeParameter,
         booleanType: BasicTypeSymbol
     ): Map<String, ParameterizedMemberPluginSymbol> = mapOf(
         BinaryOperator.Equal.idStr to pluginEquals(decimalType, decimalTypeParam, booleanType),
@@ -420,17 +420,17 @@ object DecimalEqualityOpMembers {
 
     private fun pluginEquals(
         decimalType: ParameterizedBasicTypeSymbol,
-        decimalTypeParam: ImmutableOmicronTypeParameter,
+        decimalTypeParam: ImmutableFinTypeParameter,
         booleanType: BasicTypeSymbol
     ): ParameterizedMemberPluginSymbol {
         val res = ParameterizedMemberPluginSymbol(
             decimalType,
             Identifier(BinaryOperator.Equal.idStr),
-            DualOmicronPluginInstantiation,
+            DualFinPluginInstantiation,
         { t: Value, args: List<Value> ->
             (t as EqualityValue).evalEquals(args.first())
         })
-        val inputTypeArg = ImmutableOmicronTypeParameter(res, Lang.decimalInputTypeId)
+        val inputTypeArg = ImmutableFinTypeParameter(res, Lang.decimalInputTypeId)
         res.define(inputTypeArg.identifier, inputTypeArg)
         res.typeParams = listOf(decimalTypeParam, inputTypeArg)
 
@@ -460,17 +460,17 @@ object DecimalEqualityOpMembers {
 
     private fun pluginNotEquals(
         decimalType: ParameterizedBasicTypeSymbol,
-        decimalTypeParam: ImmutableOmicronTypeParameter,
+        decimalTypeParam: ImmutableFinTypeParameter,
         booleanType: BasicTypeSymbol
     ): ParameterizedMemberPluginSymbol {
         val res = ParameterizedMemberPluginSymbol(
             decimalType,
             Identifier(BinaryOperator.NotEqual.idStr),
-            DualOmicronPluginInstantiation,
+            DualFinPluginInstantiation,
         { t: Value, args: List<Value> ->
             (t as EqualityValue).evalNotEquals(args.first())
         })
-        val inputTypeArg = ImmutableOmicronTypeParameter(res, Lang.decimalInputTypeId)
+        val inputTypeArg = ImmutableFinTypeParameter(res, Lang.decimalInputTypeId)
         res.define(inputTypeArg.identifier, inputTypeArg)
         res.typeParams = listOf(decimalTypeParam, inputTypeArg)
 

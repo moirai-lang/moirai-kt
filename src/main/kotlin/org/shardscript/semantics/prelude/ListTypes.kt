@@ -109,7 +109,7 @@ private fun createRemoveAtFunction(
 fun createToImmutableListPlugin(
     mutableListType: ParameterizedBasicTypeSymbol,
     elementType: StandardTypeParameter,
-    omicron: MutableOmicronTypeParameter,
+    fin: MutableFinTypeParameter,
     listType: ParameterizedBasicTypeSymbol
 ) {
     val plugin = ParameterizedMemberPluginSymbol(
@@ -119,9 +119,9 @@ fun createToImmutableListPlugin(
     { t: Value, _: List<Value> ->
         (t as ListValue).evalToList()
     })
-    plugin.typeParams = listOf(elementType, omicron)
+    plugin.typeParams = listOf(elementType, fin)
     plugin.formalParams = listOf()
-    val outputSubstitution = Substitution(listType.typeParams, listOf(elementType, omicron))
+    val outputSubstitution = Substitution(listType.typeParams, listOf(elementType, fin))
     val outputType = outputSubstitution.apply(listType)
     plugin.returnType = outputType
 
@@ -129,7 +129,7 @@ fun createToImmutableListPlugin(
         ProductCostExpression(
             listOf(
                 CommonCostExpressions.twoPass,
-                omicron
+                fin
             )
         )
     mutableListType.define(plugin.identifier, plugin)
@@ -149,14 +149,14 @@ fun listCollectionType(
     )
     val listElementTypeParam = StandardTypeParameter(listType, Lang.listElementTypeId)
     listType.define(Lang.listElementTypeId, listElementTypeParam)
-    val listOmicronTypeParam = ImmutableOmicronTypeParameter(listType, Lang.listOmicronTypeId)
-    listType.define(Lang.listOmicronTypeId, listOmicronTypeParam)
-    listType.typeParams = listOf(listElementTypeParam, listOmicronTypeParam)
+    val listFinTypeParam = ImmutableFinTypeParameter(listType, Lang.listFinTypeId)
+    listType.define(Lang.listFinTypeId, listFinTypeParam)
+    listType.typeParams = listOf(listElementTypeParam, listFinTypeParam)
     listType.modeSelector = { _ ->
         ImmutableBasicTypeMode
     }
     createGetFunction(
-        OmicronTypeSymbol(architecture.defaultNodeCost),
+        FinTypeSymbol(architecture.defaultNodeCost),
         listType,
         intType,
         listElementTypeParam
@@ -174,8 +174,8 @@ fun listCollectionType(
     listType.define(sizeId, sizeFieldSymbol)
     listType.fields = listOf(sizeFieldSymbol)
 
-    createListEqualsMember(listType, listElementTypeParam, listOmicronTypeParam, booleanType)
-    createListNotEqualsMember(listType, listElementTypeParam, listOmicronTypeParam, booleanType)
+    createListEqualsMember(listType, listElementTypeParam, listFinTypeParam, booleanType)
+    createListNotEqualsMember(listType, listElementTypeParam, listFinTypeParam, booleanType)
 
     return listType
 }
@@ -196,13 +196,13 @@ fun mutableListCollectionType(
     )
     val mutableListElementTypeParam = StandardTypeParameter(mutableListType, Lang.mutableListElementTypeId)
     mutableListType.define(Lang.mutableListElementTypeId, mutableListElementTypeParam)
-    val mutableListOmicronTypeParam = MutableOmicronTypeParameter(mutableListType, Lang.mutableListOmicronTypeId)
-    mutableListType.define(Lang.mutableListOmicronTypeId, mutableListOmicronTypeParam)
-    mutableListType.typeParams = listOf(mutableListElementTypeParam, mutableListOmicronTypeParam)
+    val mutableListFinTypeParam = MutableFinTypeParameter(mutableListType, Lang.mutableListFinTypeId)
+    mutableListType.define(Lang.mutableListFinTypeId, mutableListFinTypeParam)
+    mutableListType.typeParams = listOf(mutableListElementTypeParam, mutableListFinTypeParam)
     mutableListType.modeSelector = { args ->
-        when (val omicron = args[1]) {
-            is OmicronTypeSymbol -> {
-                MutableBasicTypeMode(omicron.magnitude)
+        when (val fin = args[1]) {
+            is FinTypeSymbol -> {
+                MutableBasicTypeMode(fin.magnitude)
             }
             else -> {
                 ImmutableBasicTypeMode
@@ -210,30 +210,30 @@ fun mutableListCollectionType(
         }
     }
 
-    val constantOmicron = OmicronTypeSymbol(architecture.defaultNodeCost)
+    val constantFin = FinTypeSymbol(architecture.defaultNodeCost)
     createGetFunction(
-        constantOmicron,
+        constantFin,
         mutableListType,
         intType,
         mutableListElementTypeParam
     )
 
     createAddFunction(
-        constantOmicron,
+        constantFin,
         mutableListType,
         unitType,
         mutableListElementTypeParam
     )
 
     createRemoveAtFunction(
-        constantOmicron,
+        constantFin,
         mutableListType,
         unitType,
         intType
     )
 
     createSetFunction(
-        constantOmicron,
+        constantFin,
         mutableListType,
         unitType,
         intType,
@@ -243,7 +243,7 @@ fun mutableListCollectionType(
     createToImmutableListPlugin(
         mutableListType,
         mutableListElementTypeParam,
-        mutableListOmicronTypeParam,
+        mutableListFinTypeParam,
         listType
     )
 
@@ -262,13 +262,13 @@ fun mutableListCollectionType(
     createMutableListEqualsMember(
         mutableListType,
         mutableListElementTypeParam,
-        mutableListOmicronTypeParam,
+        mutableListFinTypeParam,
         booleanType
     )
     createMutableListNotEqualsMember(
         mutableListType,
         mutableListElementTypeParam,
-        mutableListOmicronTypeParam,
+        mutableListFinTypeParam,
         booleanType
     )
 

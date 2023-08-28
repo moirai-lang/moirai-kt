@@ -14,18 +14,18 @@ fun intType(
         langNS,
         numericId
     )
-    val constantOmicron = OmicronTypeSymbol(architecture.defaultNodeCost)
-    IntegerMathOpMembers.members(intType, constantOmicron).forEach { (name, plugin) ->
+    val constantFin = FinTypeSymbol(architecture.defaultNodeCost)
+    IntegerMathOpMembers.members(intType, constantFin).forEach { (name, plugin) ->
         if (!filters.contains(name)) {
             intType.define(Identifier(name), plugin)
         }
     }
-    IntegerOrderOpMembers.members(intType, constantOmicron, booleanType).forEach { (name, plugin) ->
+    IntegerOrderOpMembers.members(intType, constantFin, booleanType).forEach { (name, plugin) ->
         if (!filters.contains(name)) {
             intType.define(Identifier(name), plugin)
         }
     }
-    ValueEqualityOpMembers.members(intType, constantOmicron, booleanType).forEach { (name, plugin) ->
+    ValueEqualityOpMembers.members(intType, constantFin, booleanType).forEach { (name, plugin) ->
         if (!filters.contains(name)) {
             intType.define(Identifier(name), plugin)
         }
@@ -45,7 +45,7 @@ fun decimalType(
         userTypeFeatureSupport
     )
 
-    val decimalTypeParam = ImmutableOmicronTypeParameter(decimalType, Lang.decimalTypeId)
+    val decimalTypeParam = ImmutableFinTypeParameter(decimalType, Lang.decimalTypeId)
     decimalType.define(Lang.decimalTypeId, decimalTypeParam)
     decimalType.typeParams = listOf(decimalTypeParam)
     decimalType.modeSelector = { _ ->

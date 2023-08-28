@@ -49,7 +49,7 @@ class Substitution(
                 }
                 res
             }
-            is ImmutableOmicronTypeParameter -> {
+            is ImmutableFinTypeParameter -> {
                 val res = if (solutions.containsKey(symbol)) {
                     solutions[symbol]!!
                 } else {
@@ -65,7 +65,7 @@ class Substitution(
 
     fun applyCost(costExpression: CostExpression): CostExpression {
         return when (costExpression) {
-            is ImmutableOmicronTypeParameter -> {
+            is ImmutableFinTypeParameter -> {
                 val res = if (solutions.containsKey(costExpression)) {
                     when (val solution = solutions[costExpression]!!) {
                         is CostExpression -> solution
@@ -76,7 +76,7 @@ class Substitution(
                 }
                 res
             }
-            is MutableOmicronTypeParameter -> {
+            is MutableFinTypeParameter -> {
                 val res = if (solutions.containsKey(costExpression)) {
                     when (val solution = solutions[costExpression]!!) {
                         is CostExpression -> solution
@@ -87,7 +87,7 @@ class Substitution(
                 }
                 res
             }
-            is OmicronTypeSymbol -> costExpression
+            is FinTypeSymbol -> costExpression
             is SumCostExpression -> SumCostExpression(costExpression.children.map { applyCost(it) })
             is ProductCostExpression -> ProductCostExpression(costExpression.children.map { applyCost(it) })
             is MaxCostExpression -> MaxCostExpression(costExpression.children.map { applyCost(it) })

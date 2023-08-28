@@ -30,7 +30,7 @@ internal class TypeLiteralParseTreeVisitor(private val fileName: String) : Shard
         tti.ctx = createContext(fileName, ctx.id.start)
 
         val args: MutableList<Signifier> = ArrayList()
-        ctx.params.typeExprWithOmicron().forEach {
+        ctx.params.typeExprWithFin().forEach {
             val param = visit(it)
             args.add(param)
         }
@@ -40,19 +40,19 @@ internal class TypeLiteralParseTreeVisitor(private val fileName: String) : Shard
         return res
     }
 
-    override fun visitOmicronLiteral(ctx: ShardScriptParser.OmicronLiteralContext): Signifier {
-        val res = OmicronLiteral(ctx.magnitude.text.toLong())
+    override fun visitFinLiteral(ctx: ShardScriptParser.FinLiteralContext): Signifier {
+        val res = FinLiteral(ctx.magnitude.text.toLong())
         res.ctx = createContext(fileName, ctx.magnitude)
         return res
     }
 
-    override fun visitOmicronType(ctx: ShardScriptParser.OmicronTypeContext): Signifier {
-        val res = Identifier(ctx.omicron.text.toString())
-        res.ctx = createContext(fileName, ctx.omicron)
+    override fun visitFinType(ctx: ShardScriptParser.FinTypeContext): Signifier {
+        val res = Identifier(ctx.fin.text.toString())
+        res.ctx = createContext(fileName, ctx.fin)
         return res
     }
 
-    override fun visitNoOmicron(ctx: ShardScriptParser.NoOmicronContext): Signifier {
+    override fun visitNoFin(ctx: ShardScriptParser.NoFinContext): Signifier {
         return visit(ctx.te)
     }
 

@@ -219,7 +219,7 @@ data class FunctionFormalParameterSymbol(
 }
 
 /**
- * Type/Omicron Primitives
+ * Type/Fin Primitives
  */
 sealed class TypeParameter : NamedSymbolTableElement()
 
@@ -228,7 +228,7 @@ data class StandardTypeParameter(
     override val identifier: Identifier
 ) : TypeParameter()
 
-data class ImmutableOmicronTypeParameter(
+data class ImmutableFinTypeParameter(
     override val parent: Scope<Symbol>,
     override val identifier: Identifier
 ) : TypeParameter(), CostExpression {
@@ -239,7 +239,7 @@ data class ImmutableOmicronTypeParameter(
     }
 }
 
-data class MutableOmicronTypeParameter(
+data class MutableFinTypeParameter(
     override val parent: Scope<Symbol>,
     override val identifier: Identifier
 ) : TypeParameter(), CostExpression {
@@ -250,7 +250,7 @@ data class MutableOmicronTypeParameter(
     }
 }
 
-data class OmicronTypeSymbol(val magnitude: Long) : Symbol(), CostExpression {
+data class FinTypeSymbol(val magnitude: Long) : Symbol(), CostExpression {
     override val symbolically: Symbol = this
 
     override fun <R> accept(visitor: CostExpressionVisitor<R>): R {

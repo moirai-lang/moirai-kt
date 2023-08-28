@@ -17,7 +17,7 @@ fun stringType(
         userTypeFeatureSupport
     )
 
-    val stringTypeParam = ImmutableOmicronTypeParameter(stringType, Lang.stringTypeId)
+    val stringTypeParam = ImmutableFinTypeParameter(stringType, Lang.stringTypeId)
     stringType.define(Lang.stringTypeId, stringTypeParam)
     stringType.typeParams = listOf(stringTypeParam)
     stringType.modeSelector = { _ ->

@@ -2,7 +2,7 @@ package org.shardscript.semantics.infer
 
 import org.shardscript.semantics.core.*
 
-object DualOmicronPluginInstantiation : TwoTypeInstantiation {
+object DualFinPluginInstantiation : TwoTypeInstantiation {
     override fun apply(
         ctx: SourceContext,
         errors: LanguageErrors,
@@ -14,8 +14,8 @@ object DualOmicronPluginInstantiation : TwoTypeInstantiation {
         val parameterizedMemberPluginSymbol = parameterized as ParameterizedMemberPluginSymbol
         val inOrderParameters = parameterized.typeParams
         if (parameterizedMemberPluginSymbol.formalParams.size == args.size) {
-            val firstOmicron = (existingInstantiation.substitutionChain).replayArgs().first()
-            val secondOmicron = when (val argType = args.first().readType()) {
+            val firstFin = (existingInstantiation.substitutionChain).replayArgs().first()
+            val secondFin = when (val argType = args.first().readType()) {
                 is SymbolInstantiation -> {
                     (argType.substitutionChain).replayArgs().first()
                 }
@@ -26,7 +26,7 @@ object DualOmicronPluginInstantiation : TwoTypeInstantiation {
             }
             val substitution = Substitution(
                 inOrderParameters,
-                listOf(firstOmicron, secondOmicron)
+                listOf(firstFin, secondFin)
             )
             return substitution.apply(parameterized)
         } else {
@@ -39,7 +39,7 @@ object DualOmicronPluginInstantiation : TwoTypeInstantiation {
     }
 }
 
-object DoubleParentSingleOmicronPluginInstantiation : TwoTypeInstantiation {
+object DoubleParentSingleFinPluginInstantiation : TwoTypeInstantiation {
     override fun apply(
         ctx: SourceContext,
         errors: LanguageErrors,
@@ -52,8 +52,8 @@ object DoubleParentSingleOmicronPluginInstantiation : TwoTypeInstantiation {
         val inOrderParameters = parameterized.typeParams
         if (parameterizedMemberPluginSymbol.formalParams.size == args.size) {
             val firstElementType = (existingInstantiation.substitutionChain).replayArgs().first()
-            val firstOmicron = (existingInstantiation.substitutionChain).replayArgs()[1]
-            val secondOmicron = when (val argType = args.first().readType()) {
+            val firstFin = (existingInstantiation.substitutionChain).replayArgs()[1]
+            val secondFin = when (val argType = args.first().readType()) {
                 is SymbolInstantiation -> {
                     (argType.substitutionChain).replayArgs()[1]
                 }
@@ -64,7 +64,7 @@ object DoubleParentSingleOmicronPluginInstantiation : TwoTypeInstantiation {
             }
             val substitution = Substitution(
                 inOrderParameters,
-                listOf(firstElementType, firstOmicron, secondOmicron)
+                listOf(firstElementType, firstFin, secondFin)
             )
             return substitution.apply(parameterized)
         } else {
@@ -77,7 +77,7 @@ object DoubleParentSingleOmicronPluginInstantiation : TwoTypeInstantiation {
     }
 }
 
-object TripleParentSingleOmicronPluginInstantiation : TwoTypeInstantiation {
+object TripleParentSingleFinPluginInstantiation : TwoTypeInstantiation {
     override fun apply(
         ctx: SourceContext,
         errors: LanguageErrors,
@@ -91,8 +91,8 @@ object TripleParentSingleOmicronPluginInstantiation : TwoTypeInstantiation {
         if (parameterizedMemberPluginSymbol.formalParams.size == args.size) {
             val firstKeyType = (existingInstantiation.substitutionChain).replayArgs().first()
             val firstValueType = (existingInstantiation.substitutionChain).replayArgs()[1]
-            val firstOmicron = (existingInstantiation.substitutionChain).replayArgs()[2]
-            val secondOmicron = when (val argType = args.first().readType()) {
+            val firstFin = (existingInstantiation.substitutionChain).replayArgs()[2]
+            val secondFin = when (val argType = args.first().readType()) {
                 is SymbolInstantiation -> {
                     (argType.substitutionChain).replayArgs()[2]
                 }
@@ -103,7 +103,7 @@ object TripleParentSingleOmicronPluginInstantiation : TwoTypeInstantiation {
             }
             val substitution = Substitution(
                 inOrderParameters,
-                listOf(firstKeyType, firstValueType, firstOmicron, secondOmicron)
+                listOf(firstKeyType, firstValueType, firstFin, secondFin)
             )
             return substitution.apply(parameterized)
         } else {
@@ -128,10 +128,10 @@ object SingleParentArgInstantiation : TwoTypeInstantiation {
         val parameterizedMemberPluginSymbol = parameterized as ParameterizedMemberPluginSymbol
         val inOrderParameters = parameterized.typeParams
         if (parameterizedMemberPluginSymbol.formalParams.size == args.size) {
-            val firstOmicron = (existingInstantiation.substitutionChain).replayArgs().first()
+            val firstFin = (existingInstantiation.substitutionChain).replayArgs().first()
             val substitution = Substitution(
                 inOrderParameters,
-                listOf(firstOmicron)
+                listOf(firstFin)
             )
             return substitution.apply(parameterized)
         } else {

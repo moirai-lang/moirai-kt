@@ -1,13 +1,13 @@
 package org.shardscript.semantics.prelude
 
 import org.shardscript.semantics.core.*
-import org.shardscript.semantics.infer.DualOmicronPluginInstantiation
+import org.shardscript.semantics.infer.DualFinPluginInstantiation
 import org.shardscript.semantics.infer.SingleParentArgInstantiation
 import org.shardscript.semantics.infer.Substitution
 
 fun pluginToCharArray(
     stringType: ParameterizedBasicTypeSymbol,
-    stringTypeParam: ImmutableOmicronTypeParameter,
+    stringTypeParam: ImmutableFinTypeParameter,
     charType: BasicTypeSymbol,
     listType: ParameterizedBasicTypeSymbol
 ): ParameterizedMemberPluginSymbol {
@@ -31,7 +31,7 @@ fun pluginToCharArray(
 object StringEqualityOpMembers {
     fun members(
         stringType: ParameterizedBasicTypeSymbol,
-        stringTypeParam: ImmutableOmicronTypeParameter,
+        stringTypeParam: ImmutableFinTypeParameter,
         booleanType: BasicTypeSymbol
     ): Map<String, ParameterizedMemberPluginSymbol> = mapOf(
         BinaryOperator.Equal.idStr to pluginEquals(stringType, stringTypeParam, booleanType),
@@ -41,16 +41,16 @@ object StringEqualityOpMembers {
 
     private fun pluginAdd(
         stringType: ParameterizedBasicTypeSymbol,
-        stringTypeParam: ImmutableOmicronTypeParameter
+        stringTypeParam: ImmutableFinTypeParameter
     ): ParameterizedMemberPluginSymbol {
         val res = ParameterizedMemberPluginSymbol(
             stringType,
             Identifier(BinaryOperator.Add.idStr),
-            DualOmicronPluginInstantiation,
+            DualFinPluginInstantiation,
         { t: Value, args: List<Value> ->
             (t as StringValue).evalAdd(args.first())
         })
-        val inputTypeArg = ImmutableOmicronTypeParameter(res, Lang.stringInputTypeId)
+        val inputTypeArg = ImmutableFinTypeParameter(res, Lang.stringInputTypeId)
         res.define(inputTypeArg.identifier, inputTypeArg)
         res.typeParams = listOf(stringTypeParam, inputTypeArg)
 
@@ -78,17 +78,17 @@ object StringEqualityOpMembers {
 
     private fun pluginEquals(
         stringType: ParameterizedBasicTypeSymbol,
-        stringTypeParam: ImmutableOmicronTypeParameter,
+        stringTypeParam: ImmutableFinTypeParameter,
         booleanType: BasicTypeSymbol
     ): ParameterizedMemberPluginSymbol {
         val res = ParameterizedMemberPluginSymbol(
             stringType,
             Identifier(BinaryOperator.Equal.idStr),
-            DualOmicronPluginInstantiation,
+            DualFinPluginInstantiation,
         { t: Value, args: List<Value> ->
             (t as EqualityValue).evalEquals(args.first())
         })
-        val inputTypeArg = ImmutableOmicronTypeParameter(res, Lang.stringInputTypeId)
+        val inputTypeArg = ImmutableFinTypeParameter(res, Lang.stringInputTypeId)
         res.define(inputTypeArg.identifier, inputTypeArg)
         res.typeParams = listOf(stringTypeParam, inputTypeArg)
 
@@ -119,17 +119,17 @@ object StringEqualityOpMembers {
 
     private fun pluginNotEquals(
         stringType: ParameterizedBasicTypeSymbol,
-        stringTypeParam: ImmutableOmicronTypeParameter,
+        stringTypeParam: ImmutableFinTypeParameter,
         booleanType: BasicTypeSymbol
     ): ParameterizedMemberPluginSymbol {
         val res = ParameterizedMemberPluginSymbol(
             stringType,
             Identifier(BinaryOperator.NotEqual.idStr),
-            DualOmicronPluginInstantiation,
+            DualFinPluginInstantiation,
         { t: Value, args: List<Value> ->
             (t as EqualityValue).evalNotEquals(args.first())
         })
-        val inputTypeArg = ImmutableOmicronTypeParameter(res, Lang.stringInputTypeId)
+        val inputTypeArg = ImmutableFinTypeParameter(res, Lang.stringInputTypeId)
         res.define(inputTypeArg.identifier, inputTypeArg)
         res.typeParams = listOf(stringTypeParam, inputTypeArg)
 

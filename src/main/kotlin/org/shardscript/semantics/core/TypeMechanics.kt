@@ -33,9 +33,9 @@ fun filterValidTypes(ctx: SourceContext, errors: LanguageErrors, symbol: Symbol)
             errors.add(ctx, CannotUseRawType(symbol))
             ErrorSymbol
         }
-        is OmicronTypeSymbol,
-        is ImmutableOmicronTypeParameter,
-        is MutableOmicronTypeParameter -> {
+        is FinTypeSymbol,
+        is ImmutableFinTypeParameter,
+        is MutableFinTypeParameter -> {
             errors.add(ctx, ExpectOtherError)
             ErrorSymbol
         }
@@ -95,9 +95,9 @@ fun filterValidGroundApply(
         }
         is FunctionTypeSymbol,
         is ParameterizedMemberPluginSymbol,
-        is OmicronTypeSymbol,
-        is ImmutableOmicronTypeParameter,
-        is MutableOmicronTypeParameter,
+        is FinTypeSymbol,
+        is ImmutableFinTypeParameter,
+        is MutableFinTypeParameter,
         is GroundMemberPluginSymbol,
         is BasicTypeSymbol,
         is ObjectSymbol,
@@ -150,9 +150,9 @@ fun filterValidDotApply(
         }
         is FunctionTypeSymbol,
         is ParameterizedMemberPluginSymbol,
-        is OmicronTypeSymbol,
-        is ImmutableOmicronTypeParameter,
-        is MutableOmicronTypeParameter,
+        is FinTypeSymbol,
+        is ImmutableFinTypeParameter,
+        is MutableFinTypeParameter,
         is BasicTypeSymbol,
         is ObjectSymbol,
         is StandardTypeParameter,
@@ -253,13 +253,13 @@ fun inlineGeneratePath(symbol: Symbol, path: MutableList<String>) {
             }
             path.add(symbol.identifier.name)
         }
-        is ImmutableOmicronTypeParameter -> {
+        is ImmutableFinTypeParameter -> {
             if (symbol.parent is Symbol) {
                 inlineGeneratePath(symbol.parent, path)
             }
             path.add(symbol.identifier.name)
         }
-        is MutableOmicronTypeParameter -> {
+        is MutableFinTypeParameter -> {
             if (symbol.parent is Symbol) {
                 inlineGeneratePath(symbol.parent, path)
             }
@@ -287,9 +287,9 @@ fun checkTypes(
         expected !is FunctionTypeSymbol && actual is FunctionTypeSymbol -> {
             errors.add(ctx, TypeMismatch(expected, actual))
         }
-        expected is OmicronTypeSymbol && actual is OmicronTypeSymbol -> {
+        expected is FinTypeSymbol && actual is FinTypeSymbol -> {
             if (actual.magnitude > expected.magnitude) {
-                errors.add(ctx, OmicronMismatch(expected.magnitude, actual.magnitude))
+                errors.add(ctx, FinMismatch(expected.magnitude, actual.magnitude))
             }
         }
         expected is SymbolInstantiation && actual is SymbolInstantiation -> {
@@ -590,24 +590,24 @@ fun findBestType(ctx: SourceContext, errors: LanguageErrors, types: List<Symbol>
                 ErrorSymbol
             }
         }
-        is OmicronTypeSymbol -> {
-            if (types.all { it is OmicronTypeSymbol }) {
-                OmicronTypeSymbol(types.map { (it as OmicronTypeSymbol).magnitude }.max()!!)
+        is FinTypeSymbol -> {
+            if (types.all { it is FinTypeSymbol }) {
+                FinTypeSymbol(types.map { (it as FinTypeSymbol).magnitude }.max()!!)
             } else {
                 errors.add(ctx, CannotFindBestType(types))
                 ErrorSymbol
             }
         }
-        is ImmutableOmicronTypeParameter -> {
-            if (types.all { it is ImmutableOmicronTypeParameter && firstPath == generatePath(it) }) {
+        is ImmutableFinTypeParameter -> {
+            if (types.all { it is ImmutableFinTypeParameter && firstPath == generatePath(it) }) {
                 first
             } else {
                 errors.add(ctx, CannotFindBestType(types))
                 ErrorSymbol
             }
         }
-        is MutableOmicronTypeParameter -> {
-            if (types.all { it is MutableOmicronTypeParameter && firstPath == generatePath(it) }) {
+        is MutableFinTypeParameter -> {
+            if (types.all { it is MutableFinTypeParameter && firstPath == generatePath(it) }) {
                 first
             } else {
                 errors.add(ctx, CannotFindBestType(types))
@@ -639,8 +639,8 @@ fun validateExplicitSymbol(
             if (identifier is Identifier) {
                 when (scope.fetch(identifier)) {
                     is StandardTypeParameter,
-                    is ImmutableOmicronTypeParameter,
-                    is MutableOmicronTypeParameter -> {
+                    is ImmutableFinTypeParameter,
+                    is MutableFinTypeParameter -> {
                         var targetParent: SymbolTableElement = scope
                         while (!isValidTarget(targetParent)) {
                             targetParent = targetParent.parent as SymbolTableElement
@@ -690,13 +690,13 @@ fun validateSubstitution(
             }
             else -> errors.add(ctx, InvalidStandardTypeSub(typeParameter, substitutedSymbol))
         }
-        is ImmutableOmicronTypeParameter -> when (substitutedSymbol) {
+        is ImmutableFinTypeParameter -> when (substitutedSymbol) {
             is CostExpression -> Unit
-            else -> errors.add(ctx, InvalidOmicronTypeSub(typeParameter, substitutedSymbol))
+            else -> errors.add(ctx, InvalidFinTypeSub(typeParameter, substitutedSymbol))
         }
-        is MutableOmicronTypeParameter -> when (substitutedSymbol) {
-            is OmicronTypeSymbol -> Unit
-            else -> errors.add(ctx, InvalidOmicronTypeSub(typeParameter, substitutedSymbol))
+        is MutableFinTypeParameter -> when (substitutedSymbol) {
+            is FinTypeSymbol -> Unit
+            else -> errors.add(ctx, InvalidFinTypeSub(typeParameter, substitutedSymbol))
         }
     }
 }

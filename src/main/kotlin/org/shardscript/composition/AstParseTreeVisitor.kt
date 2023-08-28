@@ -335,9 +335,9 @@ internal class AstParseTreeVisitor(private val fileName: String, val errors: Lan
                         typeParam.ctx = createContext(fileName, it.IDENTIFIER().symbol)
                         typeParams.add(typeParam)
                     }
-                    is ShardScriptParser.OmicronTypeParamContext -> {
-                        val typeParam = Identifier(it.OMICRON().text)
-                        typeParam.ctx = createContext(fileName, it.OMICRON().symbol)
+                    is ShardScriptParser.FinTypeParamContext -> {
+                        val typeParam = Identifier(it.FIN().text)
+                        typeParam.ctx = createContext(fileName, it.FIN().symbol)
                         typeParams.add(typeParam)
                     }
                 }
@@ -390,7 +390,7 @@ internal class AstParseTreeVisitor(private val fileName: String, val errors: Lan
             }
         }
 
-        val typeArgs = ctx.params.typeExprWithOmicron().map {
+        val typeArgs = ctx.params.typeExprWithFin().map {
             typeVisitor.visit(it)
         }
 
@@ -417,9 +417,9 @@ internal class AstParseTreeVisitor(private val fileName: String, val errors: Lan
                         typeParam.ctx = createContext(fileName, it.IDENTIFIER().symbol)
                         typeParams.add(typeParam)
                     }
-                    is ShardScriptParser.OmicronTypeParamContext -> {
-                        val typeParam = Identifier(it.OMICRON().text)
-                        typeParam.ctx = createContext(fileName, it.OMICRON().symbol)
+                    is ShardScriptParser.FinTypeParamContext -> {
+                        val typeParam = Identifier(it.FIN().text)
+                        typeParam.ctx = createContext(fileName, it.FIN().symbol)
                         typeParams.add(typeParam)
                     }
                 }
@@ -471,7 +471,7 @@ internal class AstParseTreeVisitor(private val fileName: String, val errors: Lan
             }
         }
 
-        val typeArgs = ctx.params.typeExprWithOmicron().map {
+        val typeArgs = ctx.params.typeExprWithFin().map {
             typeVisitor.visit(it)
         }
 

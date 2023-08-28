@@ -115,7 +115,7 @@ fun createToImmutableDictionaryPlugin(
     mutableDictionaryType: ParameterizedBasicTypeSymbol,
     keyType: StandardTypeParameter,
     valueType: StandardTypeParameter,
-    omicron: MutableOmicronTypeParameter,
+    fin: MutableFinTypeParameter,
     dictionaryType: ParameterizedBasicTypeSymbol
 ) {
     val plugin = ParameterizedMemberPluginSymbol(
@@ -125,16 +125,16 @@ fun createToImmutableDictionaryPlugin(
     { t: Value, _: List<Value> ->
         (t as DictionaryValue).evalToDictionary()
     })
-    plugin.typeParams = listOf(keyType, valueType, omicron)
+    plugin.typeParams = listOf(keyType, valueType, fin)
     plugin.formalParams = listOf()
-    val outputSubstitution = Substitution(dictionaryType.typeParams, listOf(keyType, valueType, omicron))
+    val outputSubstitution = Substitution(dictionaryType.typeParams, listOf(keyType, valueType, fin))
     val outputType = outputSubstitution.apply(dictionaryType)
     plugin.returnType = outputType
 
     plugin.costExpression = ProductCostExpression(
         listOf(
             CommonCostExpressions.twoPass,
-            omicron
+            fin
         )
     )
     mutableDictionaryType.define(plugin.identifier, plugin)
@@ -157,22 +157,22 @@ fun dictionaryCollectionType(
     dictionaryType.define(Lang.dictionaryKeyTypeId, dictionaryKeyTypeParam)
     val dictionaryValueTypeParam = StandardTypeParameter(dictionaryType, Lang.dictionaryValueTypeId)
     dictionaryType.define(Lang.dictionaryValueTypeId, dictionaryValueTypeParam)
-    val dictionaryOmicronTypeParam = ImmutableOmicronTypeParameter(dictionaryType, Lang.dictionaryOmicronTypeId)
-    dictionaryType.define(Lang.dictionaryOmicronTypeId, dictionaryOmicronTypeParam)
-    dictionaryType.typeParams = listOf(dictionaryKeyTypeParam, dictionaryValueTypeParam, dictionaryOmicronTypeParam)
+    val dictionaryFinTypeParam = ImmutableFinTypeParameter(dictionaryType, Lang.dictionaryFinTypeId)
+    dictionaryType.define(Lang.dictionaryFinTypeId, dictionaryFinTypeParam)
+    dictionaryType.typeParams = listOf(dictionaryKeyTypeParam, dictionaryValueTypeParam, dictionaryFinTypeParam)
     dictionaryType.modeSelector = { _ ->
         ImmutableBasicTypeMode
     }
 
     createGetFunction(
-        OmicronTypeSymbol(architecture.defaultNodeCost),
+        FinTypeSymbol(architecture.defaultNodeCost),
         dictionaryType,
         dictionaryKeyTypeParam,
         dictionaryValueTypeParam
     )
 
     createContainsFunction(
-        OmicronTypeSymbol(architecture.defaultNodeCost),
+        FinTypeSymbol(architecture.defaultNodeCost),
         dictionaryType,
         dictionaryKeyTypeParam,
         booleanType
@@ -194,14 +194,14 @@ fun dictionaryCollectionType(
         dictionaryType,
         dictionaryKeyTypeParam,
         dictionaryValueTypeParam,
-        dictionaryOmicronTypeParam,
+        dictionaryFinTypeParam,
         booleanType
     )
     createDictionaryNotEqualsMember(
         dictionaryType,
         dictionaryKeyTypeParam,
         dictionaryValueTypeParam,
-        dictionaryOmicronTypeParam,
+        dictionaryFinTypeParam,
         booleanType
     )
 
@@ -228,15 +228,15 @@ fun mutableDictionaryCollectionType(
     val mutableDictionaryValueTypeParam =
         StandardTypeParameter(mutableDictionaryType, Lang.mutableDictionaryValueTypeId)
     mutableDictionaryType.define(Lang.mutableDictionaryValueTypeId, mutableDictionaryValueTypeParam)
-    val mutableDictionaryOmicronTypeParam =
-        MutableOmicronTypeParameter(mutableDictionaryType, Lang.mutableDictionaryOmicronTypeId)
-    mutableDictionaryType.define(Lang.mutableDictionaryOmicronTypeId, mutableDictionaryOmicronTypeParam)
+    val mutableDictionaryFinTypeParam =
+        MutableFinTypeParameter(mutableDictionaryType, Lang.mutableDictionaryFinTypeId)
+    mutableDictionaryType.define(Lang.mutableDictionaryFinTypeId, mutableDictionaryFinTypeParam)
     mutableDictionaryType.typeParams =
-        listOf(mutableDictionaryKeyTypeParam, mutableDictionaryValueTypeParam, mutableDictionaryOmicronTypeParam)
+        listOf(mutableDictionaryKeyTypeParam, mutableDictionaryValueTypeParam, mutableDictionaryFinTypeParam)
     mutableDictionaryType.modeSelector = { args ->
-        when (val omicron = args[2]) {
-            is OmicronTypeSymbol -> {
-                MutableBasicTypeMode(omicron.magnitude)
+        when (val fin = args[2]) {
+            is FinTypeSymbol -> {
+                MutableBasicTypeMode(fin.magnitude)
             }
             else -> {
                 ImmutableBasicTypeMode
@@ -244,30 +244,30 @@ fun mutableDictionaryCollectionType(
         }
     }
 
-    val constantOmicron = OmicronTypeSymbol(architecture.defaultNodeCost)
+    val constantFin = FinTypeSymbol(architecture.defaultNodeCost)
     createGetFunction(
-        constantOmicron,
+        constantFin,
         mutableDictionaryType,
         mutableDictionaryKeyTypeParam,
         mutableDictionaryValueTypeParam
     )
 
     createContainsFunction(
-        OmicronTypeSymbol(architecture.defaultNodeCost),
+        FinTypeSymbol(architecture.defaultNodeCost),
         mutableDictionaryType,
         mutableDictionaryKeyTypeParam,
         booleanType
     )
 
     createRemoveFunction(
-        constantOmicron,
+        constantFin,
         mutableDictionaryType,
         unitType,
         mutableDictionaryKeyTypeParam
     )
 
     createSetFunction(
-        constantOmicron,
+        constantFin,
         mutableDictionaryType,
         unitType,
         mutableDictionaryKeyTypeParam,
@@ -278,7 +278,7 @@ fun mutableDictionaryCollectionType(
         mutableDictionaryType,
         mutableDictionaryKeyTypeParam,
         mutableDictionaryValueTypeParam,
-        mutableDictionaryOmicronTypeParam,
+        mutableDictionaryFinTypeParam,
         dictionaryType
     )
 
@@ -298,14 +298,14 @@ fun mutableDictionaryCollectionType(
         mutableDictionaryType,
         mutableDictionaryKeyTypeParam,
         mutableDictionaryValueTypeParam,
-        mutableDictionaryOmicronTypeParam,
+        mutableDictionaryFinTypeParam,
         booleanType
     )
     createMutableDictionaryNotEqualsMember(
         mutableDictionaryType,
         mutableDictionaryKeyTypeParam,
         mutableDictionaryValueTypeParam,
-        mutableDictionaryOmicronTypeParam,
+        mutableDictionaryFinTypeParam,
         booleanType
     )
 

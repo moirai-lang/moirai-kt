@@ -180,8 +180,8 @@ fun constrainCost(
     errors: LanguageErrors
 ): List<Constraint<TypeParameter, Symbol>> =
     when (expected) {
-        is OmicronTypeSymbol -> listOf()
-        is ImmutableOmicronTypeParameter -> if (typeParams.contains(expected)) {
+        is FinTypeSymbol -> listOf()
+        is ImmutableFinTypeParameter -> if (typeParams.contains(expected)) {
             listOf(
                 Constraint(
                     Left<TypeParameter>(expected),
@@ -192,7 +192,7 @@ fun constrainCost(
             errors.add(ctx, TypeSystemBug)
             listOf()
         }
-        is MutableOmicronTypeParameter -> if (typeParams.contains(expected)) {
+        is MutableFinTypeParameter -> if (typeParams.contains(expected)) {
             listOf(
                 Constraint(
                     Left<TypeParameter>(expected),

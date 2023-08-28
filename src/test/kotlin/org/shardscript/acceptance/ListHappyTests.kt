@@ -237,7 +237,7 @@ class ListHappyTests {
     }
 
     @Test
-    fun omicronTypeParamListTest() {
+    fun finTypeParamListTest() {
         splitTest(
             """
             def size<E, #O>(x: List<E, #O>): Int {

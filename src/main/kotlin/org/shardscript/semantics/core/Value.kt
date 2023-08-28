@@ -635,8 +635,8 @@ data class ListValue(val mode: BasicTypeMode, val elements: MutableList<Value>) 
             }
             is MutableBasicTypeMode -> {
                 elements.add(value)
-                if (elements.size.toLong() > mode.omicron) {
-                    langThrow(NotInSource, RuntimeOmicronViolation(mode.omicron, elements.size.toLong()))
+                if (elements.size.toLong() > mode.fin) {
+                    langThrow(NotInSource, RuntimeFinViolation(mode.fin, elements.size.toLong()))
                 }
                 return UnitValue
             }
@@ -702,8 +702,8 @@ data class SetValue(val mode: BasicTypeMode, val elements: MutableSet<Value>) : 
             }
             is MutableBasicTypeMode -> {
                 elements.add(value)
-                if (elements.size.toLong() > mode.omicron) {
-                    langThrow(NotInSource, RuntimeOmicronViolation(mode.omicron, elements.size.toLong()))
+                if (elements.size.toLong() > mode.fin) {
+                    langThrow(NotInSource, RuntimeFinViolation(mode.fin, elements.size.toLong()))
                 }
                 return UnitValue
             }
@@ -764,8 +764,8 @@ data class DictionaryValue(
             }
             is MutableBasicTypeMode -> {
                 dictionary[key] = value
-                if (dictionary.size.toLong() > mode.omicron) {
-                    langThrow(NotInSource, RuntimeOmicronViolation(mode.omicron, dictionary.size.toLong()))
+                if (dictionary.size.toLong() > mode.fin) {
+                    langThrow(NotInSource, RuntimeFinViolation(mode.fin, dictionary.size.toLong()))
                 }
                 return UnitValue
             }

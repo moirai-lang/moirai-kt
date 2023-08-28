@@ -36,7 +36,7 @@ fun createRangePlugin(
         }
     })
 
-    val rangeTypeParam = ImmutableOmicronTypeParameter(rangePlugin, Lang.rangeTypeId)
+    val rangeTypeParam = ImmutableFinTypeParameter(rangePlugin, Lang.rangeTypeId)
     rangePlugin.define(Lang.rangeTypeId, rangeTypeParam)
     rangePlugin.typeParams = listOf(rangeTypeParam)
 
@@ -59,7 +59,7 @@ fun createRangePlugin(
 
 fun createRandomPlugin(
     langNS: Namespace,
-    omicron: CostExpression
+    fin: CostExpression
 ): ParameterizedStaticPluginSymbol {
     val randomPlugin = ParameterizedStaticPluginSymbol(
         langNS,
@@ -150,6 +150,6 @@ fun createRandomPlugin(
     randomPlugin.formalParams = listOf(beginFormalParam, endFormalParam)
     randomPlugin.returnType = randomTypeParam
 
-    randomPlugin.costExpression = omicron
+    randomPlugin.costExpression = fin
     return randomPlugin
 }

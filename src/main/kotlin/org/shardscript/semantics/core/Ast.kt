@@ -257,7 +257,7 @@ data class ForEachAst(
 ) : Ast() {
     lateinit var ofTypeSymbol: Symbol
     lateinit var sourceTypeSymbol: Symbol
-    lateinit var sourceOmicronSymbol: Symbol
+    lateinit var sourceFinSymbol: Symbol
 
     override fun <R> accept(visitor: AstVisitor<R>): R =
         visitor.visit(this)

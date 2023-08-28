@@ -22,7 +22,7 @@ class ParameterScanAstVisitor : UnitAstVisitor() {
                     val seenTypeParameters: MutableSet<String> = HashSet()
                     parameterizedRecordSymbol.typeParams = ast.typeParams.map {
                         if (it.name.startsWith("#")) {
-                            val typeParam = ImmutableOmicronTypeParameter(parameterizedRecordSymbol, it)
+                            val typeParam = ImmutableFinTypeParameter(parameterizedRecordSymbol, it)
                             val postFix = it.name.substringAfter("#")
                             if (seenTypeParameters.contains(postFix)) {
                                 errors.add(it.ctx, DuplicateTypeParameter(it))
@@ -54,7 +54,7 @@ class ParameterScanAstVisitor : UnitAstVisitor() {
                 val seenTypeParameters: MutableSet<String> = HashSet()
                 parameterizedFunctionSymbol.typeParams = ast.typeParams.map {
                     if (it.name.startsWith("#")) {
-                        val typeParam = ImmutableOmicronTypeParameter(parameterizedFunctionSymbol, it)
+                        val typeParam = ImmutableFinTypeParameter(parameterizedFunctionSymbol, it)
                         val postFix = it.name.substringAfter("#")
                         if (seenTypeParameters.contains(postFix)) {
                             errors.add(it.ctx, DuplicateTypeParameter(it))

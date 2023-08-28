@@ -27,9 +27,9 @@ interface CostExpression {
 }
 
 interface CostExpressionVisitor<R> {
-    fun visit(costExpression: ImmutableOmicronTypeParameter): R
-    fun visit(costExpression: MutableOmicronTypeParameter): R
-    fun visit(costExpression: OmicronTypeSymbol): R
+    fun visit(costExpression: ImmutableFinTypeParameter): R
+    fun visit(costExpression: MutableFinTypeParameter): R
+    fun visit(costExpression: FinTypeSymbol): R
     fun visit(costExpression: SumCostExpression): R
     fun visit(costExpression: ProductCostExpression): R
     fun visit(costExpression: MaxCostExpression): R
@@ -42,17 +42,17 @@ class EvalCostExpressionVisitor(val architecture: Architecture): CostExpressionV
         }
     }
 
-    override fun visit(costExpression: ImmutableOmicronTypeParameter): Long {
+    override fun visit(costExpression: ImmutableFinTypeParameter): Long {
         langThrow(CalculateCostFailed)
     }
 
-    override fun visit(costExpression: MutableOmicronTypeParameter): Long {
+    override fun visit(costExpression: MutableFinTypeParameter): Long {
         langThrow(CalculateCostFailed)
     }
 
-    override fun visit(costExpression: OmicronTypeSymbol): Long {
+    override fun visit(costExpression: FinTypeSymbol): Long {
         if (costExpression.magnitude <= 0L) {
-            langThrow(NegativeOmicron)
+            langThrow(NegativeFin)
         }
         return costExpression.magnitude
     }
@@ -71,7 +71,7 @@ class EvalCostExpressionVisitor(val architecture: Architecture): CostExpressionV
             }
         }
         if (res <= 0L) {
-            langThrow(NegativeOmicron)
+            langThrow(NegativeFin)
         }
         return res
     }
@@ -90,7 +90,7 @@ class EvalCostExpressionVisitor(val architecture: Architecture): CostExpressionV
             }
         }
         if (res <= 0L) {
-            langThrow(NegativeOmicron)
+            langThrow(NegativeFin)
         }
         return res
     }
@@ -109,7 +109,7 @@ class EvalCostExpressionVisitor(val architecture: Architecture): CostExpressionV
             }
         }
         if (res <= 0L) {
-            langThrow(NegativeOmicron)
+            langThrow(NegativeFin)
         }
         return res
     }
@@ -117,20 +117,20 @@ class EvalCostExpressionVisitor(val architecture: Architecture): CostExpressionV
 }
 
 object CommonCostExpressions {
-    val defaultMultiplier = OmicronTypeSymbol(1L)
-    val twoPass = OmicronTypeSymbol(2L)
+    val defaultMultiplier = FinTypeSymbol(1L)
+    val twoPass = FinTypeSymbol(2L)
 }
 
 object CanEvalCostExpressionVisitor: CostExpressionVisitor<Boolean> {
-    override fun visit(costExpression: ImmutableOmicronTypeParameter): Boolean {
+    override fun visit(costExpression: ImmutableFinTypeParameter): Boolean {
         return false
     }
 
-    override fun visit(costExpression: MutableOmicronTypeParameter): Boolean {
+    override fun visit(costExpression: MutableFinTypeParameter): Boolean {
         return false
     }
 
-    override fun visit(costExpression: OmicronTypeSymbol): Boolean {
+    override fun visit(costExpression: FinTypeSymbol): Boolean {
         return true
     }
 
@@ -148,15 +148,15 @@ object CanEvalCostExpressionVisitor: CostExpressionVisitor<Boolean> {
 }
 
 object ValidateCostExpressionVisitor: CostExpressionVisitor<Unit> {
-    override fun visit(costExpression: ImmutableOmicronTypeParameter) {
+    override fun visit(costExpression: ImmutableFinTypeParameter) {
         langThrow(TypeSystemBug)
     }
 
-    override fun visit(costExpression: MutableOmicronTypeParameter) {
+    override fun visit(costExpression: MutableFinTypeParameter) {
         langThrow(TypeSystemBug)
     }
 
-    override fun visit(costExpression: OmicronTypeSymbol) = Unit
+    override fun visit(costExpression: FinTypeSymbol) = Unit
 
     override fun visit(costExpression: SumCostExpression) {
         costExpression.children.forEach { it.accept(this) }

@@ -128,10 +128,10 @@ fun linearize(ctx: SourceContext, symbol: Symbol): Set<LinearizedSymbol> =
             res.addAll(linearize(ctx, symbol.returnType))
             res
         }
-        is OmicronTypeSymbol -> setOf(SymbolOnly(ctx, symbol))
+        is FinTypeSymbol -> setOf(SymbolOnly(ctx, symbol))
         is StandardTypeParameter -> setOf(SymbolOnly(ctx, symbol))
-        is ImmutableOmicronTypeParameter -> setOf(SymbolOnly(ctx, symbol))
-        is MutableOmicronTypeParameter -> setOf(SymbolOnly(ctx, symbol))
+        is ImmutableFinTypeParameter -> setOf(SymbolOnly(ctx, symbol))
+        is MutableFinTypeParameter -> setOf(SymbolOnly(ctx, symbol))
         is SumCostExpression -> setOf(SymbolOnly(ctx, symbol))
         is ProductCostExpression -> setOf(SymbolOnly(ctx, symbol))
         is MaxCostExpression -> setOf(SymbolOnly(ctx, symbol))

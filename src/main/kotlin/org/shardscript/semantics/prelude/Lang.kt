@@ -36,13 +36,13 @@ object Lang {
 
     val listId = Identifier("List")
     val listElementTypeId = Identifier("E")
-    val listOmicronTypeId = Identifier("#O")
-    val listInputOmicronTypeId = Identifier("#P")
+    val listFinTypeId = Identifier("#O")
+    val listInputFinTypeId = Identifier("#P")
 
     val mutableListId = Identifier("MutableList")
     val mutableListElementTypeId = Identifier("E")
-    val mutableListOmicronTypeId = Identifier("#O")
-    val mutableListInputOmicronTypeId = Identifier("#P")
+    val mutableListFinTypeId = Identifier("#O")
+    val mutableListInputFinTypeId = Identifier("#P")
 
     val pairId = Identifier("Pair")
     val pairFirstTypeId = Identifier("A")
@@ -53,41 +53,41 @@ object Lang {
     val dictionaryId = Identifier("Dictionary")
     val dictionaryKeyTypeId = Identifier("K")
     val dictionaryValueTypeId = Identifier("V")
-    val dictionaryOmicronTypeId = Identifier("#O")
-    val dictionaryInputOmicronTypeId = Identifier("#P")
+    val dictionaryFinTypeId = Identifier("#O")
+    val dictionaryInputFinTypeId = Identifier("#P")
 
     val mutableDictionaryId = Identifier("MutableDictionary")
     val mutableDictionaryKeyTypeId = Identifier("K")
     val mutableDictionaryValueTypeId = Identifier("V")
-    val mutableDictionaryOmicronTypeId = Identifier("#O")
-    val mutableDictionaryInputOmicronTypeId = Identifier("#P")
+    val mutableDictionaryFinTypeId = Identifier("#O")
+    val mutableDictionaryInputFinTypeId = Identifier("#P")
 
     val setId = Identifier("Set")
     val setElementTypeId = Identifier("E")
-    val setOmicronTypeId = Identifier("#O")
-    val setInputOmicronTypeId = Identifier("#P")
+    val setFinTypeId = Identifier("#O")
+    val setInputFinTypeId = Identifier("#P")
 
     val mutableSetId = Identifier("MutableSet")
     val mutableSetElementTypeId = Identifier("E")
-    val mutableSetOmicronTypeId = Identifier("#O")
-    val mutableSetInputOmicronTypeId = Identifier("#P")
+    val mutableSetFinTypeId = Identifier("#O")
+    val mutableSetInputFinTypeId = Identifier("#P")
 
     val rangeId = Identifier("range")
     val rangeTypeId = Identifier("#O")
     val randomId = Identifier("random")
     val randomTypeId = Identifier("A")
 
-    val sByteOmicron: Long = (Byte.MIN_VALUE.toString().length + sByteSuffix.length).toLong()
-    val shortOmicron: Long = (Short.MIN_VALUE.toString().length + shortSuffix.length).toLong()
-    val intOmicron: Long = (Int.MIN_VALUE.toString().length).toLong()
-    val longOmicron: Long = (Long.MIN_VALUE.toString().length + longSuffix.length).toLong()
-    val byteOmicron: Long = (UByte.MIN_VALUE.toString().length + byteSuffix.length).toLong()
-    val uShortOmicron: Long = (UShort.MIN_VALUE.toString().length + uShortSuffix.length).toLong()
-    val uIntOmicron: Long = (UInt.MIN_VALUE.toString().length + uIntSuffix.length).toLong()
-    val uLongOmicron: Long = (ULong.MIN_VALUE.toString().length + uLongSuffix.length).toLong()
-    val unitOmicron: Long = unitId.name.length.toLong()
-    val booleanOmicron: Long = false.toString().length.toLong()
-    val charOmicron: Long = 1L
+    val sByteFin: Long = (Byte.MIN_VALUE.toString().length + sByteSuffix.length).toLong()
+    val shortFin: Long = (Short.MIN_VALUE.toString().length + shortSuffix.length).toLong()
+    val intFin: Long = (Int.MIN_VALUE.toString().length).toLong()
+    val longFin: Long = (Long.MIN_VALUE.toString().length + longSuffix.length).toLong()
+    val byteFin: Long = (UByte.MIN_VALUE.toString().length + byteSuffix.length).toLong()
+    val uShortFin: Long = (UShort.MIN_VALUE.toString().length + uShortSuffix.length).toLong()
+    val uIntFin: Long = (UInt.MIN_VALUE.toString().length + uIntSuffix.length).toLong()
+    val uLongFin: Long = (ULong.MIN_VALUE.toString().length + uLongSuffix.length).toLong()
+    val unitFin: Long = unitId.name.length.toLong()
+    val booleanFin: Long = false.toString().length.toLong()
+    val charFin: Long = 1L
 
     fun isUnitExactly(symbol: Symbol): Boolean =
         when (generatePath(symbol)) {
@@ -120,12 +120,12 @@ object Lang {
             langNS,
             booleanId
         )
-        val constantOmicron = OmicronTypeSymbol(architecture.defaultNodeCost)
-        ValueEqualityOpMembers.members(booleanType, constantOmicron, booleanType).forEach { (name, plugin) ->
+        val constantFin = FinTypeSymbol(architecture.defaultNodeCost)
+        ValueEqualityOpMembers.members(booleanType, constantFin, booleanType).forEach { (name, plugin) ->
             booleanType.define(Identifier(name), plugin)
         }
 
-        ValueLogicalOpMembers.members(booleanType, constantOmicron).forEach { (name, plugin) ->
+        ValueLogicalOpMembers.members(booleanType, constantFin).forEach { (name, plugin) ->
             booleanType.define(Identifier(name), plugin)
         }
 
@@ -148,7 +148,7 @@ object Lang {
             langNS,
             charId
         )
-        ValueEqualityOpMembers.members(charType, constantOmicron, charType).forEach { (name, plugin) ->
+        ValueEqualityOpMembers.members(charType, constantFin, charType).forEach { (name, plugin) ->
             charType.define(Identifier(name), plugin)
         }
 
@@ -235,7 +235,7 @@ object Lang {
 
         // Static
         val rangePlugin = createRangePlugin(langNS, intType, listType)
-        val randomPlugin = createRandomPlugin(langNS, constantOmicron)
+        val randomPlugin = createRandomPlugin(langNS, constantFin)
 
         // Compose output
         langNS.define(unitId, unitObject)

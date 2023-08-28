@@ -187,7 +187,7 @@ fun calculateCost(symbol: Symbol, architecture: Architecture) {
             symbol.body.accept(costExpressionAstVisitor)
             val bodyCost = symbol.body.costExpression
             symbol.costExpression = if (bodyCost.accept(CanEvalCostExpressionVisitor)) {
-                OmicronTypeSymbol(bodyCost.accept(EvalCostExpressionVisitor(architecture)))
+                FinTypeSymbol(bodyCost.accept(EvalCostExpressionVisitor(architecture)))
             } else {
                 bodyCost
             }
@@ -196,7 +196,7 @@ fun calculateCost(symbol: Symbol, architecture: Architecture) {
             symbol.body.accept(costExpressionAstVisitor)
             val bodyCost = symbol.body.costExpression
             symbol.costExpression = if (bodyCost.accept(CanEvalCostExpressionVisitor)) {
-                OmicronTypeSymbol(bodyCost.accept(EvalCostExpressionVisitor(architecture)))
+                FinTypeSymbol(bodyCost.accept(EvalCostExpressionVisitor(architecture)))
             } else {
                 bodyCost
             }
@@ -209,8 +209,8 @@ fun calculateCost(symbol: Symbol, architecture: Architecture) {
     }
 }
 
-fun debugOmicron(ast: FileAst, architecture: Architecture) {
-    ast.accept(OmicronDebuggerAstVisitor(architecture))
+fun debugFin(ast: FileAst, architecture: Architecture) {
+    ast.accept(FinDebuggerAstVisitor(architecture))
 }
 
 fun calculateCost(ast: FileAst, architecture: Architecture) {

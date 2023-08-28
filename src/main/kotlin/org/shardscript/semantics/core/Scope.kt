@@ -67,7 +67,7 @@ class SymbolTable(val parent: Scope<Symbol>) : Scope<Symbol> {
             is FunctionTypeLiteral -> signifier.formalParamTypes.all { exists(it) } && exists(signifier.returnType)
             is ParameterizedSignifier -> exists(signifier.tti) && signifier.args.all { exists(it) }
             is ImplicitTypeLiteral -> false
-            is OmicronLiteral -> false
+            is FinLiteral -> false
         }
 
     override fun existsHere(signifier: Signifier): Boolean =
@@ -96,7 +96,7 @@ class SymbolTable(val parent: Scope<Symbol>) : Scope<Symbol> {
             is FunctionTypeLiteral -> signifier.formalParamTypes.all { exists(it) } && exists(signifier.returnType)
             is ParameterizedSignifier -> existsHere(signifier.tti) && signifier.args.all { exists(it) }
             is ImplicitTypeLiteral -> false
-            is OmicronLiteral -> false
+            is FinLiteral -> false
         }
 
     override fun fetch(signifier: Signifier): Symbol =
@@ -162,7 +162,7 @@ class SymbolTable(val parent: Scope<Symbol>) : Scope<Symbol> {
                 }
             }
             is ImplicitTypeLiteral -> langThrow(signifier.ctx, TypeSystemBug)
-            is OmicronLiteral -> OmicronTypeSymbol(signifier.magnitude)
+            is FinLiteral -> FinTypeSymbol(signifier.magnitude)
         }
 
     override fun fetchHere(signifier: Signifier): Symbol =
@@ -228,6 +228,6 @@ class SymbolTable(val parent: Scope<Symbol>) : Scope<Symbol> {
                 }
             }
             is ImplicitTypeLiteral -> langThrow(signifier.ctx, TypeSystemBug)
-            is OmicronLiteral -> OmicronTypeSymbol(signifier.magnitude)
+            is FinLiteral -> FinTypeSymbol(signifier.magnitude)
         }
 }

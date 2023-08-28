@@ -1,9 +1,9 @@
 package org.shardscript.semantics.prelude
 
 import org.shardscript.semantics.core.*
-import org.shardscript.semantics.infer.DoubleParentSingleOmicronPluginInstantiation
+import org.shardscript.semantics.infer.DoubleParentSingleFinPluginInstantiation
 import org.shardscript.semantics.infer.Substitution
-import org.shardscript.semantics.infer.TripleParentSingleOmicronPluginInstantiation
+import org.shardscript.semantics.infer.TripleParentSingleFinPluginInstantiation
 
 /**
  * List Equality
@@ -11,23 +11,23 @@ import org.shardscript.semantics.infer.TripleParentSingleOmicronPluginInstantiat
 fun createListEqualsMember(
     listSymbol: ParameterizedBasicTypeSymbol,
     listElementType: StandardTypeParameter,
-    listOmicron: ImmutableOmicronTypeParameter,
+    listFin: ImmutableFinTypeParameter,
     booleanType: BasicTypeSymbol
 ) {
     val equalsMemberFunction = ParameterizedMemberPluginSymbol(
         listSymbol,
         Identifier(BinaryOperator.Equal.idStr),
-        DoubleParentSingleOmicronPluginInstantiation,
+        DoubleParentSingleFinPluginInstantiation,
     { t: Value, args: List<Value> ->
         (t as EqualityValue).evalEquals(args.first())
     })
-    val inputOmicronTypeArg = ImmutableOmicronTypeParameter(equalsMemberFunction, Lang.listInputOmicronTypeId)
+    val inputFinTypeArg = ImmutableFinTypeParameter(equalsMemberFunction, Lang.listInputFinTypeId)
     equalsMemberFunction.define(listElementType.identifier, listElementType)
-    equalsMemberFunction.define(listOmicron.identifier, listOmicron)
-    equalsMemberFunction.define(inputOmicronTypeArg.identifier, inputOmicronTypeArg)
-    equalsMemberFunction.typeParams = listOf(listElementType, listOmicron, inputOmicronTypeArg)
+    equalsMemberFunction.define(listFin.identifier, listFin)
+    equalsMemberFunction.define(inputFinTypeArg.identifier, inputFinTypeArg)
+    equalsMemberFunction.typeParams = listOf(listElementType, listFin, inputFinTypeArg)
 
-    val inputSubstitution = Substitution(listSymbol.typeParams, listOf(listElementType, inputOmicronTypeArg))
+    val inputSubstitution = Substitution(listSymbol.typeParams, listOf(listElementType, inputFinTypeArg))
     val inputType = inputSubstitution.apply(listSymbol)
 
     val otherParam = FunctionFormalParameterSymbol(equalsMemberFunction, Identifier("other"), inputType)
@@ -35,8 +35,8 @@ fun createListEqualsMember(
     equalsMemberFunction.returnType = booleanType
     equalsMemberFunction.costExpression = SumCostExpression(
         listOf(
-            listOmicron,
-            inputOmicronTypeArg
+            listFin,
+            inputFinTypeArg
         )
     )
 
@@ -46,23 +46,23 @@ fun createListEqualsMember(
 fun createListNotEqualsMember(
     listSymbol: ParameterizedBasicTypeSymbol,
     listElementType: StandardTypeParameter,
-    listOmicron: ImmutableOmicronTypeParameter,
+    listFin: ImmutableFinTypeParameter,
     booleanType: BasicTypeSymbol
 ) {
     val notEqualsMemberFunction = ParameterizedMemberPluginSymbol(
         listSymbol,
         Identifier(BinaryOperator.NotEqual.idStr),
-        DoubleParentSingleOmicronPluginInstantiation,
+        DoubleParentSingleFinPluginInstantiation,
     { t: Value, args: List<Value> ->
         (t as EqualityValue).evalNotEquals(args.first())
     })
-    val inputOmicronTypeArg = ImmutableOmicronTypeParameter(notEqualsMemberFunction, Lang.listInputOmicronTypeId)
+    val inputFinTypeArg = ImmutableFinTypeParameter(notEqualsMemberFunction, Lang.listInputFinTypeId)
     notEqualsMemberFunction.define(listElementType.identifier, listElementType)
-    notEqualsMemberFunction.define(listOmicron.identifier, listOmicron)
-    notEqualsMemberFunction.define(inputOmicronTypeArg.identifier, inputOmicronTypeArg)
-    notEqualsMemberFunction.typeParams = listOf(listElementType, listOmicron, inputOmicronTypeArg)
+    notEqualsMemberFunction.define(listFin.identifier, listFin)
+    notEqualsMemberFunction.define(inputFinTypeArg.identifier, inputFinTypeArg)
+    notEqualsMemberFunction.typeParams = listOf(listElementType, listFin, inputFinTypeArg)
 
-    val inputSubstitution = Substitution(listSymbol.typeParams, listOf(listElementType, inputOmicronTypeArg))
+    val inputSubstitution = Substitution(listSymbol.typeParams, listOf(listElementType, inputFinTypeArg))
     val inputType = inputSubstitution.apply(listSymbol)
 
     val otherParam = FunctionFormalParameterSymbol(notEqualsMemberFunction, Identifier("other"), inputType)
@@ -70,8 +70,8 @@ fun createListNotEqualsMember(
     notEqualsMemberFunction.returnType = booleanType
     notEqualsMemberFunction.costExpression = SumCostExpression(
         listOf(
-            listOmicron,
-            inputOmicronTypeArg
+            listFin,
+            inputFinTypeArg
         )
     )
 
@@ -81,24 +81,24 @@ fun createListNotEqualsMember(
 fun createMutableListEqualsMember(
     mutableListSymbol: ParameterizedBasicTypeSymbol,
     mutableListElementType: StandardTypeParameter,
-    mutableListOmicron: MutableOmicronTypeParameter,
+    mutableListFin: MutableFinTypeParameter,
     booleanType: BasicTypeSymbol
 ) {
     val equalsMemberFunction = ParameterizedMemberPluginSymbol(
         mutableListSymbol,
         Identifier(BinaryOperator.Equal.idStr),
-        DoubleParentSingleOmicronPluginInstantiation,
+        DoubleParentSingleFinPluginInstantiation,
     { t: Value, args: List<Value> ->
         (t as EqualityValue).evalEquals(args.first())
     })
-    val inputOmicronTypeArg = ImmutableOmicronTypeParameter(equalsMemberFunction, Lang.mutableListInputOmicronTypeId)
+    val inputFinTypeArg = ImmutableFinTypeParameter(equalsMemberFunction, Lang.mutableListInputFinTypeId)
     equalsMemberFunction.define(mutableListElementType.identifier, mutableListElementType)
-    equalsMemberFunction.define(mutableListOmicron.identifier, mutableListOmicron)
-    equalsMemberFunction.define(inputOmicronTypeArg.identifier, inputOmicronTypeArg)
-    equalsMemberFunction.typeParams = listOf(mutableListElementType, mutableListOmicron, inputOmicronTypeArg)
+    equalsMemberFunction.define(mutableListFin.identifier, mutableListFin)
+    equalsMemberFunction.define(inputFinTypeArg.identifier, inputFinTypeArg)
+    equalsMemberFunction.typeParams = listOf(mutableListElementType, mutableListFin, inputFinTypeArg)
 
     val inputSubstitution =
-        Substitution(mutableListSymbol.typeParams, listOf(mutableListElementType, inputOmicronTypeArg))
+        Substitution(mutableListSymbol.typeParams, listOf(mutableListElementType, inputFinTypeArg))
     val inputType = inputSubstitution.apply(mutableListSymbol)
 
     val otherParam = FunctionFormalParameterSymbol(equalsMemberFunction, Identifier("other"), inputType)
@@ -106,8 +106,8 @@ fun createMutableListEqualsMember(
     equalsMemberFunction.returnType = booleanType
     equalsMemberFunction.costExpression = SumCostExpression(
         listOf(
-            mutableListOmicron,
-            inputOmicronTypeArg
+            mutableListFin,
+            inputFinTypeArg
         )
     )
 
@@ -117,24 +117,24 @@ fun createMutableListEqualsMember(
 fun createMutableListNotEqualsMember(
     mutableListSymbol: ParameterizedBasicTypeSymbol,
     mutableListElementType: StandardTypeParameter,
-    mutableListOmicron: MutableOmicronTypeParameter,
+    mutableListFin: MutableFinTypeParameter,
     booleanType: BasicTypeSymbol
 ) {
     val notEqualsMemberFunction = ParameterizedMemberPluginSymbol(
         mutableListSymbol,
         Identifier(BinaryOperator.NotEqual.idStr),
-        DoubleParentSingleOmicronPluginInstantiation,
+        DoubleParentSingleFinPluginInstantiation,
     { t: Value, args: List<Value> ->
         (t as EqualityValue).evalNotEquals(args.first())
     })
-    val inputOmicronTypeArg = ImmutableOmicronTypeParameter(notEqualsMemberFunction, Lang.mutableListInputOmicronTypeId)
+    val inputFinTypeArg = ImmutableFinTypeParameter(notEqualsMemberFunction, Lang.mutableListInputFinTypeId)
     notEqualsMemberFunction.define(mutableListElementType.identifier, mutableListElementType)
-    notEqualsMemberFunction.define(mutableListOmicron.identifier, mutableListOmicron)
-    notEqualsMemberFunction.define(inputOmicronTypeArg.identifier, inputOmicronTypeArg)
-    notEqualsMemberFunction.typeParams = listOf(mutableListElementType, mutableListOmicron, inputOmicronTypeArg)
+    notEqualsMemberFunction.define(mutableListFin.identifier, mutableListFin)
+    notEqualsMemberFunction.define(inputFinTypeArg.identifier, inputFinTypeArg)
+    notEqualsMemberFunction.typeParams = listOf(mutableListElementType, mutableListFin, inputFinTypeArg)
 
     val inputSubstitution =
-        Substitution(mutableListSymbol.typeParams, listOf(mutableListElementType, inputOmicronTypeArg))
+        Substitution(mutableListSymbol.typeParams, listOf(mutableListElementType, inputFinTypeArg))
     val inputType = inputSubstitution.apply(mutableListSymbol)
 
     val otherParam = FunctionFormalParameterSymbol(notEqualsMemberFunction, Identifier("other"), inputType)
@@ -142,8 +142,8 @@ fun createMutableListNotEqualsMember(
     notEqualsMemberFunction.returnType = booleanType
     notEqualsMemberFunction.costExpression = SumCostExpression(
         listOf(
-            mutableListOmicron,
-            inputOmicronTypeArg
+            mutableListFin,
+            inputFinTypeArg
         )
     )
 
@@ -157,25 +157,25 @@ fun createDictionaryEqualsMember(
     dictionarySymbol: ParameterizedBasicTypeSymbol,
     dictionaryKeyType: StandardTypeParameter,
     dictionaryValueType: StandardTypeParameter,
-    dictionaryOmicron: ImmutableOmicronTypeParameter,
+    dictionaryFin: ImmutableFinTypeParameter,
     booleanType: BasicTypeSymbol
 ) {
     val equalsMemberFunction = ParameterizedMemberPluginSymbol(
         dictionarySymbol,
         Identifier(BinaryOperator.Equal.idStr),
-        TripleParentSingleOmicronPluginInstantiation,
+        TripleParentSingleFinPluginInstantiation,
     { t: Value, args: List<Value> ->
         (t as EqualityValue).evalEquals(args.first())
     })
-    val inputOmicronTypeArg = ImmutableOmicronTypeParameter(equalsMemberFunction, Lang.dictionaryInputOmicronTypeId)
+    val inputFinTypeArg = ImmutableFinTypeParameter(equalsMemberFunction, Lang.dictionaryInputFinTypeId)
     equalsMemberFunction.define(dictionaryKeyType.identifier, dictionaryKeyType)
     equalsMemberFunction.define(dictionaryValueType.identifier, dictionaryValueType)
-    equalsMemberFunction.define(inputOmicronTypeArg.identifier, inputOmicronTypeArg)
+    equalsMemberFunction.define(inputFinTypeArg.identifier, inputFinTypeArg)
     equalsMemberFunction.typeParams =
-        listOf(dictionaryKeyType, dictionaryValueType, dictionaryOmicron, inputOmicronTypeArg)
+        listOf(dictionaryKeyType, dictionaryValueType, dictionaryFin, inputFinTypeArg)
 
     val inputSubstitution =
-        Substitution(dictionarySymbol.typeParams, listOf(dictionaryKeyType, dictionaryValueType, inputOmicronTypeArg))
+        Substitution(dictionarySymbol.typeParams, listOf(dictionaryKeyType, dictionaryValueType, inputFinTypeArg))
     val inputType = inputSubstitution.apply(dictionarySymbol)
 
     val otherParam = FunctionFormalParameterSymbol(equalsMemberFunction, Identifier("other"), inputType)
@@ -183,8 +183,8 @@ fun createDictionaryEqualsMember(
     equalsMemberFunction.returnType = booleanType
     equalsMemberFunction.costExpression = SumCostExpression(
         listOf(
-            dictionaryOmicron,
-            inputOmicronTypeArg
+            dictionaryFin,
+            inputFinTypeArg
         )
     )
 
@@ -195,25 +195,25 @@ fun createDictionaryNotEqualsMember(
     dictionarySymbol: ParameterizedBasicTypeSymbol,
     dictionaryKeyType: StandardTypeParameter,
     dictionaryValueType: StandardTypeParameter,
-    dictionaryOmicron: ImmutableOmicronTypeParameter,
+    dictionaryFin: ImmutableFinTypeParameter,
     booleanType: BasicTypeSymbol
 ) {
     val notEqualsMemberFunction = ParameterizedMemberPluginSymbol(
         dictionarySymbol,
         Identifier(BinaryOperator.NotEqual.idStr),
-        TripleParentSingleOmicronPluginInstantiation,
+        TripleParentSingleFinPluginInstantiation,
     { t: Value, args: List<Value> ->
         (t as EqualityValue).evalNotEquals(args.first())
     })
-    val inputOmicronTypeArg = ImmutableOmicronTypeParameter(notEqualsMemberFunction, Lang.dictionaryInputOmicronTypeId)
+    val inputFinTypeArg = ImmutableFinTypeParameter(notEqualsMemberFunction, Lang.dictionaryInputFinTypeId)
     notEqualsMemberFunction.define(dictionaryKeyType.identifier, dictionaryKeyType)
     notEqualsMemberFunction.define(dictionaryValueType.identifier, dictionaryValueType)
-    notEqualsMemberFunction.define(inputOmicronTypeArg.identifier, inputOmicronTypeArg)
+    notEqualsMemberFunction.define(inputFinTypeArg.identifier, inputFinTypeArg)
     notEqualsMemberFunction.typeParams =
-        listOf(dictionaryKeyType, dictionaryValueType, dictionaryOmicron, inputOmicronTypeArg)
+        listOf(dictionaryKeyType, dictionaryValueType, dictionaryFin, inputFinTypeArg)
 
     val inputSubstitution =
-        Substitution(dictionarySymbol.typeParams, listOf(dictionaryKeyType, dictionaryValueType, inputOmicronTypeArg))
+        Substitution(dictionarySymbol.typeParams, listOf(dictionaryKeyType, dictionaryValueType, inputFinTypeArg))
     val inputType = inputSubstitution.apply(dictionarySymbol)
 
     val otherParam = FunctionFormalParameterSymbol(notEqualsMemberFunction, Identifier("other"), inputType)
@@ -221,8 +221,8 @@ fun createDictionaryNotEqualsMember(
     notEqualsMemberFunction.returnType = booleanType
     notEqualsMemberFunction.costExpression = SumCostExpression(
         listOf(
-            dictionaryOmicron,
-            inputOmicronTypeArg
+            dictionaryFin,
+            inputFinTypeArg
         )
     )
 
@@ -233,27 +233,27 @@ fun createMutableDictionaryEqualsMember(
     mutableDictionarySymbol: ParameterizedBasicTypeSymbol,
     mutableDictionaryKeyType: StandardTypeParameter,
     mutableDictionaryValueType: StandardTypeParameter,
-    mutableDictionaryOmicron: MutableOmicronTypeParameter,
+    mutableDictionaryFin: MutableFinTypeParameter,
     booleanType: BasicTypeSymbol
 ) {
     val equalsMemberFunction = ParameterizedMemberPluginSymbol(
         mutableDictionarySymbol,
         Identifier(BinaryOperator.Equal.idStr),
-        TripleParentSingleOmicronPluginInstantiation,
+        TripleParentSingleFinPluginInstantiation,
     { t: Value, args: List<Value> ->
         (t as EqualityValue).evalEquals(args.first())
     })
-    val inputOmicronTypeArg =
-        ImmutableOmicronTypeParameter(equalsMemberFunction, Lang.mutableDictionaryInputOmicronTypeId)
+    val inputFinTypeArg =
+        ImmutableFinTypeParameter(equalsMemberFunction, Lang.mutableDictionaryInputFinTypeId)
     equalsMemberFunction.define(mutableDictionaryKeyType.identifier, mutableDictionaryKeyType)
     equalsMemberFunction.define(mutableDictionaryValueType.identifier, mutableDictionaryValueType)
-    equalsMemberFunction.define(inputOmicronTypeArg.identifier, inputOmicronTypeArg)
+    equalsMemberFunction.define(inputFinTypeArg.identifier, inputFinTypeArg)
     equalsMemberFunction.typeParams =
-        listOf(mutableDictionaryKeyType, mutableDictionaryValueType, mutableDictionaryOmicron, inputOmicronTypeArg)
+        listOf(mutableDictionaryKeyType, mutableDictionaryValueType, mutableDictionaryFin, inputFinTypeArg)
 
     val inputSubstitution = Substitution(
         mutableDictionarySymbol.typeParams,
-        listOf(mutableDictionaryKeyType, mutableDictionaryValueType, inputOmicronTypeArg)
+        listOf(mutableDictionaryKeyType, mutableDictionaryValueType, inputFinTypeArg)
     )
     val inputType = inputSubstitution.apply(mutableDictionarySymbol)
 
@@ -262,8 +262,8 @@ fun createMutableDictionaryEqualsMember(
     equalsMemberFunction.returnType = booleanType
     equalsMemberFunction.costExpression = SumCostExpression(
         listOf(
-            mutableDictionaryOmicron,
-            inputOmicronTypeArg
+            mutableDictionaryFin,
+            inputFinTypeArg
         )
     )
 
@@ -274,27 +274,27 @@ fun createMutableDictionaryNotEqualsMember(
     mutableDictionarySymbol: ParameterizedBasicTypeSymbol,
     mutableDictionaryKeyType: StandardTypeParameter,
     mutableDictionaryValueType: StandardTypeParameter,
-    mutableDictionaryOmicron: MutableOmicronTypeParameter,
+    mutableDictionaryFin: MutableFinTypeParameter,
     booleanType: BasicTypeSymbol
 ) {
     val notEqualsMemberFunction = ParameterizedMemberPluginSymbol(
         mutableDictionarySymbol,
         Identifier(BinaryOperator.NotEqual.idStr),
-        TripleParentSingleOmicronPluginInstantiation,
+        TripleParentSingleFinPluginInstantiation,
     { t: Value, args: List<Value> ->
         (t as EqualityValue).evalNotEquals(args.first())
     })
-    val inputOmicronTypeArg =
-        ImmutableOmicronTypeParameter(notEqualsMemberFunction, Lang.mutableDictionaryInputOmicronTypeId)
+    val inputFinTypeArg =
+        ImmutableFinTypeParameter(notEqualsMemberFunction, Lang.mutableDictionaryInputFinTypeId)
     notEqualsMemberFunction.define(mutableDictionaryKeyType.identifier, mutableDictionaryKeyType)
     notEqualsMemberFunction.define(mutableDictionaryValueType.identifier, mutableDictionaryValueType)
-    notEqualsMemberFunction.define(inputOmicronTypeArg.identifier, inputOmicronTypeArg)
+    notEqualsMemberFunction.define(inputFinTypeArg.identifier, inputFinTypeArg)
     notEqualsMemberFunction.typeParams =
-        listOf(mutableDictionaryKeyType, mutableDictionaryValueType, mutableDictionaryOmicron, inputOmicronTypeArg)
+        listOf(mutableDictionaryKeyType, mutableDictionaryValueType, mutableDictionaryFin, inputFinTypeArg)
 
     val inputSubstitution = Substitution(
         mutableDictionarySymbol.typeParams,
-        listOf(mutableDictionaryKeyType, mutableDictionaryValueType, inputOmicronTypeArg)
+        listOf(mutableDictionaryKeyType, mutableDictionaryValueType, inputFinTypeArg)
     )
     val inputType = inputSubstitution.apply(mutableDictionarySymbol)
 
@@ -303,8 +303,8 @@ fun createMutableDictionaryNotEqualsMember(
     notEqualsMemberFunction.returnType = booleanType
     notEqualsMemberFunction.costExpression = SumCostExpression(
         listOf(
-            mutableDictionaryOmicron,
-            inputOmicronTypeArg
+            mutableDictionaryFin,
+            inputFinTypeArg
         )
     )
 
@@ -317,23 +317,23 @@ fun createMutableDictionaryNotEqualsMember(
 fun createSetEqualsMember(
     setSymbol: ParameterizedBasicTypeSymbol,
     setElementType: StandardTypeParameter,
-    setOmicron: ImmutableOmicronTypeParameter,
+    setFin: ImmutableFinTypeParameter,
     booleanType: BasicTypeSymbol
 ) {
     val equalsMemberFunction = ParameterizedMemberPluginSymbol(
         setSymbol,
         Identifier(BinaryOperator.Equal.idStr),
-        DoubleParentSingleOmicronPluginInstantiation,
+        DoubleParentSingleFinPluginInstantiation,
     { t: Value, args: List<Value> ->
         (t as EqualityValue).evalEquals(args.first())
     })
-    val inputOmicronTypeArg = ImmutableOmicronTypeParameter(equalsMemberFunction, Lang.setInputOmicronTypeId)
+    val inputFinTypeArg = ImmutableFinTypeParameter(equalsMemberFunction, Lang.setInputFinTypeId)
     equalsMemberFunction.define(setElementType.identifier, setElementType)
-    equalsMemberFunction.define(setOmicron.identifier, setOmicron)
-    equalsMemberFunction.define(inputOmicronTypeArg.identifier, inputOmicronTypeArg)
-    equalsMemberFunction.typeParams = listOf(setElementType, setOmicron, inputOmicronTypeArg)
+    equalsMemberFunction.define(setFin.identifier, setFin)
+    equalsMemberFunction.define(inputFinTypeArg.identifier, inputFinTypeArg)
+    equalsMemberFunction.typeParams = listOf(setElementType, setFin, inputFinTypeArg)
 
-    val inputSubstitution = Substitution(setSymbol.typeParams, listOf(setElementType, inputOmicronTypeArg))
+    val inputSubstitution = Substitution(setSymbol.typeParams, listOf(setElementType, inputFinTypeArg))
     val inputType = inputSubstitution.apply(setSymbol)
 
     val otherParam = FunctionFormalParameterSymbol(equalsMemberFunction, Identifier("other"), inputType)
@@ -341,8 +341,8 @@ fun createSetEqualsMember(
     equalsMemberFunction.returnType = booleanType
     equalsMemberFunction.costExpression = SumCostExpression(
         listOf(
-            setOmicron,
-            inputOmicronTypeArg
+            setFin,
+            inputFinTypeArg
         )
     )
 
@@ -352,23 +352,23 @@ fun createSetEqualsMember(
 fun createSetNotEqualsMember(
     setSymbol: ParameterizedBasicTypeSymbol,
     setElementType: StandardTypeParameter,
-    setOmicron: ImmutableOmicronTypeParameter,
+    setFin: ImmutableFinTypeParameter,
     booleanType: BasicTypeSymbol
 ) {
     val notEqualsMemberFunction = ParameterizedMemberPluginSymbol(
         setSymbol,
         Identifier(BinaryOperator.NotEqual.idStr),
-        DoubleParentSingleOmicronPluginInstantiation,
+        DoubleParentSingleFinPluginInstantiation,
     { t: Value, args: List<Value> ->
         (t as EqualityValue).evalNotEquals(args.first())
     })
-    val inputOmicronTypeArg = ImmutableOmicronTypeParameter(notEqualsMemberFunction, Lang.setInputOmicronTypeId)
+    val inputFinTypeArg = ImmutableFinTypeParameter(notEqualsMemberFunction, Lang.setInputFinTypeId)
     notEqualsMemberFunction.define(setElementType.identifier, setElementType)
-    notEqualsMemberFunction.define(setOmicron.identifier, setOmicron)
-    notEqualsMemberFunction.define(inputOmicronTypeArg.identifier, inputOmicronTypeArg)
-    notEqualsMemberFunction.typeParams = listOf(setElementType, setOmicron, inputOmicronTypeArg)
+    notEqualsMemberFunction.define(setFin.identifier, setFin)
+    notEqualsMemberFunction.define(inputFinTypeArg.identifier, inputFinTypeArg)
+    notEqualsMemberFunction.typeParams = listOf(setElementType, setFin, inputFinTypeArg)
 
-    val inputSubstitution = Substitution(setSymbol.typeParams, listOf(setElementType, inputOmicronTypeArg))
+    val inputSubstitution = Substitution(setSymbol.typeParams, listOf(setElementType, inputFinTypeArg))
     val inputType = inputSubstitution.apply(setSymbol)
 
     val otherParam = FunctionFormalParameterSymbol(notEqualsMemberFunction, Identifier("other"), inputType)
@@ -376,8 +376,8 @@ fun createSetNotEqualsMember(
     notEqualsMemberFunction.returnType = booleanType
     notEqualsMemberFunction.costExpression = SumCostExpression(
         listOf(
-            setOmicron,
-            inputOmicronTypeArg
+            setFin,
+            inputFinTypeArg
         )
     )
 
@@ -387,24 +387,24 @@ fun createSetNotEqualsMember(
 fun createMutableSetEqualsMember(
     mutableSetSymbol: ParameterizedBasicTypeSymbol,
     mutableSetElementType: StandardTypeParameter,
-    mutableSetOmicron: MutableOmicronTypeParameter,
+    mutableSetFin: MutableFinTypeParameter,
     booleanType: BasicTypeSymbol
 ) {
     val equalsMemberFunction = ParameterizedMemberPluginSymbol(
         mutableSetSymbol,
         Identifier(BinaryOperator.Equal.idStr),
-        DoubleParentSingleOmicronPluginInstantiation,
+        DoubleParentSingleFinPluginInstantiation,
     { t: Value, args: List<Value> ->
         (t as EqualityValue).evalEquals(args.first())
     })
-    val inputOmicronTypeArg = ImmutableOmicronTypeParameter(equalsMemberFunction, Lang.mutableSetInputOmicronTypeId)
+    val inputFinTypeArg = ImmutableFinTypeParameter(equalsMemberFunction, Lang.mutableSetInputFinTypeId)
     equalsMemberFunction.define(mutableSetElementType.identifier, mutableSetElementType)
-    equalsMemberFunction.define(mutableSetOmicron.identifier, mutableSetOmicron)
-    equalsMemberFunction.define(inputOmicronTypeArg.identifier, inputOmicronTypeArg)
-    equalsMemberFunction.typeParams = listOf(mutableSetElementType, mutableSetOmicron, inputOmicronTypeArg)
+    equalsMemberFunction.define(mutableSetFin.identifier, mutableSetFin)
+    equalsMemberFunction.define(inputFinTypeArg.identifier, inputFinTypeArg)
+    equalsMemberFunction.typeParams = listOf(mutableSetElementType, mutableSetFin, inputFinTypeArg)
 
     val inputSubstitution =
-        Substitution(mutableSetSymbol.typeParams, listOf(mutableSetElementType, inputOmicronTypeArg))
+        Substitution(mutableSetSymbol.typeParams, listOf(mutableSetElementType, inputFinTypeArg))
     val inputType = inputSubstitution.apply(mutableSetSymbol)
 
     val otherParam = FunctionFormalParameterSymbol(equalsMemberFunction, Identifier("other"), inputType)
@@ -412,8 +412,8 @@ fun createMutableSetEqualsMember(
     equalsMemberFunction.returnType = booleanType
     equalsMemberFunction.costExpression = SumCostExpression(
         listOf(
-            mutableSetOmicron,
-            inputOmicronTypeArg
+            mutableSetFin,
+            inputFinTypeArg
         )
     )
 
@@ -423,24 +423,24 @@ fun createMutableSetEqualsMember(
 fun createMutableSetNotEqualsMember(
     mutableSetSymbol: ParameterizedBasicTypeSymbol,
     mutableSetElementType: StandardTypeParameter,
-    mutableSetOmicron: MutableOmicronTypeParameter,
+    mutableSetFin: MutableFinTypeParameter,
     booleanType: BasicTypeSymbol
 ) {
     val notEqualsMemberFunction = ParameterizedMemberPluginSymbol(
         mutableSetSymbol,
         Identifier(BinaryOperator.NotEqual.idStr),
-        DoubleParentSingleOmicronPluginInstantiation,
+        DoubleParentSingleFinPluginInstantiation,
     { t: Value, args: List<Value> ->
         (t as EqualityValue).evalNotEquals(args.first())
     })
-    val inputOmicronTypeArg = ImmutableOmicronTypeParameter(notEqualsMemberFunction, Lang.mutableSetInputOmicronTypeId)
+    val inputFinTypeArg = ImmutableFinTypeParameter(notEqualsMemberFunction, Lang.mutableSetInputFinTypeId)
     notEqualsMemberFunction.define(mutableSetElementType.identifier, mutableSetElementType)
-    notEqualsMemberFunction.define(mutableSetOmicron.identifier, mutableSetOmicron)
-    notEqualsMemberFunction.define(inputOmicronTypeArg.identifier, inputOmicronTypeArg)
-    notEqualsMemberFunction.typeParams = listOf(mutableSetElementType, mutableSetOmicron, inputOmicronTypeArg)
+    notEqualsMemberFunction.define(mutableSetFin.identifier, mutableSetFin)
+    notEqualsMemberFunction.define(inputFinTypeArg.identifier, inputFinTypeArg)
+    notEqualsMemberFunction.typeParams = listOf(mutableSetElementType, mutableSetFin, inputFinTypeArg)
 
     val inputSubstitution =
-        Substitution(mutableSetSymbol.typeParams, listOf(mutableSetElementType, inputOmicronTypeArg))
+        Substitution(mutableSetSymbol.typeParams, listOf(mutableSetElementType, inputFinTypeArg))
     val inputType = inputSubstitution.apply(mutableSetSymbol)
 
     val otherParam = FunctionFormalParameterSymbol(notEqualsMemberFunction, Identifier("other"), inputType)
@@ -448,8 +448,8 @@ fun createMutableSetNotEqualsMember(
     notEqualsMemberFunction.returnType = booleanType
     notEqualsMemberFunction.costExpression = SumCostExpression(
         listOf(
-            mutableSetOmicron,
-            inputOmicronTypeArg
+            mutableSetFin,
+            inputFinTypeArg
         )
     )
 

@@ -47,7 +47,7 @@ data class TypeMismatch(val expected: Symbol, val actual: Symbol) : ErrorType(),
     override val symbols: List<Symbol> = listOf(expected, actual)
 }
 
-data class OmicronMismatch(val expected: Long, val actual: Long) : ErrorType()
+data class FinMismatch(val expected: Long, val actual: Long) : ErrorType()
 data class IncorrectNumberOfArgs(val expected: Int, val actual: Int) : ErrorType()
 data class IncorrectNumberOfTypeArgs(val expected: Int, val actual: Int) : ErrorType()
 data class InvalidRef(val symbol: Symbol) : ErrorType(), SymbolHostErrorType {
@@ -128,7 +128,7 @@ object InvalidRangeArg : ErrorType()
 object RandomRequiresIntLong : ErrorType()
 
 // Runtime errors
-data class RuntimeOmicronViolation(val omicron: Long, val elements: Long) : ErrorType()
+data class RuntimeFinViolation(val fin: Long, val elements: Long) : ErrorType()
 object RuntimeImmutableViolation : ErrorType()
 object RuntimeIntegerConversion : ErrorType()
 object DecimalInfiniteDivide : ErrorType()
@@ -137,7 +137,7 @@ data class NamespaceNotAvailable(val namespace: List<String>) : ErrorType()
 // Type Parameter Errors
 data class DuplicateTypeParameter(val identifier: Identifier) : ErrorType()
 data class TypeRequiresExplicit(val identifier: Identifier) : ErrorType()
-data class TooManyElements(val omicron: Long, val elements: Long) : ErrorType()
+data class TooManyElements(val fin: Long, val elements: Long) : ErrorType()
 data class CannotPartialApply(val typeParam: TypeParameter) : ErrorType()
 data class EnumRecordTypeParamMissing(val identifier: Identifier) : ErrorType()
 data class NotATypeParameter(val actual: Symbol) : ErrorType(), SymbolHostErrorType {
@@ -155,16 +155,16 @@ data class MustExplicitlyInstantiate(val symbol: Symbol) : ErrorType(), SymbolHo
     override val symbols: List<Symbol> = listOf(symbol)
 }
 
-// Omicron Errors
+// Fin Errors
 object CalculateCostFailed : ErrorType()
-object NegativeOmicron : ErrorType()
+object NegativeFin : ErrorType()
 
 // Bans
 data class CannotRefFunctionParam(val identifier: Identifier) : ErrorType()
 data class FunctionReturnType(val identifier: Identifier) : ErrorType()
 data class FunctionAssign(val identifier: Identifier) : ErrorType()
 data class RecordFieldFunctionType(val record: Identifier, val field: Identifier) : ErrorType()
-data class InvalidOmicronTypeSub(val typeParam: TypeParameter, val symbol: Symbol) : ErrorType(), SymbolHostErrorType {
+data class InvalidFinTypeSub(val typeParam: TypeParameter, val symbol: Symbol) : ErrorType(), SymbolHostErrorType {
     override val symbols: List<Symbol> = listOf(symbol)
 }
 

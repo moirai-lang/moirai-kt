@@ -51,7 +51,7 @@ typeParams
 
 typeParam
     :   IDENTIFIER  # IdentifierTypeParam
-    |   OMICRON     # OmicronTypeParam
+    |   FIN     # FinTypeParam
     ;
 
 paramDef
@@ -158,14 +158,14 @@ typePath
     |   IDENTIFIER                        # SingleTypePath
     ;
 
-typeExprWithOmicron
-    :   omicron=OMICRON                                     # OmicronType
-    |   magnitude=INT                                       # OmicronLiteral
-    |   te=typeExpr                                         # NoOmicron
+typeExprWithFin
+    :   fin=FIN                                             # FinType
+    |   magnitude=INT                                       # FinLiteral
+    |   te=typeExpr                                         # NoFin
     ;
 
 typeExprParams
-    :   LT typeExprWithOmicron (COMMA typeExprWithOmicron)* GT
+    :   LT typeExprWithFin (COMMA typeExprWithFin)* GT
     ;
 
 typeExprSeq

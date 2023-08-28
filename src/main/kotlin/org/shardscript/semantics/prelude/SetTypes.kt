@@ -83,7 +83,7 @@ private fun createRemoveFunction(
 fun createToImmutableSetPlugin(
     mutableSetType: ParameterizedBasicTypeSymbol,
     elementType: StandardTypeParameter,
-    omicron: MutableOmicronTypeParameter,
+    fin: MutableFinTypeParameter,
     setType: ParameterizedBasicTypeSymbol
 ) {
     val plugin = ParameterizedMemberPluginSymbol(
@@ -93,9 +93,9 @@ fun createToImmutableSetPlugin(
     { t: Value, _: List<Value> ->
         (t as SetValue).evalToSet()
     })
-    plugin.typeParams = listOf(elementType, omicron)
+    plugin.typeParams = listOf(elementType, fin)
     plugin.formalParams = listOf()
-    val outputSubstitution = Substitution(setType.typeParams, listOf(elementType, omicron))
+    val outputSubstitution = Substitution(setType.typeParams, listOf(elementType, fin))
     val outputType = outputSubstitution.apply(setType)
     plugin.returnType = outputType
 
@@ -103,7 +103,7 @@ fun createToImmutableSetPlugin(
         ProductCostExpression(
             listOf(
                 CommonCostExpressions.twoPass,
-                omicron
+                fin
             )
         )
     mutableSetType.define(plugin.identifier, plugin)
@@ -123,15 +123,15 @@ fun setCollectionType(
     )
     val setElementTypeParam = StandardTypeParameter(setType, Lang.setElementTypeId)
     setType.define(Lang.setElementTypeId, setElementTypeParam)
-    val setOmicronTypeParam = ImmutableOmicronTypeParameter(setType, Lang.setOmicronTypeId)
-    setType.define(Lang.setOmicronTypeId, setOmicronTypeParam)
-    setType.typeParams = listOf(setElementTypeParam, setOmicronTypeParam)
+    val setFinTypeParam = ImmutableFinTypeParameter(setType, Lang.setFinTypeId)
+    setType.define(Lang.setFinTypeId, setFinTypeParam)
+    setType.typeParams = listOf(setElementTypeParam, setFinTypeParam)
     setType.modeSelector = { _ ->
         ImmutableBasicTypeMode
     }
 
     createContainsFunction(
-        OmicronTypeSymbol(architecture.defaultNodeCost),
+        FinTypeSymbol(architecture.defaultNodeCost),
         setType,
         booleanType,
         setElementTypeParam
@@ -149,8 +149,8 @@ fun setCollectionType(
     setType.define(sizeId, sizeFieldSymbol)
     setType.fields = listOf(sizeFieldSymbol)
 
-    createSetEqualsMember(setType, setElementTypeParam, setOmicronTypeParam, booleanType)
-    createSetNotEqualsMember(setType, setElementTypeParam, setOmicronTypeParam, booleanType)
+    createSetEqualsMember(setType, setElementTypeParam, setFinTypeParam, booleanType)
+    createSetNotEqualsMember(setType, setElementTypeParam, setFinTypeParam, booleanType)
 
     return setType
 }
@@ -171,13 +171,13 @@ fun mutableSetCollectionType(
     )
     val mutableSetElementTypeParam = StandardTypeParameter(mutableSetType, Lang.mutableSetElementTypeId)
     mutableSetType.define(Lang.mutableSetElementTypeId, mutableSetElementTypeParam)
-    val mutableSetOmicronTypeParam = MutableOmicronTypeParameter(mutableSetType, Lang.mutableSetOmicronTypeId)
-    mutableSetType.define(Lang.mutableSetOmicronTypeId, mutableSetOmicronTypeParam)
-    mutableSetType.typeParams = listOf(mutableSetElementTypeParam, mutableSetOmicronTypeParam)
+    val mutableSetFinTypeParam = MutableFinTypeParameter(mutableSetType, Lang.mutableSetFinTypeId)
+    mutableSetType.define(Lang.mutableSetFinTypeId, mutableSetFinTypeParam)
+    mutableSetType.typeParams = listOf(mutableSetElementTypeParam, mutableSetFinTypeParam)
     mutableSetType.modeSelector = { args ->
-        when (val omicron = args[1]) {
-            is OmicronTypeSymbol -> {
-                MutableBasicTypeMode(omicron.magnitude)
+        when (val fin = args[1]) {
+            is FinTypeSymbol -> {
+                MutableBasicTypeMode(fin.magnitude)
             }
             else -> {
                 ImmutableBasicTypeMode
@@ -185,24 +185,24 @@ fun mutableSetCollectionType(
         }
     }
 
-    val constantOmicron = OmicronTypeSymbol(architecture.defaultNodeCost)
+    val constantFin = FinTypeSymbol(architecture.defaultNodeCost)
 
     createContainsFunction(
-        constantOmicron,
+        constantFin,
         mutableSetType,
         booleanType,
         mutableSetElementTypeParam
     )
 
     createAddFunction(
-        constantOmicron,
+        constantFin,
         mutableSetType,
         unitType,
         mutableSetElementTypeParam
     )
 
     createRemoveFunction(
-        constantOmicron,
+        constantFin,
         mutableSetType,
         unitType,
         mutableSetElementTypeParam
@@ -211,7 +211,7 @@ fun mutableSetCollectionType(
     createToImmutableSetPlugin(
         mutableSetType,
         mutableSetElementTypeParam,
-        mutableSetOmicronTypeParam,
+        mutableSetFinTypeParam,
         setType
     )
 
@@ -227,8 +227,8 @@ fun mutableSetCollectionType(
     mutableSetType.define(sizeId, sizeFieldSymbol)
     mutableSetType.fields = listOf(sizeFieldSymbol)
 
-    createMutableSetEqualsMember(mutableSetType, mutableSetElementTypeParam, mutableSetOmicronTypeParam, booleanType)
-    createMutableSetNotEqualsMember(mutableSetType, mutableSetElementTypeParam, mutableSetOmicronTypeParam, booleanType)
+    createMutableSetEqualsMember(mutableSetType, mutableSetElementTypeParam, mutableSetFinTypeParam, booleanType)
+    createMutableSetNotEqualsMember(mutableSetType, mutableSetElementTypeParam, mutableSetFinTypeParam, booleanType)
 
     return mutableSetType
 }

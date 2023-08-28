@@ -8,8 +8,8 @@ fun insertIntegerConversionMembers(
     integerTypes: Map<Identifier, BasicTypeSymbol>
 ) {
     val filters = setOf(integerType.identifier.name)
-    val constantOmicron = OmicronTypeSymbol(architecture.defaultNodeCost)
-    IntegerConversionsMembers.members(integerType, constantOmicron, integerTypes).forEach { (name, plugin) ->
+    val constantFin = FinTypeSymbol(architecture.defaultNodeCost)
+    IntegerConversionsMembers.members(integerType, constantFin, integerTypes).forEach { (name, plugin) ->
         if (!filters.contains(name)) {
             integerType.define(Identifier(name), plugin)
         }

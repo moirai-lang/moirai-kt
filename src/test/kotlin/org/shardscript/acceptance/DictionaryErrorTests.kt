@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test
 
 class DictionaryErrorTests {
     @Test
-    fun incorrectOmicronDictionaryTest() {
+    fun incorrectFinDictionaryTest() {
         failTest(
             """
             val x = Dictionary<2, 5, 3>(1 to 2, 2 to 3, 3 to 4)
@@ -24,7 +24,7 @@ class DictionaryErrorTests {
             x[1]
         """.trimIndent(), 2
         ) {
-            it.error is InvalidOmicronTypeSub
+            it.error is InvalidFinTypeSub
         }
     }
 
@@ -79,7 +79,7 @@ class DictionaryErrorTests {
     }
 
     @Test
-    fun incorrectOmicronMutableDictionaryTest() {
+    fun incorrectFinMutableDictionaryTest() {
         failTest(
             """
             val x = MutableDictionary<2, 5, 3>(1 to 2, 2 to 3, 3 to 4)
@@ -98,7 +98,7 @@ class DictionaryErrorTests {
             x[1]
         """.trimIndent(), 3
         ) {
-            it.error is InvalidOmicronTypeSub
+            it.error is InvalidFinTypeSub
         }
     }
 
@@ -127,7 +127,7 @@ class DictionaryErrorTests {
     }
 
     @Test
-    fun runtimeOmicronViolationMutableDictionaryTest() {
+    fun runtimeFinViolationMutableDictionaryTest() {
         failTest(
             """
             val x = MutableDictionary<Int, Int, 3>(1 to 2, 2 to 3, 3 to 4)
@@ -135,7 +135,7 @@ class DictionaryErrorTests {
             x[1]
         """.trimIndent(), 1
         ) {
-            it.error is RuntimeOmicronViolation
+            it.error is RuntimeFinViolation
         }
     }
 

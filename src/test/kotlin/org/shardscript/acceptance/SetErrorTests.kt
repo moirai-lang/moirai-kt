@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test
 
 class SetErrorTests {
     @Test
-    fun incorrectOmicronSetTest() {
+    fun incorrectFinSetTest() {
         failTest(
             """
             val x = Set<2, 3>(1, 2, 3)
@@ -24,7 +24,7 @@ class SetErrorTests {
             x.contains(1)
         """.trimIndent(), 2
         ) {
-            it.error is InvalidOmicronTypeSub
+            it.error is InvalidFinTypeSub
         }
     }
 
@@ -41,7 +41,7 @@ class SetErrorTests {
     }
 
     @Test
-    fun incorrectOmicronMutableSetTest() {
+    fun incorrectFinMutableSetTest() {
         failTest(
             """
             val x = MutableSet<2, 3>(1, 2, 3)
@@ -60,7 +60,7 @@ class SetErrorTests {
             x.contains(1)
         """.trimIndent(), 3
         ) {
-            it.error is InvalidOmicronTypeSub
+            it.error is InvalidFinTypeSub
         }
     }
 
@@ -89,7 +89,7 @@ class SetErrorTests {
     }
 
     @Test
-    fun runtimeOmicronViolationMutableSetTest() {
+    fun runtimeFinViolationMutableSetTest() {
         failTest(
             """
             val x = MutableSet<Int, 3>(1, 2, 3)
@@ -97,7 +97,7 @@ class SetErrorTests {
             x.contains(1)
         """.trimIndent(), 1
         ) {
-            it.error is RuntimeOmicronViolation
+            it.error is RuntimeFinViolation
         }
     }
 

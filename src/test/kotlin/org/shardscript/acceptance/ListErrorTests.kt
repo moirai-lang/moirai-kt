@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test
 
 class ListErrorTests {
     @Test
-    fun incorrectOmicronListTest() {
+    fun incorrectFinListTest() {
         failTest(
             """
             val x = List<2, 3>(1, 2, 3)
@@ -24,7 +24,7 @@ class ListErrorTests {
             x[0]
         """.trimIndent(), 2
         ) {
-            it.error is InvalidOmicronTypeSub
+            it.error is InvalidFinTypeSub
         }
     }
 
@@ -41,7 +41,7 @@ class ListErrorTests {
     }
 
     @Test
-    fun incorrectOmicronMutableListTest() {
+    fun incorrectFinMutableListTest() {
         failTest(
             """
             val x = MutableList<2, 3>(1, 2, 3)
@@ -60,7 +60,7 @@ class ListErrorTests {
             x[0]
         """.trimIndent(), 3
         ) {
-            it.error is InvalidOmicronTypeSub
+            it.error is InvalidFinTypeSub
         }
     }
 
@@ -89,7 +89,7 @@ class ListErrorTests {
     }
 
     @Test
-    fun runtimeOmicronViolationMutableListTest() {
+    fun runtimeFinViolationMutableListTest() {
         failTest(
             """
             val x = MutableList<Int, 3>(1, 2, 3)
@@ -97,7 +97,7 @@ class ListErrorTests {
             x[0]
         """.trimIndent(), 1
         ) {
-            it.error is RuntimeOmicronViolation
+            it.error is RuntimeFinViolation
         }
     }
 
@@ -116,7 +116,7 @@ class ListErrorTests {
     }
 
     @Test
-    fun omicronTypeParamMutableListTest() {
+    fun finTypeParamMutableListTest() {
         failTest(
             """
             def size<E, #O>(x: List<E, #O>): Int {
@@ -133,7 +133,7 @@ class ListErrorTests {
             size(x)
         """.trimIndent(), 2
         ) {
-            it.error is InvalidOmicronTypeSub
+            it.error is InvalidFinTypeSub
         }
     }
 

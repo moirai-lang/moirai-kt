@@ -2,7 +2,7 @@ package org.shardscript.semantics.visitors
 
 import org.shardscript.semantics.core.*
 
-class OmicronDebuggerAstVisitor(val architecture: Architecture) : UnitAstVisitor() {
+class FinDebuggerAstVisitor(val architecture: Architecture) : UnitAstVisitor() {
     fun testNode(ast: Ast) {
         val cost = ast.costExpression.accept(EvalCostExpressionVisitor(architecture))
         if (cost > architecture.costUpperLimit) {
