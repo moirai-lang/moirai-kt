@@ -3,7 +3,7 @@ package org.shardscript.acceptance
 import org.shardscript.semantics.core.DuplicateTypeParameter
 import org.shardscript.semantics.core.InvalidRef
 import org.shardscript.semantics.core.SymbolHasNoParameters
-import org.junit.Test
+import org.junit.jupiter.api.Test
 
 class FunctionErrorTests {
     @Test

@@ -6,8 +6,8 @@ import org.shardscript.composition.SourceStore
 import org.shardscript.eval.EvalAstVisitor
 import org.shardscript.semantics.core.*
 import org.shardscript.semantics.workflow.createSystemScopes
-import org.junit.Assert
 import java.math.BigDecimal
+import org.junit.jupiter.api.Assertions
 
 object TestArchitecture : Architecture {
     override val defaultNodeCost: Long = (1).toLong()
@@ -128,9 +128,9 @@ fun failTest(source: String, expectedCount: Int, predicate: (LanguageError) -> B
 fun failTest(source: String, expectedCount: Int, predicate: (LanguageError) -> Boolean, architecture: Architecture, transient: Boolean) {
     try {
         testEval(source, architecture, transient)
-        Assert.fail()
+        Assertions.fail()
     } catch (ex: LanguageException) {
-        Assert.assertEquals(expectedCount, ex.errors.size)
+        Assertions.assertEquals(expectedCount, ex.errors.size)
         val predicateFailures: MutableSet<LanguageError> = HashSet()
         ex.errors.forEach {
             if (!predicate(it)) {
@@ -156,17 +156,17 @@ fun splitTest(
 
     when {
         actual is DecimalValue && expected is DecimalValue -> {
-            Assert.assertTrue(expected.canonicalForm.compareTo(actual.canonicalForm) == 0)
+            Assertions.assertTrue(expected.canonicalForm.compareTo(actual.canonicalForm) == 0)
         }
-        else -> Assert.assertEquals(expected, actual)
+        else -> Assertions.assertEquals(expected, actual)
     }
 }
 
 fun assertEqualsDec(value: String, res: Value) {
     if (res is DecimalValue) {
         val dec = BigDecimal(value)
-        Assert.assertEquals(dec.stripTrailingZeros().toPlainString(), res.canonicalForm.stripTrailingZeros().toPlainString())
+        Assertions.assertEquals(dec.stripTrailingZeros().toPlainString(), res.canonicalForm.stripTrailingZeros().toPlainString())
     } else {
-        Assert.fail()
+        Assertions.fail()
     }
 }

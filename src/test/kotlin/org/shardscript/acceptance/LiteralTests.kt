@@ -1,16 +1,16 @@
 package org.shardscript.acceptance
 
 import org.shardscript.semantics.core.*
-import org.junit.Assert
-import org.junit.Assert.fail
-import org.junit.Test
+import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Assertions.fail
+import org.junit.jupiter.api.Test
 
 class LiteralTests {
     @Test
     fun sByteLiteral() {
         val res = testEval("5s8", TestArchitecture)
         if (res is SByteValue) {
-            Assert.assertEquals((5).toByte(), res.canonicalForm)
+            Assertions.assertEquals((5).toByte(), res.canonicalForm)
         } else {
             fail()
         }
@@ -20,7 +20,7 @@ class LiteralTests {
     fun shortLiteral() {
         val res = testEval("5s16", TestArchitecture)
         if (res is ShortValue) {
-            Assert.assertEquals((5).toShort(), res.canonicalForm)
+            Assertions.assertEquals((5).toShort(), res.canonicalForm)
         } else {
             fail()
         }
@@ -30,7 +30,7 @@ class LiteralTests {
     fun intLiteral() {
         val res = testEval("5", TestArchitecture)
         if (res is IntValue) {
-            Assert.assertEquals(5, res.canonicalForm)
+            Assertions.assertEquals(5, res.canonicalForm)
         } else {
             fail()
         }
@@ -40,51 +40,47 @@ class LiteralTests {
     fun longLiteral() {
         val res = testEval("5s64", TestArchitecture)
         if (res is LongValue) {
-            Assert.assertEquals((5).toLong(), res.canonicalForm)
+            Assertions.assertEquals((5).toLong(), res.canonicalForm)
         } else {
             fail()
         }
     }
 
-    @UseExperimental(ExperimentalUnsignedTypes::class)
     @Test
     fun byteLiteral() {
         val res = testEval("5u8", TestArchitecture)
         if (res is ByteValue) {
-            Assert.assertEquals((5).toUByte(), res.canonicalForm)
+            Assertions.assertEquals((5).toUByte(), res.canonicalForm)
         } else {
             fail()
         }
     }
 
-    @UseExperimental(ExperimentalUnsignedTypes::class)
     @Test
     fun uShortLiteral() {
         val res = testEval("5u16", TestArchitecture)
         if (res is UShortValue) {
-            Assert.assertEquals((5).toUShort(), res.canonicalForm)
+            Assertions.assertEquals((5).toUShort(), res.canonicalForm)
         } else {
             fail()
         }
     }
 
-    @UseExperimental(ExperimentalUnsignedTypes::class)
     @Test
     fun uIntLiteral() {
         val res = testEval("5u32", TestArchitecture)
         if (res is UIntValue) {
-            Assert.assertEquals((5).toUInt(), res.canonicalForm)
+            Assertions.assertEquals((5).toUInt(), res.canonicalForm)
         } else {
             fail()
         }
     }
 
-    @UseExperimental(ExperimentalUnsignedTypes::class)
     @Test
     fun uLongLiteral() {
         val res = testEval("5u64", TestArchitecture)
         if (res is ULongValue) {
-            Assert.assertEquals((5).toULong(), res.canonicalForm)
+            Assertions.assertEquals((5).toULong(), res.canonicalForm)
         } else {
             fail()
         }
@@ -93,13 +89,13 @@ class LiteralTests {
     @Test
     fun testTrue() {
         val res = testEval("true", TestArchitecture)
-        Assert.assertEquals(BooleanValue(true), res)
+        Assertions.assertEquals(BooleanValue(true), res)
     }
 
     @Test
     fun testFalse() {
         val res = testEval("false", TestArchitecture)
-        Assert.assertEquals(BooleanValue(false), res)
+        Assertions.assertEquals(BooleanValue(false), res)
     }
 
     @Test
@@ -112,7 +108,7 @@ class LiteralTests {
     fun testUnaryNegates32() {
         val res = testEval("-15", TestArchitecture)
         if (res is IntValue) {
-            Assert.assertEquals(-15, res.canonicalForm)
+            Assertions.assertEquals(-15, res.canonicalForm)
         } else {
             fail()
         }
@@ -127,20 +123,20 @@ class LiteralTests {
     @Test
     fun charLiteral() {
         val res = testEval("'c'", TestArchitecture)
-        Assert.assertEquals(CharValue('c'), res)
+        Assertions.assertEquals(CharValue('c'), res)
     }
 
     @Test
     fun charLiteralEscape() {
         val res = testEval("'\\\''", TestArchitecture)
-        Assert.assertEquals(CharValue('\''), res)
+        Assertions.assertEquals(CharValue('\''), res)
     }
 
     @Test
     fun stringLiteral() {
         val res = testEval("\"hello world\"", TestArchitecture)
         if (res is StringValue) {
-            Assert.assertEquals("hello world", res.canonicalForm)
+            Assertions.assertEquals("hello world", res.canonicalForm)
         } else {
             fail()
         }
@@ -150,7 +146,7 @@ class LiteralTests {
     fun stringLiteralEscape() {
         val res = testEval("\"hello\\nworld\"", TestArchitecture)
         if (res is StringValue) {
-            Assert.assertEquals("hello\nworld", res.canonicalForm)
+            Assertions.assertEquals("hello\nworld", res.canonicalForm)
         } else {
             fail()
         }
@@ -160,7 +156,7 @@ class LiteralTests {
     fun stringInterpolationLiteral() {
         val res = testEval("\"hello \${65} world\"", TestArchitecture)
         if (res is StringValue) {
-            Assert.assertEquals("hello 65 world", res.canonicalForm)
+            Assertions.assertEquals("hello 65 world", res.canonicalForm)
         } else {
             fail()
         }
@@ -170,7 +166,7 @@ class LiteralTests {
     fun stringLiteralInterpolationEscape() {
         val res = testEval("\"hello\\n \${65} world\"", TestArchitecture)
         if (res is StringValue) {
-            Assert.assertEquals("hello\n 65 world", res.canonicalForm)
+            Assertions.assertEquals("hello\n 65 world", res.canonicalForm)
         } else {
             fail()
         }

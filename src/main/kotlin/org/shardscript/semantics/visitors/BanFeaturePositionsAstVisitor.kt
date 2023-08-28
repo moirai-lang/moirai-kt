@@ -27,6 +27,7 @@ class BanFeaturePositionsAstVisitor : UnitAstVisitor() {
                     }
                 }
             }
+            else -> Unit
         }
         ast.formalParams.forEach {
             when (val formalParamType = ast.scope.fetch(it.ofType)) {
@@ -50,6 +51,8 @@ class BanFeaturePositionsAstVisitor : UnitAstVisitor() {
                         }
                     }
                 }
+
+                else -> Unit
             }
         }
     }

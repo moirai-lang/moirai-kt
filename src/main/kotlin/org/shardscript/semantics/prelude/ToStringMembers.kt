@@ -84,7 +84,6 @@ fun insertLongToStringMember(
     longType.define(res.identifier, res)
 }
 
-@UseExperimental(ExperimentalUnsignedTypes::class)
 fun insertByteToStringMember(
     sByteType: BasicTypeSymbol,
     stringType: ParameterizedBasicTypeSymbol
@@ -105,7 +104,6 @@ fun insertByteToStringMember(
     sByteType.define(res.identifier, res)
 }
 
-@UseExperimental(ExperimentalUnsignedTypes::class)
 fun insertUShortToStringMember(
     shortType: BasicTypeSymbol,
     stringType: ParameterizedBasicTypeSymbol
@@ -126,7 +124,6 @@ fun insertUShortToStringMember(
     shortType.define(res.identifier, res)
 }
 
-@UseExperimental(ExperimentalUnsignedTypes::class)
 fun insertUIntToStringMember(
     integerType: BasicTypeSymbol,
     stringType: ParameterizedBasicTypeSymbol
@@ -147,7 +144,6 @@ fun insertUIntToStringMember(
     integerType.define(res.identifier, res)
 }
 
-@UseExperimental(ExperimentalUnsignedTypes::class)
 fun insertULongToStringMember(
     longType: BasicTypeSymbol,
     stringType: ParameterizedBasicTypeSymbol

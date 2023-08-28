@@ -222,7 +222,6 @@ internal class AstParseTreeVisitor(private val fileName: String, val errors: Lan
         return res
     }
 
-    @UseExperimental(ExperimentalUnsignedTypes::class)
     override fun visitLiteralByte(ctx: ShardScriptParser.LiteralByteContext): Ast {
         val sourceContext = createContext(fileName, ctx.value)
         val res = try {
@@ -235,7 +234,6 @@ internal class AstParseTreeVisitor(private val fileName: String, val errors: Lan
         return res
     }
 
-    @UseExperimental(ExperimentalUnsignedTypes::class)
     override fun visitLiteralUShort(ctx: ShardScriptParser.LiteralUShortContext): Ast {
         val sourceContext = createContext(fileName, ctx.value)
         val res = try {
@@ -248,7 +246,6 @@ internal class AstParseTreeVisitor(private val fileName: String, val errors: Lan
         return res
     }
 
-    @UseExperimental(ExperimentalUnsignedTypes::class)
     override fun visitLiteralUInt(ctx: ShardScriptParser.LiteralUIntContext): Ast {
         val sourceContext = createContext(fileName, ctx.value)
         val res = try {
@@ -261,7 +258,6 @@ internal class AstParseTreeVisitor(private val fileName: String, val errors: Lan
         return res
     }
 
-    @UseExperimental(ExperimentalUnsignedTypes::class)
     override fun visitLiteralULong(ctx: ShardScriptParser.LiteralULongContext): Ast {
         val sourceContext = createContext(fileName, ctx.value)
         val res = try {

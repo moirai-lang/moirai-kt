@@ -8,7 +8,7 @@ import org.shardscript.semantics.prelude.CollectionMethods
 import org.antlr.v4.runtime.CharStreams
 import org.antlr.v4.runtime.CommonTokenStream
 import org.antlr.v4.runtime.Token
-import org.apache.commons.text.StringEscapeUtils
+import org.apache.commons.lang3.StringEscapeUtils
 
 data class Parser(val grammar: ShardScriptParser, val errors: LanguageErrors)
 

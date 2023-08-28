@@ -1,7 +1,7 @@
 package org.shardscript.acceptance
 
 import org.shardscript.semantics.core.InvalidRangeArg
-import org.junit.Test
+import org.junit.jupiter.api.Test
 
 class StaticPluginErrorTests {
     @Test

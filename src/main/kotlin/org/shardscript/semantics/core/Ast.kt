@@ -64,7 +64,6 @@ data class LongLiteralAst(val canonicalForm: Long) : Ast() {
         visitor.visit(this, param)
 }
 
-@UseExperimental(ExperimentalUnsignedTypes::class)
 data class ByteLiteralAst(val canonicalForm: UByte) : Ast() {
     override fun <R> accept(visitor: AstVisitor<R>): R =
         visitor.visit(this)
@@ -73,7 +72,6 @@ data class ByteLiteralAst(val canonicalForm: UByte) : Ast() {
         visitor.visit(this, param)
 }
 
-@UseExperimental(ExperimentalUnsignedTypes::class)
 data class UShortLiteralAst(val canonicalForm: UShort) : Ast() {
     override fun <R> accept(visitor: AstVisitor<R>): R =
         visitor.visit(this)
@@ -82,7 +80,6 @@ data class UShortLiteralAst(val canonicalForm: UShort) : Ast() {
         visitor.visit(this, param)
 }
 
-@UseExperimental(ExperimentalUnsignedTypes::class)
 data class UIntLiteralAst(val canonicalForm: UInt) : Ast() {
     override fun <R> accept(visitor: AstVisitor<R>): R =
         visitor.visit(this)
@@ -91,7 +88,6 @@ data class UIntLiteralAst(val canonicalForm: UInt) : Ast() {
         visitor.visit(this, param)
 }
 
-@UseExperimental(ExperimentalUnsignedTypes::class)
 data class ULongLiteralAst(val canonicalForm: ULong) : Ast() {
     override fun <R> accept(visitor: AstVisitor<R>): R =
         visitor.visit(this)

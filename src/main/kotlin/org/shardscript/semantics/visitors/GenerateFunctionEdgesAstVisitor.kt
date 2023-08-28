@@ -108,6 +108,7 @@ class GenerateFunctionEdgesParameterizedAstVisitor(
                     else -> Unit
                 }
             }
+            else -> Unit
         }
     }
 
@@ -139,6 +140,7 @@ class GenerateFunctionEdgesParameterizedAstVisitor(
                     is ParameterizedFunctionSymbol -> {
                         addFunctionEdge(parameterizedType, param, edges, nodes)
                     }
+                    else -> Unit
                 }
             }
             else -> Unit

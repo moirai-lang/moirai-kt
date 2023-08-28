@@ -2,7 +2,6 @@ package org.shardscript.semantics.prelude
 
 import org.shardscript.semantics.core.*
 
-@UseExperimental(ExperimentalUnsignedTypes::class)
 object Lang {
     val shardId = Identifier("shard")
     val langId = Identifier("lang")

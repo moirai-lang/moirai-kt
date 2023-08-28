@@ -4,7 +4,7 @@ import org.shardscript.semantics.core.DuplicateTypeParameter
 import org.shardscript.semantics.core.IncorrectNumberOfTypeArgs
 import org.shardscript.semantics.core.RecursiveRecordDetected
 import org.shardscript.semantics.core.SymbolHasNoParameters
-import org.junit.Test
+import org.junit.jupiter.api.Test
 
 class RecordErrorTests {
     @Test

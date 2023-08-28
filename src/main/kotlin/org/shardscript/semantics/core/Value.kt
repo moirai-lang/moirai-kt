@@ -203,7 +203,6 @@ data class BooleanValue(val canonicalForm: Boolean) : Value(), EqualityValue, Lo
     fun evalToString(): Value = StringValue(canonicalForm.toString())
 }
 
-@UseExperimental(ExperimentalUnsignedTypes::class)
 data class SByteValue(val canonicalForm: Byte) : Value(), MathValue, OrderValue, EqualityValue,
     IntegerConversionsValue {
     override fun evalAdd(other: Value): Value =
@@ -247,7 +246,6 @@ data class SByteValue(val canonicalForm: Byte) : Value(), MathValue, OrderValue,
     override fun evalToUnsigned64(): Value = ULongValue(canonicalForm.toULong())
 }
 
-@UseExperimental(ExperimentalUnsignedTypes::class)
 data class ShortValue(val canonicalForm: Short) : Value(), MathValue, OrderValue, EqualityValue,
     IntegerConversionsValue {
     override fun evalAdd(other: Value): Value =
@@ -291,7 +289,6 @@ data class ShortValue(val canonicalForm: Short) : Value(), MathValue, OrderValue
     override fun evalToUnsigned64(): Value = ULongValue(canonicalForm.toULong())
 }
 
-@UseExperimental(ExperimentalUnsignedTypes::class)
 data class IntValue(val canonicalForm: Int) : Value(), MathValue, OrderValue, EqualityValue, IntegerConversionsValue {
     override fun evalAdd(other: Value): Value = IntValue(canonicalForm + (other as IntValue).canonicalForm)
     override fun evalSub(other: Value): Value = IntValue(canonicalForm - (other as IntValue).canonicalForm)
@@ -322,7 +319,6 @@ data class IntValue(val canonicalForm: Int) : Value(), MathValue, OrderValue, Eq
     override fun evalToUnsigned64(): Value = ULongValue(canonicalForm.toULong())
 }
 
-@UseExperimental(ExperimentalUnsignedTypes::class)
 data class LongValue(val canonicalForm: Long) : Value(), MathValue, OrderValue, EqualityValue, IntegerConversionsValue {
     override fun evalAdd(other: Value): Value = LongValue((canonicalForm + (other as LongValue).canonicalForm))
     override fun evalSub(other: Value): Value = LongValue((canonicalForm - (other as LongValue).canonicalForm))
@@ -353,7 +349,6 @@ data class LongValue(val canonicalForm: Long) : Value(), MathValue, OrderValue, 
     override fun evalToUnsigned64(): Value = ULongValue(canonicalForm.toULong())
 }
 
-@UseExperimental(ExperimentalUnsignedTypes::class)
 data class ByteValue(val canonicalForm: UByte) : Value(), MathValue, OrderValue, EqualityValue,
     IntegerConversionsValue {
     override fun evalAdd(other: Value): Value =
@@ -395,7 +390,6 @@ data class ByteValue(val canonicalForm: UByte) : Value(), MathValue, OrderValue,
     override fun evalToUnsigned64(): Value = ULongValue(canonicalForm.toULong())
 }
 
-@UseExperimental(ExperimentalUnsignedTypes::class)
 data class UShortValue(val canonicalForm: UShort) : Value(), MathValue, OrderValue, EqualityValue,
     IntegerConversionsValue {
     override fun evalAdd(other: Value): Value =
@@ -441,7 +435,6 @@ data class UShortValue(val canonicalForm: UShort) : Value(), MathValue, OrderVal
     override fun evalToUnsigned64(): Value = ULongValue(canonicalForm.toULong())
 }
 
-@UseExperimental(ExperimentalUnsignedTypes::class)
 data class UIntValue(val canonicalForm: UInt) : Value(), MathValue, OrderValue, EqualityValue, IntegerConversionsValue {
     override fun evalAdd(other: Value): Value = UIntValue(canonicalForm + (other as UIntValue).canonicalForm)
     override fun evalSub(other: Value): Value = UIntValue(canonicalForm - (other as UIntValue).canonicalForm)
@@ -472,7 +465,6 @@ data class UIntValue(val canonicalForm: UInt) : Value(), MathValue, OrderValue, 
     override fun evalToUnsigned64(): Value = ULongValue(canonicalForm.toULong())
 }
 
-@UseExperimental(ExperimentalUnsignedTypes::class)
 data class ULongValue(val canonicalForm: ULong) : Value(), MathValue, OrderValue, EqualityValue,
     IntegerConversionsValue {
     override fun evalAdd(other: Value): Value = ULongValue((canonicalForm + (other as ULongValue).canonicalForm))

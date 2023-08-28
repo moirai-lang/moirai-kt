@@ -21,7 +21,6 @@ fun isValidStringType(symbol: Symbol): Boolean =
         else -> false
     }
 
-@UseExperimental(ExperimentalUnsignedTypes::class)
 fun costExpressionFromValidStringType(symbol: Symbol): CostExpression {
     val member = when (symbol) {
         is ObjectSymbol -> {
