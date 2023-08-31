@@ -52,25 +52,25 @@ f(h)
 This code attempts to sneak past the total cost calculator by using higher-order functions. However, the compiler is smart enough to detect that this code will iterate 10,000 times, which is unacceptable. The computation is rejcted and the server returns an error.
 
 # Sub-Packages
-ShardScript consists of 4 packages as well as an acceptance test suite. The packages must be built in the order they appear below.
+ShardScript consists of 4 Java packages as well as an acceptance test suite.
 
-## shardscript-semantics
+## org.shardscript.semantics
 
 Abstract Syntax Tree (AST) and Semantic Analysis (SA) classes for the ShardScript programming language
 
-## shardscript-grammar
+## org.shardscript.grammar
 
 The lexer and parser, implemented using the ANTLR domain-specific programming language/parser generator
 
-## shardscript-composition
+## org.shardscript.composition
 
 Compiler frontend, contains ANTLR parse tree visitors and import management
 
-## shardscript-eval
+## org.shardscript.eval
 
 Includes an AST visitor that can map an AST to a Value
 
-## shardscript-acceptance
+## org.shardscript.acceptance
 
 Full suite of acceptance tests for the ShardScript language
 
