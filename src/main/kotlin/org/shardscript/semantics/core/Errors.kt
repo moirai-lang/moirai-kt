@@ -3,7 +3,7 @@ package org.shardscript.semantics.core
 sealed class SourceContext
 
 data class InSource(val fileName: String, val line: Int, val char: Int) : SourceContext()
-object NotInSource : SourceContext()
+data object NotInSource : SourceContext()
 
 sealed class ErrorType
 interface SymbolHostErrorType {
@@ -11,20 +11,20 @@ interface SymbolHostErrorType {
 }
 
 // Frontend Errors
-object InvalidAssign : ErrorType()
-object InvalidEnumMember : ErrorType()
+data object InvalidAssign : ErrorType()
+data object InvalidEnumMember : ErrorType()
 data class InvalidIntegerLiteral(val typeId: String, val text: String) : ErrorType()
 data class DuplicateImport(val import: List<String>) : ErrorType()
 data class NoSuchFile(val import: List<String>) : ErrorType()
 data class AmbiguousSymbol(val signifier: Signifier) : ErrorType()
-object SelfImport : ErrorType()
-object RecursiveNamespaceDetected : ErrorType()
+data object SelfImport : ErrorType()
+data object RecursiveNamespaceDetected : ErrorType()
 data class TransientSymbolBan(val symbol: Symbol) : ErrorType(), SymbolHostErrorType {
     override val symbols: List<Symbol> = listOf(symbol)
 }
 
 data class ImpossibleState(val msg: String) : ErrorType()
-object CouldNotAcquireLock : ErrorType()
+data object CouldNotAcquireLock : ErrorType()
 
 // Define errors
 data class IdentifierCouldNotBeDefined(val identifier: Identifier) : ErrorType()
@@ -54,7 +54,7 @@ data class InvalidRef(val symbol: Symbol) : ErrorType(), SymbolHostErrorType {
     override val symbols: List<Symbol> = listOf(symbol)
 }
 
-object CannotInstantiate : ErrorType()
+data object CannotInstantiate : ErrorType()
 data class TypeInferenceFailed(val typeParam: TypeParameter) : ErrorType()
 data class InvalidBodyType(val symbol: Symbol) : ErrorType(), SymbolHostErrorType {
     override val symbols: List<Symbol> = listOf(symbol)
@@ -68,13 +68,13 @@ data class CannotFindBestType(override val symbols: List<Symbol>) : ErrorType(),
 
 // General Errors
 data class SyntaxError(val msg: String) : ErrorType()
-object ResurrectWhitelistError : ErrorType()
-object NoOwnerAccess : ErrorType()
-object TypeSystemBug : ErrorType()
-object ExpectOtherError : ErrorType()
-object FilesMustHaveNamespace : ErrorType()
-object CostOverLimit : ErrorType()
-object InvalidCostUpperLimit: ErrorType()
+data object ResurrectWhitelistError : ErrorType()
+data object NoOwnerAccess : ErrorType()
+data object TypeSystemBug : ErrorType()
+data object ExpectOtherError : ErrorType()
+data object FilesMustHaveNamespace : ErrorType()
+data object CostOverLimit : ErrorType()
+data object InvalidCostUpperLimit: ErrorType()
 data class SymbolCouldNotBeApplied(val signifier: Signifier) : ErrorType()
 data class SymbolIsNotAMember(val signifier: Signifier) : ErrorType()
 data class SymbolIsNotAField(val signifier: Signifier) : ErrorType()
@@ -105,7 +105,7 @@ data class MissingCase(val symbol: Symbol) : ErrorType(), SymbolHostErrorType {
     override val symbols: List<Symbol> = listOf(symbol)
 }
 
-object UnnecessaryElse : ErrorType()
+data object UnnecessaryElse : ErrorType()
 
 data class RecursiveRecordDetected(val symbol: Symbol) : ErrorType(), SymbolHostErrorType {
     override val symbols: List<Symbol> = listOf(symbol)
@@ -124,14 +124,14 @@ data class IncompatibleString(val symbol: Symbol) : ErrorType(), SymbolHostError
     override val symbols: List<Symbol> = listOf(symbol)
 }
 
-object InvalidRangeArg : ErrorType()
-object RandomRequiresIntLong : ErrorType()
+data object InvalidRangeArg : ErrorType()
+data object RandomRequiresIntLong : ErrorType()
 
 // Runtime errors
 data class RuntimeFinViolation(val fin: Long, val elements: Long) : ErrorType()
-object RuntimeImmutableViolation : ErrorType()
-object RuntimeIntegerConversion : ErrorType()
-object DecimalInfiniteDivide : ErrorType()
+data object RuntimeImmutableViolation : ErrorType()
+data object RuntimeIntegerConversion : ErrorType()
+data object DecimalInfiniteDivide : ErrorType()
 data class NamespaceNotAvailable(val namespace: List<String>) : ErrorType()
 
 // Type Parameter Errors
@@ -156,8 +156,8 @@ data class MustExplicitlyInstantiate(val symbol: Symbol) : ErrorType(), SymbolHo
 }
 
 // Fin Errors
-object CalculateCostFailed : ErrorType()
-object NegativeFin : ErrorType()
+data object CalculateCostFailed : ErrorType()
+data object NegativeFin : ErrorType()
 
 // Bans
 data class CannotRefFunctionParam(val identifier: Identifier) : ErrorType()
@@ -176,6 +176,9 @@ data class InvalidAsCast(val signifier: Signifier) : ErrorType()
 data class InvalidIsCheck(val signifier: Signifier) : ErrorType()
 
 data class SecondDegreeHigherOrderFunction(val identifier: Identifier) : ErrorType()
+
+data object LambdaForLoop : ErrorType()
+data class LambdaApply(val signifier: Signifier) : ErrorType()
 
 // Feature Flags
 data class SwitchFeatureBan(val symbol: Symbol) : ErrorType(), SymbolHostErrorType {

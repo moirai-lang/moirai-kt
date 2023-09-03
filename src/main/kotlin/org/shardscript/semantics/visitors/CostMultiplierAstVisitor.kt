@@ -95,6 +95,10 @@ class CostMultiplierAstVisitor(val architecture: Architecture) : AstVisitor<List
         return listOf()
     }
 
+    override fun visit(ast: LambdaAst): List<ParamCostExMultiplier> {
+        return ast.body.accept(this)
+    }
+
     override fun visit(ast: RecordDefinitionAst): List<ParamCostExMultiplier> {
         return listOf()
     }

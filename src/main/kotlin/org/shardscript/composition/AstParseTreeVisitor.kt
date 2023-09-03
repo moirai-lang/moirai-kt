@@ -335,6 +335,7 @@ internal class AstParseTreeVisitor(private val fileName: String, val errors: Lan
                         typeParam.ctx = createContext(fileName, it.IDENTIFIER().symbol)
                         typeParams.add(TypeParameterDefinition(typeParam, TypeParameterKind.Type))
                     }
+
                     is ShardScriptParser.FinTypeParamContext -> {
                         val typeParam = Identifier(it.id.text)
                         typeParam.ctx = createContext(fileName, it.FIN().symbol)
@@ -345,7 +346,7 @@ internal class AstParseTreeVisitor(private val fileName: String, val errors: Lan
         }
 
         val params: MutableList<Binder> = ArrayList()
-        if(ctx.params != null) {
+        if (ctx.params != null) {
             ctx.params.paramDef().forEach {
                 val id = Identifier(it.id.text)
                 val of = typeVisitor.visit(it.of)
@@ -353,7 +354,7 @@ internal class AstParseTreeVisitor(private val fileName: String, val errors: Lan
             }
         }
 
-        val ret = if(ctx.ret != null) {
+        val ret = if (ctx.ret != null) {
             typeVisitor.visit(ctx.ret)
         } else {
             Lang.unitId
@@ -365,6 +366,22 @@ internal class AstParseTreeVisitor(private val fileName: String, val errors: Lan
 
         val res = FunctionAst(id, typeParams, params, ret, body)
         res.ctx = createContext(fileName, ctx.id)
+        return res
+    }
+
+    override fun visitLambdaDef(ctx: ShardScriptParser.LambdaDefContext): Ast {
+        val params: MutableList<Identifier> = ArrayList()
+        if (ctx.params != null) {
+            ctx.params.IDENTIFIER().forEach {
+                val id = Identifier(it.text)
+                params.add(id)
+            }
+        }
+
+        val body = visit(ctx.body)
+
+        val res = LambdaAst(params, body)
+        res.ctx = createContext(fileName, ctx.op)
         return res
     }
 

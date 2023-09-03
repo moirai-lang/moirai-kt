@@ -35,6 +35,7 @@ IF: 'if';
 IMPORT: 'import';
 IN: 'in';
 IS: 'is';
+LAMBDA: 'lambda';
 MUTABLE: 'mutable';
 OBJECT: 'object';
 RECORD: 'record';

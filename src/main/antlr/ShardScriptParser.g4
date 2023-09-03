@@ -88,6 +88,7 @@ expr
     |   id=IDENTIFIER LPAREN args=exprSeq? RPAREN                                       # ApplyExpr
     |   left=expr LBRACK right=expr RBRACK                                              # IndexExpr
     |   anyif=ifExpr                                                                    # AnyIf
+    |   anylambda=lambdaDef                                                             # AnyLambda
     |   op=NOT right=expr                                                               # UnaryNot
     |   op=SUB right=expr                                                               # UnaryNegate
     |   left=expr op=(MUL|DIV|MOD) right=expr                                           # InfixMulDivMod
@@ -119,8 +120,12 @@ ifExpr
     |   op=IF LPAREN condition=expr RPAREN trueb=block                      # StandaloneIfExpr
     ;
 
-elseCase
-    :   ELSE body=block
+lambdaDef
+    :   op=LAMBDA params=lambdaPramSeq? ARROW body=expr
+    ;
+
+lambdaPramSeq
+    :   IDENTIFIER (COMMA IDENTIFIER)*
     ;
 
 string

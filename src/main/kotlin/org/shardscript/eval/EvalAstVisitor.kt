@@ -87,6 +87,9 @@ class EvalAstVisitor : ParameterizedAstVisitor<ValueTable, Value> {
     override fun visit(ast: FunctionAst, param: ValueTable): Value =
         UnitValue
 
+    override fun visit(ast: LambdaAst, param: ValueTable): Value =
+        UnitValue
+
     override fun visit(ast: RecordDefinitionAst, param: ValueTable): Value =
         UnitValue
 

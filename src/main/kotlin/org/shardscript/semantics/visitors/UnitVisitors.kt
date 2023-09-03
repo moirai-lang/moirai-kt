@@ -57,6 +57,10 @@ open class UnitAstVisitor : AstVisitor<Unit> {
         ast.body.accept(this)
     }
 
+    override fun visit(ast: LambdaAst) {
+        ast.body.accept(this)
+    }
+
     override fun visit(ast: RecordDefinitionAst) = Unit
 
     override fun visit(ast: ObjectDefinitionAst) = Unit
@@ -159,6 +163,10 @@ open class ParameterizedUnitAstVisitor<P> : ParameterizedAstVisitor<P, Unit> {
     }
 
     override fun visit(ast: FunctionAst, param: P) {
+        ast.body.accept(this, param)
+    }
+
+    override fun visit(ast: LambdaAst, param: P) {
         ast.body.accept(this, param)
     }
 

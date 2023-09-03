@@ -19,6 +19,7 @@ interface AstVisitor<R> {
     fun visit(ast: FileAst): R
     fun visit(ast: BlockAst): R
     fun visit(ast: FunctionAst): R
+    fun visit(ast: LambdaAst): R
     fun visit(ast: RecordDefinitionAst): R
     fun visit(ast: ObjectDefinitionAst): R
     fun visit(ast: DotAst): R
@@ -51,6 +52,7 @@ interface ParameterizedAstVisitor<P, R> {
     fun visit(ast: FileAst, param: P): R
     fun visit(ast: BlockAst, param: P): R
     fun visit(ast: FunctionAst, param: P): R
+    fun visit(ast: LambdaAst, param: P): R
     fun visit(ast: RecordDefinitionAst, param: P): R
     fun visit(ast: ObjectDefinitionAst, param: P): R
     fun visit(ast: DotAst, param: P): R

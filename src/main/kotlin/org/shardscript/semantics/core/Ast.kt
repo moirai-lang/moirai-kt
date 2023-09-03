@@ -189,6 +189,17 @@ data class FunctionAst(
         visitor.visit(this, param)
 }
 
+data class LambdaAst(
+    val formalParams: List<Identifier>,
+    val body: Ast
+) : DefinitionAst() {
+    override fun <R> accept(visitor: AstVisitor<R>): R =
+        visitor.visit(this)
+
+    override fun <P, R> accept(visitor: ParameterizedAstVisitor<P, R>, param: P): R =
+        visitor.visit(this, param)
+}
+
 data class RecordDefinitionAst(
     val identifier: Identifier,
     val typeParams: List<TypeParameterDefinition>,
