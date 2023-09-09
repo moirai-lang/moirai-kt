@@ -131,6 +131,11 @@ class CostExpressionAstVisitor(private val architecture: Architecture) : UnitAst
         ast.costExpression = FinTypeSymbol(architecture.defaultNodeCost)
     }
 
+    override fun visit(ast: LambdaAst) {
+        super.visit(ast)
+        ast.costExpression = ast.body.costExpression
+    }
+
     override fun visit(ast: RecordDefinitionAst) {
         super.visit(ast)
         ast.costExpression = FinTypeSymbol(architecture.defaultNodeCost)

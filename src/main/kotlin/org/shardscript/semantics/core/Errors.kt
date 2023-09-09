@@ -178,7 +178,6 @@ data class InvalidIsCheck(val signifier: Signifier) : ErrorType()
 data class SecondDegreeHigherOrderFunction(val identifier: Identifier) : ErrorType()
 
 data object LambdaForLoop : ErrorType()
-data class LambdaApply(val signifier: Signifier) : ErrorType()
 
 // Feature Flags
 data class SwitchFeatureBan(val symbol: Symbol) : ErrorType(), SymbolHostErrorType {

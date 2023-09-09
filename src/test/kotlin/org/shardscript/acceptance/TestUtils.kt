@@ -43,12 +43,15 @@ fun eval(
     val globalScope = ValueTable(router)
     val evalVisitor = EvalAstVisitor()
 
-    router.initFunctionCallback = { fv ->
+    val initFunctionCallback: (FunctionValue) -> Unit = { fv ->
         fv.globalScope = globalScope
         fv.evalCallback = { a, v ->
             a.accept(evalVisitor, v)
         }
     }
+
+    evalVisitor.initFunctionCallback = initFunctionCallback
+    router.initFunctionCallback = initFunctionCallback
 
     val executionScope = ValueTable(globalScope)
     return executionArtifacts.processedAst.accept(evalVisitor, executionScope)
