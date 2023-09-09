@@ -181,6 +181,16 @@ class BindScopesAstVisitor(
         }
     }
 
+    override fun visit(ast: LambdaAst, param: Scope<Symbol>) {
+        try {
+            val symbol: SymbolWithMembers = GroundFunctionSymbol(param, Identifier.lambda, ast.ctx, ast.body)
+            ast.scope = symbol
+            super.visit(ast, symbol)
+        } catch (ex: LanguageException) {
+            errors.addAll(ast.ctx, ex.errors)
+        }
+    }
+
     override fun visit(ast: RecordDefinitionAst, param: Scope<Symbol>) {
         try {
             val symbol: SymbolWithMembers = if (ast.typeParams.isEmpty()) {

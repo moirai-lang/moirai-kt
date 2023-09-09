@@ -409,6 +409,15 @@ class PropagateTypesAstVisitor(
         }
     }
 
+    override fun visit(ast: LambdaAst) {
+        try {
+
+        } catch (ex: LanguageException) {
+            errors.addAll(ast.ctx, ex.errors)
+            ast.assignType(errors, ErrorSymbol)
+        }
+    }
+
     override fun visit(ast: RecordDefinitionAst) {
         try {
             super.visit(ast)

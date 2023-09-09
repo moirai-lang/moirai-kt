@@ -192,7 +192,7 @@ data class FunctionAst(
 data class LambdaAst(
     val formalParams: List<Identifier>,
     val body: Ast
-) : DefinitionAst() {
+) : Ast() {
     override fun <R> accept(visitor: AstVisitor<R>): R =
         visitor.visit(this)
 
