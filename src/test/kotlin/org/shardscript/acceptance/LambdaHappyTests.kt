@@ -11,11 +11,7 @@ class LambdaHappyTests {
                 g(x, y)
             }
             
-            def g(x: Int, y: Int): Int {
-                x + y
-            }
-            
-            f(lambda x: Int, y: Int -> x + y, 5, 6)
+            f(lambda (x: Int, y: Int) -> x + y, 5, 6)
             ^^^^^
             11
         """.trimIndent()

@@ -121,7 +121,7 @@ ifExpr
     ;
 
 lambdaDef
-    :   op=LAMBDA params=paramSeq? ARROW body=expr
+    :   op=LAMBDA LPAREN params=paramSeq? RPAREN ARROW body=expr
     ;
 
 string
