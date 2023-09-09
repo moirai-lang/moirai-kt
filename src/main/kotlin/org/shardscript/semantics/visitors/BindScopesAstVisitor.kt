@@ -155,7 +155,7 @@ class BindScopesAstVisitor(
 
     override fun visit(ast: FunctionAst, param: Scope<Symbol>) {
         try {
-            val symbol: SymbolWithMembers = if (ast.typeParams.isEmpty()) {
+            val symbol: NamedSymbolWithMembers = if (ast.typeParams.isEmpty()) {
                 GroundFunctionSymbol(param, ast.identifier, ast.ctx, ast.body)
             } else {
                 ast.typeParams.forEach {
@@ -183,7 +183,7 @@ class BindScopesAstVisitor(
 
     override fun visit(ast: LambdaAst, param: Scope<Symbol>) {
         try {
-            val symbol: SymbolWithMembers = GroundFunctionSymbol(param, Identifier.lambda, ast.ctx, ast.body)
+            val symbol: Scope<Symbol> = LambdaScope(param)
             ast.scope = symbol
             super.visit(ast, symbol)
         } catch (ex: LanguageException) {
@@ -193,7 +193,7 @@ class BindScopesAstVisitor(
 
     override fun visit(ast: RecordDefinitionAst, param: Scope<Symbol>) {
         try {
-            val symbol: SymbolWithMembers = if (ast.typeParams.isEmpty()) {
+            val symbol: NamedSymbolWithMembers = if (ast.typeParams.isEmpty()) {
                 val res = GroundRecordTypeSymbol(
                     param,
                     ast.identifier,

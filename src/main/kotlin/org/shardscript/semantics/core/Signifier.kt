@@ -21,11 +21,7 @@ class ImplicitTypeLiteral : TerminalSignifier() {
 
 data class ParameterizedSignifier(val tti: TerminalTextSignifier, val args: List<Signifier>) : Signifier()
 data class PathSignifier(val elements: List<Identifier>) : TerminalTextSignifier()
-data class Identifier(val name: String) : TerminalTextSignifier() {
-    companion object {
-        val lambda = Identifier("lambda")
-    }
-}
+data class Identifier(val name: String) : TerminalTextSignifier()
 data class FinLiteral(val magnitude: Long) : TerminalSignifier()
 
 fun printIdentifier(signifier: Signifier): String =
