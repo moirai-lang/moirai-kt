@@ -411,6 +411,12 @@ class PropagateTypesAstVisitor(
 
     override fun visit(ast: LambdaAst) {
         try {
+            super.visit(ast)
+
+            val lambdaSymbol = ast.scope as LambdaSymbol
+            lambdaSymbol.returnType = ast.body.readType()
+
+            ast.assignType(errors, lambdaSymbol.type())
 
         } catch (ex: LanguageException) {
             errors.addAll(ast.ctx, ex.errors)

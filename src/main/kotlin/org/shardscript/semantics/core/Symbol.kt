@@ -311,10 +311,16 @@ data class GroundFunctionSymbol(
     fun type() = FunctionTypeSymbol(formalParams.map { it.ofTypeSymbol }, returnType)
 }
 
-data class LambdaScope(
+data class LambdaSymbol(
     override val parent: Scope<Symbol>,
     private val symbolTable: SymbolTable = SymbolTable(parent)
-): SymbolTableElement(), Scope<Symbol> by symbolTable
+): SymbolTableElement(), Scope<Symbol> by symbolTable {
+    lateinit var formalParams: List<FunctionFormalParameterSymbol>
+    lateinit var returnType: Symbol
+    lateinit var costExpression: CostExpression
+
+    fun type() = FunctionTypeSymbol(formalParams.map { it.ofTypeSymbol }, returnType)
+}
 
 data class ParameterizedFunctionSymbol(
     override val parent: Scope<Symbol>,

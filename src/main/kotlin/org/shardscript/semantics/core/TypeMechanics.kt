@@ -46,7 +46,7 @@ fun filterValidTypes(ctx: SourceContext, errors: LanguageErrors, symbol: Symbol)
         is ProductCostExpression,
         is MaxCostExpression,
         is GroundFunctionSymbol,
-        is LambdaScope,
+        is LambdaSymbol,
         is ParameterizedFunctionSymbol,
         is GroundMemberPluginSymbol,
         is ParameterizedMemberPluginSymbol,
@@ -114,7 +114,7 @@ fun filterValidGroundApply(
         is ImportTable,
         is FieldSymbol,
         is PlatformFieldSymbol,
-        is LambdaScope,
+        is LambdaSymbol,
         is LocalVariableSymbol -> {
             errors.add(ctx, SymbolCouldNotBeApplied(signifier))
             ErrorSymbol
@@ -170,7 +170,7 @@ fun filterValidDotApply(
         is FunctionFormalParameterSymbol,
         is FieldSymbol,
         is PlatformFieldSymbol,
-        is LambdaScope,
+        is LambdaSymbol,
         is LocalVariableSymbol -> {
             errors.add(ctx, SymbolCouldNotBeApplied(signifier))
             ErrorSymbol

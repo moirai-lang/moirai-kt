@@ -20,12 +20,32 @@ class FunctionScanAstVisitor : UnitAstVisitor() {
         }
     }
 
-    private fun bindFormals(ast: FunctionAst, parent: Scope<Symbol>): List<FunctionFormalParameterSymbol> {
+    override fun visit(ast: LambdaAst) {
+        try {
+            val lambdaSymbol = ast.scope as LambdaSymbol
+
+            val formalParams: MutableList<FunctionFormalParameterSymbol> = ArrayList()
+            ast.formalParams.forEach {
+                val ofTypeSymbol = lambdaSymbol.fetch(it.ofType)
+                val paramSymbol = FunctionFormalParameterSymbol(lambdaSymbol, it.identifier, ofTypeSymbol)
+                lambdaSymbol.define(it.identifier, paramSymbol)
+                formalParams.add(paramSymbol)
+            }
+
+            lambdaSymbol.formalParams = formalParams
+
+            super.visit(ast)
+        } catch (ex: LanguageException) {
+            errors.addAll(ast.ctx, ex.errors)
+        }
+    }
+
+    private fun bindFormals(ast: FunctionAst, scopeHere: Scope<Symbol>): List<FunctionFormalParameterSymbol> {
         val formalParams: MutableList<FunctionFormalParameterSymbol> = ArrayList()
         ast.formalParams.forEach {
-            val ofTypeSymbol = parent.fetch(it.ofType)
-            val paramSymbol = FunctionFormalParameterSymbol(parent, it.identifier, ofTypeSymbol)
-            parent.define(it.identifier, paramSymbol)
+            val ofTypeSymbol = scopeHere.fetch(it.ofType)
+            val paramSymbol = FunctionFormalParameterSymbol(scopeHere, it.identifier, ofTypeSymbol)
+            scopeHere.define(it.identifier, paramSymbol)
             formalParams.add(paramSymbol)
         }
         return formalParams

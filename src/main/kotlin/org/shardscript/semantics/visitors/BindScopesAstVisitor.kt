@@ -183,7 +183,7 @@ class BindScopesAstVisitor(
 
     override fun visit(ast: LambdaAst, param: Scope<Symbol>) {
         try {
-            val symbol: Scope<Symbol> = LambdaScope(param)
+            val symbol: Scope<Symbol> = LambdaSymbol(param)
             ast.scope = symbol
             super.visit(ast, symbol)
         } catch (ex: LanguageException) {
