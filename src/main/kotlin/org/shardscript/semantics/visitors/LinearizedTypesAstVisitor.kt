@@ -107,6 +107,7 @@ fun linearize(ctx: SourceContext, symbol: Symbol): Set<LinearizedSymbol> =
         is Block -> setOf()
         is PreludeTable -> setOf()
         is ImportTable -> setOf()
+        is LambdaScope -> setOf()
         is BasicTypeSymbol -> setOf(SymbolOnly(ctx, symbol))
         is ObjectSymbol -> setOf(SymbolOnly(ctx, symbol))
         is GroundFunctionSymbol -> {

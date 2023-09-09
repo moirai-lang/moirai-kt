@@ -121,11 +121,7 @@ ifExpr
     ;
 
 lambdaDef
-    :   op=LAMBDA params=lambdaPramSeq? ARROW body=expr
-    ;
-
-lambdaPramSeq
-    :   IDENTIFIER (COMMA IDENTIFIER)*
+    :   op=LAMBDA params=paramSeq? ARROW body=expr
     ;
 
 string

@@ -190,7 +190,7 @@ data class FunctionAst(
 }
 
 data class LambdaAst(
-    val formalParams: List<Identifier>,
+    val formalParams: List<Binder>,
     val body: Ast
 ) : Ast() {
     override fun <R> accept(visitor: AstVisitor<R>): R =
