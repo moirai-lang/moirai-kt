@@ -90,9 +90,9 @@ class BanTests {
         failTest(
             """
             record A(val x: (Int, Int) -> Int)
-        """.trimIndent(), 1
+        """.trimIndent(), 4
         ) {
-            it.error is RecordFieldFunctionType
+            it.error is SyntaxError
         }
     }
 

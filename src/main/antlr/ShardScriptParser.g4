@@ -83,8 +83,8 @@ fieldSeq
     ;
 
 fieldDef
-    :   VAL id=IDENTIFIER of=ofType     # ImmutableField
-    |   MUTABLE id=IDENTIFIER of=ofType # MutableField
+    :   VAL id=IDENTIFIER of=restrictedOfType       # ImmutableField
+    |   MUTABLE id=IDENTIFIER of=restrictedOfType   # MutableField
     ;
 
 expr
