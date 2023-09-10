@@ -26,7 +26,7 @@ fun createParser(fileName: String, contents: String): Parser {
 }
 
 internal fun createContext(fileName: String, token: Token): SourceContext =
-    InSource(fileName, token.line, token.charPositionInLine)
+    InNamedSource(fileName, token.line, token.charPositionInLine)
 
 internal fun rewriteAsGroundApply(
     args: List<Ast>,

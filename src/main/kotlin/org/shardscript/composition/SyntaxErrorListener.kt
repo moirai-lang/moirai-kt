@@ -1,12 +1,9 @@
 package org.shardscript.composition
 
-import org.shardscript.semantics.core.InSource
-import org.shardscript.semantics.core.LanguageErrors
-import org.shardscript.semantics.core.NotInSource
-import org.shardscript.semantics.core.SyntaxError
 import org.antlr.v4.runtime.BaseErrorListener
 import org.antlr.v4.runtime.RecognitionException
 import org.antlr.v4.runtime.Recognizer
+import org.shardscript.semantics.core.*
 
 class SyntaxErrorListener : BaseErrorListener() {
     private data class SyntaxErrorInternal(val msg: String, val line: Int, val charPositionInLine: Int)
@@ -30,7 +27,7 @@ class SyntaxErrorListener : BaseErrorListener() {
     fun populateErrors(): LanguageErrors {
         val errors = LanguageErrors()
         errorsInternal.forEach { e ->
-            errors.add(fileName?.let { InSource(it, e.line, e.charPositionInLine) } ?: NotInSource, SyntaxError(e.msg))
+            errors.add(fileName?.let { InNamedSource(it, e.line, e.charPositionInLine) } ?: InUnnamedSource(e.line, e.charPositionInLine), SyntaxError(e.msg))
         }
         return errors
     }

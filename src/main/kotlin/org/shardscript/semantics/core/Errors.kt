@@ -2,7 +2,9 @@ package org.shardscript.semantics.core
 
 sealed class SourceContext
 
-data class InSource(val fileName: String, val line: Int, val char: Int) : SourceContext()
+data class InNamedSource(val fileName: String, val line: Int, val char: Int) : SourceContext()
+
+data class InUnnamedSource(val line: Int, val char: Int) : SourceContext()
 data object NotInSource : SourceContext()
 
 sealed class ErrorType
