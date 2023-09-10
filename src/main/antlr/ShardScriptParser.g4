@@ -42,7 +42,7 @@ forStat
     ;
 
 funDefStat
-    :   DEF id=IDENTIFIER tp=typeParams? LPAREN params=paramSeq? RPAREN ret=ofType? body=block
+    :   DEF id=IDENTIFIER tp=typeParams? LPAREN params=paramSeq? RPAREN ret=restrictedOfType? body=block
     ;
 
 typeParams
@@ -89,6 +89,7 @@ fieldDef
 
 expr
     :   LPAREN inner=expr RPAREN                                                                    # ParenExpr
+    |   LCURLY stats=stat* RCURLY                                                                   # BlockExpr
     |   left=expr DOT id=IDENTIFIER params=restrictedTypeExprParams LPAREN args=exprSeq? RPAREN     # ParamDotApply
     |   left=expr DOT id=IDENTIFIER LPAREN args=exprSeq? RPAREN                                     # DotApply
     |   left=expr DOT id=IDENTIFIER                                                                 # DotExpr

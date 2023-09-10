@@ -39,7 +39,7 @@ class CostTests {
                 x[0]
             }
             
-            def g(c: Int, d: Int): Int {
+            f(lambda (c: Int, d: Int) -> {
                 val x = List(0, 1, 2, 3, 4, 5, 6, 7, 8, 9)
                 for(a in x) {
                     for(b in x) {
@@ -47,9 +47,7 @@ class CostTests {
                     }
                 }
                 x[0]
-            }
-            
-            f(g)
+            })
         """.trimIndent(), 1
         ) {
             it.error is CostOverLimit

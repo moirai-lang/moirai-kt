@@ -17,4 +17,19 @@ class LambdaHappyTests {
         """.trimIndent()
         )
     }
+
+    @Test
+    fun applyParameterizedHigherOrderTest() {
+        splitTest(
+            """
+            def f<T>(g: (T, T) -> T, x: T, y: T): T {
+                g(x, y)
+            }
+            
+            f(lambda (x: Int, y: Int) -> x + y, 5, 6)
+            ^^^^^
+            11
+        """.trimIndent()
+        )
+    }
 }

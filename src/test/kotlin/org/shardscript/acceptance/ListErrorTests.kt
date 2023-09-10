@@ -151,7 +151,7 @@ class ListErrorTests {
                     g(3, 4)
                 }
 
-                def h(x: Int, y: Int): Int {
+                f(lambda (x: Int, y: Int) -> {
                     val list = List(0, 1, 2, 3, 4, 5, 6, 7, 8, 9)
                     for(a in list) {
                         for(b in list) {
@@ -159,9 +159,7 @@ class ListErrorTests {
                         }
                     }
                     x + y
-                }
-
-                f(h)
+                })
             """.trimIndent(), 1
         ) {
             it.error is CostOverLimit

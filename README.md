@@ -28,26 +28,24 @@ This code defines a function called maxOf, which accepts a list of unknown size.
 By contrast, the compiler will reject the following computation:
 ```
 def f(g: (Int, Int) -> Int): Int {
-    val list = List(0, 1, 2, 3, 4, 5, 6, 7, 8, 9)
-    for(x in list) {
-        for(y in list) {
-            g(x, y)
+    val x = List(0, 1, 2, 3, 4, 5, 6, 7, 8, 9)
+    for(c in x) {
+        for(d in x) {
+            g(c, d)
         }
     }
-    g(3, 4)
+    x[0]
 }
 
-def h(x: Int, y: Int): Int {
-    val list = List(0, 1, 2, 3, 4, 5, 6, 7, 8, 9)
-    for(a in list) {
-        for(b in list) {
-            x + y
+f(lambda (c: Int, d: Int) -> {
+    val x = List(0, 1, 2, 3, 4, 5, 6, 7, 8, 9)
+    for(a in x) {
+        for(b in x) {
+            a + b + c + d
         }
     }
-    x + y
-}
-
-f(h)
+    x[0]
+})
 ```
 This code attempts to sneak past the total cost calculator by using higher-order functions. However, the compiler is smart enough to detect that this code will iterate 10,000 times, which is unacceptable. The computation is rejcted and the server returns an error.
 

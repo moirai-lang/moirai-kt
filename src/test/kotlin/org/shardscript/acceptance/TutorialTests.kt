@@ -131,7 +131,7 @@ class TutorialTests {
                     x * y
                 }
                 
-                f(h, 4, 3)
+                f(lambda (x: Int, y: Int) -> x * y, 4, 3)
                 ^^^^^
                 7
             """.trimIndent()
@@ -146,11 +146,7 @@ class TutorialTests {
                     g(x + 1)
                 }
                 
-                def h(x: Int): Int {
-                    x * 20
-                }
-                
-                f(h, 4)
+                f(lambda (x: Int) -> x * 20, 4)
                 ^^^^^
                 100
             """.trimIndent()
@@ -165,11 +161,7 @@ class TutorialTests {
                     g()
                 }
                 
-                def h(): Int {
-                    20
-                }
-                
-                f(h)
+                f(lambda () -> 20)
                 ^^^^^
                 20
             """.trimIndent()
@@ -184,11 +176,7 @@ class TutorialTests {
                     g(y, x)
                 }
                 
-                def h(x: Int, y: Int): Int {
-                    x * y
-                }
-                
-                f(h, 4, 3)
+                f(lambda (x: Int, y: Int) -> x * y, 4, 3)
                 ^^^^^
                 12
             """.trimIndent()

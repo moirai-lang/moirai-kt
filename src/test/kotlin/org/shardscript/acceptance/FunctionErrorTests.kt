@@ -37,25 +37,6 @@ class FunctionErrorTests {
     }
 
     @Test
-    fun noSuchParameterHigherOrderTest() {
-        failTest(
-            """
-            def f(g: (Int, Int) -> Int, x: Int, y: Int): Int {
-                g(x, y)
-            }
-            
-            def g(x: Int, y: Int): Int {
-                x + y
-            }
-            
-            f<Int>(g, 5, 6)
-        """.trimIndent(), 1
-        ) {
-            it.error is SymbolHasNoParameters
-        }
-    }
-
-    @Test
     fun applyGenericHigherOrderTest() {
         failTest(
             """

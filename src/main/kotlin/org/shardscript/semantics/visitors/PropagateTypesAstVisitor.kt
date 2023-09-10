@@ -335,8 +335,12 @@ class PropagateTypesAstVisitor(
                 is BasicTypeSymbol -> ast.assignType(errors, symbol)
                 is LocalVariableSymbol -> ast.assignType(errors, symbol.ofTypeSymbol)
                 is ObjectSymbol -> ast.assignType(errors, symbol)
-                is GroundFunctionSymbol -> ast.assignType(errors, symbol.type())
-                is FunctionFormalParameterSymbol -> ast.assignType(errors, symbol.ofTypeSymbol)
+                is FunctionFormalParameterSymbol -> {
+                    ast.assignType(errors, symbol.ofTypeSymbol)
+                    if (ast.readType() is FunctionTypeSymbol) {
+                        errors.add(ast.ctx, CannotRefFunctionParam(ast.identifier))
+                    }
+                }
                 is FieldSymbol -> ast.assignType(errors, symbol.ofTypeSymbol)
                 is GroundRecordTypeSymbol -> ast.assignType(errors, symbol)
                 is StandardTypeParameter -> ast.assignType(errors, symbol)

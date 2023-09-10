@@ -26,6 +26,14 @@ internal class AstParseTreeVisitor(private val fileName: String, val errors: Lan
         return res
     }
 
+    override fun visitBlockExpr(ctx: ShardScriptParser.BlockExprContext): Ast {
+        val stats = ctx.stat().map { visit(it) }
+
+        val res = BlockAst(stats.toMutableList())
+        res.ctx = createContext(fileName, ctx.start)
+        return res
+    }
+
     override fun visitMutableLet(ctx: ShardScriptParser.MutableLetContext): Ast {
         val right = visit(ctx.right)
         val identifier = Identifier(ctx.id.text)

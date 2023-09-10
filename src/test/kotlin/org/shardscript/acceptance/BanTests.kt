@@ -22,9 +22,9 @@ class BanTests {
             }
             
             f(g, 5, 6)
-        """.trimIndent(), 1
+        """.trimIndent(), 2
         ) {
-            it.error is CannotRefFunctionParam
+            it.error is CannotRefFunctionParam || it.error is InvalidRef
         }
     }
 
@@ -45,7 +45,7 @@ class BanTests {
             }
             
             f(h)
-        """.trimIndent(), 7
+        """.trimIndent(), 5
         ) {
             it.error is SyntaxError
         }
@@ -64,9 +64,9 @@ class BanTests {
             }
             
             f(5, 6)
-        """.trimIndent(), 1
+        """.trimIndent(), 3
         ) {
-            it.error is FunctionReturnType
+            it.error is SyntaxError
         }
     }
 
@@ -81,7 +81,7 @@ class BanTests {
             val x = g
         """.trimIndent(), 1
         ) {
-            it.error is FunctionAssign
+            it.error is InvalidRef
         }
     }
 
@@ -99,12 +99,8 @@ class BanTests {
     @Test
     fun invalidStandardTypeSubTest() {
         failTest(
-            """
-            def g(x: Int, y: Int): Int {
-                x + y
-            }
-            
-            val x = List(g)
+            """            
+            val z = List(lambda (x: Int, y: Int) -> x + y)
         """.trimIndent(), 1
         ) {
             it.error is InvalidStandardTypeSub
@@ -144,29 +140,6 @@ class BanTests {
             
             g(1, 2)
         """.trimIndent(), 1
-        ) {
-            it.error is RecursiveFunctionDetected
-        }
-    }
-
-    @Test
-    fun higherOrderRecursionTest() {
-        failTest(
-            """
-            def f(g: (Int, Int) -> Int, x: Int, y: Int): Int {
-                g(x, y)
-            }
-            
-            def g(x: Int, y: Int): Int {
-                x + y
-            }
-            
-            def h(x: Int, y: Int): Int {
-                f(g, x, y)
-            }
-            
-            f(h, 5, 6)
-        """.trimIndent(), 2
         ) {
             it.error is RecursiveFunctionDetected
         }
