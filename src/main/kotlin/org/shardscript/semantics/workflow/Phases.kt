@@ -131,10 +131,6 @@ fun bans(ast: FileAst) {
     ast.accept(banNestedDefinitionIndicator, OtherIndicator)
     errors.addAll(banNestedDefinitionIndicator.errors.toSet())
 
-    val banLambdaInvalidSubExpressions = BanLambdaInvalidSubExpressions()
-    ast.accept(banLambdaInvalidSubExpressions)
-    errors.addAll(banLambdaInvalidSubExpressions.errors.toSet())
-
     if (errors.isNotEmpty()) {
         filterThrow(errors)
     }
