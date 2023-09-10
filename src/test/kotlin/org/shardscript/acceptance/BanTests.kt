@@ -45,9 +45,9 @@ class BanTests {
             }
             
             f(h)
-        """.trimIndent(), 1
+        """.trimIndent(), 7
         ) {
-            it.error is SecondDegreeHigherOrderFunction
+            it.error is SyntaxError
         }
     }
 

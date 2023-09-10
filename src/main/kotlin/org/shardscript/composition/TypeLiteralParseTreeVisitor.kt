@@ -30,7 +30,26 @@ internal class TypeLiteralParseTreeVisitor(private val fileName: String) : Shard
         tti.ctx = createContext(fileName, ctx.id.start)
 
         val args: MutableList<Signifier> = ArrayList()
-        ctx.params.typeExprOrLiteral().forEach {
+        ctx.params.restrictedTypeExprOrLiteral().forEach {
+            val param = visit(it)
+            args.add(param)
+        }
+
+        val res = ParameterizedSignifier(tti, args)
+        res.ctx = createContext(fileName, ctx.start)
+        return res
+    }
+
+    override fun visitRestrictedGroundType(ctx: ShardScriptParser.RestrictedGroundTypeContext): Signifier {
+        return visit(ctx.id)
+    }
+
+    override fun visitRestrictedParameterizedType(ctx: ShardScriptParser.RestrictedParameterizedTypeContext): Signifier {
+        val tti = visit(ctx.id) as TerminalTextSignifier
+        tti.ctx = createContext(fileName, ctx.id.start)
+
+        val args: MutableList<Signifier> = ArrayList()
+        ctx.params.restrictedTypeExprOrLiteral().forEach {
             val param = visit(it)
             args.add(param)
         }
@@ -54,7 +73,7 @@ internal class TypeLiteralParseTreeVisitor(private val fileName: String) : Shard
         val params: MutableList<Signifier> = ArrayList()
         val ret = visit(ctx.ret)
 
-        ctx.params.typeExpr().forEach {
+        ctx.params.restrictedTypeExpr().forEach {
             val param = visit(it)
             params.add(param)
         }

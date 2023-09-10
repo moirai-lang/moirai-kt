@@ -372,7 +372,7 @@ internal class AstParseTreeVisitor(private val fileName: String, val errors: Lan
     override fun visitLambdaDef(ctx: ShardScriptParser.LambdaDefContext): Ast {
         val params: MutableList<Binder> = ArrayList()
         if (ctx.params != null) {
-            ctx.params.paramDef().forEach {
+            ctx.params.restrictedParamDef().forEach {
                 val id = Identifier(it.id.text)
                 val of = typeVisitor.visit(it.of)
                 params.add(Binder(id, of))
@@ -408,7 +408,7 @@ internal class AstParseTreeVisitor(private val fileName: String, val errors: Lan
             }
         }
 
-        val typeArgs = ctx.params.typeExprOrLiteral().map {
+        val typeArgs = ctx.params.restrictedTypeExprOrLiteral().map {
             typeVisitor.visit(it)
         }
 
@@ -489,7 +489,7 @@ internal class AstParseTreeVisitor(private val fileName: String, val errors: Lan
             }
         }
 
-        val typeArgs = ctx.params.typeExprOrLiteral().map {
+        val typeArgs = ctx.params.restrictedTypeExprOrLiteral().map {
             typeVisitor.visit(it)
         }
 

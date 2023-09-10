@@ -107,10 +107,18 @@ fun linearize(ctx: SourceContext, symbol: Symbol): Set<LinearizedSymbol> =
         is Block -> setOf()
         is PreludeTable -> setOf()
         is ImportTable -> setOf()
-        is LambdaSymbol -> setOf()
         is BasicTypeSymbol -> setOf(SymbolOnly(ctx, symbol))
         is ObjectSymbol -> setOf(SymbolOnly(ctx, symbol))
         is GroundFunctionSymbol -> {
+            val res: MutableSet<LinearizedSymbol> = HashSet()
+            res.add(SymbolOnly(ctx, symbol))
+            symbol.formalParams.forEach {
+                res.addAll(linearize(ctx, it.ofTypeSymbol))
+            }
+            res.addAll(linearize(ctx, symbol.returnType))
+            res
+        }
+        is LambdaSymbol -> {
             val res: MutableSet<LinearizedSymbol> = HashSet()
             res.add(SymbolOnly(ctx, symbol))
             symbol.formalParams.forEach {

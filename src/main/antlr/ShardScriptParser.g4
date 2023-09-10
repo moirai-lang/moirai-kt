@@ -58,8 +58,16 @@ paramDef
     :   id=IDENTIFIER of=ofType
     ;
 
+restrictedParamDef
+    :   id=IDENTIFIER of=restrictedOfType
+    ;
+
 paramSeq
     :   paramDef (COMMA paramDef)*
+    ;
+
+restrictedParamSeq
+    : restrictedParamDef (COMMA restrictedParamDef)*
     ;
 
 objectDefStat
@@ -80,38 +88,38 @@ fieldDef
     ;
 
 expr
-    :   LPAREN inner=expr RPAREN                                                        # ParenExpr
-    |   left=expr DOT id=IDENTIFIER params=typeExprParams LPAREN args=exprSeq? RPAREN   # ParamDotApply
-    |   left=expr DOT id=IDENTIFIER LPAREN args=exprSeq? RPAREN                         # DotApply
-    |   left=expr DOT id=IDENTIFIER                                                     # DotExpr
-    |   id=IDENTIFIER params=typeExprParams LPAREN args=exprSeq? RPAREN                 # ParamApplyExpr
-    |   id=IDENTIFIER LPAREN args=exprSeq? RPAREN                                       # ApplyExpr
-    |   left=expr LBRACK right=expr RBRACK                                              # IndexExpr
-    |   anyif=ifExpr                                                                    # AnyIf
-    |   anylambda=lambdaDef                                                             # AnyLambda
-    |   op=NOT right=expr                                                               # UnaryNot
-    |   op=SUB right=expr                                                               # UnaryNegate
-    |   left=expr op=(MUL|DIV|MOD) right=expr                                           # InfixMulDivMod
-    |   left=expr op=(ADD|SUB) right=expr                                               # InfixAddSub
-    |   left=expr op=(GT|GTE|LT|LTE) right=expr                                         # InfixOrder
-    |   left=expr op=(IS|AS) id=typeExpr                                                # TypeRelation
-    |   left=expr op=(EQ|NEQ) right=expr                                                # InfixEquality
-    |   left=expr op=AND right=expr                                                     # InfixAnd
-    |   left=expr op=OR right=expr                                                      # InfixOr
-    |   value=DECIMAL                                                                   # LiteralDecimal
-    |   value=SBYTE                                                                     # LiteralSByte
-    |   value=SHORT                                                                     # LiteralShort
-    |   value=INT                                                                       # LiteralInt
-    |   value=LONG                                                                      # LiteralLong
-    |   value=BYTE                                                                      # LiteralByte
-    |   value=USHORT                                                                    # LiteralUShort
-    |   value=UINT                                                                      # LiteralUInt
-    |   value=ULONG                                                                     # LiteralULong
-    |   value=(BOOL_TRUE|BOOL_FALSE)                                                    # LiteralBool
-    |   value=CHAR                                                                      # LiteralChar
-    |   value=string                                                                    # StringExpr
-    |   left=expr op=TO right=expr                                                      # ToExpr
-    |   id=IDENTIFIER                                                                   # RefExpr
+    :   LPAREN inner=expr RPAREN                                                                    # ParenExpr
+    |   left=expr DOT id=IDENTIFIER params=restrictedTypeExprParams LPAREN args=exprSeq? RPAREN     # ParamDotApply
+    |   left=expr DOT id=IDENTIFIER LPAREN args=exprSeq? RPAREN                                     # DotApply
+    |   left=expr DOT id=IDENTIFIER                                                                 # DotExpr
+    |   id=IDENTIFIER params=restrictedTypeExprParams LPAREN args=exprSeq? RPAREN                   # ParamApplyExpr
+    |   id=IDENTIFIER LPAREN args=exprSeq? RPAREN                                                   # ApplyExpr
+    |   left=expr LBRACK right=expr RBRACK                                                          # IndexExpr
+    |   anyif=ifExpr                                                                                # AnyIf
+    |   anylambda=lambdaDef                                                                         # AnyLambda
+    |   op=NOT right=expr                                                                           # UnaryNot
+    |   op=SUB right=expr                                                                           # UnaryNegate
+    |   left=expr op=(MUL|DIV|MOD) right=expr                                                       # InfixMulDivMod
+    |   left=expr op=(ADD|SUB) right=expr                                                           # InfixAddSub
+    |   left=expr op=(GT|GTE|LT|LTE) right=expr                                                     # InfixOrder
+    |   left=expr op=(IS|AS) id=typeExpr                                                            # TypeRelation
+    |   left=expr op=(EQ|NEQ) right=expr                                                            # InfixEquality
+    |   left=expr op=AND right=expr                                                                 # InfixAnd
+    |   left=expr op=OR right=expr                                                                  # InfixOr
+    |   value=DECIMAL                                                                               # LiteralDecimal
+    |   value=SBYTE                                                                                 # LiteralSByte
+    |   value=SHORT                                                                                 # LiteralShort
+    |   value=INT                                                                                   # LiteralInt
+    |   value=LONG                                                                                  # LiteralLong
+    |   value=BYTE                                                                                  # LiteralByte
+    |   value=USHORT                                                                                # LiteralUShort
+    |   value=UINT                                                                                  # LiteralUInt
+    |   value=ULONG                                                                                 # LiteralULong
+    |   value=(BOOL_TRUE|BOOL_FALSE)                                                                # LiteralBool
+    |   value=CHAR                                                                                  # LiteralChar
+    |   value=string                                                                                # StringExpr
+    |   left=expr op=TO right=expr                                                                  # ToExpr
+    |   id=IDENTIFIER                                                                               # RefExpr
     ;
 
 ifExpr
@@ -121,7 +129,7 @@ ifExpr
     ;
 
 lambdaDef
-    :   op=LAMBDA LPAREN params=paramSeq? RPAREN ARROW body=expr
+    :   op=LAMBDA LPAREN params=restrictedParamSeq? RPAREN ARROW body=expr
     ;
 
 string
@@ -147,11 +155,11 @@ ofType
     ;
 
 typeExpr
-    :   LPAREN params=typeExprSeq RPAREN ARROW ret=typeExpr # MultiParamFunctionType
-    |   LPAREN RPAREN ARROW ret=typeExpr                    # NoParamFunctionType
-    |   input=typeExpr ARROW ret=typeExpr                   # OneParamFunctionType
-    |   id=typePath params=typeExprParams                   # ParameterizedType
-    |   id=typePath                                         # GroundType
+    :   LPAREN params=restrictedTypeExprSeq RPAREN ARROW ret=restrictedTypeExpr # MultiParamFunctionType
+    |   LPAREN RPAREN ARROW ret=restrictedTypeExpr                              # NoParamFunctionType
+    |   input=restrictedTypeExpr ARROW ret=restrictedTypeExpr                   # OneParamFunctionType
+    |   id=typePath params=restrictedTypeExprParams                             # ParameterizedType
+    |   id=typePath                                                             # GroundType
     ;
 
 typePath
@@ -159,15 +167,24 @@ typePath
     |   IDENTIFIER                          # SingleTypePath
     ;
 
-typeExprOrLiteral
+restrictedOfType
+    :   COLON restrictedTypeExpr
+    ;
+
+restrictedTypeExpr
+    :   id=typePath params=restrictedTypeExprParams         # RestrictedParameterizedType
+    |   id=typePath                                         # RestrictedGroundType
+    ;
+
+restrictedTypeExprParams
+    :   LT restrictedTypeExprOrLiteral (COMMA restrictedTypeExprOrLiteral)* GT
+    ;
+
+restrictedTypeExprOrLiteral
     :   magnitude=INT                                       # FinLiteral
-    |   te=typeExpr                                         # NoFin
+    |   te=restrictedTypeExpr                               # NoFin
     ;
 
-typeExprParams
-    :   LT typeExprOrLiteral (COMMA typeExprOrLiteral)* GT
-    ;
-
-typeExprSeq
-    :   typeExpr (COMMA typeExpr)*
+restrictedTypeExprSeq
+    :   restrictedTypeExpr (COMMA restrictedTypeExpr)*
     ;
