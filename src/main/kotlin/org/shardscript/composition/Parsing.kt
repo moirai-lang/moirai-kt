@@ -10,10 +10,11 @@ import org.antlr.v4.runtime.CommonTokenStream
 import org.antlr.v4.runtime.Token
 import org.apache.commons.lang3.StringEscapeUtils
 
-data class Parser(val grammar: ShardScriptParser, val errors: LanguageErrors)
+data class Parser(val grammar: ShardScriptParser, val listener: SyntaxErrorListener)
 
 fun createParser(fileName: String, contents: String): Parser {
-    val syntaxListener = SyntaxErrorListener(fileName)
+    val syntaxListener = SyntaxErrorListener()
+    syntaxListener.fileName = fileName
     val stream = CharStreams.fromString(contents)
     val lexer = ShardScriptLexer(stream)
     lexer.removeErrorListeners()
@@ -21,7 +22,7 @@ fun createParser(fileName: String, contents: String): Parser {
     val grammar = ShardScriptParser(CommonTokenStream(lexer))
     grammar.removeErrorListeners()
     grammar.addErrorListener(syntaxListener)
-    return Parser(grammar, syntaxListener.errors)
+    return Parser(grammar, syntaxListener)
 }
 
 internal fun createContext(fileName: String, token: Token): SourceContext =
