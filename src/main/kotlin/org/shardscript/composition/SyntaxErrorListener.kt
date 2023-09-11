@@ -21,11 +21,9 @@ class SyntaxErrorListener : BaseErrorListener() {
         errorsInternal.add(SyntaxErrorInternal(errorMsg, line, charPositionInLine))
     }
 
-    fun populateErrors(fileName: String? = null): LanguageErrors {
-        val errors = LanguageErrors()
+    fun populateErrors(errors: LanguageErrors, fileName: String? = null) {
         errorsInternal.forEach { e ->
             errors.add(fileName?.let { InNamedSource(it, e.line, e.charPositionInLine) } ?: InUnnamedSource(e.line, e.charPositionInLine), SyntaxError(e.msg))
         }
-        return errors
     }
 }

@@ -24,18 +24,19 @@ internal fun preScanFile(fileName: String, namespace: List<String>, sourceText: 
     val parser = createParser(sourceText)
     val parseTree = parser.grammar.file()
 
-    val parseErrors = parser.listener.populateErrors(fileName)
+    val errors = LanguageErrors()
 
-    if (parseErrors.toSet().isNotEmpty()) {
-        throw LanguageException(parseErrors.toSet())
+    parser.listener.populateErrors(errors, fileName)
+    if (errors.toSet().isNotEmpty()) {
+        throw LanguageException(errors.toSet())
     }
 
-    val importsListener = ImportsParseTreeListener(fileName, parseErrors)
+    val importsListener = ImportsParseTreeListener(fileName, errors)
     ParseTreeWalker.DEFAULT.walk(importsListener, parseTree)
     val importStats = importsListener.listImports()
 
-    if (parseErrors.toSet().isNotEmpty()) {
-        throw LanguageException(parseErrors.toSet())
+    if (errors.toSet().isNotEmpty()) {
+        throw LanguageException(errors.toSet())
     }
 
     val importedFiles: MutableList<ImportId> = ArrayList()
