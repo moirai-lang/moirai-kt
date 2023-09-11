@@ -12,9 +12,8 @@ import org.apache.commons.lang3.StringEscapeUtils
 
 data class Parser(val grammar: ShardScriptParser, val listener: SyntaxErrorListener)
 
-fun createParser(fileName: String, contents: String): Parser {
+fun createParser(contents: String): Parser {
     val syntaxListener = SyntaxErrorListener()
-    syntaxListener.fileName = fileName
     val stream = CharStreams.fromString(contents)
     val lexer = ShardScriptLexer(stream)
     lexer.removeErrorListeners()

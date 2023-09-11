@@ -13,20 +13,6 @@ class CompilerFrontend(
     private val architecture: Architecture,
     private val sourceStore: SourceStore
 ) {
-    fun quickCompile(
-        fileName: String,
-        contents: String,
-        systemScopes: SystemScopes,
-        fileNamespace: Namespace
-    ): Ast {
-        val errors = LanguageErrors()
-        val parser = createParser(fileName, contents)
-        val astParseTreeVisitor = AstParseTreeVisitor(fileName, errors)
-        val file = astParseTreeVisitor.visit(parser.grammar.file()) as FileAst
-        processAstResurrectOnly(systemScopes, fileNamespace, file, architecture)
-        return file
-    }
-
     fun compile(
         fileName: String,
         contents: String,

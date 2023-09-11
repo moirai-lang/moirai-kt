@@ -21,10 +21,10 @@ data class ImportScan(
 )
 
 internal fun preScanFile(fileName: String, namespace: List<String>, sourceText: String, transient: Boolean): ImportScan {
-    val parser = createParser(fileName, sourceText)
+    val parser = createParser(sourceText)
     val parseTree = parser.grammar.file()
 
-    val parseErrors = parser.listener.populateErrors()
+    val parseErrors = parser.listener.populateErrors(fileName)
 
     if (parseErrors.toSet().isNotEmpty()) {
         throw LanguageException(parseErrors.toSet())

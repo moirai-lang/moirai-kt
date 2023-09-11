@@ -7,10 +7,7 @@ import org.shardscript.semantics.core.*
 
 class SyntaxErrorListener : BaseErrorListener() {
     private data class SyntaxErrorInternal(val msg: String, val line: Int, val charPositionInLine: Int)
-
     private val errorsInternal: MutableList<SyntaxErrorInternal> = ArrayList()
-
-    var fileName: String? = null
 
     override fun syntaxError(
         recognizer: Recognizer<*, *>?,
@@ -24,7 +21,7 @@ class SyntaxErrorListener : BaseErrorListener() {
         errorsInternal.add(SyntaxErrorInternal(errorMsg, line, charPositionInLine))
     }
 
-    fun populateErrors(): LanguageErrors {
+    fun populateErrors(fileName: String? = null): LanguageErrors {
         val errors = LanguageErrors()
         errorsInternal.forEach { e ->
             errors.add(fileName?.let { InNamedSource(it, e.line, e.charPositionInLine) } ?: InUnnamedSource(e.line, e.charPositionInLine), SyntaxError(e.msg))
