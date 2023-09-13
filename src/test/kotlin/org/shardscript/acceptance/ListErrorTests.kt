@@ -102,6 +102,26 @@ class ListErrorTests {
     }
 
     @Test
+    fun finTypeParamMutableListTest1() {
+        failTest(
+            """
+            def f<T: Fin>(): List<Int, T> {
+               val x = MutableList<Int, T>()
+               x.add(1)
+               x.add(2)
+               x.add(3)
+               x.add(4)
+               x.toList()
+            }
+
+            f<3>()
+        """.trimIndent(), 7
+        ) {
+            it.error is InvalidFinTypeSub
+        }
+    }
+
+    @Test
     fun invalidSourceTypeForEachMutableListTest() {
         failTest(
             """
@@ -116,7 +136,7 @@ class ListErrorTests {
     }
 
     @Test
-    fun finTypeParamMutableListTest() {
+    fun finTypeParamMutableListTest2() {
         failTest(
             """
             def size<E, O: Fin>(x: List<E, O>): Int {
@@ -128,7 +148,7 @@ class ListErrorTests {
                 }
                 res
             }
-            
+
             val x = List(1, 2, 3)
             size(x)
         """.trimIndent(), 2

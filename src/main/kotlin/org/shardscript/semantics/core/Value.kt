@@ -9,7 +9,7 @@ class NamespaceValue(
     val router: SymbolRouterValueTable
 ) : Value()
 
-object UnitValue : Value() {
+data object UnitValue : Value() {
     fun evalToString(): Value {
         return StringValue(Lang.unitId.name)
     }
