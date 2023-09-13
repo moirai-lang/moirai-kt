@@ -7,6 +7,7 @@ class ImportHappyTests {
     fun basicImportTest() {
         splitTest(
             """
+            artifact test.ids.happy
             import test.imported
             
             importedFunction(3, 4)
@@ -20,6 +21,7 @@ class ImportHappyTests {
     fun basicNamespaceTest() {
         splitTest(
             """
+            artifact test.ids.happy
             import test.imported
             import test.duplicates
             
@@ -34,6 +36,7 @@ class ImportHappyTests {
     fun basicPathTypeTest() {
         splitTest(
             """
+            artifact test.ids.happy
             import test.imported
             
             val r: test.imported.ImportedRecord = test.imported.ImportedRecord(3, 4)

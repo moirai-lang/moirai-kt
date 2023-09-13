@@ -23,16 +23,14 @@ object LargeComputationArchitecture : Architecture {
 }
 
 fun eval(
-    fileName: String,
     source: String,
     architecture: Architecture,
-    sourceStore: SourceStore,
-    transient: Boolean
+    sourceStore: SourceStore
 ): Value {
     val frontend = CompilerFrontend(architecture, sourceStore)
 
     val systemScopes = createSystemScopes(architecture)
-    val executionArtifacts = frontend.compile(fileName, source, systemScopes, transient)
+    val executionArtifacts = frontend.compile(source, systemScopes)
 
     val prelude = executionArtifacts.semanticArtifacts.userScopes.systemScopes.prelude
 
@@ -59,14 +57,15 @@ fun eval(
 
 fun testEval(
     source: String,
-    architecture: Architecture,
-    transient: Boolean = false
+    architecture: Architecture
 ): Value {
     val sourceStore = LocalSourceStore()
 
     sourceStore.addArtifacts(
         listOf("test", "deep", "left"),
         """
+            artifact test.deep.left
+            
             def deepLeft(x: Int, y: Int): Int {
                 x * y
             }
@@ -76,6 +75,8 @@ fun testEval(
     sourceStore.addArtifacts(
         listOf("test", "deep", "right"),
         """
+            artifact test.deep.right
+            
             def deepRight(x: Int, y: Int): Int {
                 x * y
             }
@@ -85,6 +86,8 @@ fun testEval(
     sourceStore.addArtifacts(
         listOf("test", "imported"),
         """
+            artifact test.imported
+            
             import test.deep.left
             import test.deep.right
             
@@ -103,34 +106,24 @@ fun testEval(
     sourceStore.addArtifacts(
         listOf("test", "duplicates"),
         """
+            artifact test.duplicates
+            
             def duplicateFunction(x: Int, y: Int): Int {
                 x * y
             }
         """.trimIndent()
     )
 
-    sourceStore.addArtifacts(
-        listOf("test", "transient"),
-        """
-            record K(val x: Int, val y: Int)
-            record V(val s: String<20>)
-        """.trimIndent()
-    )
-
-    return if(transient) {
-        eval("test.transient", source, architecture, sourceStore, transient)
-    } else {
-        eval("script", source, architecture, sourceStore, transient)
-    }
+    return eval(source, architecture, sourceStore)
 }
 
 fun failTest(source: String, expectedCount: Int, predicate: (LanguageError) -> Boolean) {
-    failTest(source, expectedCount, predicate, TestArchitecture, false)
+    failTest(source, expectedCount, predicate, TestArchitecture)
 }
 
-fun failTest(source: String, expectedCount: Int, predicate: (LanguageError) -> Boolean, architecture: Architecture, transient: Boolean) {
+fun failTest(source: String, expectedCount: Int, predicate: (LanguageError) -> Boolean, architecture: Architecture) {
     try {
-        testEval(source, architecture, transient)
+        testEval(source, architecture)
         Assertions.fail()
     } catch (ex: LanguageException) {
         Assertions.assertEquals(expectedCount, ex.errors.size)

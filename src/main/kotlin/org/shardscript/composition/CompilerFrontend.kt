@@ -29,7 +29,7 @@ class CompilerFrontend(
             val artifacts = processAstAllPhases(
                 systemScopes,
                 rawAst,
-                listOf(),
+                listOf(res.scriptType.fileName()),
                 architecture,
                 listOf()
             )
