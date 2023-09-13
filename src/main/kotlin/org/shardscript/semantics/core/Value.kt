@@ -512,8 +512,6 @@ data class DictionaryValue(
 }
 
 class SymbolRouterValueTable(private val prelude: PreludeTable, private val symbols: Scope<Symbol>) : Scope<Value> {
-    lateinit var initFunctionCallback: (FunctionValue) -> Unit
-
     override fun define(identifier: Identifier, definition: Value) {
         langThrow(identifier.ctx, IdentifierCouldNotBeDefined(identifier))
     }
@@ -528,12 +526,10 @@ class SymbolRouterValueTable(private val prelude: PreludeTable, private val symb
         when (val res = symbols.fetch(signifier)) {
             is GroundFunctionSymbol -> {
                 val fv = FunctionValue(res.formalParams, res.body)
-                initFunctionCallback(fv)
                 fv
             }
             is ParameterizedFunctionSymbol -> {
                 val fv = FunctionValue(res.formalParams, res.body)
-                initFunctionCallback(fv)
                 fv
             }
             is ParameterizedStaticPluginSymbol -> PluginValue(res.plugin)
@@ -553,7 +549,6 @@ class SymbolRouterValueTable(private val prelude: PreludeTable, private val symb
             }
             is Namespace -> {
                 val router = SymbolRouterValueTable(prelude, res)
-                router.initFunctionCallback = initFunctionCallback
                 NamespaceValue(router)
             }
             else -> langThrow(signifier.ctx, IdentifierNotFound(signifier))
@@ -563,12 +558,10 @@ class SymbolRouterValueTable(private val prelude: PreludeTable, private val symb
         when (val res = symbols.fetchHere(signifier)) {
             is GroundFunctionSymbol -> {
                 val fv = FunctionValue(res.formalParams, res.body)
-                initFunctionCallback(fv)
                 fv
             }
             is ParameterizedFunctionSymbol -> {
                 val fv = FunctionValue(res.formalParams, res.body)
-                initFunctionCallback(fv)
                 fv
             }
             is ParameterizedStaticPluginSymbol -> PluginValue(res.plugin)
@@ -583,7 +576,6 @@ class SymbolRouterValueTable(private val prelude: PreludeTable, private val symb
             is ObjectSymbol -> ObjectValue(res)
             is Namespace -> {
                 val router = SymbolRouterValueTable(prelude, res)
-                router.initFunctionCallback = initFunctionCallback
                 NamespaceValue(router)
             }
             else -> langThrow(signifier.ctx, IdentifierNotFound(signifier))

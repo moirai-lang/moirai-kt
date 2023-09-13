@@ -39,17 +39,7 @@ fun eval(
         executionArtifacts.semanticArtifacts.file
     )
     val globalScope = ValueTable(router)
-    val evalVisitor = EvalAstVisitor()
-
-    val initFunctionCallback: (FunctionValue) -> Unit = { fv ->
-        fv.globalScope = globalScope
-        fv.evalCallback = { a, v ->
-            a.accept(evalVisitor, v)
-        }
-    }
-
-    evalVisitor.initFunctionCallback = initFunctionCallback
-    router.initFunctionCallback = initFunctionCallback
+    val evalVisitor = EvalAstVisitor(globalScope)
 
     val executionScope = ValueTable(globalScope)
     return executionArtifacts.processedAst.accept(evalVisitor, executionScope)

@@ -2,8 +2,13 @@ package org.shardscript.eval
 
 import org.shardscript.semantics.core.*
 
-class EvalAstVisitor : ParameterizedAstVisitor<ValueTable, Value> {
-    lateinit var initFunctionCallback: (FunctionValue) -> Unit
+class EvalAstVisitor(private val globalScope: ValueTable) : ParameterizedAstVisitor<ValueTable, Value> {
+    private val initFunctionCallback: (FunctionValue) -> Unit = { fv ->
+        fv.globalScope = globalScope
+        fv.evalCallback = { a, v ->
+            a.accept(this, v)
+        }
+    }
 
     override fun visit(ast: FileAst, param: ValueTable): Value {
         val blockScope = ValueTable(param)
@@ -104,6 +109,7 @@ class EvalAstVisitor : ParameterizedAstVisitor<ValueTable, Value> {
         val args = ast.args.map { it.accept(this, param) }
         return when (val toApply = param.fetch(ast.tti)) {
             is FunctionValue -> {
+                initFunctionCallback(toApply)
                 toApply.invoke(args)
             }
             is RecordConstructorValue -> {
