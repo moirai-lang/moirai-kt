@@ -182,30 +182,6 @@ internal class AstParseTreeVisitor(private val fileName: String, val errors: Lan
         return rewriteAsDotApply(left, listOf(right), op, sourceContext)
     }
 
-    override fun visitLiteralSByte(ctx: ShardScriptParser.LiteralSByteContext): Ast {
-        val sourceContext = createContext(fileName, ctx.value)
-        val res = try {
-            SByteLiteralAst(ctx.value.text.replace(Lang.sByteSuffix, "").toByte())
-        } catch (_: Exception) {
-            errors.add(sourceContext, InvalidIntegerLiteral(Lang.sByteId.name, ctx.value.text))
-            SByteLiteralAst(0)
-        }
-        res.ctx = sourceContext
-        return res
-    }
-
-    override fun visitLiteralShort(ctx: ShardScriptParser.LiteralShortContext): Ast {
-        val sourceContext = createContext(fileName, ctx.value)
-        val res = try {
-            ShortLiteralAst(ctx.value.text.replace(Lang.shortSuffix, "").toShort())
-        } catch (_: Exception) {
-            errors.add(sourceContext, InvalidIntegerLiteral(Lang.shortId.name, ctx.value.text))
-            ShortLiteralAst(0)
-        }
-        res.ctx = sourceContext
-        return res
-    }
-
     override fun visitLiteralInt(ctx: ShardScriptParser.LiteralIntContext): Ast {
         val sourceContext = createContext(fileName, ctx.value)
         val res = try {
@@ -213,66 +189,6 @@ internal class AstParseTreeVisitor(private val fileName: String, val errors: Lan
         } catch (_: Exception) {
             errors.add(sourceContext, InvalidIntegerLiteral(Lang.intId.name, ctx.value.text))
             IntLiteralAst(0)
-        }
-        res.ctx = sourceContext
-        return res
-    }
-
-    override fun visitLiteralLong(ctx: ShardScriptParser.LiteralLongContext): Ast {
-        val sourceContext = createContext(fileName, ctx.value)
-        val res = try {
-            LongLiteralAst(ctx.value.text.replace(Lang.longSuffix, "").toLong())
-        } catch (_: Exception) {
-            errors.add(sourceContext, InvalidIntegerLiteral(Lang.longId.name, ctx.value.text))
-            LongLiteralAst(0)
-        }
-        res.ctx = sourceContext
-        return res
-    }
-
-    override fun visitLiteralByte(ctx: ShardScriptParser.LiteralByteContext): Ast {
-        val sourceContext = createContext(fileName, ctx.value)
-        val res = try {
-            ByteLiteralAst(ctx.value.text.replace(Lang.byteSuffix, "").toUByte())
-        } catch (_: Exception) {
-            errors.add(sourceContext, InvalidIntegerLiteral(Lang.byteId.name, ctx.value.text))
-            ByteLiteralAst((0).toUByte())
-        }
-        res.ctx = sourceContext
-        return res
-    }
-
-    override fun visitLiteralUShort(ctx: ShardScriptParser.LiteralUShortContext): Ast {
-        val sourceContext = createContext(fileName, ctx.value)
-        val res = try {
-            UShortLiteralAst(ctx.value.text.replace(Lang.uShortSuffix, "").toUShort())
-        } catch (_: Exception) {
-            errors.add(sourceContext, InvalidIntegerLiteral(Lang.uShortId.name, ctx.value.text))
-            UShortLiteralAst((0).toUShort())
-        }
-        res.ctx = sourceContext
-        return res
-    }
-
-    override fun visitLiteralUInt(ctx: ShardScriptParser.LiteralUIntContext): Ast {
-        val sourceContext = createContext(fileName, ctx.value)
-        val res = try {
-            UIntLiteralAst(ctx.value.text.replace(Lang.uIntSuffix, "").toUInt())
-        } catch (_: Exception) {
-            errors.add(sourceContext, InvalidIntegerLiteral(Lang.uIntId.name, ctx.value.text))
-            UIntLiteralAst((0).toUInt())
-        }
-        res.ctx = sourceContext
-        return res
-    }
-
-    override fun visitLiteralULong(ctx: ShardScriptParser.LiteralULongContext): Ast {
-        val sourceContext = createContext(fileName, ctx.value)
-        val res = try {
-            ULongLiteralAst(ctx.value.text.replace(Lang.uLongSuffix, "").toULong())
-        } catch (_: Exception) {
-            errors.add(sourceContext, InvalidIntegerLiteral(Lang.uLongId.name, ctx.value.text))
-            ULongLiteralAst((0).toULong())
         }
         res.ctx = sourceContext
         return res

@@ -14,8 +14,8 @@ fun createRangePlugin(
     val rangePlugin = ParameterizedStaticPluginSymbol(
         langNS,
         Lang.rangeId,
-        RangeInstantiation,
-    { args ->
+        RangeInstantiation
+    ) { args ->
         val originalLowerBound = args[0] as IntValue
         val originalUpperBound = args[1] as IntValue
         if (originalLowerBound.canonicalForm < originalUpperBound.canonicalForm) {
@@ -34,7 +34,7 @@ fun createRangePlugin(
             list.reverse()
             ListValue(ImmutableBasicTypeMode, list)
         }
-    })
+    }
 
     val rangeTypeParam = ImmutableFinTypeParameter(rangePlugin, Lang.rangeTypeId)
     rangePlugin.define(Lang.rangeTypeId, rangeTypeParam)
@@ -64,8 +64,8 @@ fun createRandomPlugin(
     val randomPlugin = ParameterizedStaticPluginSymbol(
         langNS,
         Lang.randomId,
-        RandomInstantiation,
-    { args ->
+        RandomInstantiation
+    ) { args ->
         when (val first = args.first()) {
             is IntValue -> {
                 var lowerBound = first.canonicalForm
@@ -100,41 +100,12 @@ fun createRandomPlugin(
                 res += offset
                 IntValue(res)
             }
+
             else -> {
-                var lowerBound = (first as LongValue).canonicalForm
-                var upperBound = (args[1] as LongValue).canonicalForm
-                var lowerBoundInclusive = true
-                var upperBoundInclusive = false
-
-                if (lowerBound > upperBound) {
-                    val temp = lowerBound
-                    lowerBound = upperBound
-                    upperBound = temp
-                    val tempInclusive = lowerBoundInclusive
-                    lowerBoundInclusive = upperBoundInclusive
-                    upperBoundInclusive = tempInclusive
-                }
-
-                var offset = 0L
-                if (lowerBound < 0) {
-                    offset = lowerBound
-                    lowerBound += -offset
-                    upperBound += -offset
-                }
-
-                if (!lowerBoundInclusive) {
-                    lowerBound += 1
-                }
-                if (upperBoundInclusive) {
-                    upperBound += 1
-                }
-
-                var res = Random.nextLong(lowerBound, upperBound)
-                res += offset
-                LongValue(res)
+                langThrow(NotInSource, TypeSystemBug)
             }
         }
-    })
+    }
 
     val randomTypeParam = StandardTypeParameter(randomPlugin, Lang.randomTypeId)
     randomPlugin.define(Lang.randomTypeId, randomTypeParam)

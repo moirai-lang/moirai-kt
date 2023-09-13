@@ -52,36 +52,8 @@ COMMA: ',';
 ARROW: '->';
 POUND: '#';
 
-SBYTE
-    :   ('0' | NON_LEADING_ZERO_INT) 's8'
-    ;
-
-SHORT
-    :   ('0' | NON_LEADING_ZERO_INT) 's16'
-    ;
-
 INT
     :   '0' | NON_LEADING_ZERO_INT
-    ;
-
-LONG
-    :   ('0' | NON_LEADING_ZERO_INT) 's64'
-    ;
-
-BYTE
-    :   ('0' | NON_LEADING_ZERO_INT) 'u8'
-    ;
-
-USHORT
-    :   ('0' | NON_LEADING_ZERO_INT) 'u16'
-    ;
-
-UINT
-    :   ('0' | NON_LEADING_ZERO_INT) 'u32'
-    ;
-
-ULONG
-    :   ('0' | NON_LEADING_ZERO_INT) 'u64'
     ;
 
 DECIMAL

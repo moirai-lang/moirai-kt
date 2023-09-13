@@ -157,42 +157,7 @@ fun linearize(ctx: SourceContext, symbol: Symbol): Set<LinearizedSymbol> =
 class LinearizedTypesAstVisitor : UnitAstVisitor() {
     val linearized: MutableSet<LinearizedSymbol> = HashSet()
 
-    override fun visit(ast: SByteLiteralAst) {
-        super.visit(ast)
-        linearized.addAll(linearize(ast.ctx, ast.readType()))
-    }
-
-    override fun visit(ast: ShortLiteralAst) {
-        super.visit(ast)
-        linearized.addAll(linearize(ast.ctx, ast.readType()))
-    }
-
     override fun visit(ast: IntLiteralAst) {
-        super.visit(ast)
-        linearized.addAll(linearize(ast.ctx, ast.readType()))
-    }
-
-    override fun visit(ast: LongLiteralAst) {
-        super.visit(ast)
-        linearized.addAll(linearize(ast.ctx, ast.readType()))
-    }
-
-    override fun visit(ast: ByteLiteralAst) {
-        super.visit(ast)
-        linearized.addAll(linearize(ast.ctx, ast.readType()))
-    }
-
-    override fun visit(ast: UShortLiteralAst) {
-        super.visit(ast)
-        linearized.addAll(linearize(ast.ctx, ast.readType()))
-    }
-
-    override fun visit(ast: UIntLiteralAst) {
-        super.visit(ast)
-        linearized.addAll(linearize(ast.ctx, ast.readType()))
-    }
-
-    override fun visit(ast: ULongLiteralAst) {
         super.visit(ast)
         linearized.addAll(linearize(ast.ctx, ast.readType()))
     }

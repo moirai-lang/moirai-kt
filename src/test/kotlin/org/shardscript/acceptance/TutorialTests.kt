@@ -277,7 +277,6 @@ class TutorialTests {
         splitTest(
             """
                 val x = random(0, 10)
-                val y = random(0s64, 10s64)
                 ^^^^^
                 Unit
             """.trimIndent()

@@ -4,22 +4,7 @@ import org.shardscript.semantics.core.*
 
 open class UnitAstVisitor : AstVisitor<Unit> {
     val errors = LanguageErrors()
-
-    override fun visit(ast: SByteLiteralAst) = Unit
-
-    override fun visit(ast: ShortLiteralAst) = Unit
-
     override fun visit(ast: IntLiteralAst) = Unit
-
-    override fun visit(ast: LongLiteralAst) = Unit
-
-    override fun visit(ast: ByteLiteralAst) = Unit
-
-    override fun visit(ast: UShortLiteralAst) = Unit
-
-    override fun visit(ast: UIntLiteralAst) = Unit
-
-    override fun visit(ast: ULongLiteralAst) = Unit
 
     override fun visit(ast: DecimalLiteralAst) = Unit
 
@@ -113,22 +98,7 @@ open class UnitAstVisitor : AstVisitor<Unit> {
 
 open class ParameterizedUnitAstVisitor<P> : ParameterizedAstVisitor<P, Unit> {
     val errors = LanguageErrors()
-
-    override fun visit(ast: SByteLiteralAst, param: P) = Unit
-
-    override fun visit(ast: ShortLiteralAst, param: P) = Unit
-
     override fun visit(ast: IntLiteralAst, param: P) = Unit
-
-    override fun visit(ast: LongLiteralAst, param: P) = Unit
-
-    override fun visit(ast: ByteLiteralAst, param: P) = Unit
-
-    override fun visit(ast: UShortLiteralAst, param: P) = Unit
-
-    override fun visit(ast: UIntLiteralAst, param: P) = Unit
-
-    override fun visit(ast: ULongLiteralAst, param: P) = Unit
 
     override fun visit(ast: DecimalLiteralAst, param: P) = Unit
 

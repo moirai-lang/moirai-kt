@@ -35,35 +35,7 @@ class CostExpressionAstVisitor(private val architecture: Architecture) : UnitAst
             else -> FinTypeSymbol(architecture.defaultNodeCost)
         }
 
-    override fun visit(ast: SByteLiteralAst) {
-        ast.costExpression = FinTypeSymbol(architecture.defaultNodeCost)
-    }
-
-    override fun visit(ast: ShortLiteralAst) {
-        ast.costExpression = FinTypeSymbol(architecture.defaultNodeCost)
-    }
-
     override fun visit(ast: IntLiteralAst) {
-        ast.costExpression = FinTypeSymbol(architecture.defaultNodeCost)
-    }
-
-    override fun visit(ast: LongLiteralAst) {
-        ast.costExpression = FinTypeSymbol(architecture.defaultNodeCost)
-    }
-
-    override fun visit(ast: ByteLiteralAst) {
-        ast.costExpression = FinTypeSymbol(architecture.defaultNodeCost)
-    }
-
-    override fun visit(ast: UShortLiteralAst) {
-        ast.costExpression = FinTypeSymbol(architecture.defaultNodeCost)
-    }
-
-    override fun visit(ast: UIntLiteralAst) {
-        ast.costExpression = FinTypeSymbol(architecture.defaultNodeCost)
-    }
-
-    override fun visit(ast: ULongLiteralAst) {
         ast.costExpression = FinTypeSymbol(architecture.defaultNodeCost)
     }
 

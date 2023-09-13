@@ -7,24 +7,7 @@ object Lang {
     val langId = Identifier("lang")
     val unitId = Identifier("Unit")
     val booleanId = Identifier("Boolean")
-
-    val sByteId = Identifier("SByte")
-    const val sByteSuffix = "s8"
-    val shortId = Identifier("Short")
-    const val shortSuffix = "s16"
     val intId = Identifier("Int")
-    val longId = Identifier("Long")
-    const val longSuffix = "s64"
-
-    val byteId = Identifier("Byte")
-    const val byteSuffix = "u8"
-    val uShortId = Identifier("UShort")
-    const val uShortSuffix = "u16"
-    val uIntId = Identifier("UInt")
-    const val uIntSuffix = "u32"
-    val uLongId = Identifier("ULong")
-    const val uLongSuffix = "u64"
-
     val charId = Identifier("Char")
     val stringId = Identifier("String")
     val stringTypeId = Identifier("O")
@@ -77,14 +60,7 @@ object Lang {
     val randomId = Identifier("random")
     val randomTypeId = Identifier("A")
 
-    val sByteFin: Long = (Byte.MIN_VALUE.toString().length + sByteSuffix.length).toLong()
-    val shortFin: Long = (Short.MIN_VALUE.toString().length + shortSuffix.length).toLong()
     val intFin: Long = (Int.MIN_VALUE.toString().length).toLong()
-    val longFin: Long = (Long.MIN_VALUE.toString().length + longSuffix.length).toLong()
-    val byteFin: Long = (UByte.MIN_VALUE.toString().length + byteSuffix.length).toLong()
-    val uShortFin: Long = (UShort.MIN_VALUE.toString().length + uShortSuffix.length).toLong()
-    val uIntFin: Long = (UInt.MIN_VALUE.toString().length + uIntSuffix.length).toLong()
-    val uLongFin: Long = (ULong.MIN_VALUE.toString().length + uLongSuffix.length).toLong()
     val unitFin: Long = unitId.name.length.toLong()
     val booleanFin: Long = false.toString().length.toLong()
     val charFin: Long = 1L
@@ -129,16 +105,8 @@ object Lang {
             booleanType.define(Identifier(name), plugin)
         }
 
-        // Integer Types
-        val sByteType = intType(architecture, sByteId, booleanType, langNS, setOf())
-        val shortType = intType(architecture, shortId, booleanType, langNS, setOf())
+        // Integer
         val intType = intType(architecture, intId, booleanType, langNS, setOf())
-        val longType = intType(architecture, longId, booleanType, langNS, setOf())
-
-        val byteType = intType(architecture, byteId, booleanType, langNS, setOf(UnaryOperator.Negate.idStr))
-        val uShortType = intType(architecture, uShortId, booleanType, langNS, setOf(UnaryOperator.Negate.idStr))
-        val uIntType = intType(architecture, uIntId, booleanType, langNS, setOf(UnaryOperator.Negate.idStr))
-        val uLongType = intType(architecture, uLongId, booleanType, langNS, setOf(UnaryOperator.Negate.idStr))
 
         // Decimal
         val decimalType = decimalType(decimalId, booleanType, langNS)
@@ -163,39 +131,12 @@ object Lang {
         val stringType = stringType(booleanType, intType, charType, listType, langNS)
 
         // ToString
-        insertSByteToStringMember(sByteType, stringType)
-        insertShortToStringMember(shortType, stringType)
         insertIntegerToStringMember(intType, stringType)
-        insertLongToStringMember(longType, stringType)
-        insertByteToStringMember(byteType, stringType)
-        insertUShortToStringMember(uShortType, stringType)
-        insertUIntToStringMember(uIntType, stringType)
-        insertULongToStringMember(uLongType, stringType)
         insertUnitToStringMember(unitObject, stringType)
         insertBooleanToStringMember(booleanType, stringType)
         insertDecimalToStringMember(decimalType, stringType)
         insertCharToStringMember(charType, stringType)
         insertStringToStringMember(stringType)
-
-        // Integer Conversions
-        val integerTypes = mapOf(
-            sByteType.identifier to sByteType,
-            shortType.identifier to shortType,
-            intType.identifier to intType,
-            longType.identifier to longType,
-            byteType.identifier to byteType,
-            uShortType.identifier to uShortType,
-            uIntType.identifier to uIntType,
-            uLongType.identifier to uLongType
-        )
-        insertIntegerConversionMembers(architecture, sByteType, integerTypes)
-        insertIntegerConversionMembers(architecture, shortType, integerTypes)
-        insertIntegerConversionMembers(architecture, intType, integerTypes)
-        insertIntegerConversionMembers(architecture, longType, integerTypes)
-        insertIntegerConversionMembers(architecture, byteType, integerTypes)
-        insertIntegerConversionMembers(architecture, uShortType, integerTypes)
-        insertIntegerConversionMembers(architecture, uIntType, integerTypes)
-        insertIntegerConversionMembers(architecture, uLongType, integerTypes)
 
         // Pair
         val pairType = ParameterizedRecordTypeSymbol(
@@ -251,13 +192,6 @@ object Lang {
         langNS.define(mutableSetId, mutableSetType)
         langNS.define(charId, charType)
         langNS.define(stringId, stringType)
-        langNS.define(sByteId, sByteType)
-        langNS.define(shortId, shortType)
-        langNS.define(longId, longType)
-        langNS.define(byteId, byteType)
-        langNS.define(uShortId, uShortType)
-        langNS.define(uIntId, uIntType)
-        langNS.define(uLongId, uLongType)
         langNS.define(rangeId, rangePlugin)
         langNS.define(randomId, randomPlugin)
         shardNS.define(langId, langNS)
@@ -277,13 +211,6 @@ object Lang {
         prelude.register(mutableSetId, langNS)
         prelude.register(charId, langNS)
         prelude.register(stringId, langNS)
-        prelude.register(sByteId, langNS)
-        prelude.register(shortId, langNS)
-        prelude.register(longId, langNS)
-        prelude.register(byteId, langNS)
-        prelude.register(uShortId, langNS)
-        prelude.register(uIntId, langNS)
-        prelude.register(uLongId, langNS)
         prelude.register(rangeId, langNS)
         prelude.register(randomId, langNS)
     }

@@ -7,80 +7,10 @@ import org.junit.jupiter.api.Test
 
 class LiteralTests {
     @Test
-    fun sByteLiteral() {
-        val res = testEval("5s8", TestArchitecture)
-        if (res is SByteValue) {
-            Assertions.assertEquals((5).toByte(), res.canonicalForm)
-        } else {
-            fail()
-        }
-    }
-
-    @Test
-    fun shortLiteral() {
-        val res = testEval("5s16", TestArchitecture)
-        if (res is ShortValue) {
-            Assertions.assertEquals((5).toShort(), res.canonicalForm)
-        } else {
-            fail()
-        }
-    }
-
-    @Test
     fun intLiteral() {
         val res = testEval("5", TestArchitecture)
         if (res is IntValue) {
             Assertions.assertEquals(5, res.canonicalForm)
-        } else {
-            fail()
-        }
-    }
-
-    @Test
-    fun longLiteral() {
-        val res = testEval("5s64", TestArchitecture)
-        if (res is LongValue) {
-            Assertions.assertEquals((5).toLong(), res.canonicalForm)
-        } else {
-            fail()
-        }
-    }
-
-    @Test
-    fun byteLiteral() {
-        val res = testEval("5u8", TestArchitecture)
-        if (res is ByteValue) {
-            Assertions.assertEquals((5).toUByte(), res.canonicalForm)
-        } else {
-            fail()
-        }
-    }
-
-    @Test
-    fun uShortLiteral() {
-        val res = testEval("5u16", TestArchitecture)
-        if (res is UShortValue) {
-            Assertions.assertEquals((5).toUShort(), res.canonicalForm)
-        } else {
-            fail()
-        }
-    }
-
-    @Test
-    fun uIntLiteral() {
-        val res = testEval("5u32", TestArchitecture)
-        if (res is UIntValue) {
-            Assertions.assertEquals((5).toUInt(), res.canonicalForm)
-        } else {
-            fail()
-        }
-    }
-
-    @Test
-    fun uLongLiteral() {
-        val res = testEval("5u64", TestArchitecture)
-        if (res is ULongValue) {
-            Assertions.assertEquals((5).toULong(), res.canonicalForm)
         } else {
             fail()
         }
@@ -173,44 +103,8 @@ class LiteralTests {
     }
 
     @Test
-    fun sByteLiteralIsTest() {
-        splitTest("5s8 is SByte^^^^^true", TestArchitecture)
-
-    }
-
-    @Test
-    fun shortLiteralIsTest() {
-        splitTest("5s16 is Short^^^^^true", TestArchitecture)
-    }
-
-    @Test
     fun intLiteralIsTest() {
         splitTest("5 is Int^^^^^true", TestArchitecture)
-    }
-
-    @Test
-    fun longLiteralIsTest() {
-        splitTest("5s64 is Long^^^^^true", TestArchitecture)
-    }
-
-    @Test
-    fun byteLiteralIsTest() {
-        splitTest("5u8 is Byte^^^^^true", TestArchitecture)
-    }
-
-    @Test
-    fun uShortLiteralIsTest() {
-        splitTest("5u16 is UShort^^^^^true", TestArchitecture)
-    }
-
-    @Test
-    fun uIntLiteralIsTest() {
-        splitTest("5u32 is UInt^^^^^true", TestArchitecture)
-    }
-
-    @Test
-    fun uLongLiteralIsTest() {
-        splitTest("5u64 is ULong^^^^^true", TestArchitecture)
     }
 
     @Test

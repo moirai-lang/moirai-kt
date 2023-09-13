@@ -148,80 +148,10 @@ class PropagateTypesAstVisitor(
         }
     }
 
-    override fun visit(ast: SByteLiteralAst) {
-        try {
-            super.visit(ast)
-            ast.assignType(errors, preludeTable.fetch(Lang.sByteId))
-        } catch (ex: LanguageException) {
-            errors.addAll(ast.ctx, ex.errors)
-            ast.assignType(errors, ErrorSymbol)
-        }
-    }
-
-    override fun visit(ast: ShortLiteralAst) {
-        try {
-            super.visit(ast)
-            ast.assignType(errors, preludeTable.fetch(Lang.shortId))
-        } catch (ex: LanguageException) {
-            errors.addAll(ast.ctx, ex.errors)
-            ast.assignType(errors, ErrorSymbol)
-        }
-    }
-
     override fun visit(ast: IntLiteralAst) {
         try {
             super.visit(ast)
             ast.assignType(errors, preludeTable.fetch(Lang.intId))
-        } catch (ex: LanguageException) {
-            errors.addAll(ast.ctx, ex.errors)
-            ast.assignType(errors, ErrorSymbol)
-        }
-    }
-
-    override fun visit(ast: LongLiteralAst) {
-        try {
-            super.visit(ast)
-            ast.assignType(errors, preludeTable.fetch(Lang.longId))
-        } catch (ex: LanguageException) {
-            errors.addAll(ast.ctx, ex.errors)
-            ast.assignType(errors, ErrorSymbol)
-        }
-    }
-
-    override fun visit(ast: ByteLiteralAst) {
-        try {
-            super.visit(ast)
-            ast.assignType(errors, preludeTable.fetch(Lang.byteId))
-        } catch (ex: LanguageException) {
-            errors.addAll(ast.ctx, ex.errors)
-            ast.assignType(errors, ErrorSymbol)
-        }
-    }
-
-    override fun visit(ast: UShortLiteralAst) {
-        try {
-            super.visit(ast)
-            ast.assignType(errors, preludeTable.fetch(Lang.uShortId))
-        } catch (ex: LanguageException) {
-            errors.addAll(ast.ctx, ex.errors)
-            ast.assignType(errors, ErrorSymbol)
-        }
-    }
-
-    override fun visit(ast: UIntLiteralAst) {
-        try {
-            super.visit(ast)
-            ast.assignType(errors, preludeTable.fetch(Lang.uIntId))
-        } catch (ex: LanguageException) {
-            errors.addAll(ast.ctx, ex.errors)
-            ast.assignType(errors, ErrorSymbol)
-        }
-    }
-
-    override fun visit(ast: ULongLiteralAst) {
-        try {
-            super.visit(ast)
-            ast.assignType(errors, preludeTable.fetch(Lang.uLongId))
         } catch (ex: LanguageException) {
             errors.addAll(ast.ctx, ex.errors)
             ast.assignType(errors, ErrorSymbol)

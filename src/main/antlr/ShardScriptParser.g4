@@ -116,14 +116,7 @@ expr
     |   left=expr op=AND right=expr                                                                 # InfixAnd
     |   left=expr op=OR right=expr                                                                  # InfixOr
     |   value=DECIMAL                                                                               # LiteralDecimal
-    |   value=SBYTE                                                                                 # LiteralSByte
-    |   value=SHORT                                                                                 # LiteralShort
     |   value=INT                                                                                   # LiteralInt
-    |   value=LONG                                                                                  # LiteralLong
-    |   value=BYTE                                                                                  # LiteralByte
-    |   value=USHORT                                                                                # LiteralUShort
-    |   value=UINT                                                                                  # LiteralUInt
-    |   value=ULONG                                                                                 # LiteralULong
     |   value=(BOOL_TRUE|BOOL_FALSE)                                                                # LiteralBool
     |   value=CHAR                                                                                  # LiteralChar
     |   value=string                                                                                # StringExpr

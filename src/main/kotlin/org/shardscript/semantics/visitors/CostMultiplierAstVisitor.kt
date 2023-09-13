@@ -8,35 +8,7 @@ data class ParamCostExMultiplier(
 )
 
 class CostMultiplierAstVisitor(val architecture: Architecture) : AstVisitor<List<ParamCostExMultiplier>> {
-    override fun visit(ast: SByteLiteralAst): List<ParamCostExMultiplier> {
-        return listOf()
-    }
-
-    override fun visit(ast: ShortLiteralAst): List<ParamCostExMultiplier> {
-        return listOf()
-    }
-
     override fun visit(ast: IntLiteralAst): List<ParamCostExMultiplier> {
-        return listOf()
-    }
-
-    override fun visit(ast: LongLiteralAst): List<ParamCostExMultiplier> {
-        return listOf()
-    }
-
-    override fun visit(ast: ByteLiteralAst): List<ParamCostExMultiplier> {
-        return listOf()
-    }
-
-    override fun visit(ast: UShortLiteralAst): List<ParamCostExMultiplier> {
-        return listOf()
-    }
-
-    override fun visit(ast: UIntLiteralAst): List<ParamCostExMultiplier> {
-        return listOf()
-    }
-
-    override fun visit(ast: ULongLiteralAst): List<ParamCostExMultiplier> {
         return listOf()
     }
 

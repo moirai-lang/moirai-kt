@@ -27,29 +27,8 @@ class EvalAstVisitor : ParameterizedAstVisitor<ValueTable, Value> {
         return param.fetch(ast.identifier)
     }
 
-    override fun visit(ast: SByteLiteralAst, param: ValueTable): Value =
-        SByteValue(ast.canonicalForm)
-
-    override fun visit(ast: ShortLiteralAst, param: ValueTable): Value =
-        ShortValue(ast.canonicalForm)
-
     override fun visit(ast: IntLiteralAst, param: ValueTable): Value =
         IntValue(ast.canonicalForm)
-
-    override fun visit(ast: LongLiteralAst, param: ValueTable): Value =
-        LongValue(ast.canonicalForm)
-
-    override fun visit(ast: ByteLiteralAst, param: ValueTable): Value =
-        ByteValue(ast.canonicalForm)
-
-    override fun visit(ast: UShortLiteralAst, param: ValueTable): Value =
-        UShortValue(ast.canonicalForm)
-
-    override fun visit(ast: UIntLiteralAst, param: ValueTable): Value =
-        UIntValue(ast.canonicalForm)
-
-    override fun visit(ast: ULongLiteralAst, param: ValueTable): Value =
-        ULongValue(ast.canonicalForm)
 
     override fun visit(ast: BooleanLiteralAst, param: ValueTable): Value =
         BooleanValue(ast.canonicalForm)
@@ -68,14 +47,7 @@ class EvalAstVisitor : ParameterizedAstVisitor<ValueTable, Value> {
         ast.components.forEach {
             when (val component = it.accept(this, param)) {
                 is StringValue -> sb.append((component.evalToString() as StringValue).canonicalForm)
-                is SByteValue -> sb.append((component.evalToString() as StringValue).canonicalForm)
-                is ShortValue -> sb.append((component.evalToString() as StringValue).canonicalForm)
                 is IntValue -> sb.append((component.evalToString() as StringValue).canonicalForm)
-                is LongValue -> sb.append((component.evalToString() as StringValue).canonicalForm)
-                is ByteValue -> sb.append((component.evalToString() as StringValue).canonicalForm)
-                is UShortValue -> sb.append((component.evalToString() as StringValue).canonicalForm)
-                is UIntValue -> sb.append((component.evalToString() as StringValue).canonicalForm)
-                is ULongValue -> sb.append((component.evalToString() as StringValue).canonicalForm)
                 is DecimalValue -> sb.append((component.evalToString() as StringValue).canonicalForm)
                 is BooleanValue -> sb.append((component.evalToString() as StringValue).canonicalForm)
                 is CharValue -> sb.append((component.evalToString() as StringValue).canonicalForm)

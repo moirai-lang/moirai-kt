@@ -1,14 +1,7 @@
 package org.shardscript.semantics.core
 
 interface AstVisitor<R> {
-    fun visit(ast: SByteLiteralAst): R
-    fun visit(ast: ShortLiteralAst): R
     fun visit(ast: IntLiteralAst): R
-    fun visit(ast: LongLiteralAst): R
-    fun visit(ast: ByteLiteralAst): R
-    fun visit(ast: UShortLiteralAst): R
-    fun visit(ast: UIntLiteralAst): R
-    fun visit(ast: ULongLiteralAst): R
     fun visit(ast: DecimalLiteralAst): R
     fun visit(ast: BooleanLiteralAst): R
     fun visit(ast: CharLiteralAst): R
@@ -34,14 +27,7 @@ interface AstVisitor<R> {
 }
 
 interface ParameterizedAstVisitor<P, R> {
-    fun visit(ast: SByteLiteralAst, param: P): R
-    fun visit(ast: ShortLiteralAst, param: P): R
     fun visit(ast: IntLiteralAst, param: P): R
-    fun visit(ast: LongLiteralAst, param: P): R
-    fun visit(ast: ByteLiteralAst, param: P): R
-    fun visit(ast: UShortLiteralAst, param: P): R
-    fun visit(ast: UIntLiteralAst, param: P): R
-    fun visit(ast: ULongLiteralAst, param: P): R
     fun visit(ast: DecimalLiteralAst, param: P): R
     fun visit(ast: BooleanLiteralAst, param: P): R
     fun visit(ast: CharLiteralAst, param: P): R

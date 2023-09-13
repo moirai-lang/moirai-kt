@@ -8,70 +8,7 @@ class BindScopesAstVisitor(
     val architecture: Architecture
 ) :
     ParameterizedUnitAstVisitor<Scope<Symbol>>() {
-    override fun visit(ast: SByteLiteralAst, param: Scope<Symbol>) {
-        try {
-            ast.scope = param
-            super.visit(ast, param)
-        } catch (ex: LanguageException) {
-            errors.addAll(ast.ctx, ex.errors)
-        }
-    }
-
-    override fun visit(ast: ShortLiteralAst, param: Scope<Symbol>) {
-        try {
-            ast.scope = param
-            super.visit(ast, param)
-        } catch (ex: LanguageException) {
-            errors.addAll(ast.ctx, ex.errors)
-        }
-    }
-
     override fun visit(ast: IntLiteralAst, param: Scope<Symbol>) {
-        try {
-            ast.scope = param
-            super.visit(ast, param)
-        } catch (ex: LanguageException) {
-            errors.addAll(ast.ctx, ex.errors)
-        }
-    }
-
-    override fun visit(ast: LongLiteralAst, param: Scope<Symbol>) {
-        try {
-            ast.scope = param
-            super.visit(ast, param)
-        } catch (ex: LanguageException) {
-            errors.addAll(ast.ctx, ex.errors)
-        }
-    }
-
-    override fun visit(ast: ByteLiteralAst, param: Scope<Symbol>) {
-        try {
-            ast.scope = param
-            super.visit(ast, param)
-        } catch (ex: LanguageException) {
-            errors.addAll(ast.ctx, ex.errors)
-        }
-    }
-
-    override fun visit(ast: UShortLiteralAst, param: Scope<Symbol>) {
-        try {
-            ast.scope = param
-            super.visit(ast, param)
-        } catch (ex: LanguageException) {
-            errors.addAll(ast.ctx, ex.errors)
-        }
-    }
-
-    override fun visit(ast: UIntLiteralAst, param: Scope<Symbol>) {
-        try {
-            ast.scope = param
-            super.visit(ast, param)
-        } catch (ex: LanguageException) {
-            errors.addAll(ast.ctx, ex.errors)
-        }
-    }
-
-    override fun visit(ast: ULongLiteralAst, param: Scope<Symbol>) {
         try {
             ast.scope = param
             super.visit(ast, param)

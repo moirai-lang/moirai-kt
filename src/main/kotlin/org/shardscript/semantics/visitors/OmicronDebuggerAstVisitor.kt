@@ -10,42 +10,7 @@ class FinDebuggerAstVisitor(val architecture: Architecture) : UnitAstVisitor() {
         }
     }
 
-    override fun visit(ast: SByteLiteralAst) {
-        super.visit(ast)
-        testNode(ast)
-    }
-
-    override fun visit(ast: ShortLiteralAst) {
-        super.visit(ast)
-        testNode(ast)
-    }
-
     override fun visit(ast: IntLiteralAst) {
-        super.visit(ast)
-        testNode(ast)
-    }
-
-    override fun visit(ast: LongLiteralAst) {
-        super.visit(ast)
-        testNode(ast)
-    }
-
-    override fun visit(ast: ByteLiteralAst) {
-        super.visit(ast)
-        testNode(ast)
-    }
-
-    override fun visit(ast: UShortLiteralAst) {
-        super.visit(ast)
-        testNode(ast)
-    }
-
-    override fun visit(ast: UIntLiteralAst) {
-        super.visit(ast)
-        testNode(ast)
-    }
-
-    override fun visit(ast: ULongLiteralAst) {
         super.visit(ast)
         testNode(ast)
     }

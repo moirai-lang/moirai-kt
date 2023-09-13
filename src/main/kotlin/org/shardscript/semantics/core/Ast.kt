@@ -32,63 +32,7 @@ sealed class ApplyAst : SymbolRefAst() {
     abstract val args: List<Ast>
 }
 
-data class SByteLiteralAst(val canonicalForm: Byte) : Ast() {
-    override fun <R> accept(visitor: AstVisitor<R>): R =
-        visitor.visit(this)
-
-    override fun <P, R> accept(visitor: ParameterizedAstVisitor<P, R>, param: P): R =
-        visitor.visit(this, param)
-}
-
-data class ShortLiteralAst(val canonicalForm: Short) : Ast() {
-    override fun <R> accept(visitor: AstVisitor<R>): R =
-        visitor.visit(this)
-
-    override fun <P, R> accept(visitor: ParameterizedAstVisitor<P, R>, param: P): R =
-        visitor.visit(this, param)
-}
-
 data class IntLiteralAst(val canonicalForm: Int) : Ast() {
-    override fun <R> accept(visitor: AstVisitor<R>): R =
-        visitor.visit(this)
-
-    override fun <P, R> accept(visitor: ParameterizedAstVisitor<P, R>, param: P): R =
-        visitor.visit(this, param)
-}
-
-data class LongLiteralAst(val canonicalForm: Long) : Ast() {
-    override fun <R> accept(visitor: AstVisitor<R>): R =
-        visitor.visit(this)
-
-    override fun <P, R> accept(visitor: ParameterizedAstVisitor<P, R>, param: P): R =
-        visitor.visit(this, param)
-}
-
-data class ByteLiteralAst(val canonicalForm: UByte) : Ast() {
-    override fun <R> accept(visitor: AstVisitor<R>): R =
-        visitor.visit(this)
-
-    override fun <P, R> accept(visitor: ParameterizedAstVisitor<P, R>, param: P): R =
-        visitor.visit(this, param)
-}
-
-data class UShortLiteralAst(val canonicalForm: UShort) : Ast() {
-    override fun <R> accept(visitor: AstVisitor<R>): R =
-        visitor.visit(this)
-
-    override fun <P, R> accept(visitor: ParameterizedAstVisitor<P, R>, param: P): R =
-        visitor.visit(this, param)
-}
-
-data class UIntLiteralAst(val canonicalForm: UInt) : Ast() {
-    override fun <R> accept(visitor: AstVisitor<R>): R =
-        visitor.visit(this)
-
-    override fun <P, R> accept(visitor: ParameterizedAstVisitor<P, R>, param: P): R =
-        visitor.visit(this, param)
-}
-
-data class ULongLiteralAst(val canonicalForm: ULong) : Ast() {
     override fun <R> accept(visitor: AstVisitor<R>): R =
         visitor.visit(this)
 
