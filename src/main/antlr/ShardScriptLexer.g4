@@ -27,6 +27,7 @@ BOOL_FALSE: 'false';
 
 FIN: 'Fin';
 
+ARTIFACT: 'artifact';
 AS: 'as';
 DEF: 'def';
 ELSE: 'else';
@@ -40,6 +41,7 @@ MUTABLE: 'mutable';
 OBJECT: 'object';
 RECORD: 'record';
 TO: 'to';
+TRANSIENT: 'transient';
 VAL: 'val';
 
 ASSIGN: '=';

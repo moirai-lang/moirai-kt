@@ -21,6 +21,8 @@ class SyntaxErrorListener : BaseErrorListener() {
         errorsInternal.add(SyntaxErrorInternal(errorMsg, line, charPositionInLine))
     }
 
+    fun hasErrors(): Boolean = errorsInternal.isNotEmpty()
+
     fun populateErrors(errors: LanguageErrors, fileName: String? = null) {
         errorsInternal.forEach { e ->
             errors.add(fileName?.let { InNamedSource(it, e.line, e.charPositionInLine) } ?: InUnnamedSource(e.line, e.charPositionInLine), SyntaxError(e.msg))

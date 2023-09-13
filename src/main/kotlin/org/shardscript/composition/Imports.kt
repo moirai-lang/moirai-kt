@@ -4,59 +4,43 @@ import org.shardscript.grammar.ShardScriptParser
 import org.shardscript.semantics.core.*
 import org.antlr.v4.runtime.tree.ParseTreeWalker
 import java.util.*
-import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
 import kotlin.collections.HashSet
 
-// A file is transient if it was sent over the network to be executed
-// The namespace combined with the transient flag is a unique way of identifying an import
-data class ImportId(val namespace: List<String>, val transient: Boolean)
-
 data class ImportScan(
-    val fileName: String,
-    val id: ImportId,
+    val scriptType: ScriptType,
     val sourceText: String,
     val parseTree: ShardScriptParser.FileContext,
-    val imports: Set<ImportId>
+    val imports: Set<ImportStat>
 )
 
-internal fun preScanFile(fileName: String, namespace: List<String>, sourceText: String, transient: Boolean): ImportScan {
+internal fun preScanFile(sourceText: String): ImportScan {
     val parser = createParser(sourceText)
     val parseTree = parser.grammar.file()
 
     val errors = LanguageErrors()
 
-    parser.listener.populateErrors(errors, fileName)
-    if (errors.toSet().isNotEmpty()) {
-        throw LanguageException(errors.toSet())
-    }
-
-    val importsListener = ImportsParseTreeListener(fileName, errors)
+    val importsListener = ImportsParseTreeListener(errors)
     ParseTreeWalker.DEFAULT.walk(importsListener, parseTree)
     val importStats = importsListener.listImports()
 
+    if (parser.listener.hasErrors()) {
+        parser.listener.populateErrors(errors, importsListener.scriptType().fileName())
+        if (errors.toSet().isNotEmpty()) {
+            throw LanguageException(errors.toSet())
+        }
+    }
+
     if (errors.toSet().isNotEmpty()) {
         throw LanguageException(errors.toSet())
     }
 
-    val importedFiles: MutableList<ImportId> = ArrayList()
-    importStats.forEach {
-        importedFiles.add(ImportId(it.path, transient = false))
-    }
-
-    return ImportScan(fileName, ImportId(namespace, transient), sourceText, parseTree, importedFiles.toSet())
+    return ImportScan(importsListener.scriptType(), sourceText, parseTree, importStats.toSet())
 }
 
-internal fun parseNamespace(fileName: String): List<String> =
-    fileName.split(".")
-
-internal fun persistNamespace(namespace: List<String>): String =
-    namespace.joinToString(".")
-
-internal fun fetchStoredFileByNamespaceAndScan(sourceStore: SourceStore, id: ImportId): ImportScan {
-    val fileName = persistNamespace(id.namespace)
-    val sourceText = sourceStore.fetchSourceText(id.namespace)
-    return preScanFile(fileName, id.namespace, sourceText, id.transient)
+internal fun fetchStoredFileByNamespaceAndScan(sourceStore: SourceStore, nameParts: List<String>): ImportScan {
+    val sourceText = sourceStore.fetchSourceText(nameParts)
+    return preScanFile(sourceText)
 }
 
 /**
@@ -67,77 +51,55 @@ internal fun fetchStoredFileByNamespaceAndScan(sourceStore: SourceStore, id: Imp
  */
 internal fun preScanImportFanOut(
     sourceStore: SourceStore,
-    fileName: String,
-    sourceText: String,
-    transient: Boolean
+    sourceText: String
 ): Set<ImportScan> {
-    val namespace = parseNamespace(fileName)
-    val initialScan = preScanFile(fileName, namespace, sourceText, transient)
+    val initialScan = preScanFile(sourceText)
+
+    if (initialScan.scriptType is PureTransient) {
+        return setOf(initialScan)
+    }
 
     val unprocessed: Queue<ImportScan> = LinkedList()
+    val processed: MutableMap<ImportStat, ImportScan> = HashMap()
+    val nodes: MutableSet<ImportStat> = HashSet()
+    val edges: MutableSet<DependencyEdge<ImportStat>> = HashSet()
 
-    val processed: MutableMap<ImportId, ImportScan> = HashMap()
-
-    val nodes: MutableSet<ImportId> = HashSet()
-    val edges: MutableSet<DependencyEdge<ImportId>> = HashSet()
-
-    if (transient) {
-        val allImportsMergedFile: MutableSet<ImportId> = HashSet()
-        initialScan.imports.forEach {
-            allImportsMergedFile.add(it)
-        }
-        val storedFileId = ImportId(namespace, transient = false)
-        // When executing a transient file, you need to "merge" the imports from the stored
-        // file with the transient file that was passed over the network to be executed,
-        // makes sure that the same symbols that are visible in the stored file are also
-        // visible in the transient file
-        val mergedStoredFile = fetchStoredFileByNamespaceAndScan(sourceStore, storedFileId)
-        mergedStoredFile.imports.forEach {
-            allImportsMergedFile.add(it)
-        }
-        // We also need to import the stored file itself into the transient file so that
-        // symbols defined in the stored file will be visible in the transient file
-        allImportsMergedFile.add(storedFileId)
-        // Replace the old import scan with a new one that uses the implicit imports
-        // described above
-        val mergedFile = ImportScan(
-            initialScan.fileName,
-            ImportId(
-                initialScan.id.namespace,
-                transient = true
-            ),
-            initialScan.sourceText,
-            initialScan.parseTree,
-            allImportsMergedFile.toSet()
-        )
-        unprocessed.add(mergedFile) // we do not add the initial scan
-    } else {
-        unprocessed.add(initialScan)
-    }
+    unprocessed.add(initialScan)
 
     while (unprocessed.isNotEmpty()) {
         val head = unprocessed.remove()
-        if (!processed.contains(head.id)) {
-            processed[head.id] = head
-            nodes.add(head.id)
-            head.imports.forEach { importedNamespace ->
-                if (!processed.contains(importedNamespace)) {
-                    val node = fetchStoredFileByNamespaceAndScan(sourceStore, importedNamespace)
-                    unprocessed.add(node)
-                    edges.add(
-                        DependencyEdge(
-                            processFirst = node.id,
-                            processSecond = head.id
-                        )
-                    )
-                } else {
-                    val node = processed[importedNamespace]!!
-                    edges.add(
-                        DependencyEdge(
-                            processFirst = node.id,
-                            processSecond = head.id
-                        )
-                    )
+        val headScriptType = head.scriptType
+
+        if (headScriptType is NamedScriptType) {
+            val headImportStat = ImportStat(headScriptType.nameParts)
+            if (!processed.contains(headImportStat)) {
+                processed[headImportStat] = head
+                nodes.add(headImportStat)
+                head.imports.forEach { importedNamespace ->
+                    if (!processed.contains(importedNamespace)) {
+                        val node = fetchStoredFileByNamespaceAndScan(sourceStore, importedNamespace.path)
+                        if (node.scriptType is NamedScriptType) {
+                            val nodeImportStat = ImportStat(node.scriptType.nameParts)
+                            unprocessed.add(node)
+                            edges.add(
+                                DependencyEdge(
+                                    processFirst = nodeImportStat,
+                                    processSecond = headImportStat
+                                )
+                            )
+                        }
+                    } else {
+                        val node = processed[importedNamespace]!!
+                        if (node.scriptType is NamedScriptType) {
+                            val nodeImportStat = ImportStat(node.scriptType.nameParts)
+                            edges.add(
+                                DependencyEdge(
+                                    processFirst = nodeImportStat,
+                                    processSecond = headImportStat
+                                )
+                            )
+                        }
+                    }
                 }
             }
         }

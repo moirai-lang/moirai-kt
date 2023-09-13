@@ -9,6 +9,8 @@ import org.shardscript.semantics.core.langThrow
 class LocalSourceStore : SourceStore {
     private val fileNamespace = listOf("local", "source")
     private val fileText = """
+        artifact local.source
+        
         def slope(m: Int, x: Int, b: Int): Int {
             m * x + b
         }

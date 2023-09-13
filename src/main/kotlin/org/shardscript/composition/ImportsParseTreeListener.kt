@@ -9,28 +9,49 @@ import org.shardscript.semantics.core.SourceContext
 
 data class ImportStat(val path: List<String>)
 
-internal class ImportsParseTreeListener(private val fileName: String, val errors: LanguageErrors) :
+internal class ImportsParseTreeListener(val errors: LanguageErrors) :
     ShardScriptParserBaseListener() {
-    private val wildcardImports: MutableMap<List<String>, SourceContext> = HashMap()
-    private val fileNamespace = fileName.split(".")
+    private val accumulatedImports: MutableMap<List<String>, SourceContext> = HashMap()
+    private var scriptType: ScriptType = PureTransient
+
+    override fun enterTransientStat(ctx: ShardScriptParser.TransientStatContext) {
+        val nameParts = ctx.importIdSeq().IDENTIFIER().map { it.symbol.text }
+        scriptType = TransientImport(nameParts)
+    }
+
+    override fun enterArtifactStat(ctx: ShardScriptParser.ArtifactStatContext) {
+        val nameParts = ctx.importIdSeq().IDENTIFIER().map { it.symbol.text }
+        scriptType = NamedArtifact(nameParts)
+    }
 
     override fun enterImportStat(ctx: ShardScriptParser.ImportStatContext) {
-        val import = ctx.importIdSeq().IDENTIFIER().map { it.symbol.text }
-        val sourceContext = createContext(fileName, ctx.start)
-        if (wildcardImports.contains(import)) {
-            errors.add(sourceContext, DuplicateImport(import))
-        } else {
-            wildcardImports[import] = sourceContext
+        val st = scriptType
+        if (st is NamedArtifact) {
+            val import = ctx.importIdSeq().IDENTIFIER().map { it.symbol.text }
+            val sourceContext = createContext(st.fileName(), ctx.start)
+            if (accumulatedImports.contains(import)) {
+                errors.add(sourceContext, DuplicateImport(import))
+            } else {
+                accumulatedImports[import] = sourceContext
+            }
         }
+    }
+
+    fun scriptType(): ScriptType {
+        return scriptType
     }
 
     fun listImports(): List<ImportStat> {
         val res: MutableList<ImportStat> = ArrayList()
-        wildcardImports.forEach {
-            if (fileNamespace == it.key) {
-                errors.add(it.value, SelfImport)
+        val st = scriptType
+
+        if (st is NamedScriptType) {
+            accumulatedImports.forEach {
+                if (st.nameParts == it.key) {
+                    errors.add(it.value, SelfImport)
+                }
+                res.add(ImportStat(it.key))
             }
-            res.add(ImportStat(it.key))
         }
         return res
     }

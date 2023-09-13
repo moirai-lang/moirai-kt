@@ -14,44 +14,70 @@ class CompilerFrontend(
     private val sourceStore: SourceStore
 ) {
     fun compile(
-        fileName: String,
         contents: String,
-        systemScopes: SystemScopes,
-        transient: Boolean
+        systemScopes: SystemScopes
     ): ExecutionArtifacts {
-        val importFanOut = preScanImportFanOut(sourceStore, fileName, contents, transient)
+        val importFanOut = preScanImportFanOut(sourceStore, contents)
+        val errors = LanguageErrors()
 
-        val semanticsMap: MutableMap<ImportId, SemanticArtifacts> = HashMap()
+        if (importFanOut.count() == 1 && importFanOut.first().scriptType is PureTransient) {
+            val res = importFanOut.first()
+
+            val astParseTreeVisitor = AstParseTreeVisitor(res.scriptType.fileName(), errors)
+            val rawAst = astParseTreeVisitor.visit(res.parseTree) as FileAst
+
+            val artifacts = processAstAllPhases(
+                systemScopes,
+                rawAst,
+                listOf(),
+                architecture,
+                listOf()
+            )
+
+            return ExecutionArtifacts(
+                res,
+                artifacts.processedAst,
+                artifacts
+            )
+        }
+
+        if (importFanOut.count() > 1 && importFanOut.any { it.scriptType is PureTransient }) {
+            langThrow(NotInSource, ImpossibleState("PureTransient ScriptType found in import list"))
+        }
+
+        val semanticsMap: MutableMap<List<String>, SemanticArtifacts> = HashMap()
         val astMap: MutableMap<List<String>, Ast> = HashMap()
 
-        val errors = LanguageErrors()
         importFanOut.forEach { importScan ->
-            val astParseTreeVisitor = AstParseTreeVisitor(importScan.fileName, errors)
+            val astParseTreeVisitor = AstParseTreeVisitor(importScan.scriptType.fileName(), errors)
             val rawAst = astParseTreeVisitor.visit(importScan.parseTree) as FileAst
             if (errors.toSet().isNotEmpty()) {
                 throw LanguageException(errors.toSet())
             }
 
             val existingArtifacts = importScan.imports.map {
-                semanticsMap[it]!!
+                semanticsMap[it.path]!!
             }
+
+            val scriptType = importScan.scriptType as NamedScriptType
 
             val artifacts = processAstAllPhases(
                 systemScopes,
                 rawAst,
-                importScan.id.namespace,
+                scriptType.nameParts,
                 architecture,
                 existingArtifacts
             )
-            semanticsMap[importScan.id] = artifacts
-            astMap[importScan.id.namespace] = rawAst
+            semanticsMap[scriptType.nameParts] = artifacts
+            astMap[scriptType.nameParts] = rawAst
         }
 
         val res = importFanOut.last()
+        val resScriptType = res.scriptType as NamedScriptType
         return ExecutionArtifacts(
             res,
-            astMap[res.id.namespace]!!,
-            semanticsMap[res.id]!!
+            astMap[resScriptType.nameParts]!!,
+            semanticsMap[resScriptType.nameParts]!!
         )
     }
 }
