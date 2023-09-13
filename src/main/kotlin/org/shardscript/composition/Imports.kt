@@ -52,11 +52,11 @@ internal fun fetchStoredFileByNamespaceAndScan(sourceStore: SourceStore, namePar
 internal fun preScanImportFanOut(
     sourceStore: SourceStore,
     sourceText: String
-): Set<ImportScan> {
+): List<ImportScan> {
     val initialScan = preScanFile(sourceText)
 
     if (initialScan.scriptType is PureTransient) {
-        return setOf(initialScan)
+        return listOf(initialScan)
     }
 
     val unprocessed: Queue<ImportScan> = LinkedList()
@@ -107,6 +107,6 @@ internal fun preScanImportFanOut(
 
     when (val res = topologicalSort(nodes, edges)) {
         is Left -> langThrow(NotInSource, RecursiveNamespaceDetected)
-        is Right -> return res.value.map { processed[it]!! }.toSet()
+        is Right -> return res.value.map { processed[it]!! }
     }
 }

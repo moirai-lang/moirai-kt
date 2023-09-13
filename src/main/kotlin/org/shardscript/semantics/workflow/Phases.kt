@@ -3,53 +3,15 @@ package org.shardscript.semantics.workflow
 import org.shardscript.semantics.core.*
 import org.shardscript.semantics.visitors.*
 
-fun createFileScope(
-    sourceContext: SourceContext,
-    namespaceParts: List<String>,
-    root: NamespaceBase
-): Namespace {
-    if (namespaceParts.isEmpty()) {
-        val error = LanguageError(sourceContext, FilesMustHaveNamespace)
-        filterThrow(setOf(error))
-    }
-
-    var owner: Namespace = namespaceParts.first().let { current ->
-        navigateDown(root, Identifier(current), sourceContext)
-    }
-
-    namespaceParts.drop(1).forEach { current ->
-        owner = navigateDown(owner, Identifier(current), sourceContext)
-    }
-
-    return owner
-}
-
-private fun navigateDown(
-    namespaceBase: NamespaceBase,
-    currentId: Identifier,
-    sourceContext: SourceContext
-) = if (!namespaceBase.existsHere(currentId)) {
-    val currentSymbol = Namespace(namespaceBase, currentId)
-    namespaceBase.define(currentId, currentSymbol)
-    currentSymbol
-} else {
-    val currentSymbol = namespaceBase.fetchHere(currentId)
-    if (currentSymbol is Namespace) {
-        currentSymbol
-    } else {
-        langThrow(sourceContext, IdentifierAlreadyExists(currentId))
-    }
-}
-
 fun bindScopes(
     ast: FileAst,
-    namespace: Namespace,
+    fileScope: Scope<Symbol>,
     architecture: Architecture,
     preludeTable: PreludeTable
 ) {
-    ast.scope = namespace
+    ast.scope = fileScope
     val bindScopeVisitor = BindScopesAstVisitor(preludeTable, architecture)
-    ast.accept(bindScopeVisitor, namespace)
+    ast.accept(bindScopeVisitor, fileScope)
 }
 
 fun parameterScan(ast: FileAst) {

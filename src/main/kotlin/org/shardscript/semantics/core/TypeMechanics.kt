@@ -661,8 +661,6 @@ fun validateExplicitSymbol(
                 }
             }
         }
-    } else {
-        errors.add(ctx, TypeSystemBug)
     }
 }
 

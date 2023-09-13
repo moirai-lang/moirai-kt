@@ -218,7 +218,7 @@ data class LanguageError(
     val ctx: SourceContext,
     val error: ErrorType
 ) {
-    val callStack: StackTraceElement = Exception().stackTrace[2]
+    val callStack: StackTraceElement = Exception().stackTrace[3]
 }
 
 class LanguageErrors {

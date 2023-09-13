@@ -117,7 +117,7 @@ fragment FRACTION_PART
     ;
 
 fragment INTEGER_PART
-    :   DIGIT*
+    :   DIGIT+
     ;
 
 fragment NON_LEADING_ZERO_INT

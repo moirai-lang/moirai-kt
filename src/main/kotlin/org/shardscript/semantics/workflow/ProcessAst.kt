@@ -18,7 +18,7 @@ data class UserScopes(
 data class SemanticArtifacts(
     val processedAst: FileAst,
     val userScopes: UserScopes,
-    val file: Namespace,
+    val file: Scope<Symbol>,
     val sortedRecords: SortResult<Symbol>,
     val sortedFunctions: SortResult<Symbol>
 )
@@ -84,21 +84,20 @@ fun topologicallySortAllArtifacts(
 fun processAstAllPhases(
     systemScopes: SystemScopes,
     ast: FileAst,
-    namespace: List<String>,
     architecture: Architecture,
     existingArtifacts: List<SemanticArtifacts>
 ): SemanticArtifacts {
     val userScopes = createUserScopes(systemScopes)
-    existingArtifacts.forEach { artifacts ->
-        registerImports(artifacts.processedAst, userScopes.imports)
-        artifacts.userScopes.userRoot.symbolTable.toMap().forEach { entry ->
+    existingArtifacts.forEach { artifact ->
+        registerImports(artifact.processedAst, userScopes.imports)
+        artifact.userScopes.userRoot.symbolTable.toMap().forEach { entry ->
             userScopes.userRoot.define(entry.key, entry.value)
         }
     }
 
-    val file = createFileScope(ast.ctx, namespace, userScopes.userRoot)
+    val fileScope = SymbolTable(userScopes.userRoot)
 
-    bindScopes(ast, file, architecture, systemScopes.prelude)
+    bindScopes(ast, fileScope, architecture, systemScopes.prelude)
     parameterScan(ast)
     val sortedRecords = simpleRecursiveRecordDetection(ast)
     recordScan(ast)
@@ -114,19 +113,7 @@ fun processAstAllPhases(
     calculateCost(ast, architecture)
     enforceCostLimit(ast, architecture)
 
-    val res = SemanticArtifacts(ast, userScopes, file, sortedRecords, sortedFunctions)
+    val res = SemanticArtifacts(ast, userScopes, fileScope, sortedRecords, sortedFunctions)
     topologicallySortAllArtifacts(res, existingArtifacts)
     return res
-}
-
-fun processAstResurrectOnly(
-    systemScopes: SystemScopes,
-    fileNamespace: Namespace,
-    ast: FileAst,
-    architecture: Architecture
-) {
-    bindScopes(ast, fileNamespace, architecture, systemScopes.prelude)
-    propagateTypes(ast, architecture, systemScopes.prelude)
-    checkTypes(ast, systemScopes.prelude)
-    resurrectWhitelist(ast)
 }
