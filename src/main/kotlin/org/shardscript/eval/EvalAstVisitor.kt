@@ -3,13 +3,6 @@ package org.shardscript.eval
 import org.shardscript.semantics.core.*
 
 class EvalAstVisitor(private val globalScope: ValueTable) : ParameterizedAstVisitor<ValueTable, Value> {
-    private val initFunctionCallback: (FunctionValue) -> Unit = { fv ->
-        fv.globalScope = globalScope
-        fv.evalCallback = { a, v ->
-            a.accept(this, v)
-        }
-    }
-
     override fun visit(ast: FileAst, param: ValueTable): Value {
         val blockScope = ValueTable(param)
         val resLines = ast.lines.map { it.accept(this, blockScope) }
@@ -68,9 +61,7 @@ class EvalAstVisitor(private val globalScope: ValueTable) : ParameterizedAstVisi
 
     override fun visit(ast: LambdaAst, param: ValueTable): Value {
         val lambdaSymbol = ast.scope as LambdaSymbol
-        val fv = FunctionValue(lambdaSymbol.formalParams, ast.body)
-        initFunctionCallback(fv)
-        return fv
+        return FunctionValue(lambdaSymbol.formalParams, ast.body)
     }
 
     override fun visit(ast: RecordDefinitionAst, param: ValueTable): Value =
@@ -109,8 +100,9 @@ class EvalAstVisitor(private val globalScope: ValueTable) : ParameterizedAstVisi
         val args = ast.args.map { it.accept(this, param) }
         return when (val toApply = param.fetch(ast.tti)) {
             is FunctionValue -> {
-                initFunctionCallback(toApply)
-                toApply.invoke(args)
+                toApply.invoke(args, globalScope) { a, v ->
+                    a.accept(this, v)
+                }
             }
             is RecordConstructorValue -> {
                 toApply.apply(args)
@@ -142,9 +134,6 @@ class EvalAstVisitor(private val globalScope: ValueTable) : ParameterizedAstVisi
             when (val lhs = ast.lhs.accept(this, param)) {
                 is NamespaceValue -> {
                     return when (val toApply = lhs.router.fetchHere(ast.tti)) {
-                        is FunctionValue -> {
-                            toApply.invoke(args)
-                        }
                         is RecordConstructorValue -> {
                             toApply.apply(args)
                         }

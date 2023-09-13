@@ -52,10 +52,7 @@ data class FunctionValue(
     val formalParams: List<FunctionFormalParameterSymbol>,
     val body: Ast
 ) : Value() {
-    lateinit var globalScope: ValueTable
-    lateinit var evalCallback: (Ast, ValueTable) -> Value
-
-    fun invoke(args: List<Value>): Value {
+    fun invoke(args: List<Value>, globalScope: ValueTable, evalCallback: (Ast, ValueTable) -> Value): Value {
         val functionScope = ValueTable(globalScope)
         formalParams.zip(args).forEach {
             functionScope.define(it.first.identifier, it.second)
