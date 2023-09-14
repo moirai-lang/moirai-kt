@@ -17,10 +17,10 @@ fun createListEqualsMember(
     val equalsMemberFunction = ParameterizedMemberPluginSymbol(
         listSymbol,
         Identifier(BinaryOperator.Equal.idStr),
-        DoubleParentSingleFinPluginInstantiation,
-    { t: Value, args: List<Value> ->
+        DoubleParentSingleFinPluginInstantiation
+    ) { t: Value, args: List<Value> ->
         (t as EqualityValue).evalEquals(args.first())
-    })
+    }
     val inputFinTypeArg = ImmutableFinTypeParameter(equalsMemberFunction, Lang.listInputFinTypeId)
     equalsMemberFunction.define(listElementType.identifier, listElementType)
     equalsMemberFunction.define(listFin.identifier, listFin)
@@ -52,10 +52,10 @@ fun createListNotEqualsMember(
     val notEqualsMemberFunction = ParameterizedMemberPluginSymbol(
         listSymbol,
         Identifier(BinaryOperator.NotEqual.idStr),
-        DoubleParentSingleFinPluginInstantiation,
-    { t: Value, args: List<Value> ->
+        DoubleParentSingleFinPluginInstantiation
+    ) { t: Value, args: List<Value> ->
         (t as EqualityValue).evalNotEquals(args.first())
-    })
+    }
     val inputFinTypeArg = ImmutableFinTypeParameter(notEqualsMemberFunction, Lang.listInputFinTypeId)
     notEqualsMemberFunction.define(listElementType.identifier, listElementType)
     notEqualsMemberFunction.define(listFin.identifier, listFin)
@@ -87,10 +87,10 @@ fun createMutableListEqualsMember(
     val equalsMemberFunction = ParameterizedMemberPluginSymbol(
         mutableListSymbol,
         Identifier(BinaryOperator.Equal.idStr),
-        DoubleParentSingleFinPluginInstantiation,
-    { t: Value, args: List<Value> ->
+        DoubleParentSingleFinPluginInstantiation
+    ) { t: Value, args: List<Value> ->
         (t as EqualityValue).evalEquals(args.first())
-    })
+    }
     val inputFinTypeArg = ImmutableFinTypeParameter(equalsMemberFunction, Lang.mutableListInputFinTypeId)
     equalsMemberFunction.define(mutableListElementType.identifier, mutableListElementType)
     equalsMemberFunction.define(mutableListFin.identifier, mutableListFin)
@@ -123,10 +123,10 @@ fun createMutableListNotEqualsMember(
     val notEqualsMemberFunction = ParameterizedMemberPluginSymbol(
         mutableListSymbol,
         Identifier(BinaryOperator.NotEqual.idStr),
-        DoubleParentSingleFinPluginInstantiation,
-    { t: Value, args: List<Value> ->
+        DoubleParentSingleFinPluginInstantiation
+    ) { t: Value, args: List<Value> ->
         (t as EqualityValue).evalNotEquals(args.first())
-    })
+    }
     val inputFinTypeArg = ImmutableFinTypeParameter(notEqualsMemberFunction, Lang.mutableListInputFinTypeId)
     notEqualsMemberFunction.define(mutableListElementType.identifier, mutableListElementType)
     notEqualsMemberFunction.define(mutableListFin.identifier, mutableListFin)
@@ -163,10 +163,10 @@ fun createDictionaryEqualsMember(
     val equalsMemberFunction = ParameterizedMemberPluginSymbol(
         dictionarySymbol,
         Identifier(BinaryOperator.Equal.idStr),
-        TripleParentSingleFinPluginInstantiation,
-    { t: Value, args: List<Value> ->
+        TripleParentSingleFinPluginInstantiation
+    ) { t: Value, args: List<Value> ->
         (t as EqualityValue).evalEquals(args.first())
-    })
+    }
     val inputFinTypeArg = ImmutableFinTypeParameter(equalsMemberFunction, Lang.dictionaryInputFinTypeId)
     equalsMemberFunction.define(dictionaryKeyType.identifier, dictionaryKeyType)
     equalsMemberFunction.define(dictionaryValueType.identifier, dictionaryValueType)
@@ -201,10 +201,10 @@ fun createDictionaryNotEqualsMember(
     val notEqualsMemberFunction = ParameterizedMemberPluginSymbol(
         dictionarySymbol,
         Identifier(BinaryOperator.NotEqual.idStr),
-        TripleParentSingleFinPluginInstantiation,
-    { t: Value, args: List<Value> ->
+        TripleParentSingleFinPluginInstantiation
+    ) { t: Value, args: List<Value> ->
         (t as EqualityValue).evalNotEquals(args.first())
-    })
+    }
     val inputFinTypeArg = ImmutableFinTypeParameter(notEqualsMemberFunction, Lang.dictionaryInputFinTypeId)
     notEqualsMemberFunction.define(dictionaryKeyType.identifier, dictionaryKeyType)
     notEqualsMemberFunction.define(dictionaryValueType.identifier, dictionaryValueType)
@@ -239,10 +239,10 @@ fun createMutableDictionaryEqualsMember(
     val equalsMemberFunction = ParameterizedMemberPluginSymbol(
         mutableDictionarySymbol,
         Identifier(BinaryOperator.Equal.idStr),
-        TripleParentSingleFinPluginInstantiation,
-    { t: Value, args: List<Value> ->
+        TripleParentSingleFinPluginInstantiation
+    ) { t: Value, args: List<Value> ->
         (t as EqualityValue).evalEquals(args.first())
-    })
+    }
     val inputFinTypeArg =
         ImmutableFinTypeParameter(equalsMemberFunction, Lang.mutableDictionaryInputFinTypeId)
     equalsMemberFunction.define(mutableDictionaryKeyType.identifier, mutableDictionaryKeyType)
@@ -280,10 +280,10 @@ fun createMutableDictionaryNotEqualsMember(
     val notEqualsMemberFunction = ParameterizedMemberPluginSymbol(
         mutableDictionarySymbol,
         Identifier(BinaryOperator.NotEqual.idStr),
-        TripleParentSingleFinPluginInstantiation,
-    { t: Value, args: List<Value> ->
+        TripleParentSingleFinPluginInstantiation
+    ) { t: Value, args: List<Value> ->
         (t as EqualityValue).evalNotEquals(args.first())
-    })
+    }
     val inputFinTypeArg =
         ImmutableFinTypeParameter(notEqualsMemberFunction, Lang.mutableDictionaryInputFinTypeId)
     notEqualsMemberFunction.define(mutableDictionaryKeyType.identifier, mutableDictionaryKeyType)
@@ -323,10 +323,10 @@ fun createSetEqualsMember(
     val equalsMemberFunction = ParameterizedMemberPluginSymbol(
         setSymbol,
         Identifier(BinaryOperator.Equal.idStr),
-        DoubleParentSingleFinPluginInstantiation,
-    { t: Value, args: List<Value> ->
+        DoubleParentSingleFinPluginInstantiation
+    ) { t: Value, args: List<Value> ->
         (t as EqualityValue).evalEquals(args.first())
-    })
+    }
     val inputFinTypeArg = ImmutableFinTypeParameter(equalsMemberFunction, Lang.setInputFinTypeId)
     equalsMemberFunction.define(setElementType.identifier, setElementType)
     equalsMemberFunction.define(setFin.identifier, setFin)
@@ -358,10 +358,10 @@ fun createSetNotEqualsMember(
     val notEqualsMemberFunction = ParameterizedMemberPluginSymbol(
         setSymbol,
         Identifier(BinaryOperator.NotEqual.idStr),
-        DoubleParentSingleFinPluginInstantiation,
-    { t: Value, args: List<Value> ->
+        DoubleParentSingleFinPluginInstantiation
+    ) { t: Value, args: List<Value> ->
         (t as EqualityValue).evalNotEquals(args.first())
-    })
+    }
     val inputFinTypeArg = ImmutableFinTypeParameter(notEqualsMemberFunction, Lang.setInputFinTypeId)
     notEqualsMemberFunction.define(setElementType.identifier, setElementType)
     notEqualsMemberFunction.define(setFin.identifier, setFin)
@@ -393,10 +393,10 @@ fun createMutableSetEqualsMember(
     val equalsMemberFunction = ParameterizedMemberPluginSymbol(
         mutableSetSymbol,
         Identifier(BinaryOperator.Equal.idStr),
-        DoubleParentSingleFinPluginInstantiation,
-    { t: Value, args: List<Value> ->
+        DoubleParentSingleFinPluginInstantiation
+    ) { t: Value, args: List<Value> ->
         (t as EqualityValue).evalEquals(args.first())
-    })
+    }
     val inputFinTypeArg = ImmutableFinTypeParameter(equalsMemberFunction, Lang.mutableSetInputFinTypeId)
     equalsMemberFunction.define(mutableSetElementType.identifier, mutableSetElementType)
     equalsMemberFunction.define(mutableSetFin.identifier, mutableSetFin)
@@ -429,10 +429,10 @@ fun createMutableSetNotEqualsMember(
     val notEqualsMemberFunction = ParameterizedMemberPluginSymbol(
         mutableSetSymbol,
         Identifier(BinaryOperator.NotEqual.idStr),
-        DoubleParentSingleFinPluginInstantiation,
-    { t: Value, args: List<Value> ->
+        DoubleParentSingleFinPluginInstantiation
+    ) { t: Value, args: List<Value> ->
         (t as EqualityValue).evalNotEquals(args.first())
-    })
+    }
     val inputFinTypeArg = ImmutableFinTypeParameter(notEqualsMemberFunction, Lang.mutableSetInputFinTypeId)
     notEqualsMemberFunction.define(mutableSetElementType.identifier, mutableSetElementType)
     notEqualsMemberFunction.define(mutableSetFin.identifier, mutableSetFin)

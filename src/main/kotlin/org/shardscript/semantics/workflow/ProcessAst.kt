@@ -2,7 +2,6 @@ package org.shardscript.semantics.workflow
 
 import org.shardscript.semantics.core.*
 import org.shardscript.semantics.prelude.Lang
-import kotlin.math.sqrt
 
 data class SystemScopes(
     val prelude: PreludeTable,
@@ -97,12 +96,12 @@ fun processAstAllPhases(
 
     val fileScope = SymbolTable(userScopes.userRoot)
 
-    bindScopes(ast, fileScope, architecture, systemScopes.prelude)
+    bindScopes(ast, fileScope, architecture)
     parameterScan(ast)
     val sortedRecords = simpleRecursiveRecordDetection(ast)
     recordScan(ast)
     functionScan(ast)
-    propagateTypes(ast, architecture, systemScopes.prelude)
+    propagateTypes(ast, systemScopes.prelude)
     checkTypes(ast, systemScopes.prelude)
     bans(ast)
     linearizeBans(ast)

@@ -2,7 +2,7 @@ package org.shardscript.semantics.visitors
 
 import org.shardscript.semantics.core.*
 
-class ImportSymbolsAstVisitor(val importTable: ImportTable) : UnitAstVisitor() {
+class ImportSymbolsAstVisitor(private val importTable: ImportTable) : UnitAstVisitor() {
     override fun visit(ast: FunctionAst) {
         importTable.register(ast.identifier, ast.definitionSpace)
     }

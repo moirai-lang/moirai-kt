@@ -6,11 +6,10 @@ import org.shardscript.semantics.visitors.*
 fun bindScopes(
     ast: FileAst,
     fileScope: Scope<Symbol>,
-    architecture: Architecture,
-    preludeTable: PreludeTable
+    architecture: Architecture
 ) {
     ast.scope = fileScope
-    val bindScopeVisitor = BindScopesAstVisitor(preludeTable, architecture)
+    val bindScopeVisitor = BindScopesAstVisitor(architecture)
     ast.accept(bindScopeVisitor, fileScope)
 }
 
@@ -58,8 +57,8 @@ fun functionScan(ast: FileAst) {
     }
 }
 
-fun propagateTypes(ast: FileAst, architecture: Architecture, preludeTable: PreludeTable) {
-    val propagateTypesAstVisitor = PropagateTypesAstVisitor(architecture, preludeTable)
+fun propagateTypes(ast: FileAst, preludeTable: PreludeTable) {
+    val propagateTypesAstVisitor = PropagateTypesAstVisitor(preludeTable)
     ast.accept(propagateTypesAstVisitor)
     val errors = propagateTypesAstVisitor.errors.toSet()
     if (errors.isNotEmpty()) {
@@ -194,13 +193,4 @@ fun enforceCostLimit(ast: FileAst, architecture: Architecture) {
 fun registerImports(ast: FileAst, imports: ImportTable) {
     val importVisitor = ImportSymbolsAstVisitor(imports)
     ast.accept(importVisitor)
-}
-
-fun resurrectWhitelist(ast: FileAst) {
-    val resurrectVisitor = ResurrectWhitelistAstVisitor()
-    ast.accept(resurrectVisitor)
-    val errors = resurrectVisitor.errors.toSet()
-    if (errors.isNotEmpty()) {
-        filterThrow(errors)
-    }
 }

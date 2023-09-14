@@ -4,10 +4,10 @@ import org.shardscript.semantics.core.*
 
 sealed class NestedDefinitionIndicator
 
-object TopLevelIndicator : NestedDefinitionIndicator()
-object WithinEnumIndicator : NestedDefinitionIndicator()
-object WithinRecordIndicator : NestedDefinitionIndicator()
-object OtherIndicator : NestedDefinitionIndicator()
+data object TopLevelIndicator : NestedDefinitionIndicator()
+data object WithinEnumIndicator : NestedDefinitionIndicator()
+data object WithinRecordIndicator : NestedDefinitionIndicator()
+data object OtherIndicator : NestedDefinitionIndicator()
 
 class BanNestedDefinitionAstVisitor : ParameterizedUnitAstVisitor<NestedDefinitionIndicator>() {
     override fun visit(ast: StringInterpolationAst, param: NestedDefinitionIndicator) {

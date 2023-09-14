@@ -595,7 +595,7 @@ fun findBestType(ctx: SourceContext, errors: LanguageErrors, types: List<Symbol>
         }
         is FinTypeSymbol -> {
             if (types.all { it is FinTypeSymbol }) {
-                FinTypeSymbol(types.map { (it as FinTypeSymbol).magnitude }.max()!!)
+                FinTypeSymbol(types.maxOf { (it as FinTypeSymbol).magnitude })
             } else {
                 errors.add(ctx, CannotFindBestType(types))
                 ErrorSymbol

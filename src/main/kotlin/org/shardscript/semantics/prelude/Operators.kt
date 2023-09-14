@@ -16,9 +16,9 @@ enum class BinaryOperator(val opStr: String, val idStr: String) {
     Or("||", "or")
 }
 
-enum class UnaryOperator(val opStr: String, val idStr: String) {
-    Not("!", "not"),
-    Negate("-", "negate")
+enum class UnaryOperator(val idStr: String) {
+    Not("not"),
+    Negate("negate")
 }
 
 enum class CollectionFields(val idStr: String) {
@@ -44,18 +44,6 @@ enum class CollectionMethods(val idStr: String) {
     ToImmutableDictionary("toDictionary")
 }
 
-enum class IntegerConversions(val idStr: String) {
-    ToSigned8("toSigned8"),
-    ToSigned16("toSigned16"),
-    ToSigned32("toSigned32"),
-    ToSigned64("toSigned64"),
-    ToUnsigned8("toUnsigned8"),
-    ToUnsigned16("toUnsigned16"),
-    ToUnsigned32("toUnsigned32"),
-    ToUnsigned64("toUnsigned64"),
-}
-
 enum class TypeRelations(val idStr: String) {
-    Is("is"),
     As("as")
 }

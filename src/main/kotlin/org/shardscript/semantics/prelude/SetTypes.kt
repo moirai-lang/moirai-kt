@@ -13,10 +13,10 @@ private fun createContainsFunction(
     val containsMemberFunction = ParameterizedMemberPluginSymbol(
         setType,
         containsId,
-        SingleParentArgInstantiation,
-    { t: Value, args: List<Value> ->
+        SingleParentArgInstantiation
+    ) { t: Value, args: List<Value> ->
         (t as SetValue).evalContains(args.first())
-    })
+    }
     containsMemberFunction.typeParams = listOf(setElementTypeParam)
     containsMemberFunction.costExpression = costExpression
     val containsFormalParamId = Identifier("element")
@@ -39,10 +39,10 @@ private fun createAddFunction(
     val addMemberFunction = ParameterizedMemberPluginSymbol(
         setType,
         addId,
-        SingleParentArgInstantiation,
-    { t: Value, args: List<Value> ->
+        SingleParentArgInstantiation
+    ) { t: Value, args: List<Value> ->
         (t as SetValue).evalAdd(args.first())
-    })
+    }
     addMemberFunction.typeParams = listOf(setElementTypeParam)
     addMemberFunction.costExpression = costExpression
     val addFormalParamId = Identifier("element")
@@ -64,10 +64,10 @@ private fun createRemoveFunction(
     val removeMemberFunction = ParameterizedMemberPluginSymbol(
         setType,
         removeId,
-        SingleParentArgInstantiation,
-    { t: Value, args: List<Value> ->
+        SingleParentArgInstantiation
+    ) { t: Value, args: List<Value> ->
         (t as SetValue).evalRemove(args.first())
-    })
+    }
     removeMemberFunction.typeParams = listOf(setElementTypeParam)
     removeMemberFunction.costExpression = costExpression
     val removeFormalParamId = Identifier("element")
@@ -89,10 +89,10 @@ fun createToImmutableSetPlugin(
     val plugin = ParameterizedMemberPluginSymbol(
         mutableSetType,
         Identifier(CollectionMethods.ToImmutableSet.idStr),
-        DoubleParentArgInstantiation,
-    { t: Value, _: List<Value> ->
+        DoubleParentArgInstantiation
+    ) { t: Value, _: List<Value> ->
         (t as SetValue).evalToSet()
-    })
+    }
     plugin.typeParams = listOf(elementType, fin)
     plugin.formalParams = listOf()
     val outputSubstitution = Substitution(setType.typeParams, listOf(elementType, fin))

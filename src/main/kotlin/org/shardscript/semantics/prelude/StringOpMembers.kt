@@ -14,10 +14,10 @@ fun pluginToCharArray(
     val res = ParameterizedMemberPluginSymbol(
         stringType,
         Identifier(StringMethods.ToCharArray.idStr),
-        SingleParentArgInstantiation,
-    { t: Value, _: List<Value> ->
+        SingleParentArgInstantiation
+    ) { t: Value, _: List<Value> ->
         (t as StringValue).evalToCharArray()
-    })
+    }
     res.typeParams = listOf(stringTypeParam)
     res.formalParams = listOf()
     val outputSubstitution = Substitution(listType.typeParams, listOf(charType, stringTypeParam))
@@ -46,10 +46,10 @@ object StringEqualityOpMembers {
         val res = ParameterizedMemberPluginSymbol(
             stringType,
             Identifier(BinaryOperator.Add.idStr),
-            DualFinPluginInstantiation,
-        { t: Value, args: List<Value> ->
+            DualFinPluginInstantiation
+        ) { t: Value, args: List<Value> ->
             (t as StringValue).evalAdd(args.first())
-        })
+        }
         val inputTypeArg = ImmutableFinTypeParameter(res, Lang.stringInputTypeId)
         res.define(inputTypeArg.identifier, inputTypeArg)
         res.typeParams = listOf(stringTypeParam, inputTypeArg)
@@ -84,10 +84,10 @@ object StringEqualityOpMembers {
         val res = ParameterizedMemberPluginSymbol(
             stringType,
             Identifier(BinaryOperator.Equal.idStr),
-            DualFinPluginInstantiation,
-        { t: Value, args: List<Value> ->
+            DualFinPluginInstantiation
+        ) { t: Value, args: List<Value> ->
             (t as EqualityValue).evalEquals(args.first())
-        })
+        }
         val inputTypeArg = ImmutableFinTypeParameter(res, Lang.stringInputTypeId)
         res.define(inputTypeArg.identifier, inputTypeArg)
         res.typeParams = listOf(stringTypeParam, inputTypeArg)
@@ -125,10 +125,10 @@ object StringEqualityOpMembers {
         val res = ParameterizedMemberPluginSymbol(
             stringType,
             Identifier(BinaryOperator.NotEqual.idStr),
-            DualFinPluginInstantiation,
-        { t: Value, args: List<Value> ->
+            DualFinPluginInstantiation
+        ) { t: Value, args: List<Value> ->
             (t as EqualityValue).evalNotEquals(args.first())
-        })
+        }
         val inputTypeArg = ImmutableFinTypeParameter(res, Lang.stringInputTypeId)
         res.define(inputTypeArg.identifier, inputTypeArg)
         res.typeParams = listOf(stringTypeParam, inputTypeArg)

@@ -14,7 +14,7 @@ fun insertIntegerToStringMember(
     { t: Value, _: List<Value> ->
         (t as IntValue).evalToString()
     })
-    val fin = FinTypeSymbol(Lang.intFin)
+    val fin = FinTypeSymbol(Lang.INT_FIN)
     res.costExpression = fin
 
     val substitution = Substitution(stringType.typeParams, listOf(fin))
@@ -54,7 +54,7 @@ fun insertBooleanToStringMember(
     { t: Value, _: List<Value> ->
         (t as BooleanValue).evalToString()
     })
-    val fin = FinTypeSymbol(Lang.booleanFin)
+    val fin = FinTypeSymbol(Lang.BOOL_FIN)
     res.costExpression = fin
 
     val substitution = Substitution(stringType.typeParams, listOf(fin))
@@ -117,7 +117,7 @@ fun insertCharToStringMember(
     { t: Value, _: List<Value> ->
         (t as CharValue).evalToString()
     })
-    val fin = FinTypeSymbol(Lang.charFin)
+    val fin = FinTypeSymbol(Lang.CHAR_FIN)
     res.costExpression = fin
     val substitution = Substitution(stringType.typeParams, listOf(fin))
     val stringInstantiation = substitution.apply(stringType)

@@ -21,7 +21,7 @@ sealed class NamedSymbolWithMembers(
     private val symbolTable: SymbolTable = SymbolTable(parent)
 ): NamedSymbolTableElement(), Scope<Symbol> by symbolTable
 
-object ErrorSymbol : Symbol()
+data object ErrorSymbol : Symbol()
 
 class PreludeTable(
     override val parent: Scope<Symbol>,

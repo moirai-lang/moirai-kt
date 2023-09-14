@@ -90,8 +90,8 @@ class GenerateFunctionEdgesAstVisitor : UnitAstVisitor() {
 }
 
 class GenerateFunctionEdgesParameterizedAstVisitor(
-    val edges: MutableSet<DependencyEdge<Symbol>>,
-    val nodes: MutableSet<Symbol>
+    private val edges: MutableSet<DependencyEdge<Symbol>>,
+    private val nodes: MutableSet<Symbol>
 ) : ParameterizedUnitAstVisitor<Symbol>() {
     override fun visit(ast: GroundApplyAst, param: Symbol) {
         super.visit(ast, param)

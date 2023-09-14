@@ -5,7 +5,7 @@ import org.shardscript.semantics.core.*
 sealed class RecordMode
 
 data class EnumRecord(val enumGid: Identifier) : RecordMode()
-object RecordDef : RecordMode()
+data object RecordDef : RecordMode()
 
 class ParameterScanAstVisitor : UnitAstVisitor() {
     private fun scanRecord(ast: RecordDefinitionAst, recordMode: RecordMode) {

@@ -28,8 +28,8 @@ object Lang {
     val mutableListInputFinTypeId = Identifier("P")
 
     val pairId = Identifier("Pair")
-    val pairFirstTypeId = Identifier("A")
-    val pairSecondTypeId = Identifier("B")
+    private val pairFirstTypeId = Identifier("A")
+    private val pairSecondTypeId = Identifier("B")
     val pairFirstId = Identifier("first")
     val pairSecondId = Identifier("second")
 
@@ -60,10 +60,10 @@ object Lang {
     val randomId = Identifier("random")
     val randomTypeId = Identifier("A")
 
-    val intFin: Long = (Int.MIN_VALUE.toString().length).toLong()
+    const val INT_FIN: Long = (Int.MIN_VALUE.toString().length).toLong()
     val unitFin: Long = unitId.name.length.toLong()
-    val booleanFin: Long = false.toString().length.toLong()
-    val charFin: Long = 1L
+    const val BOOL_FIN: Long = false.toString().length.toLong()
+    const val CHAR_FIN: Long = 1L
 
     fun isUnitExactly(symbol: Symbol): Boolean =
         when (generatePath(symbol)) {

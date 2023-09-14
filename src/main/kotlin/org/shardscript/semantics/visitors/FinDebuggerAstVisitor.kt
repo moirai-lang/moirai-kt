@@ -3,7 +3,7 @@ package org.shardscript.semantics.visitors
 import org.shardscript.semantics.core.*
 
 class FinDebuggerAstVisitor(val architecture: Architecture) : UnitAstVisitor() {
-    fun testNode(ast: Ast) {
+    private fun testNode(ast: Ast) {
         val cost = ast.costExpression.accept(EvalCostExpressionVisitor(architecture))
         if (cost > architecture.costUpperLimit) {
             filterThrow(setOf(LanguageError(NotInSource, CostOverLimit)))

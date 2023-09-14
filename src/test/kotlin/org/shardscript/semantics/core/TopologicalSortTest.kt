@@ -30,9 +30,7 @@ class TopologicalSortTest {
         edges.add(DependencyEdge(d, f))
         edges.add(DependencyEdge(e, f))
 
-        val res = topologicalSort(nodes.toSet(), edges.toSet())
-
-        when (res) {
+        when (val res = topologicalSort(nodes.toSet(), edges.toSet())) {
             is Right -> {
                 val indexA = res.value.indexOf(a)
                 val indexB = res.value.indexOf(b)

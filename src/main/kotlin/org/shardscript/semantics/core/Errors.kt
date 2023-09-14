@@ -14,19 +14,14 @@ interface SymbolHostErrorType {
 
 // Frontend Errors
 data object InvalidAssign : ErrorType()
-data object InvalidEnumMember : ErrorType()
 data class InvalidIntegerLiteral(val typeId: String, val text: String) : ErrorType()
 data class DuplicateImport(val import: List<String>) : ErrorType()
 data class NoSuchFile(val import: List<String>) : ErrorType()
 data class AmbiguousSymbol(val signifier: Signifier) : ErrorType()
 data object SelfImport : ErrorType()
 data object RecursiveNamespaceDetected : ErrorType()
-data class TransientSymbolBan(val symbol: Symbol) : ErrorType(), SymbolHostErrorType {
-    override val symbols: List<Symbol> = listOf(symbol)
-}
 
 data class ImpossibleState(val msg: String) : ErrorType()
-data object CouldNotAcquireLock : ErrorType()
 
 // Define errors
 data class IdentifierCouldNotBeDefined(val identifier: Identifier) : ErrorType()
@@ -58,9 +53,6 @@ data class InvalidRef(val symbol: Symbol) : ErrorType(), SymbolHostErrorType {
 
 data object CannotInstantiate : ErrorType()
 data class TypeInferenceFailed(val typeParam: TypeParameter) : ErrorType()
-data class InvalidBodyType(val symbol: Symbol) : ErrorType(), SymbolHostErrorType {
-    override val symbols: List<Symbol> = listOf(symbol)
-}
 
 data class CannotUseRawType(val symbol: Symbol) : ErrorType(), SymbolHostErrorType {
     override val symbols: List<Symbol> = listOf(symbol)
@@ -71,18 +63,14 @@ data class CannotFindBestType(override val symbols: List<Symbol>) : ErrorType(),
 // General Errors
 data class SyntaxError(val msg: String) : ErrorType()
 data object ResurrectWhitelistError : ErrorType()
-data object NoOwnerAccess : ErrorType()
 data object TypeSystemBug : ErrorType()
 data object ExpectOtherError : ErrorType()
-data object FilesMustHaveNamespace : ErrorType()
 data object CostOverLimit : ErrorType()
 data object InvalidCostUpperLimit: ErrorType()
 data class SymbolCouldNotBeApplied(val signifier: Signifier) : ErrorType()
-data class SymbolIsNotAMember(val signifier: Signifier) : ErrorType()
 data class SymbolIsNotAField(val signifier: Signifier) : ErrorType()
 data class InvalidNamespaceDot(val signifier: Signifier) : ErrorType()
 data class PreludeScopeAlreadyExists(val signifier: Signifier) : ErrorType()
-data class ImportScopeAlreadyExists(val signifier: Signifier) : ErrorType()
 data class InvalidSource(val symbol: Symbol) : ErrorType(), SymbolHostErrorType {
     override val symbols: List<Symbol> = listOf(symbol)
 }
@@ -91,23 +79,9 @@ data class IndexOutOfBounds(val index: Int, val size: Int) : ErrorType()
 
 data class ParameterizedGroundMismatch(val ground: Identifier, val parameterized: Identifier) : ErrorType()
 
-data class InvalidSwitchSource(val symbol: Symbol) : ErrorType(), SymbolHostErrorType {
-    override val symbols: List<Symbol> = listOf(symbol)
-}
-
 data class RecursiveFunctionDetected(val symbol: Symbol) : ErrorType(), SymbolHostErrorType {
     override val symbols: List<Symbol> = listOf(symbol)
 }
-
-data class InvalidCase(val identifier: Identifier) : ErrorType()
-data class InvalidSwitchIdentifier(val id: Signifier) : ErrorType()
-data class DuplicateCase(val identifier: Identifier) : ErrorType()
-data class DuplicateElse(val elseCount: Int) : ErrorType()
-data class MissingCase(val symbol: Symbol) : ErrorType(), SymbolHostErrorType {
-    override val symbols: List<Symbol> = listOf(symbol)
-}
-
-data object UnnecessaryElse : ErrorType()
 
 data class RecursiveRecordDetected(val symbol: Symbol) : ErrorType(), SymbolHostErrorType {
     override val symbols: List<Symbol> = listOf(symbol)
@@ -132,19 +106,12 @@ data object RandomRequiresIntLong : ErrorType()
 // Runtime errors
 data class RuntimeFinViolation(val fin: Long, val elements: Long) : ErrorType()
 data object RuntimeImmutableViolation : ErrorType()
-data object RuntimeIntegerConversion : ErrorType()
 data object DecimalInfiniteDivide : ErrorType()
-data class NamespaceNotAvailable(val namespace: List<String>) : ErrorType()
 
 // Type Parameter Errors
 data class DuplicateTypeParameter(val identifier: Identifier) : ErrorType()
 data class TypeRequiresExplicit(val identifier: Identifier) : ErrorType()
 data class TooManyElements(val fin: Long, val elements: Long) : ErrorType()
-data class CannotPartialApply(val typeParam: TypeParameter) : ErrorType()
-data class EnumRecordTypeParamMissing(val identifier: Identifier) : ErrorType()
-data class NotATypeParameter(val actual: Symbol) : ErrorType(), SymbolHostErrorType {
-    override val symbols: List<Symbol> = listOf(actual)
-}
 
 data class ForeignTypeParameter(val identifier: Identifier) : ErrorType()
 
@@ -179,22 +146,8 @@ data class InvalidIsCheck(val signifier: Signifier) : ErrorType()
 
 data class SecondDegreeHigherOrderFunction(val identifier: Identifier) : ErrorType()
 
-data object LambdaForLoop : ErrorType()
-
 // Feature Flags
-data class SwitchFeatureBan(val symbol: Symbol) : ErrorType(), SymbolHostErrorType {
-    override val symbols: List<Symbol> = listOf(symbol)
-}
-
 data class ForEachFeatureBan(val symbol: Symbol) : ErrorType(), SymbolHostErrorType {
-    override val symbols: List<Symbol> = listOf(symbol)
-}
-
-data class MapFeatureBan(val symbol: Symbol) : ErrorType(), SymbolHostErrorType {
-    override val symbols: List<Symbol> = listOf(symbol)
-}
-
-data class FlatMapFeatureBan(val symbol: Symbol) : ErrorType(), SymbolHostErrorType {
     override val symbols: List<Symbol> = listOf(symbol)
 }
 

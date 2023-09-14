@@ -4,7 +4,6 @@ import org.shardscript.semantics.core.*
 
 // Omit FileAst, root scope created in earlier phases
 class BindScopesAstVisitor(
-    val preludeTable: PreludeTable,
     val architecture: Architecture
 ) :
     ParameterizedUnitAstVisitor<Scope<Symbol>>() {

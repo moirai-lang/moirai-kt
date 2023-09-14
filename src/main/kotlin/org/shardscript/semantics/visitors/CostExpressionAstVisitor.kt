@@ -98,8 +98,8 @@ class CostExpressionAstVisitor(private val architecture: Architecture) : UnitAst
     }
 
     override fun visit(ast: FunctionAst) {
-        // The body cost will be calculated after topological sort of all functions
-        // so we do not call super.visit(ast)
+        // The body cost will be calculated after topological sort of all functions,
+        // therefore we do not call super.visit(ast)
         ast.costExpression = FinTypeSymbol(architecture.defaultNodeCost)
     }
 

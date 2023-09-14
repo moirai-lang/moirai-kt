@@ -6,7 +6,7 @@ class Substitution(
     inOrderParameters: List<TypeParameter>,
     inOrderTypeArgs: List<Symbol>
 ) {
-    val solutions: Map<Symbol, Symbol>
+    private val solutions: Map<Symbol, Symbol>
 
     init {
         if (inOrderParameters.size != inOrderTypeArgs.size) {

@@ -20,14 +20,6 @@ class ObjectValue(
 ) : Value() {
     val path = generatePath(symbol)
 
-    fun evalEquals(other: Value): Value {
-        return BooleanValue(this == other)
-    }
-
-    fun evalNotEquals(other: Value): Value {
-        return BooleanValue(this != other)
-    }
-
     override fun equals(other: Any?): Boolean {
         if (other != null && other is ObjectValue) {
             return path == other.path
@@ -64,14 +56,6 @@ data class FunctionValue(
 class RecordValue(val symbol: Symbol, val fields: ValueTable) : Value() {
     lateinit var scope: Scope<Symbol>
     val path = generatePath(symbol)
-
-    fun evalEquals(other: Value): Value {
-        return BooleanValue(this == other)
-    }
-
-    fun evalNotEquals(other: Value): Value {
-        return BooleanValue(this != other)
-    }
 
     override fun equals(other: Any?): Boolean {
         if (other != null && other is RecordValue) {
@@ -577,24 +561,6 @@ class SymbolRouterValueTable(private val prelude: PreludeTable, private val symb
             }
             else -> langThrow(signifier.ctx, IdentifierNotFound(signifier))
         }
-}
-
-object NullValueTable : Scope<Value> {
-    override fun define(identifier: Identifier, definition: Value) {
-        langThrow(identifier.ctx, IdentifierCouldNotBeDefined(identifier))
-    }
-
-    override fun exists(signifier: Signifier): Boolean = false
-
-    override fun existsHere(signifier: Signifier): Boolean = false
-
-    override fun fetch(signifier: Signifier): Value {
-        langThrow(signifier.ctx, IdentifierNotFound(signifier))
-    }
-
-    override fun fetchHere(signifier: Signifier): Value {
-        langThrow(signifier.ctx, IdentifierNotFound(signifier))
-    }
 }
 
 class ValueTable(private val parent: Scope<Value>) : Scope<Value> {

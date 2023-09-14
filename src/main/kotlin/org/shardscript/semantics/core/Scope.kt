@@ -28,7 +28,7 @@ object NullSymbolTable : Scope<Symbol> {
     }
 }
 
-class SymbolTable(val parent: Scope<Symbol>) : Scope<Symbol> {
+class SymbolTable(private val parent: Scope<Symbol>) : Scope<Symbol> {
     private val identifierTable: MutableMap<Identifier, Symbol> = HashMap()
 
     fun toMap(): Map<Identifier, Symbol> = identifierTable.toMap()

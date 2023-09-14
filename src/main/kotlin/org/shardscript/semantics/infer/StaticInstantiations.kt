@@ -93,26 +93,3 @@ object RandomInstantiation : SingleTypeInstantiation {
         }
     }
 }
-
-object ExplicitInstantiation : SingleTypeInstantiation {
-    override fun apply(
-        ctx: SourceContext,
-        errors: LanguageErrors,
-        args: List<Ast>,
-        parameterized: ParameterizedSymbol,
-        explicitTypeArgs: List<Symbol>
-    ): SymbolInstantiation {
-        if (explicitTypeArgs.isEmpty()) {
-            errors.add(ctx, MustExplicitlyInstantiate(parameterized))
-        } else {
-            val inOrderParameters = parameterized.typeParams
-            if (inOrderParameters.size == explicitTypeArgs.size) {
-                val substitution = Substitution(inOrderParameters, explicitTypeArgs)
-                return substitution.apply(parameterized)
-            } else {
-                errors.add(ctx, IncorrectNumberOfTypeArgs(inOrderParameters.size, explicitTypeArgs.size))
-            }
-        }
-        throw LanguageException(errors.toSet())
-    }
-}

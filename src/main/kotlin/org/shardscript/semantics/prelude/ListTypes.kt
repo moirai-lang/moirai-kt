@@ -13,10 +13,10 @@ private fun createGetFunction(
     val getMemberFunction = ParameterizedMemberPluginSymbol(
         listType,
         getId,
-        SingleParentArgInstantiation,
-    { t: Value, args: List<Value> ->
+        SingleParentArgInstantiation
+    ) { t: Value, args: List<Value> ->
         (t as ListValue).evalGet(args.first())
-    })
+    }
     getMemberFunction.typeParams = listOf(listElementTypeParam)
     getMemberFunction.costExpression = costExpression
     val getFormalParamId = Identifier("index")
@@ -38,10 +38,10 @@ private fun createAddFunction(
     val addMemberFunction = ParameterizedMemberPluginSymbol(
         listType,
         addId,
-        SingleParentArgInstantiation,
-    { t: Value, args: List<Value> ->
+        SingleParentArgInstantiation
+    ) { t: Value, args: List<Value> ->
         (t as ListValue).evalAdd(args.first())
-    })
+    }
     addMemberFunction.typeParams = listOf(listElementTypeParam)
     addMemberFunction.costExpression = costExpression
     val addFormalParamId = Identifier("element")
@@ -64,10 +64,10 @@ private fun createSetFunction(
     val setMemberFunction = ParameterizedMemberPluginSymbol(
         listType,
         setId,
-        SingleParentArgInstantiation,
-    { t: Value, args: List<Value> ->
+        SingleParentArgInstantiation
+    ) { t: Value, args: List<Value> ->
         (t as ListValue).evalSet(args.first(), args[1])
-    })
+    }
     setMemberFunction.typeParams = listOf(listElementTypeParam)
     setMemberFunction.costExpression = costExpression
     val indexFormalParamId = Identifier("index")
@@ -92,10 +92,10 @@ private fun createRemoveAtFunction(
     val removeAtId = Identifier(CollectionMethods.RemoveAtIndex.idStr)
     val removeAtMemberFunction = GroundMemberPluginSymbol(
         listType,
-        removeAtId,
-    { t: Value, args: List<Value> ->
+        removeAtId
+    ) { t: Value, args: List<Value> ->
         (t as ListValue).evalRemoveAt(args.first())
-    })
+    }
     removeAtMemberFunction.costExpression = costExpression
     val removeAtFormalParamId = Identifier("index")
     val removeAtFormalParam = FunctionFormalParameterSymbol(removeAtMemberFunction, removeAtFormalParamId, intType)
@@ -115,10 +115,10 @@ fun createToImmutableListPlugin(
     val plugin = ParameterizedMemberPluginSymbol(
         mutableListType,
         Identifier(CollectionMethods.ToImmutableList.idStr),
-        DoubleParentArgInstantiation,
-    { t: Value, _: List<Value> ->
+        DoubleParentArgInstantiation
+    ) { t: Value, _: List<Value> ->
         (t as ListValue).evalToList()
-    })
+    }
     plugin.typeParams = listOf(elementType, fin)
     plugin.formalParams = listOf()
     val outputSubstitution = Substitution(listType.typeParams, listOf(elementType, fin))

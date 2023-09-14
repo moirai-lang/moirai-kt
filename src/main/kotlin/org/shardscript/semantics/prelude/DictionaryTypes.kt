@@ -13,10 +13,10 @@ private fun createGetFunction(
     val getMemberFunction = ParameterizedMemberPluginSymbol(
         dictionaryType,
         getId,
-        DoubleParentArgInstantiation,
-    { t: Value, args: List<Value> ->
+        DoubleParentArgInstantiation
+    ) { t: Value, args: List<Value> ->
         (t as DictionaryValue).evalGet(args.first())
-    })
+    }
     getMemberFunction.typeParams = listOf(dictionaryKeyTypeParam, dictionaryValueTypeParam)
     getMemberFunction.costExpression = costExpression
     val getFormalParamId = Identifier("key")
@@ -38,10 +38,10 @@ private fun createContainsFunction(
     val containsMemberFunction = ParameterizedMemberPluginSymbol(
         dictionaryType,
         containsId,
-        SingleParentArgInstantiation,
-    { t: Value, args: List<Value> ->
+        SingleParentArgInstantiation
+    ) { t: Value, args: List<Value> ->
         (t as DictionaryValue).evalContains(args.first())
-    })
+    }
     containsMemberFunction.typeParams = listOf(dictionaryKeyTypeParam)
     containsMemberFunction.costExpression = costExpression
     val containsFormalParamId = Identifier("key")
@@ -65,10 +65,10 @@ private fun createSetFunction(
     val setMemberFunction = ParameterizedMemberPluginSymbol(
         dictionaryType,
         setId,
-        DoubleParentArgInstantiation,
-    { t: Value, args: List<Value> ->
+        DoubleParentArgInstantiation
+    ) { t: Value, args: List<Value> ->
         (t as DictionaryValue).evalSet(args.first(), args[1])
-    })
+    }
     setMemberFunction.typeParams = listOf(dictionaryKeyTypeParam, dictionaryValueTypeParam)
     setMemberFunction.costExpression = costExpression
     val keyFormalParamId = Identifier("key")
@@ -95,10 +95,10 @@ private fun createRemoveFunction(
     val removeMemberFunction = ParameterizedMemberPluginSymbol(
         dictionaryType,
         removeId,
-        SingleParentArgInstantiation,
-    { t: Value, args: List<Value> ->
+        SingleParentArgInstantiation
+    ) { t: Value, args: List<Value> ->
         (t as DictionaryValue).evalRemove(args.first())
-    })
+    }
     removeMemberFunction.typeParams = listOf(dictionaryKeyTypeParam)
     removeMemberFunction.costExpression = costExpression
     val removeFormalParamId = Identifier("key")
@@ -121,10 +121,10 @@ fun createToImmutableDictionaryPlugin(
     val plugin = ParameterizedMemberPluginSymbol(
         mutableDictionaryType,
         Identifier(CollectionMethods.ToImmutableDictionary.idStr),
-        TripleParentArgInstantiation,
-    { t: Value, _: List<Value> ->
+        TripleParentArgInstantiation
+    ) { t: Value, _: List<Value> ->
         (t as DictionaryValue).evalToDictionary()
-    })
+    }
     plugin.typeParams = listOf(keyType, valueType, fin)
     plugin.formalParams = listOf()
     val outputSubstitution = Substitution(dictionaryType.typeParams, listOf(keyType, valueType, fin))

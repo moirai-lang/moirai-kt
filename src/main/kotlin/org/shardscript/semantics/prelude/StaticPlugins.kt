@@ -21,15 +21,15 @@ fun createRangePlugin(
         if (originalLowerBound.canonicalForm < originalUpperBound.canonicalForm) {
             val lowerBound = originalLowerBound.canonicalForm
             val upperBound = originalUpperBound.canonicalForm - 1
-            val list = (lowerBound..upperBound).toList().map {
-                IntValue(it) as Value
+            val list: MutableList<Value> = (lowerBound..upperBound).toList().map {
+                IntValue(it)
             }.toMutableList()
             ListValue(ImmutableBasicTypeMode, list)
         } else {
             val lowerBound = originalUpperBound.canonicalForm + 1
             val upperBound = originalLowerBound.canonicalForm
-            val list = (lowerBound..upperBound).toList().map {
-                IntValue(it) as Value
+            val list: MutableList<Value> = (lowerBound..upperBound).toList().map {
+                IntValue(it)
             }.toMutableList()
             list.reverse()
             ListValue(ImmutableBasicTypeMode, list)
@@ -77,9 +77,8 @@ fun createRandomPlugin(
                     val temp = lowerBound
                     lowerBound = upperBound
                     upperBound = temp
-                    val tempInclusive = lowerBoundInclusive
-                    lowerBoundInclusive = upperBoundInclusive
-                    upperBoundInclusive = tempInclusive
+                    lowerBoundInclusive = false
+                    upperBoundInclusive = true
                 }
 
                 var offset = 0
