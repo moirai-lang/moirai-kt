@@ -27,7 +27,6 @@ BOOL_FALSE: 'false';
 
 FIN: 'Fin';
 
-ARTIFACT: 'artifact';
 AS: 'as';
 DEF: 'def';
 ELSE: 'else';
@@ -40,6 +39,7 @@ LAMBDA: 'lambda';
 MUTABLE: 'mutable';
 OBJECT: 'object';
 RECORD: 'record';
+SHARD: 'shard';
 TO: 'to';
 TRANSIENT: 'transient';
 VAL: 'val';

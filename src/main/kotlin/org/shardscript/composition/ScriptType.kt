@@ -10,10 +10,10 @@ sealed class NamedScriptType : ScriptType() {
 }
 
 // A named artifact that can contain multiple imports, and can itself be imported.
-data class NamedArtifact(override val nameParts: List<String>) : NamedScriptType()
+data class NamedShard(override val nameParts: List<String>) : NamedScriptType()
 
 // An unnamed artifact that can contain exactly one import and cannot itself be imported.
-data class TransientImport(override val nameParts: List<String>) : NamedScriptType()
+data class TransientShard(override val nameParts: List<String>) : NamedScriptType()
 
 // An unnamed artifact with no imports and cannot itself be imported.
 data object PureTransient : ScriptType() {

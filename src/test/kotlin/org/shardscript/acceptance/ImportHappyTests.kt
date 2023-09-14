@@ -7,7 +7,7 @@ class ImportHappyTests {
     fun basicImportTest() {
         splitTest(
             """
-            artifact test.ids.happy
+            shard test.ids.happy
             import test.imported
             
             importedFunction(3, 4)

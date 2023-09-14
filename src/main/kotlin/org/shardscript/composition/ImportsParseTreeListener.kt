@@ -14,19 +14,19 @@ internal class ImportsParseTreeListener(val errors: LanguageErrors) :
     private val accumulatedImports: MutableMap<List<String>, SourceContext> = HashMap()
     private var scriptType: ScriptType = PureTransient
 
-    override fun enterTransientStat(ctx: ShardScriptParser.TransientStatContext) {
+    override fun enterTransientShard(ctx: ShardScriptParser.TransientShardContext) {
         val nameParts = ctx.importIdSeq().IDENTIFIER().map { it.symbol.text }
-        scriptType = TransientImport(nameParts)
+        scriptType = TransientShard(nameParts)
     }
 
-    override fun enterArtifactStat(ctx: ShardScriptParser.ArtifactStatContext) {
+    override fun enterShardStat(ctx: ShardScriptParser.ShardStatContext) {
         val nameParts = ctx.importIdSeq().IDENTIFIER().map { it.symbol.text }
-        scriptType = NamedArtifact(nameParts)
+        scriptType = NamedShard(nameParts)
     }
 
     override fun enterImportStat(ctx: ShardScriptParser.ImportStatContext) {
         val st = scriptType
-        if (st is NamedArtifact) {
+        if (st is NamedShard) {
             val import = ctx.importIdSeq().IDENTIFIER().map { it.symbol.text }
             val sourceContext = createContext(st.fileName(), ctx.start)
             if (accumulatedImports.contains(import)) {
