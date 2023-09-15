@@ -2,11 +2,17 @@
 ShardScript is designed for arbitrary cross-network code injections between machines. For this purpose, most existing products start with JSON and add Lisp-like features or embedded Abstract Syntax Trees.
 
 ```
-{ "op": "plus", "args": [ { "arg0": 5 }, { "arg1": 6 } ] } // Naive solution, JSON with an embedded Abstract Syntax Tree.
+// Naive solution, JSON with an embedded Abstract Syntax Tree.
 
-{ "script": "(+ 5 6)" } // Slightly better solution, but strings need to be escaped. Nested code becomes unreadable.
+{ "op": "plus", "args": [ { "arg0": 5 }, { "arg1": 6 } ] }
 
-5 + 6 // ShardScript code, sent over a network and directly executed by the server.
+// Slightly better solution, but strings need to be escaped. Nested code becomes unreadable.
+
+{ "script": "(+ 5 6)" }
+
+// ShardScript code, sent over a network and directly executed by the server.
+
+5 + 6
 ```
 
 The absolute upper limit to the execution cost of ShardScript code is determinable at compile-time. The Halting Problem is solved per-request. To accomplish this, all collections are dependently-typed on a pessimistic upper bound, called Fin. Because ShardScript cannot access the file system of the host machine, and because the cost-to-execute is known at compile time, arbitrary cross-network code injections are generally safe.
