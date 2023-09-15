@@ -105,23 +105,23 @@ data class RecordConstructorValue(val prelude: PreludeTable, val symbol: Symbol)
     }
 }
 
-data class ListConstructorValue(val modeSelector: (List<Symbol>) -> BasicTypeMode) :
+data class ListConstructorValue(val modeSelector: (List<Type>) -> BasicTypeMode) :
     Value() {
-    fun apply(typeArgs: List<Symbol>, elements: List<Value>): ListValue {
+    fun apply(typeArgs: List<Type>, elements: List<Value>): ListValue {
         return ListValue(modeSelector(typeArgs), elements.toMutableList())
     }
 }
 
-data class SetConstructorValue(val modeSelector: (List<Symbol>) -> BasicTypeMode) :
+data class SetConstructorValue(val modeSelector: (List<Type>) -> BasicTypeMode) :
     Value() {
-    fun apply(typeArgs: List<Symbol>, elements: List<Value>): SetValue {
+    fun apply(typeArgs: List<Type>, elements: List<Value>): SetValue {
         return SetValue(modeSelector(typeArgs), elements.toMutableSet())
     }
 }
 
-data class DictionaryConstructorValue(val modeSelector: (List<Symbol>) -> BasicTypeMode) :
+data class DictionaryConstructorValue(val modeSelector: (List<Type>) -> BasicTypeMode) :
     Value() {
-    fun apply(typeArgs: List<Symbol>, elements: List<Value>): DictionaryValue {
+    fun apply(typeArgs: List<Type>, elements: List<Value>): DictionaryValue {
         val pairs = elements.map {
             it as RecordValue
         }.map {

@@ -36,6 +36,19 @@ fun filterValidTypes(ctx: SourceContext, errors: LanguageErrors, type: Type): Ty
             errors.add(ctx, ExpectOtherError)
             ErrorSymbol
         }
+
+        is ParameterizedBasicTypeSymbol,
+        is ParameterizedRecordTypeSymbol -> {
+            errors.add(ctx, CannotUseRawType(type))
+            ErrorSymbol
+        }
+
+        is MaxCostExpression,
+        is ProductCostExpression,
+        is SumCostExpression -> {
+            errors.add(ctx, TypeSystemBug)
+            ErrorSymbol
+        }
     }
 
 fun filterValidGroundApply(
@@ -298,8 +311,8 @@ fun checkTypes(
             }
         }
         else -> {
-            val expectedPath = generatePath(expected)
-            val actualPath = generatePath(actual)
+            val expectedPath = generatePath(expected as Symbol)
+            val actualPath = generatePath(actual as Symbol)
             if (expectedPath != actualPath) {
                 errors.add(ctx, TypeMismatch(expected, actual))
             }
@@ -332,9 +345,6 @@ fun checkApply(prelude: PreludeTable, errors: LanguageErrors, ast: ApplyAst) {
             checkArgs(prelude, errors, symbol, ast)
         }
         is FunctionFormalParameterSymbol -> when (val ofTypeSymbol = symbol.ofTypeSymbol) {
-            is GroundFunctionSymbol -> {
-                checkArgs(prelude, errors, ofTypeSymbol.type(), ast)
-            }
             is FunctionTypeSymbol -> {
                 checkArgs(prelude, errors, ofTypeSymbol, ast)
             }
@@ -465,13 +475,13 @@ private fun <T> transpose(table: List<List<T>>): List<List<T>> {
     return res
 }
 
-fun findBestType(ctx: SourceContext, errors: LanguageErrors, types: List<Symbol>): Symbol {
+fun findBestType(ctx: SourceContext, errors: LanguageErrors, types: List<Type>): Type {
     if (types.isEmpty()) {
         errors.add(ctx, TypeSystemBug)
         return ErrorSymbol
     }
     val first = types.first()
-    val firstPath = generatePath(first)
+    val firstPath = generatePath(first as Symbol)
     return when (first) {
         is GroundRecordTypeSymbol -> {
             when {

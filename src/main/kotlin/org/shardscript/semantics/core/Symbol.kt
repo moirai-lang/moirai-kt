@@ -200,7 +200,7 @@ data class Block(
 data class LocalVariableSymbol(
     override val parent: Scope<Symbol>,
     override val identifier: Identifier,
-    val ofTypeSymbol: Symbol,
+    val ofTypeSymbol: Type,
     val mutable: Boolean
 ) : NamedSymbolTableElement()
 
@@ -334,7 +334,7 @@ data class ParameterizedFunctionSymbol(
 data class FieldSymbol(
     override val parent: Scope<Symbol>,
     override val identifier: Identifier,
-    val ofTypeSymbol: Symbol,
+    val ofTypeSymbol: Type,
     val mutable: Boolean
 ) : NamedSymbolTableElement()
 
@@ -386,7 +386,7 @@ data class ParameterizedBasicTypeSymbol(
     val featureSupport: FeatureSupport
 ) : ParameterizedSymbol(parent), Type {
     override lateinit var typeParams: List<TypeParameter>
-    lateinit var modeSelector: (List<Symbol>) -> BasicTypeMode
+    lateinit var modeSelector: (List<Type>) -> BasicTypeMode
     lateinit var fields: List<PlatformFieldSymbol>
 }
 
