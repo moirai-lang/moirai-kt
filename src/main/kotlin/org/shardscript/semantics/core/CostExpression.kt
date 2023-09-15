@@ -2,28 +2,8 @@ package org.shardscript.semantics.core
 
 import kotlin.math.sqrt
 
-// A subset of symbols are also "cost expressions"
-// however these symbols all inherit from different
-// sealed classes. Representing this fact in an
-// object-oriented language is not possible. This has
-// caused a great deal of pain and hair loss.
-interface CostExpression {
-    // In Scala we would use the "with" keyword to add
-    // a type as a member to more than one sum type.
-    // Kotlin only supports a single sum type per class
-    // via the sealed class mechanism. A compromise is to
-    // use the visitor pattern to define membership in a
-    // "sum type" that spans the options in the visitor.
-    // Instead of using "when" we enumerate the different
-    // options as unique methods on the visitor.
+sealed interface CostExpression : Type {
     fun <R> accept(visitor: CostExpressionVisitor<R>): R
-
-    // Kotlin does not support "self types" like Scala does
-    // so technically there is no way to guarantee that
-    // cost expression types also inherit from Symbol.
-    // A compromise is to require that implementers at least
-    // need to be able to provide a Symbol.
-    val symbolically: Symbol
 }
 
 interface CostExpressionVisitor<R> {

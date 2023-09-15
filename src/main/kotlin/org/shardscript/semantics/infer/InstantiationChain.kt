@@ -3,7 +3,7 @@ package org.shardscript.semantics.infer
 import org.shardscript.semantics.core.CostExpression
 import org.shardscript.semantics.core.FunctionTypeSymbol
 import org.shardscript.semantics.core.ParameterizedSymbol
-import org.shardscript.semantics.core.Symbol
+import org.shardscript.semantics.core.Type
 
 sealed class InstantiationChain {
     abstract val originalSymbol: ParameterizedSymbol
@@ -22,16 +22,16 @@ data class SubstitutionChain(val substitution: Substitution, val chain: Instanti
         return res
     }
 
-    fun replayArgs(): List<Symbol> =
+    fun replayArgs(): List<Type> =
         originalSymbol.typeParams.map { replay(it) }
 
-    fun replay(symbol: Symbol): Symbol {
+    fun replay(type: Type): Type {
         return when (chain) {
             is SubstitutionChain -> {
-                substitution.applySymbol(chain.replay(symbol))
+                substitution.applySymbol(chain.replay(type))
             }
             is TerminalChain -> {
-                substitution.applySymbol(symbol)
+                substitution.applySymbol(type)
             }
         }
     }

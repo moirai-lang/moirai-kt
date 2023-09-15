@@ -40,8 +40,8 @@ data class SymbolHasNoMembers(val signifier: Signifier, val symbol: Symbol) : Er
 }
 
 // Type errors
-data class TypeMismatch(val expected: Symbol, val actual: Symbol) : ErrorType(), SymbolHostErrorType {
-    override val symbols: List<Symbol> = listOf(expected, actual)
+data class TypeMismatch(val expected: Type, val actual: Type) : ErrorType() {
+    val types: List<Type> = listOf(expected, actual)
 }
 
 data class FinMismatch(val expected: Long, val actual: Long) : ErrorType()
@@ -137,8 +137,8 @@ data class InvalidFinTypeSub(val typeParam: TypeParameter, val symbol: Symbol) :
     override val symbols: List<Symbol> = listOf(symbol)
 }
 
-data class InvalidStandardTypeSub(val typeParam: TypeParameter, val symbol: Symbol) : ErrorType(), SymbolHostErrorType {
-    override val symbols: List<Symbol> = listOf(symbol)
+data class InvalidStandardTypeSub(val typeParam: TypeParameter, val type: Type) : ErrorType() {
+    val types: List<Type> = listOf(type)
 }
 
 data class InvalidAsCast(val signifier: Signifier) : ErrorType()

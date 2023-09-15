@@ -3,12 +3,12 @@ package org.shardscript.semantics.core
 import java.math.BigDecimal
 
 sealed class Ast : LanguageElement {
-    private var type: Symbol? = null
+    private var type: Type? = null
 
-    fun readType(): Symbol = type!!
+    fun readType(): Type = type!!
 
-    fun assignType(errors: LanguageErrors, symbol: Symbol) {
-        type = filterValidTypes(ctx, errors, symbol)
+    fun assignType(errors: LanguageErrors, t: Type) {
+        type = filterValidTypes(ctx, errors, t)
     }
 
     override var ctx: SourceContext = NotInSource

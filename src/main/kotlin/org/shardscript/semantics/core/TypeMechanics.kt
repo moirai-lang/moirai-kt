@@ -3,61 +3,37 @@ package org.shardscript.semantics.core
 import org.shardscript.semantics.infer.Substitution
 import org.shardscript.semantics.prelude.Lang
 
-fun filterValidTypes(ctx: SourceContext, errors: LanguageErrors, symbol: Symbol): Symbol =
-    when (symbol) {
+fun filterValidTypes(ctx: SourceContext, errors: LanguageErrors, type: Type): Type =
+    when (type) {
         ErrorSymbol,
         is GroundRecordTypeSymbol,
-        is Namespace,
         is BasicTypeSymbol,
         is ObjectSymbol,
         is StandardTypeParameter,
-        is FunctionTypeSymbol -> symbol
+        is FunctionTypeSymbol -> type
+
         is SymbolInstantiation -> {
-            when (symbol.substitutionChain.originalSymbol) {
+            when (type.substitutionChain.originalSymbol) {
                 is ParameterizedFunctionSymbol,
                 is ParameterizedMemberPluginSymbol,
                 is ParameterizedStaticPluginSymbol -> {
                     errors.add(ctx, TypeSystemBug)
                     ErrorSymbol
                 }
+
                 else -> {
-                    symbol.substitutionChain.originalSymbol.typeParams.forEach {
-                        validateSubstitution(ctx, errors, it, symbol.substitutionChain.replay(it))
+                    type.substitutionChain.originalSymbol.typeParams.forEach {
+                        validateSubstitution(ctx, errors, it, type.substitutionChain.replay(it))
                     }
-                    symbol
+                    type
                 }
             }
         }
-        is ParameterizedBasicTypeSymbol,
-        is ParameterizedRecordTypeSymbol -> {
-            errors.add(ctx, CannotUseRawType(symbol))
-            ErrorSymbol
-        }
+
         is FinTypeSymbol,
         is ImmutableFinTypeParameter,
         is MutableFinTypeParameter -> {
             errors.add(ctx, ExpectOtherError)
-            ErrorSymbol
-        }
-        is SystemRootNamespace,
-        is UserRootNamespace,
-        is Block,
-        is SumCostExpression,
-        is ProductCostExpression,
-        is MaxCostExpression,
-        is GroundFunctionSymbol,
-        is LambdaSymbol,
-        is ParameterizedFunctionSymbol,
-        is GroundMemberPluginSymbol,
-        is ParameterizedMemberPluginSymbol,
-        is ParameterizedStaticPluginSymbol,
-        is PreludeTable,
-        is ImportTable,
-        is FunctionFormalParameterSymbol,
-        is FieldSymbol,
-        is PlatformFieldSymbol,
-        is LocalVariableSymbol -> {
-            errors.add(ctx, TypeSystemBug)
             ErrorSymbol
         }
     }
@@ -276,8 +252,8 @@ fun checkTypes(
     ctx: SourceContext,
     prelude: PreludeTable,
     errors: LanguageErrors,
-    expected: Symbol,
-    actual: Symbol
+    expected: Type,
+    actual: Type
 ) {
     when {
         expected is FunctionTypeSymbol && actual is FunctionTypeSymbol -> {
@@ -335,8 +311,8 @@ fun checkTypes(
     ctx: SourceContext,
     prelude: PreludeTable,
     errors: LanguageErrors,
-    expectedTypeArgs: List<Symbol>,
-    actualTypeArgs: List<Symbol>
+    expectedTypeArgs: List<Type>,
+    actualTypeArgs: List<Type>
 ) {
     if (expectedTypeArgs.size != actualTypeArgs.size) {
         errors.add(ctx, TypeSystemBug)
@@ -668,36 +644,36 @@ fun validateSubstitution(
     ctx: SourceContext,
     errors: LanguageErrors,
     typeParameter: TypeParameter,
-    substitutedSymbol: Symbol
+    substitutedType: Type
 ) {
     when (typeParameter) {
-        is StandardTypeParameter -> when (substitutedSymbol) {
+        is StandardTypeParameter -> when (substitutedType) {
             is GroundRecordTypeSymbol,
             is BasicTypeSymbol,
             is StandardTypeParameter -> Unit
             is SymbolInstantiation -> {
-                when (val parameterizedType = substitutedSymbol.substitutionChain.originalSymbol) {
+                when (val parameterizedType = substitutedType.substitutionChain.originalSymbol) {
                     is ParameterizedBasicTypeSymbol -> if (!parameterizedType.featureSupport.typeArg) {
-                        errors.add(ctx, TypeArgFeatureBan(substitutedSymbol))
+                        errors.add(ctx, TypeArgFeatureBan(substitutedType))
                     }
                     is ParameterizedRecordTypeSymbol -> if (!parameterizedType.featureSupport.typeArg) {
-                        errors.add(ctx, TypeArgFeatureBan(substitutedSymbol))
+                        errors.add(ctx, TypeArgFeatureBan(substitutedType))
                     }
                     else -> Unit
                 }
             }
-            is ObjectSymbol -> if (!substitutedSymbol.featureSupport.typeArg) {
-                errors.add(ctx, TypeArgFeatureBan(substitutedSymbol))
+            is ObjectSymbol -> if (!substitutedType.featureSupport.typeArg) {
+                errors.add(ctx, TypeArgFeatureBan(substitutedType))
             }
-            else -> errors.add(ctx, InvalidStandardTypeSub(typeParameter, substitutedSymbol))
+            else -> errors.add(ctx, InvalidStandardTypeSub(typeParameter, substitutedType))
         }
-        is ImmutableFinTypeParameter -> when (substitutedSymbol) {
+        is ImmutableFinTypeParameter -> when (substitutedType) {
             is CostExpression -> Unit
-            else -> errors.add(ctx, InvalidFinTypeSub(typeParameter, substitutedSymbol))
+            else -> errors.add(ctx, InvalidFinTypeSub(typeParameter, substitutedType))
         }
-        is MutableFinTypeParameter -> when (substitutedSymbol) {
+        is MutableFinTypeParameter -> when (substitutedType) {
             is FinTypeSymbol -> Unit
-            else -> errors.add(ctx, InvalidFinTypeSub(typeParameter, substitutedSymbol))
+            else -> errors.add(ctx, InvalidFinTypeSub(typeParameter, substitutedType))
         }
     }
 }
