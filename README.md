@@ -1,13 +1,19 @@
 # The ShardScript Programming Language
-This package contains the code for an interpreter for a programming language called ShardScript. ShardScript is a Turing-incomplete replacement for JSON. Unlike JSON, which can only represent data, ShardScript can represent both data and code.
+ShardScript is designed for arbitrary cross-network code injections between machines. For this purpose, most existing products start with JSON and add Lisp-like features or embedded Abstract Syntax Trees.
 
-ShardScript is optimized for arbitrary cross-network code injections between machines. For this purpose, most existing products start with JSON and add Lisp-like features. By contrast, ShardScript starts with C and subtracts anything that is not safe. The result is a more powerful and terse language that is easier to write by-hand.
+```
+{ "op": "plus", "args": [ { "arg0": 5 }, { "arg1": 6 } ] } // Naive solution, JSON with an embedded Abstract Syntax Tree.
 
-The absolute upper limit to the execution cost of an AST must be determinable at compile-time, so collection types have an additional type parameter called Fin which represents the maximum allowed capacity even if the collection is modified at runtime.
+{ "script": "(+ 5 6)" } // Slightly better solution, but strings need to be escaped. Nested code becomes unreadable.
 
-Because ShardScript cannot access the file system of the host machine, and because the cost-to-execute is known at compile time, arbitrary cross-network code injections are generally safe.
+5 + 6 // ShardScript code, sent over a network and directly executed by the server.
+```
 
-# Examples
+The absolute upper limit to the execution cost of ShardScript code is determinable at compile-time. The Halting Problem is solved per-request. To accomplish this, all collections are dependently-typed on a pessimistic upper bound, called Fin. Because ShardScript cannot access the file system of the host machine, and because the cost-to-execute is known at compile time, arbitrary cross-network code injections are generally safe.
+
+ShardScript is not a JSON generator. ShardScript replaces JSON completely. At no point is JSON sent over the network, and at no point does the destination server deserialize ShardScript into another language. The request sent over the network and the cloud function code are both written in ShardScript.
+
+# Concept Examples
 The following code can be sent over a network in a POST request to be executed by a server:
 ```
 def maxOf<O: Fin>(list: List<Int, O>): Int {
@@ -48,29 +54,6 @@ f(lambda (c: Int, d: Int) -> {
 })
 ```
 This code attempts to sneak past the total cost calculator by using higher-order functions. However, the compiler is smart enough to detect that this code will iterate 10,000 times, which is unacceptable. The computation is rejcted and the server returns an error.
-
-# Sub-Packages
-ShardScript consists of 4 Java packages as well as an acceptance test suite.
-
-## org.shardscript.semantics
-
-Abstract Syntax Tree (AST) and Semantic Analysis (SA) classes for the ShardScript programming language
-
-## org.shardscript.grammar
-
-The lexer and parser, implemented using the ANTLR domain-specific programming language/parser generator
-
-## org.shardscript.composition
-
-Compiler frontend, contains ANTLR parse tree visitors and import management
-
-## org.shardscript.eval
-
-Includes an AST visitor that can map an AST to a Value
-
-## org.shardscript.acceptance
-
-Full suite of acceptance tests for the ShardScript language
 
 # Etymology
 The word "shard" in ShardScript comes from Massively Multiplayer Online games in the 1990s. Sharding is a server programming technique that allows several players to inhabit the same location, fighting the same enemies and collecting the same resources, without seeing or interacting with each other.
