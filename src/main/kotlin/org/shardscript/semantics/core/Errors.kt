@@ -80,8 +80,8 @@ data class SymbolIsNotAField(val signifier: Signifier) : ErrorType()
 data class SymbolIsNotAType(val signifier: Signifier) : ErrorType()
 data class InvalidNamespaceDot(val signifier: Signifier) : ErrorType()
 data class PreludeScopeAlreadyExists(val signifier: Signifier) : ErrorType()
-data class InvalidSource(val symbol: Symbol) : ErrorType(), SymbolHostErrorType {
-    override val symbols: List<Symbol> = listOf(symbol)
+data class InvalidSource(val type: Type) : ErrorType(), TypeHostErrorType {
+    override val types: List<Type> = listOf(type)
 }
 
 data class IndexOutOfBounds(val index: Int, val size: Int) : ErrorType()

@@ -106,10 +106,12 @@ fun linearizeBans(ast: FileAst) {
             is TypeArgChildren -> {
                 linearized.typeParamChildren.forEach { typeParamChild ->
                     typeParamChild.children.forEach { child ->
-                        validateSubstitution(child.ctx, errors, typeParamChild.typeParam, child.symbol)
+                        val childType = symbolToType(errors, child.ctx, child.symbol, ImplicitTypeLiteral())
+                        validateSubstitution(child.ctx, errors, typeParamChild.typeParam, childType)
                     }
                 }
             }
+
             else -> Unit
         }
     }

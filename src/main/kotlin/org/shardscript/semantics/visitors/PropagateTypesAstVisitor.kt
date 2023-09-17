@@ -433,7 +433,7 @@ class PropagateTypesAstVisitor(
                     }
                 }
                 else -> {
-                    errors.add(ast.ctx, SymbolHasNoFields(ast.identifier, ast.lhs.readType()))
+                    errors.add(ast.ctx, SymbolHasNoFields(ast.identifier, ast.lhs.readType() as Symbol))
                     ast.assignType(errors, ErrorSymbol)
                 }
             }
@@ -605,7 +605,7 @@ class PropagateTypesAstVisitor(
                     }
                 }
                 else -> {
-                    errors.add(ast.ctx, SymbolHasNoMembers(ast.signifier, ast.lhs.readType()))
+                    errors.add(ast.ctx, SymbolHasNoMembers(ast.signifier, ast.lhs.readType() as Symbol))
                     ast.assignType(errors, ErrorSymbol)
                 }
             }
@@ -631,12 +631,13 @@ class PropagateTypesAstVisitor(
                                     ast.ofTypeSymbol = sourceType.substitutionChain.replayArgs().first()
                                 } else {
                                     validateExplicitSymbol(ast.ctx, errors, ast.ofType, ast.scope)
-                                    ast.ofTypeSymbol = ast.scope.fetch(ast.ofType)
+                                    val ofType = symbolToType(errors, ast.ofType.ctx, ast.scope.fetch(ast.ofType), ast.ofType)
+                                    ast.ofTypeSymbol = ofType
                                 }
-                                ast.body.scope.define(ast.identifier, ast.ofTypeSymbol)
+                                ast.body.scope.define(ast.identifier, ast.ofTypeSymbol as Symbol)
                                 ast.body.accept(this)
                             } else {
-                                errors.add(ast.source.ctx, ForEachFeatureBan(ast.source.readType()))
+                                errors.add(ast.source.ctx, ForEachFeatureBan(ast.source.readType() as Symbol))
                             }
                         }
                         else -> {
@@ -694,7 +695,7 @@ class PropagateTypesAstVisitor(
                             val substitution = lhsType.substitutionChain
                             when (val member = parameterizedSymbol.fetchHere(ast.identifier)) {
                                 is FieldSymbol -> {
-                                    ast.symbolRef = substitution.replay(member.ofTypeSymbol)
+                                    ast.symbolRef = substitution.replay(member.ofTypeSymbol) as Symbol
                                     ast.assignType(errors, preludeTable.fetch(Lang.unitId) as Type)
                                 }
                                 else -> {
@@ -704,13 +705,13 @@ class PropagateTypesAstVisitor(
                             }
                         }
                         else -> {
-                            errors.add(ast.ctx, SymbolHasNoFields(ast.identifier, ast.lhs.readType()))
+                            errors.add(ast.ctx, SymbolHasNoFields(ast.identifier, ast.lhs.readType() as Symbol))
                             ast.assignType(errors, ErrorSymbol)
                         }
                     }
                 }
                 else -> {
-                    errors.add(ast.ctx, SymbolHasNoFields(ast.identifier, ast.lhs.readType()))
+                    errors.add(ast.ctx, SymbolHasNoFields(ast.identifier, ast.lhs.readType() as Symbol))
                     ast.assignType(errors, ErrorSymbol)
                 }
             }
@@ -743,7 +744,8 @@ class PropagateTypesAstVisitor(
     override fun visit(ast: AsAst) {
         try {
             super.visit(ast)
-            ast.assignType(errors, ast.scope.fetch(ast.signifier))
+            val ofType = symbolToType(errors, ast.signifier.ctx, ast.scope.fetch(ast.signifier), ast.signifier)
+            ast.assignType(errors, ofType)
         } catch (ex: LanguageException) {
             errors.addAll(ast.ctx, ex.errors)
             ast.assignType(errors, ErrorSymbol)
@@ -753,7 +755,8 @@ class PropagateTypesAstVisitor(
     override fun visit(ast: IsAst) {
         try {
             super.visit(ast)
-            ast.identifierSymbol = filterValidTypes(ast.ctx, errors, ast.scope.fetch(ast.signifier))
+            val ofType = symbolToType(errors, ast.signifier.ctx, ast.scope.fetch(ast.signifier), ast.signifier)
+            ast.identifierSymbol = filterValidTypes(ast.ctx, errors, ofType)
             ast.assignType(errors, preludeTable.fetch(Lang.booleanId) as Type)
         } catch (ex: LanguageException) {
             errors.addAll(ast.ctx, ex.errors)
