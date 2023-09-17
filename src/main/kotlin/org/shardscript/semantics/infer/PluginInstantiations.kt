@@ -20,7 +20,7 @@ object DualFinPluginInstantiation : TwoTypeInstantiation {
                     (argType.substitutionChain).replayArgs().first()
                 }
                 else -> {
-                    errors.add(ctx, TypeMismatch(existingInstantiation.substitutionChain.originalSymbol, argType))
+                    errors.add(ctx, TypeMismatch(existingInstantiation, argType))
                     throw LanguageException(errors.toSet())
                 }
             }
@@ -58,7 +58,7 @@ object DoubleParentSingleFinPluginInstantiation : TwoTypeInstantiation {
                     (argType.substitutionChain).replayArgs()[1]
                 }
                 else -> {
-                    errors.add(ctx, TypeMismatch(existingInstantiation.substitutionChain.originalSymbol, argType))
+                    errors.add(ctx, TypeMismatch(existingInstantiation, argType))
                     throw LanguageException(errors.toSet())
                 }
             }
@@ -97,7 +97,7 @@ object TripleParentSingleFinPluginInstantiation : TwoTypeInstantiation {
                     (argType.substitutionChain).replayArgs()[2]
                 }
                 else -> {
-                    errors.add(ctx, TypeMismatch(existingInstantiation.substitutionChain.originalSymbol, argType))
+                    errors.add(ctx, TypeMismatch(existingInstantiation, argType))
                     throw LanguageException(errors.toSet())
                 }
             }

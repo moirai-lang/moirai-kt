@@ -86,7 +86,7 @@ data class LetAst(
     val rhs: Ast,
     val mutable: Boolean
 ) : SymbolRefAst() {
-    lateinit var ofTypeSymbol: Symbol
+    lateinit var ofTypeSymbol: Type
 
     override fun <R> accept(visitor: AstVisitor<R>): R =
         visitor.visit(this)
@@ -210,9 +210,9 @@ data class ForEachAst(
     val source: Ast,
     val body: Ast
 ) : Ast() {
-    lateinit var ofTypeSymbol: Symbol
-    lateinit var sourceTypeSymbol: Symbol
-    lateinit var sourceFinSymbol: Symbol
+    lateinit var ofTypeSymbol: Type
+    lateinit var sourceTypeSymbol: Type
+    lateinit var sourceFinSymbol: Type
 
     override fun <R> accept(visitor: AstVisitor<R>): R =
         visitor.visit(this)
@@ -272,7 +272,7 @@ data class IsAst(
     val signifier: Signifier
 ) : Ast() {
     lateinit var result: BooleanValue
-    lateinit var identifierSymbol: Symbol
+    lateinit var identifierSymbol: Type
 
     override fun <R> accept(visitor: AstVisitor<R>): R =
         visitor.visit(this)

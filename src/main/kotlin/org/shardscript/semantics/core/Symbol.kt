@@ -275,7 +275,7 @@ data class MaxCostExpression(val children: List<CostExpression>) : Symbol(), Cos
 /**
  * Generic Primitives
  */
-sealed class ParameterizedSymbol(override val parent: Scope<Symbol>) : NamedSymbolWithMembers(parent), Type {
+sealed class ParameterizedSymbol(override val parent: Scope<Symbol>) : NamedSymbolWithMembers(parent) {
     abstract val typeParams: List<TypeParameter>
 }
 
@@ -384,7 +384,7 @@ data class ParameterizedBasicTypeSymbol(
     override val identifier: Identifier,
     val instantiation: SingleTypeInstantiation,
     val featureSupport: FeatureSupport
-) : ParameterizedSymbol(parent) {
+) : ParameterizedSymbol(parent), Type {
     override lateinit var typeParams: List<TypeParameter>
     lateinit var modeSelector: (List<Type>) -> BasicTypeMode
     lateinit var fields: List<PlatformFieldSymbol>

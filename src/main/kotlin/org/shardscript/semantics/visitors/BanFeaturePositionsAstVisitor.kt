@@ -7,7 +7,7 @@ class BanFeaturePositionsAstVisitor : UnitAstVisitor() {
         super.visit(ast)
         when (val returnType = ast.scope.fetch(ast.returnType)) {
             is ParameterizedBasicTypeSymbol,
-            is ParameterizedRecordTypeSymbol -> errors.add(ast.ctx, CannotUseRawType(returnType))
+            is ParameterizedRecordTypeSymbol -> errors.add(ast.ctx, CannotUseRawSymbol(returnType))
             is FunctionTypeSymbol -> errors.add(ast.ctx, FunctionReturnType(ast.identifier))
             is ObjectSymbol -> {
                 if (!returnType.featureSupport.returnType) {
@@ -32,7 +32,7 @@ class BanFeaturePositionsAstVisitor : UnitAstVisitor() {
         ast.formalParams.forEach {
             when (val formalParamType = ast.scope.fetch(it.ofType)) {
                 is ParameterizedBasicTypeSymbol,
-                is ParameterizedRecordTypeSymbol -> errors.add(ast.ctx, CannotUseRawType(formalParamType))
+                is ParameterizedRecordTypeSymbol -> errors.add(ast.ctx, CannotUseRawSymbol(formalParamType))
                 is ObjectSymbol -> {
                     if (!formalParamType.featureSupport.paramType) {
                         errors.add(ast.ctx, FormalParamFeatureBan(formalParamType))
@@ -72,7 +72,7 @@ class BanFeaturePositionsAstVisitor : UnitAstVisitor() {
         ast.fields.forEach {
             when (val fieldType = ast.scope.fetch(it.ofType)) {
                 is ParameterizedBasicTypeSymbol,
-                is ParameterizedRecordTypeSymbol -> errors.add(ast.ctx, CannotUseRawType(fieldType))
+                is ParameterizedRecordTypeSymbol -> errors.add(ast.ctx, CannotUseRawSymbol(fieldType))
                 is FunctionTypeSymbol -> errors.add(ast.ctx, RecordFieldFunctionType(ast.identifier, it.identifier))
                 is ObjectSymbol -> {
                     if (!fieldType.featureSupport.recordField) {

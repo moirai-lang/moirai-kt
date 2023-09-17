@@ -62,6 +62,10 @@ data class CannotUseRawType(val type: Type) : ErrorType(), TypeHostErrorType {
     override val types: List<Type> = listOf(type)
 }
 
+data class CannotUseRawSymbol(val symbol: Symbol) : ErrorType(), SymbolHostErrorType {
+    override val symbols: List<Symbol> = listOf(symbol)
+}
+
 data class CannotFindBestType(override val types: List<Type>) : ErrorType(), TypeHostErrorType
 
 // General Errors
@@ -101,8 +105,8 @@ data class ImmutableAssign(val symbol: Symbol) : ErrorType(), SymbolHostErrorTyp
 }
 
 data class InvalidDefinitionLocation(val identifier: Identifier) : ErrorType()
-data class IncompatibleString(val symbol: Symbol) : ErrorType(), SymbolHostErrorType {
-    override val symbols: List<Symbol> = listOf(symbol)
+data class IncompatibleString(val type: Type) : ErrorType(), TypeHostErrorType {
+    override val types: List<Type> = listOf(type)
 }
 
 data object InvalidRangeArg : ErrorType()

@@ -166,6 +166,15 @@ fun filterValidDotApply(
         }
     }
 
+fun symbolToType(errors: LanguageErrors, ctx: SourceContext, symbol: Symbol, signifier: Signifier): Type {
+    return if (symbol is Type) {
+        symbol
+    } else {
+        errors.add(ctx, SymbolIsNotAType(signifier))
+        ErrorSymbol
+    }
+}
+
 fun generatePath(symbol: Symbol): List<String> {
     val inline: MutableList<String> = ArrayList()
     inlineGeneratePath(symbol, inline)
