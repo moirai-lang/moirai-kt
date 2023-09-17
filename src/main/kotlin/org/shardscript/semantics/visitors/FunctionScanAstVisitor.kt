@@ -8,11 +8,13 @@ class FunctionScanAstVisitor : UnitAstVisitor() {
             if (ast.typeParams.isEmpty()) {
                 val groundFunctionSymbol = ast.scope as GroundFunctionSymbol
                 groundFunctionSymbol.formalParams = bindFormals(ast, groundFunctionSymbol)
-                groundFunctionSymbol.returnType = groundFunctionSymbol.fetch(ast.returnType)
+                val returnSymbol = groundFunctionSymbol.fetch(ast.returnType)
+                groundFunctionSymbol.returnType = symbolToType(errors, ast.returnType.ctx, returnSymbol, ast.returnType)
             } else {
                 val parameterizedFunctionSymbol = ast.scope as ParameterizedFunctionSymbol
                 parameterizedFunctionSymbol.formalParams = bindFormals(ast, parameterizedFunctionSymbol)
-                parameterizedFunctionSymbol.returnType = parameterizedFunctionSymbol.fetch(ast.returnType)
+                val returnSymbol = parameterizedFunctionSymbol.fetch(ast.returnType)
+                parameterizedFunctionSymbol.returnType = symbolToType(errors, ast.returnType.ctx, returnSymbol, ast.returnType)
             }
             super.visit(ast)
         } catch (ex: LanguageException) {
@@ -27,7 +29,8 @@ class FunctionScanAstVisitor : UnitAstVisitor() {
             val formalParams: MutableList<FunctionFormalParameterSymbol> = ArrayList()
             ast.formalParams.forEach {
                 val ofTypeSymbol = lambdaSymbol.fetch(it.ofType)
-                val paramSymbol = FunctionFormalParameterSymbol(lambdaSymbol, it.identifier, ofTypeSymbol)
+                val ofType = symbolToType(errors, it.ofType.ctx, ofTypeSymbol, it.ofType)
+                val paramSymbol = FunctionFormalParameterSymbol(lambdaSymbol, it.identifier, ofType)
                 lambdaSymbol.define(it.identifier, paramSymbol)
                 formalParams.add(paramSymbol)
             }
@@ -44,7 +47,8 @@ class FunctionScanAstVisitor : UnitAstVisitor() {
         val formalParams: MutableList<FunctionFormalParameterSymbol> = ArrayList()
         ast.formalParams.forEach {
             val ofTypeSymbol = scopeHere.fetch(it.ofType)
-            val paramSymbol = FunctionFormalParameterSymbol(scopeHere, it.identifier, ofTypeSymbol)
+            val ofType = symbolToType(errors, it.ofType.ctx, ofTypeSymbol, it.ofType)
+            val paramSymbol = FunctionFormalParameterSymbol(scopeHere, it.identifier, ofType)
             scopeHere.define(it.identifier, paramSymbol)
             formalParams.add(paramSymbol)
         }

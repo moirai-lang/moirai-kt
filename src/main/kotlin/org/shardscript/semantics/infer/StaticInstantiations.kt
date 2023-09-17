@@ -10,7 +10,7 @@ object RangeInstantiation : SingleTypeInstantiation {
         errors: LanguageErrors,
         args: List<Ast>,
         parameterized: ParameterizedSymbol,
-        explicitTypeArgs: List<Symbol>
+        explicitTypeArgs: List<Type>
     ): SymbolInstantiation {
         if (explicitTypeArgs.isNotEmpty()) {
             errors.add(ctx, CannotExplicitlyInstantiate(parameterized))
@@ -46,7 +46,7 @@ object RandomInstantiation : SingleTypeInstantiation {
         errors: LanguageErrors,
         args: List<Ast>,
         parameterized: ParameterizedSymbol,
-        explicitTypeArgs: List<Symbol>
+        explicitTypeArgs: List<Type>
     ): SymbolInstantiation {
         val parameterizedStaticPluginSymbol = parameterized as ParameterizedStaticPluginSymbol
         val res = if (explicitTypeArgs.isNotEmpty()) {
@@ -62,7 +62,7 @@ object RandomInstantiation : SingleTypeInstantiation {
             val inOrderParameters = parameterized.typeParams
             val parameterSet = inOrderParameters.toSet()
             if (parameterizedStaticPluginSymbol.formalParams.size == args.size) {
-                val constraints: MutableList<Constraint<TypeParameter, Symbol>> = ArrayList()
+                val constraints: MutableList<Constraint<TypeParameter, Type>> = ArrayList()
                 parameterizedStaticPluginSymbol.formalParams.zip(args).forEach {
                     constraints.addAll(
                         constrainSymbol(
@@ -84,7 +84,7 @@ object RandomInstantiation : SingleTypeInstantiation {
                 throw LanguageException(errors.toSet())
             }
         }
-        return when (generatePath((res.substitutionChain).replayArgs().first())) {
+        return when (generatePath((res.substitutionChain).replayArgs().first() as Symbol)) {
             listOf(Lang.shardId.name, Lang.langId.name, Lang.intId.name) -> res
             else -> {
                 errors.add(ctx, RandomRequiresIntLong)

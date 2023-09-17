@@ -9,7 +9,7 @@ object DualFinPluginInstantiation : TwoTypeInstantiation {
         args: List<Ast>,
         parameterized: ParameterizedSymbol,
         existingInstantiation: SymbolInstantiation,
-        explicitTypeArgs: List<Symbol>
+        explicitTypeArgs: List<Type>
     ): SymbolInstantiation {
         val parameterizedMemberPluginSymbol = parameterized as ParameterizedMemberPluginSymbol
         val inOrderParameters = parameterized.typeParams
@@ -20,7 +20,7 @@ object DualFinPluginInstantiation : TwoTypeInstantiation {
                     (argType.substitutionChain).replayArgs().first()
                 }
                 else -> {
-                    errors.add(ctx, TypeMismatch(existingInstantiation.substitutionChain.originalSymbol, argType))
+                    errors.add(ctx, TypeMismatch(existingInstantiation, argType))
                     throw LanguageException(errors.toSet())
                 }
             }
@@ -46,7 +46,7 @@ object DoubleParentSingleFinPluginInstantiation : TwoTypeInstantiation {
         args: List<Ast>,
         parameterized: ParameterizedSymbol,
         existingInstantiation: SymbolInstantiation,
-        explicitTypeArgs: List<Symbol>
+        explicitTypeArgs: List<Type>
     ): SymbolInstantiation {
         val parameterizedMemberPluginSymbol = parameterized as ParameterizedMemberPluginSymbol
         val inOrderParameters = parameterized.typeParams
@@ -58,7 +58,7 @@ object DoubleParentSingleFinPluginInstantiation : TwoTypeInstantiation {
                     (argType.substitutionChain).replayArgs()[1]
                 }
                 else -> {
-                    errors.add(ctx, TypeMismatch(existingInstantiation.substitutionChain.originalSymbol, argType))
+                    errors.add(ctx, TypeMismatch(existingInstantiation, argType))
                     throw LanguageException(errors.toSet())
                 }
             }
@@ -84,7 +84,7 @@ object TripleParentSingleFinPluginInstantiation : TwoTypeInstantiation {
         args: List<Ast>,
         parameterized: ParameterizedSymbol,
         existingInstantiation: SymbolInstantiation,
-        explicitTypeArgs: List<Symbol>
+        explicitTypeArgs: List<Type>
     ): SymbolInstantiation {
         val parameterizedMemberPluginSymbol = parameterized as ParameterizedMemberPluginSymbol
         val inOrderParameters = parameterized.typeParams
@@ -97,7 +97,7 @@ object TripleParentSingleFinPluginInstantiation : TwoTypeInstantiation {
                     (argType.substitutionChain).replayArgs()[2]
                 }
                 else -> {
-                    errors.add(ctx, TypeMismatch(existingInstantiation.substitutionChain.originalSymbol, argType))
+                    errors.add(ctx, TypeMismatch(existingInstantiation, argType))
                     throw LanguageException(errors.toSet())
                 }
             }
@@ -123,7 +123,7 @@ object SingleParentArgInstantiation : TwoTypeInstantiation {
         args: List<Ast>,
         parameterized: ParameterizedSymbol,
         existingInstantiation: SymbolInstantiation,
-        explicitTypeArgs: List<Symbol>
+        explicitTypeArgs: List<Type>
     ): SymbolInstantiation {
         val parameterizedMemberPluginSymbol = parameterized as ParameterizedMemberPluginSymbol
         val inOrderParameters = parameterized.typeParams
@@ -151,7 +151,7 @@ object DoubleParentArgInstantiation : TwoTypeInstantiation {
         args: List<Ast>,
         parameterized: ParameterizedSymbol,
         existingInstantiation: SymbolInstantiation,
-        explicitTypeArgs: List<Symbol>
+        explicitTypeArgs: List<Type>
     ): SymbolInstantiation {
         val parameterizedMemberPluginSymbol = parameterized as ParameterizedMemberPluginSymbol
         val inOrderParameters = parameterized.typeParams
@@ -180,7 +180,7 @@ object TripleParentArgInstantiation : TwoTypeInstantiation {
         args: List<Ast>,
         parameterized: ParameterizedSymbol,
         existingInstantiation: SymbolInstantiation,
-        explicitTypeArgs: List<Symbol>
+        explicitTypeArgs: List<Type>
     ): SymbolInstantiation {
         val parameterizedMemberPluginSymbol = parameterized as ParameterizedMemberPluginSymbol
         val inOrderParameters = parameterized.typeParams

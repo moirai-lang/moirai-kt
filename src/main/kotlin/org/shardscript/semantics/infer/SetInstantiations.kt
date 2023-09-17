@@ -8,7 +8,7 @@ class SetInstantiation : SingleTypeInstantiation {
         errors: LanguageErrors,
         args: List<Ast>,
         parameterized: ParameterizedSymbol,
-        explicitTypeArgs: List<Symbol>
+        explicitTypeArgs: List<Type>
     ): SymbolInstantiation {
         if (explicitTypeArgs.isNotEmpty()) {
             if (explicitTypeArgs.size != 2) {
@@ -31,7 +31,7 @@ class SetInstantiation : SingleTypeInstantiation {
             val inOrderParameters = parameterized.typeParams
             val parameterSet = inOrderParameters.toSet()
             if (args.isNotEmpty()) {
-                val constraints: MutableList<Constraint<TypeParameter, Symbol>> = ArrayList()
+                val constraints: MutableList<Constraint<TypeParameter, Type>> = ArrayList()
                 constraints.addAll(
                     constrainSymbol(
                         ctx,
@@ -68,7 +68,7 @@ class MutableSetInstantiation : SingleTypeInstantiation {
         errors: LanguageErrors,
         args: List<Ast>,
         parameterized: ParameterizedSymbol,
-        explicitTypeArgs: List<Symbol>
+        explicitTypeArgs: List<Type>
     ): SymbolInstantiation {
         if (explicitTypeArgs.isNotEmpty()) {
             if (explicitTypeArgs.size != 2) {

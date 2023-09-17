@@ -4,12 +4,12 @@ import org.shardscript.semantics.core.*
 
 fun createSubstitution(
     ctx: SourceContext,
-    constraints: MutableList<Constraint<TypeParameter, Symbol>>,
+    constraints: MutableList<Constraint<TypeParameter, Type>>,
     parameterSet: Set<TypeParameter>,
     inOrderParameters: List<TypeParameter>,
     errors: LanguageErrors
 ): Substitution {
-    val instantiations: MutableMap<TypeParameter, Symbol> = HashMap()
+    val instantiations: MutableMap<TypeParameter, Type> = HashMap()
     val relations = equivalenceRelations(constraints.toSet())
     relations.forEach { relation ->
         val typeParam = relation.someItem.value
@@ -56,7 +56,7 @@ fun instantiateFunction(
     val inOrderParameters = parameterizedFunctionSymbol.typeParams
     val parameterSet = inOrderParameters.toSet()
     if (parameterizedFunctionSymbol.formalParams.size == args.size) {
-        val constraints: MutableList<Constraint<TypeParameter, Symbol>> = ArrayList()
+        val constraints: MutableList<Constraint<TypeParameter, Type>> = ArrayList()
         parameterizedFunctionSymbol.formalParams.zip(args).forEach {
             constraints.addAll(constrainSymbol(ctx, parameterSet, it.first.ofTypeSymbol, it.second.readType(), errors))
         }
@@ -81,7 +81,7 @@ fun instantiateRecord(
     val inOrderParameters = parameterizedRecordTypeSymbol.typeParams
     val parameterSet = inOrderParameters.toSet()
     if (parameterizedRecordTypeSymbol.fields.size == args.size) {
-        val constraints: MutableList<Constraint<TypeParameter, Symbol>> = ArrayList()
+        val constraints: MutableList<Constraint<TypeParameter, Type>> = ArrayList()
         parameterizedRecordTypeSymbol.fields.zip(args).forEach {
             val expected = it.first.ofTypeSymbol
             constraints.addAll(constrainSymbol(ctx, parameterSet, expected, it.second.readType(), errors))
@@ -101,16 +101,16 @@ fun instantiateRecord(
 fun constrainSymbol(
     ctx: SourceContext,
     typeParams: Set<TypeParameter>,
-    expected: Symbol,
-    actual: Symbol,
+    expected: Type,
+    actual: Type,
     errors: LanguageErrors
-): List<Constraint<TypeParameter, Symbol>> =
+): List<Constraint<TypeParameter, Type>> =
     when (expected) {
         is BasicTypeSymbol -> listOf()
         is ObjectSymbol -> listOf()
         is FunctionTypeSymbol -> when (actual) {
             is FunctionTypeSymbol -> {
-                val constraints: MutableList<Constraint<TypeParameter, Symbol>> = ArrayList()
+                val constraints: MutableList<Constraint<TypeParameter, Type>> = ArrayList()
                 if (expected.formalParamTypes.size == actual.formalParamTypes.size) {
                     expected.formalParamTypes.zip(actual.formalParamTypes).forEach {
                         constraints.addAll(constrainSymbol(ctx, typeParams, it.first, it.second, errors))
@@ -128,7 +128,7 @@ fun constrainSymbol(
         }
         is SymbolInstantiation -> when (actual) {
             is SymbolInstantiation -> {
-                val constraints: MutableList<Constraint<TypeParameter, Symbol>> = ArrayList()
+                val constraints: MutableList<Constraint<TypeParameter, Type>> = ArrayList()
                 if (expected.substitutionChain.originalSymbol == actual.substitutionChain.originalSymbol) {
                     val expectedChain = expected.substitutionChain
                     val actualChain = actual.substitutionChain
@@ -178,14 +178,14 @@ fun constrainCost(
     expected: CostExpression,
     actual: CostExpression,
     errors: LanguageErrors
-): List<Constraint<TypeParameter, Symbol>> =
+): List<Constraint<TypeParameter, Type>> =
     when (expected) {
         is FinTypeSymbol -> listOf()
         is ImmutableFinTypeParameter -> if (typeParams.contains(expected)) {
             listOf(
                 Constraint(
                     Left<TypeParameter>(expected),
-                    Right(actual.symbolically)
+                    Right(actual)
                 )
             )
         } else {
@@ -196,7 +196,7 @@ fun constrainCost(
             listOf(
                 Constraint(
                     Left<TypeParameter>(expected),
-                    Right(actual.symbolically)
+                    Right(actual)
                 )
             )
         } else {
@@ -223,7 +223,7 @@ fun constrainCost(
                 errors.add(
                     ctx, TypeMismatch(
                         expected,
-                        actual.symbolically
+                        actual
                     )
                 )
                 listOf()
@@ -249,7 +249,7 @@ fun constrainCost(
                 errors.add(
                     ctx, TypeMismatch(
                         expected,
-                        actual.symbolically
+                        actual
                     )
                 )
                 listOf()
@@ -275,11 +275,10 @@ fun constrainCost(
                 errors.add(
                     ctx, TypeMismatch(
                         expected,
-                        actual.symbolically
+                        actual
                     )
                 )
                 listOf()
             }
         }
-        else -> langThrow(TypeSystemBug)
     }

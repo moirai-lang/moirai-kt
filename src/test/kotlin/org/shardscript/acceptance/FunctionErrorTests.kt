@@ -4,6 +4,7 @@ import org.shardscript.semantics.core.DuplicateTypeParameter
 import org.shardscript.semantics.core.InvalidRef
 import org.shardscript.semantics.core.SymbolHasNoParameters
 import org.junit.jupiter.api.Test
+import org.shardscript.semantics.core.TypeMismatch
 
 class FunctionErrorTests {
     @Test
@@ -49,9 +50,9 @@ class FunctionErrorTests {
             }
             
             f(g, 5, 6)
-        """.trimIndent(), 1
+        """.trimIndent(), 2
         ) {
-            it.error is InvalidRef
+            it.error is InvalidRef || it.error is TypeMismatch
         }
     }
 

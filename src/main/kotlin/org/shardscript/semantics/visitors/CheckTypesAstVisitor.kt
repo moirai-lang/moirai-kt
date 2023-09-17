@@ -51,7 +51,8 @@ class CheckTypesAstVisitor(private val prelude: PreludeTable) : UnitAstVisitor()
     override fun visit(ast: FunctionAst) {
         try {
             super.visit(ast)
-            val returnType = ast.scope.fetch(ast.returnType)
+            val returnSymbol = ast.scope.fetch(ast.returnType)
+            val returnType = symbolToType(errors, ast.ctx, returnSymbol, ast.returnType)
             checkTypes(ast.ctx, prelude, errors, returnType, ast.body.readType())
         } catch (ex: LanguageException) {
             errors.addAll(ast.ctx, ex.errors)
@@ -126,7 +127,7 @@ class CheckTypesAstVisitor(private val prelude: PreludeTable) : UnitAstVisitor()
     override fun visit(ast: IfAst) {
         try {
             super.visit(ast)
-            checkTypes(ast.condition.ctx, prelude, errors, prelude.fetch(Lang.booleanId), ast.condition.readType())
+            checkTypes(ast.condition.ctx, prelude, errors, prelude.fetch(Lang.booleanId) as Type, ast.condition.readType())
         } catch (ex: LanguageException) {
             errors.addAll(ast.ctx, ex.errors)
         }

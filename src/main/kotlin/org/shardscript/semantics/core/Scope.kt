@@ -33,6 +33,14 @@ class SymbolTable(private val parent: Scope<Symbol>) : Scope<Symbol> {
 
     fun toMap(): Map<Identifier, Symbol> = identifierTable.toMap()
 
+    private fun toType(signifier: Signifier, symbol: Symbol): Type {
+        if (symbol is Type) {
+            return symbol
+        } else {
+            langThrow(SymbolIsNotAType(signifier))
+        }
+    }
+
     override fun define(identifier: Identifier, definition: Symbol) {
         if (identifierTable.containsKey(identifier)) {
             langThrow(identifier.ctx, IdentifierAlreadyExists(identifier))
@@ -129,13 +137,13 @@ class SymbolTable(private val parent: Scope<Symbol>) : Scope<Symbol> {
                 }
             }
             is FunctionTypeLiteral -> FunctionTypeSymbol(
-                signifier.formalParamTypes.map { fetch(it) },
-                fetch(signifier.returnType)
+                signifier.formalParamTypes.map { toType(signifier, fetch(it)) },
+                toType(signifier, fetch(signifier.returnType))
             )
             is ParameterizedSignifier -> {
                 when (val symbol = fetch(signifier.tti)) {
                     is ParameterizedRecordTypeSymbol -> {
-                        val typeArgs = signifier.args.map { fetch(it) }
+                        val typeArgs = signifier.args.map { toType(signifier, fetch(it)) }
                         if (typeArgs.size != symbol.typeParams.size) {
                             langThrow(
                                 signifier.ctx,
@@ -147,7 +155,7 @@ class SymbolTable(private val parent: Scope<Symbol>) : Scope<Symbol> {
                         }
                     }
                     is ParameterizedBasicTypeSymbol -> {
-                        val typeArgs = signifier.args.map { fetch(it) }
+                        val typeArgs = signifier.args.map { toType(signifier, fetch(it)) }
                         if (typeArgs.size != symbol.typeParams.size) {
                             langThrow(
                                 signifier.ctx,
@@ -195,13 +203,13 @@ class SymbolTable(private val parent: Scope<Symbol>) : Scope<Symbol> {
                 }
             }
             is FunctionTypeLiteral -> FunctionTypeSymbol(
-                signifier.formalParamTypes.map { fetch(it) },
-                fetch(signifier.returnType)
+                signifier.formalParamTypes.map { toType(signifier, fetch(it)) },
+                toType(signifier, fetch(signifier.returnType))
             )
             is ParameterizedSignifier -> {
                 when (val symbol = fetchHere(signifier.tti)) {
                     is ParameterizedRecordTypeSymbol -> {
-                        val typeArgs = signifier.args.map { fetch(it) }
+                        val typeArgs = signifier.args.map { toType(signifier, fetch(it)) }
                         if (typeArgs.size != symbol.typeParams.size) {
                             langThrow(
                                 signifier.ctx,
@@ -213,7 +221,7 @@ class SymbolTable(private val parent: Scope<Symbol>) : Scope<Symbol> {
                         }
                     }
                     is ParameterizedBasicTypeSymbol -> {
-                        val typeArgs = signifier.args.map { fetch(it) }
+                        val typeArgs = signifier.args.map { toType(signifier, fetch(it)) }
                         if (typeArgs.size != symbol.typeParams.size) {
                             langThrow(
                                 signifier.ctx,

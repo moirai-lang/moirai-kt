@@ -2,16 +2,16 @@ package org.shardscript.semantics.core
 
 import org.shardscript.semantics.prelude.StringMethods
 
-fun isValidStringType(symbol: Symbol): Boolean =
-    when (symbol) {
+fun isValidStringType(type: Type): Boolean =
+    when (type) {
         is ObjectSymbol -> {
-            symbol.existsHere(Identifier(StringMethods.ToString.idStr))
+            type.existsHere(Identifier(StringMethods.ToString.idStr))
         }
         is BasicTypeSymbol -> {
-            symbol.existsHere(Identifier(StringMethods.ToString.idStr))
+            type.existsHere(Identifier(StringMethods.ToString.idStr))
         }
         is SymbolInstantiation -> {
-            when (val parameterizedType = symbol.substitutionChain.originalSymbol) {
+            when (val parameterizedType = type.substitutionChain.originalSymbol) {
                 is ParameterizedBasicTypeSymbol -> {
                     parameterizedType.existsHere(Identifier(StringMethods.ToString.idStr))
                 }
@@ -21,16 +21,16 @@ fun isValidStringType(symbol: Symbol): Boolean =
         else -> false
     }
 
-fun costExpressionFromValidStringType(symbol: Symbol): CostExpression {
-    val member = when (symbol) {
+fun costExpressionFromValidStringType(type: Type): CostExpression {
+    val member = when (type) {
         is ObjectSymbol -> {
-            symbol.fetchHere(Identifier(StringMethods.ToString.idStr))
+            type.fetchHere(Identifier(StringMethods.ToString.idStr))
         }
         is BasicTypeSymbol -> {
-            symbol.fetchHere(Identifier(StringMethods.ToString.idStr))
+            type.fetchHere(Identifier(StringMethods.ToString.idStr))
         }
         is SymbolInstantiation -> {
-            when (val parameterizedType = symbol.substitutionChain.originalSymbol) {
+            when (val parameterizedType = type.substitutionChain.originalSymbol) {
                 is ParameterizedBasicTypeSymbol -> {
                     parameterizedType.fetchHere(Identifier(StringMethods.ToString.idStr))
                 }

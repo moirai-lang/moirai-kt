@@ -4,9 +4,9 @@ import org.shardscript.semantics.core.*
 
 class Substitution(
     inOrderParameters: List<TypeParameter>,
-    inOrderTypeArgs: List<Symbol>
+    inOrderTypeArgs: List<Type>
 ) {
-    private val solutions: Map<Symbol, Symbol>
+    private val solutions: Map<Symbol, Type>
 
     init {
         if (inOrderParameters.size != inOrderTypeArgs.size) {
@@ -35,32 +35,32 @@ class Substitution(
         )
     }
 
-    fun applySymbol(symbol: Symbol): Symbol =
-        when (symbol) {
-            is FunctionTypeSymbol -> applyFunctionType(symbol)
-            is ParameterizedRecordTypeSymbol -> apply(symbol)
-            is ParameterizedBasicTypeSymbol -> apply(symbol)
-            is SymbolInstantiation -> apply(symbol)
+    fun applySymbol(type: Type): Type =
+        when (type) {
+            is FunctionTypeSymbol -> applyFunctionType(type)
+            is ParameterizedRecordTypeSymbol -> apply(type)
+            is ParameterizedBasicTypeSymbol -> apply(type)
+            is SymbolInstantiation -> apply(type)
             is StandardTypeParameter -> {
-                val res = if (solutions.containsKey(symbol)) {
-                    solutions[symbol]!!
+                val res = if (solutions.containsKey(type)) {
+                    solutions[type]!!
                 } else {
-                    symbol
+                    type
                 }
                 res
             }
             is ImmutableFinTypeParameter -> {
-                val res = if (solutions.containsKey(symbol)) {
-                    solutions[symbol]!!
+                val res = if (solutions.containsKey(type)) {
+                    solutions[type]!!
                 } else {
-                    symbol
+                    type
                 }
                 res
             }
             is CostExpression -> {
-                applyCost(symbol).symbolically
+                applyCost(type)
             }
-            else -> symbol
+            else -> type
         }
 
     fun applyCost(costExpression: CostExpression): CostExpression {
@@ -91,7 +91,6 @@ class Substitution(
             is SumCostExpression -> SumCostExpression(costExpression.children.map { applyCost(it) })
             is ProductCostExpression -> ProductCostExpression(costExpression.children.map { applyCost(it) })
             is MaxCostExpression -> MaxCostExpression(costExpression.children.map { applyCost(it) })
-            else -> langThrow(TypeSystemBug)
         }
     }
 }

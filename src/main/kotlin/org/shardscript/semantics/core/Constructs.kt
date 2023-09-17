@@ -39,7 +39,7 @@ interface SingleTypeInstantiation {
         errors: LanguageErrors,
         args: List<Ast>,
         parameterized: ParameterizedSymbol,
-        explicitTypeArgs: List<Symbol>
+        explicitTypeArgs: List<Type>
     ): SymbolInstantiation
 }
 
@@ -50,7 +50,7 @@ interface TwoTypeInstantiation {
         args: List<Ast>,
         parameterized: ParameterizedSymbol,
         existingInstantiation: SymbolInstantiation,
-        explicitTypeArgs: List<Symbol>
+        explicitTypeArgs: List<Type>
     ): SymbolInstantiation
 }
 

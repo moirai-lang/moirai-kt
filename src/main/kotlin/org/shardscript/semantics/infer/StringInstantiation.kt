@@ -8,7 +8,7 @@ class StringInstantiation : SingleTypeInstantiation {
         errors: LanguageErrors,
         args: List<Ast>,
         parameterized: ParameterizedSymbol,
-        explicitTypeArgs: List<Symbol>
+        explicitTypeArgs: List<Type>
     ): SymbolInstantiation {
         if (explicitTypeArgs.isNotEmpty()) {
             return if (explicitTypeArgs.size != 1) {
