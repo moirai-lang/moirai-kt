@@ -65,8 +65,8 @@ object Lang {
     const val BOOL_FIN: Long = false.toString().length.toLong()
     const val CHAR_FIN: Long = 1L
 
-    fun isUnitExactly(symbol: Symbol): Boolean =
-        when (generatePath(symbol)) {
+    fun isUnitExactly(type: Type): Boolean =
+        when (generatePath(type as Symbol)) {
             listOf(shardId.name, langId.name, unitId.name) -> true
             else -> false
         }
