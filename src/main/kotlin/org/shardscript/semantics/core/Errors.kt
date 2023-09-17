@@ -73,6 +73,7 @@ data object CostOverLimit : ErrorType()
 data object InvalidCostUpperLimit: ErrorType()
 data class SymbolCouldNotBeApplied(val signifier: Signifier) : ErrorType()
 data class SymbolIsNotAField(val signifier: Signifier) : ErrorType()
+data class SymbolIsNotAType(val signifier: Signifier) : ErrorType()
 data class InvalidNamespaceDot(val signifier: Signifier) : ErrorType()
 data class PreludeScopeAlreadyExists(val signifier: Signifier) : ErrorType()
 data class InvalidSource(val symbol: Symbol) : ErrorType(), SymbolHostErrorType {
