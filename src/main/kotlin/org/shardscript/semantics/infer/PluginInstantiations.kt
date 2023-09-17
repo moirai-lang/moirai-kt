@@ -9,7 +9,7 @@ object DualFinPluginInstantiation : TwoTypeInstantiation {
         args: List<Ast>,
         parameterized: ParameterizedSymbol,
         existingInstantiation: SymbolInstantiation,
-        explicitTypeArgs: List<Symbol>
+        explicitTypeArgs: List<Type>
     ): SymbolInstantiation {
         val parameterizedMemberPluginSymbol = parameterized as ParameterizedMemberPluginSymbol
         val inOrderParameters = parameterized.typeParams
@@ -46,7 +46,7 @@ object DoubleParentSingleFinPluginInstantiation : TwoTypeInstantiation {
         args: List<Ast>,
         parameterized: ParameterizedSymbol,
         existingInstantiation: SymbolInstantiation,
-        explicitTypeArgs: List<Symbol>
+        explicitTypeArgs: List<Type>
     ): SymbolInstantiation {
         val parameterizedMemberPluginSymbol = parameterized as ParameterizedMemberPluginSymbol
         val inOrderParameters = parameterized.typeParams
@@ -84,7 +84,7 @@ object TripleParentSingleFinPluginInstantiation : TwoTypeInstantiation {
         args: List<Ast>,
         parameterized: ParameterizedSymbol,
         existingInstantiation: SymbolInstantiation,
-        explicitTypeArgs: List<Symbol>
+        explicitTypeArgs: List<Type>
     ): SymbolInstantiation {
         val parameterizedMemberPluginSymbol = parameterized as ParameterizedMemberPluginSymbol
         val inOrderParameters = parameterized.typeParams
@@ -123,7 +123,7 @@ object SingleParentArgInstantiation : TwoTypeInstantiation {
         args: List<Ast>,
         parameterized: ParameterizedSymbol,
         existingInstantiation: SymbolInstantiation,
-        explicitTypeArgs: List<Symbol>
+        explicitTypeArgs: List<Type>
     ): SymbolInstantiation {
         val parameterizedMemberPluginSymbol = parameterized as ParameterizedMemberPluginSymbol
         val inOrderParameters = parameterized.typeParams
@@ -151,7 +151,7 @@ object DoubleParentArgInstantiation : TwoTypeInstantiation {
         args: List<Ast>,
         parameterized: ParameterizedSymbol,
         existingInstantiation: SymbolInstantiation,
-        explicitTypeArgs: List<Symbol>
+        explicitTypeArgs: List<Type>
     ): SymbolInstantiation {
         val parameterizedMemberPluginSymbol = parameterized as ParameterizedMemberPluginSymbol
         val inOrderParameters = parameterized.typeParams
@@ -180,7 +180,7 @@ object TripleParentArgInstantiation : TwoTypeInstantiation {
         args: List<Ast>,
         parameterized: ParameterizedSymbol,
         existingInstantiation: SymbolInstantiation,
-        explicitTypeArgs: List<Symbol>
+        explicitTypeArgs: List<Type>
     ): SymbolInstantiation {
         val parameterizedMemberPluginSymbol = parameterized as ParameterizedMemberPluginSymbol
         val inOrderParameters = parameterized.typeParams

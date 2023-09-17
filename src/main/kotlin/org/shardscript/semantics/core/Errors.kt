@@ -92,8 +92,8 @@ data class RecursiveRecordDetected(val symbol: Symbol) : ErrorType(), SymbolHost
     override val symbols: List<Symbol> = listOf(symbol)
 }
 
-data class DictionaryArgsMustBePairs(val actual: Symbol) : ErrorType(), SymbolHostErrorType {
-    override val symbols: List<Symbol> = listOf(actual)
+data class DictionaryArgsMustBePairs(val actual: Type) : ErrorType(), TypeHostErrorType {
+    override val types: List<Type> = listOf(actual)
 }
 
 data class ImmutableAssign(val symbol: Symbol) : ErrorType(), SymbolHostErrorType {

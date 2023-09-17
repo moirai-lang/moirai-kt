@@ -9,7 +9,7 @@ class DictionaryInstantiation(private val pairTypeSymbol: ParameterizedRecordTyp
         errors: LanguageErrors,
         args: List<Ast>,
         parameterized: ParameterizedSymbol,
-        explicitTypeArgs: List<Symbol>
+        explicitTypeArgs: List<Type>
     ): SymbolInstantiation {
         args.forEach {
             val argType = it.readType()
@@ -39,7 +39,7 @@ class DictionaryInstantiation(private val pairTypeSymbol: ParameterizedRecordTyp
             val inOrderParameters = parameterized.typeParams
             val parameterSet = inOrderParameters.toSet()
             if (args.isNotEmpty()) {
-                val constraints: MutableList<Constraint<TypeParameter, Symbol>> = ArrayList()
+                val constraints: MutableList<Constraint<TypeParameter, Type>> = ArrayList()
                 val firstType = args.first().readType()
                 if (firstType is SymbolInstantiation && firstType.substitutionChain.originalSymbol == pairTypeSymbol) {
                     constraints.addAll(
@@ -96,7 +96,7 @@ class MutableDictionaryInstantiation(private val pairTypeSymbol: ParameterizedRe
         errors: LanguageErrors,
         args: List<Ast>,
         parameterized: ParameterizedSymbol,
-        explicitTypeArgs: List<Symbol>
+        explicitTypeArgs: List<Type>
     ): SymbolInstantiation {
         args.forEach {
             val argType = it.readType()
