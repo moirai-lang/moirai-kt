@@ -97,30 +97,6 @@ fun bans(ast: FileAst) {
     }
 }
 
-fun linearizeBans(ast: FileAst) {
-    val errors = LanguageErrors()
-    val linearizedTypesAstVisitor = LinearizedTypesAstVisitor()
-    ast.accept(linearizedTypesAstVisitor)
-    linearizedTypesAstVisitor.linearized.forEach { linearized ->
-        when (linearized) {
-            is TypeArgChildren -> {
-                linearized.typeParamChildren.forEach { typeParamChild ->
-                    typeParamChild.children.forEach { child ->
-                        val childType = symbolToType(errors, child.ctx, child.symbol, ImplicitTypeLiteral())
-                        validateSubstitution(child.ctx, errors, typeParamChild.typeParam, childType)
-                    }
-                }
-            }
-
-            else -> Unit
-        }
-    }
-    val errorsList = errors.toSet()
-    if (errorsList.isNotEmpty()) {
-        filterThrow(errorsList)
-    }
-}
-
 fun sortFunctions(ast: FileAst): SortResult<Symbol> {
     val generateEdgesAstVisitor = GenerateFunctionEdgesAstVisitor()
     ast.accept(generateEdgesAstVisitor)
