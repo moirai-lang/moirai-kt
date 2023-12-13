@@ -104,7 +104,6 @@ fun processAstAllPhases(
     propagateTypes(ast, systemScopes.prelude)
     checkTypes(ast, systemScopes.prelude)
     bans(ast)
-    linearizeBans(ast)
     calculateCostMultipliers(ast, architecture)
 
     val sortedFunctions = sortFunctions(ast)
