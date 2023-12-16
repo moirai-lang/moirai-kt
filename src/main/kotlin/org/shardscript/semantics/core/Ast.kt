@@ -2,37 +2,20 @@ package org.shardscript.semantics.core
 
 import java.math.BigDecimal
 
-sealed class Ast : LanguageElement {
-    private var type: Type? = null
-
-    fun readType(): Type = type!!
-
-    fun assignType(errors: LanguageErrors, t: Type) {
-        type = filterValidTypes(ctx, errors, t)
-    }
-
-    override var ctx: SourceContext = NotInSource
-    lateinit var scope: Scope<Symbol>
-    lateinit var costExpression: CostExpression
-    var approach: Boolean = true
-
+sealed class Ast(override val ctx: SourceContext) : LanguageElement {
     abstract fun <R> accept(visitor: AstVisitor<R>): R
     abstract fun <P, R> accept(visitor: ParameterizedAstVisitor<P, R>, param: P): R
 }
 
-sealed class SymbolRefAst : Ast() {
-    lateinit var symbolRef: Symbol
-}
+sealed class SymbolRefAst(override val ctx: SourceContext) : Ast(ctx)
 
-sealed class DefinitionAst : Ast() {
-    lateinit var definitionSpace: Scope<Symbol>
-}
+sealed class DefinitionAst(override val ctx: SourceContext) : Ast(ctx)
 
-sealed class ApplyAst : SymbolRefAst() {
+sealed class ApplyAst(override val ctx: SourceContext) : SymbolRefAst(ctx) {
     abstract val args: List<Ast>
 }
 
-data class IntLiteralAst(val canonicalForm: Int) : Ast() {
+data class IntLiteralAst(override val ctx: SourceContext, val canonicalForm: Int) : Ast(ctx) {
     override fun <R> accept(visitor: AstVisitor<R>): R =
         visitor.visit(this)
 
@@ -40,7 +23,7 @@ data class IntLiteralAst(val canonicalForm: Int) : Ast() {
         visitor.visit(this, param)
 }
 
-data class DecimalLiteralAst(val canonicalForm: BigDecimal) : Ast() {
+data class DecimalLiteralAst(override val ctx: SourceContext, val canonicalForm: BigDecimal) : Ast(ctx) {
     override fun <R> accept(visitor: AstVisitor<R>): R =
         visitor.visit(this)
 
@@ -48,7 +31,7 @@ data class DecimalLiteralAst(val canonicalForm: BigDecimal) : Ast() {
         visitor.visit(this, param)
 }
 
-data class BooleanLiteralAst(val canonicalForm: Boolean) : Ast() {
+data class BooleanLiteralAst(override val ctx: SourceContext, val canonicalForm: Boolean) : Ast(ctx) {
     override fun <R> accept(visitor: AstVisitor<R>): R =
         visitor.visit(this)
 
@@ -56,7 +39,7 @@ data class BooleanLiteralAst(val canonicalForm: Boolean) : Ast() {
         visitor.visit(this, param)
 }
 
-data class CharLiteralAst(val canonicalForm: Char) : Ast() {
+data class CharLiteralAst(override val ctx: SourceContext, val canonicalForm: Char) : Ast(ctx) {
     override fun <R> accept(visitor: AstVisitor<R>): R =
         visitor.visit(this)
 
@@ -64,7 +47,7 @@ data class CharLiteralAst(val canonicalForm: Char) : Ast() {
         visitor.visit(this, param)
 }
 
-data class StringLiteralAst(val canonicalForm: String) : Ast() {
+data class StringLiteralAst(override val ctx: SourceContext, val canonicalForm: String) : Ast(ctx) {
     override fun <R> accept(visitor: AstVisitor<R>): R =
         visitor.visit(this)
 
@@ -72,7 +55,7 @@ data class StringLiteralAst(val canonicalForm: String) : Ast() {
         visitor.visit(this, param)
 }
 
-data class StringInterpolationAst(val components: List<Ast>) : Ast() {
+data class StringInterpolationAst(override val ctx: SourceContext, val components: List<Ast>) : Ast(ctx) {
     override fun <R> accept(visitor: AstVisitor<R>): R =
         visitor.visit(this)
 
@@ -81,13 +64,12 @@ data class StringInterpolationAst(val components: List<Ast>) : Ast() {
 }
 
 data class LetAst(
+    override val ctx: SourceContext,
     val identifier: Identifier,
     val ofType: Signifier,
     val rhs: Ast,
     val mutable: Boolean
-) : SymbolRefAst() {
-    lateinit var ofTypeSymbol: Type
-
+) : SymbolRefAst(ctx) {
     override fun <R> accept(visitor: AstVisitor<R>): R =
         visitor.visit(this)
 
@@ -95,7 +77,7 @@ data class LetAst(
         visitor.visit(this, param)
 }
 
-data class RefAst(val identifier: Identifier) : SymbolRefAst() {
+data class RefAst(override val ctx: SourceContext, val identifier: Identifier) : SymbolRefAst(ctx) {
     override fun <R> accept(visitor: AstVisitor<R>): R =
         visitor.visit(this)
 
@@ -103,7 +85,7 @@ data class RefAst(val identifier: Identifier) : SymbolRefAst() {
         visitor.visit(this, param)
 }
 
-data class FileAst(val lines: List<Ast>) : Ast() {
+data class FileAst(override val ctx: SourceContext, val lines: List<Ast>) : Ast(ctx) {
     override fun <R> accept(visitor: AstVisitor<R>): R =
         visitor.visit(this)
 
@@ -111,7 +93,7 @@ data class FileAst(val lines: List<Ast>) : Ast() {
         visitor.visit(this, param)
 }
 
-data class BlockAst(val lines: MutableList<Ast>) : Ast() {
+data class BlockAst(override val ctx: SourceContext, val lines: MutableList<Ast>) : Ast(ctx) {
     override fun <R> accept(visitor: AstVisitor<R>): R =
         visitor.visit(this)
 
@@ -120,12 +102,13 @@ data class BlockAst(val lines: MutableList<Ast>) : Ast() {
 }
 
 data class FunctionAst(
+    override val ctx: SourceContext,
     val identifier: Identifier,
     val typeParams: List<TypeParameterDefinition>,
     val formalParams: List<Binder>,
     val returnType: Signifier,
     val body: BlockAst
-) : DefinitionAst() {
+) : DefinitionAst(ctx) {
     override fun <R> accept(visitor: AstVisitor<R>): R =
         visitor.visit(this)
 
@@ -134,9 +117,10 @@ data class FunctionAst(
 }
 
 data class LambdaAst(
+    override val ctx: SourceContext,
     val formalParams: List<Binder>,
     val body: Ast
-) : Ast() {
+) : Ast(ctx) {
     override fun <R> accept(visitor: AstVisitor<R>): R =
         visitor.visit(this)
 
@@ -145,10 +129,11 @@ data class LambdaAst(
 }
 
 data class RecordDefinitionAst(
+    override val ctx: SourceContext,
     val identifier: Identifier,
     val typeParams: List<TypeParameterDefinition>,
     val fields: List<FieldDef>
-) : DefinitionAst() {
+) : DefinitionAst(ctx) {
     override fun <R> accept(visitor: AstVisitor<R>): R =
         visitor.visit(this)
 
@@ -157,8 +142,9 @@ data class RecordDefinitionAst(
 }
 
 data class ObjectDefinitionAst(
+    override val ctx: SourceContext,
     val identifier: Identifier
-) : DefinitionAst() {
+) : DefinitionAst(ctx) {
     override fun <R> accept(visitor: AstVisitor<R>): R =
         visitor.visit(this)
 
@@ -167,9 +153,10 @@ data class ObjectDefinitionAst(
 }
 
 data class DotAst(
+    override val ctx: SourceContext,
     val lhs: Ast,
     val identifier: Identifier
-) : SymbolRefAst() {
+) : SymbolRefAst(ctx) {
     override fun <R> accept(visitor: AstVisitor<R>): R =
         visitor.visit(this)
 
@@ -178,9 +165,10 @@ data class DotAst(
 }
 
 data class GroundApplyAst(
+    override val ctx: SourceContext,
     val signifier: Signifier,
     override val args: List<Ast>
-) : ApplyAst() {
+) : ApplyAst(ctx) {
     lateinit var tti: TerminalTextSignifier
 
     override fun <R> accept(visitor: AstVisitor<R>): R =
@@ -191,10 +179,11 @@ data class GroundApplyAst(
 }
 
 data class DotApplyAst(
+    override val ctx: SourceContext,
     val lhs: Ast,
     val signifier: Signifier,
     override val args: List<Ast>
-) : ApplyAst() {
+) : ApplyAst(ctx) {
     lateinit var tti: TerminalTextSignifier
 
     override fun <R> accept(visitor: AstVisitor<R>): R =
@@ -205,15 +194,12 @@ data class DotApplyAst(
 }
 
 data class ForEachAst(
+    override val ctx: SourceContext,
     val identifier: Identifier,
     val ofType: Signifier,
     val source: Ast,
     val body: Ast
-) : Ast() {
-    lateinit var ofTypeSymbol: Type
-    lateinit var sourceTypeSymbol: Type
-    lateinit var sourceFinSymbol: Type
-
+) : Ast(ctx) {
     override fun <R> accept(visitor: AstVisitor<R>): R =
         visitor.visit(this)
 
@@ -222,9 +208,10 @@ data class ForEachAst(
 }
 
 data class AssignAst(
+    override val ctx: SourceContext,
     val identifier: Identifier,
     val rhs: Ast
-) : SymbolRefAst() {
+) : SymbolRefAst(ctx) {
     override fun <R> accept(visitor: AstVisitor<R>): R =
         visitor.visit(this)
 
@@ -233,10 +220,11 @@ data class AssignAst(
 }
 
 data class DotAssignAst(
+    override val ctx: SourceContext,
     val lhs: Ast,
     val identifier: Identifier,
     val rhs: Ast
-) : SymbolRefAst() {
+) : SymbolRefAst(ctx) {
     override fun <R> accept(visitor: AstVisitor<R>): R =
         visitor.visit(this)
 
@@ -245,35 +233,11 @@ data class DotAssignAst(
 }
 
 data class IfAst(
+    override val ctx: SourceContext,
     val condition: Ast,
     val trueBranch: Ast,
     val falseBranch: Ast
-) : Ast() {
-    override fun <R> accept(visitor: AstVisitor<R>): R =
-        visitor.visit(this)
-
-    override fun <P, R> accept(visitor: ParameterizedAstVisitor<P, R>, param: P): R =
-        visitor.visit(this, param)
-}
-
-data class AsAst(
-    val lhs: Ast,
-    val signifier: Signifier
-) : Ast() {
-    override fun <R> accept(visitor: AstVisitor<R>): R =
-        visitor.visit(this)
-
-    override fun <P, R> accept(visitor: ParameterizedAstVisitor<P, R>, param: P): R =
-        visitor.visit(this, param)
-}
-
-data class IsAst(
-    val lhs: Ast,
-    val signifier: Signifier
-) : Ast() {
-    lateinit var result: BooleanValue
-    lateinit var identifierSymbol: Type
-
+) : Ast(ctx) {
     override fun <R> accept(visitor: AstVisitor<R>): R =
         visitor.visit(this)
 

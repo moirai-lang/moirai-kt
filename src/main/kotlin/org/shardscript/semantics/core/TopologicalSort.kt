@@ -7,12 +7,6 @@ sealed class Either<out A, out B>
 data class Left<out A>(val value: A) : Either<A, Nothing>()
 data class Right<out B>(val value: B) : Either<Nothing, B>()
 
-data class SortResult<T>(
-    val edges: Set<DependencyEdge<T>>,
-    val nodes: Set<T>,
-    val sorted: List<Symbol>
-)
-
 fun <T> topologicalSort(nodes: Set<T>, edges: Set<DependencyEdge<T>>): Either<Set<T>, List<T>> {
     data class EdgeCount<T>(val node: T, var count: Int)
 
