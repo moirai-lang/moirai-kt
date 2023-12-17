@@ -462,8 +462,7 @@ internal class AstParseTreeVisitor(private val fileName: String, val errors: Lan
         val condition = visit(ctx.condition)
         val trueBranch = visit(ctx.trueb)
         val falseBranch = visit(ctx.elif)
-        val res = IfAst(condition, trueBranch, falseBranch)
-        res.ctx = sourceContext
+        val res = IfAst(sourceContext, condition, trueBranch, falseBranch)
         return res
     }
 
@@ -473,8 +472,7 @@ internal class AstParseTreeVisitor(private val fileName: String, val errors: Lan
         val condition = visit(ctx.condition)
         val trueBranch = visit(ctx.trueb)
         val falseBranch = visit(ctx.falseb)
-        val res = IfAst(condition, trueBranch, falseBranch)
-        res.ctx = sourceContext
+        val res = IfAst(sourceContext, condition, trueBranch, falseBranch)
         return res
     }
 
@@ -482,10 +480,9 @@ internal class AstParseTreeVisitor(private val fileName: String, val errors: Lan
         val sourceContext = createContext(fileName, ctx.op)
 
         val condition = visit(ctx.condition)
-        val trueBranch = visit(ctx.trueb)
-        val falseBranch = BlockAst(mutableListOf(RefAst(Lang.unitId)))
-        val res = IfAst(condition, trueBranch, falseBranch)
-        res.ctx = sourceContext
+        val trueBranch = BlockAst(NotInSource, mutableListOf(visit(ctx.trueb), RefAst(NotInSource, Lang.unitId)))
+        val falseBranch = BlockAst(NotInSource, mutableListOf(RefAst(NotInSource, Lang.unitId)))
+        val res = IfAst(sourceContext, condition, trueBranch, falseBranch)
         return res
     }
 }
