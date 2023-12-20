@@ -9,6 +9,9 @@ import org.antlr.v4.runtime.CharStreams
 import org.antlr.v4.runtime.CommonTokenStream
 import org.antlr.v4.runtime.Token
 import org.apache.commons.lang3.StringEscapeUtils
+import org.shardscript.semantics.phases.parse.DotApplyPostParseAst
+import org.shardscript.semantics.phases.parse.GroundApplyPostParseAst
+import org.shardscript.semantics.phases.parse.PostParseAst
 
 data class Parser(val grammar: ShardScriptParser, val listener: SyntaxErrorListener)
 
@@ -28,31 +31,31 @@ internal fun createContext(fileName: String, token: Token): SourceContext =
     InNamedSource(fileName, token.line, token.charPositionInLine)
 
 internal fun rewriteAsGroundApply(
-    args: List<Ast>,
+    args: List<PostParseAst>,
     gid: Identifier,
     sourceContext: SourceContext
-): GroundApplyAst {
-    val res = GroundApplyAst(sourceContext, gid, args)
+): GroundApplyPostParseAst {
+    val res = GroundApplyPostParseAst(sourceContext, gid, args)
     return res
 }
 
 internal fun rewriteAsDotApply(
-    left: Ast,
-    args: List<Ast>,
+    left: PostParseAst,
+    args: List<PostParseAst>,
     op: BinaryOperator,
     sourceContext: SourceContext
-): DotApplyAst {
-    val res = DotApplyAst(sourceContext, left, Identifier(NotInSource, op.idStr), args)
+): DotApplyPostParseAst {
+    val res = DotApplyPostParseAst(sourceContext, left, Identifier(NotInSource, op.idStr), args)
     return res
 }
 
 internal fun rewriteAsDotApply(
-    left: Ast,
-    args: List<Ast>,
+    left: PostParseAst,
+    args: List<PostParseAst>,
     collectionMethod: CollectionMethods,
     sourceContext: SourceContext
-): DotApplyAst {
-    val res = DotApplyAst(sourceContext, left, Identifier(NotInSource, collectionMethod.idStr), args)
+): DotApplyPostParseAst {
+    val res = DotApplyPostParseAst(sourceContext, left, Identifier(NotInSource, collectionMethod.idStr), args)
     return res
 }
 

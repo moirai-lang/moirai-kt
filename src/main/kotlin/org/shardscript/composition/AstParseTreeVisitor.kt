@@ -3,35 +3,36 @@ package org.shardscript.composition
 import org.shardscript.grammar.ShardScriptParser
 import org.shardscript.grammar.ShardScriptParserBaseVisitor
 import org.shardscript.semantics.core.*
+import org.shardscript.semantics.phases.parse.*
 import org.shardscript.semantics.prelude.*
 import java.math.BigDecimal
 
 internal class AstParseTreeVisitor(private val fileName: String, val errors: LanguageErrors) :
-    ShardScriptParserBaseVisitor<Ast>() {
+    ShardScriptParserBaseVisitor<PostParseAst>() {
     private val typeVisitor = TypeLiteralParseTreeVisitor(fileName)
 
-    override fun visitFile(ctx: ShardScriptParser.FileContext): Ast {
+    override fun visitFile(ctx: ShardScriptParser.FileContext): PostParseAst {
         val stats = ctx.stat().map { visit(it) }
 
-        val res = FileAst(createContext(fileName, ctx.start), stats)
+        val res = FilePostParseAst(createContext(fileName, ctx.start), stats)
         return res
     }
 
-    override fun visitBlock(ctx: ShardScriptParser.BlockContext): Ast {
+    override fun visitBlock(ctx: ShardScriptParser.BlockContext): PostParseAst {
         val stats = ctx.stat().map { visit(it) }
 
-        val res = BlockAst(createContext(fileName, ctx.start), stats.toMutableList())
+        val res = BlockPostParseAst(createContext(fileName, ctx.start), stats.toMutableList())
         return res
     }
 
-    override fun visitBlockExpr(ctx: ShardScriptParser.BlockExprContext): Ast {
+    override fun visitBlockExpr(ctx: ShardScriptParser.BlockExprContext): PostParseAst {
         val stats = ctx.stat().map { visit(it) }
 
-        val res = BlockAst(createContext(fileName, ctx.start), stats.toMutableList())
+        val res = BlockPostParseAst(createContext(fileName, ctx.start), stats.toMutableList())
         return res
     }
 
-    override fun visitMutableLet(ctx: ShardScriptParser.MutableLetContext): Ast {
+    override fun visitMutableLet(ctx: ShardScriptParser.MutableLetContext): PostParseAst {
         val right = visit(ctx.right)
         val identifier = Identifier(createContext(fileName, ctx.id), ctx.id.text)
         val of = if (ctx.of != null) {
@@ -40,11 +41,11 @@ internal class AstParseTreeVisitor(private val fileName: String, val errors: Lan
             ImplicitTypeLiteral(NotInSource)
         }
 
-        val res = LetAst(createContext(fileName, ctx.MUTABLE().symbol), identifier, of, right, true)
+        val res = LetPostParseAst(createContext(fileName, ctx.MUTABLE().symbol), identifier, of, right, true)
         return res
     }
 
-    override fun visitImmutableLet(ctx: ShardScriptParser.ImmutableLetContext): Ast {
+    override fun visitImmutableLet(ctx: ShardScriptParser.ImmutableLetContext): PostParseAst {
         val right = visit(ctx.right)
         val identifier = Identifier(createContext(fileName, ctx.id), ctx.id.text)
         val of = if (ctx.of != null) {
@@ -53,28 +54,28 @@ internal class AstParseTreeVisitor(private val fileName: String, val errors: Lan
             ImplicitTypeLiteral(NotInSource)
         }
 
-        val res = LetAst(createContext(fileName, ctx.VAL().symbol), identifier, of, right, false)
+        val res = LetPostParseAst(createContext(fileName, ctx.VAL().symbol), identifier, of, right, false)
         return res
     }
 
-    override fun visitRefExpr(ctx: ShardScriptParser.RefExprContext): Ast {
+    override fun visitRefExpr(ctx: ShardScriptParser.RefExprContext): PostParseAst {
         val sourceContext = createContext(fileName, ctx.start)
         val identifier = Identifier(sourceContext, ctx.text)
 
-        val res = RefAst(sourceContext, identifier)
+        val res = RefPostParseAst(sourceContext, identifier)
         return res
     }
 
-    override fun visitParenExpr(ctx: ShardScriptParser.ParenExprContext): Ast {
+    override fun visitParenExpr(ctx: ShardScriptParser.ParenExprContext): PostParseAst {
         return visit(ctx.inner)
     }
 
-    override fun visitUnaryNot(ctx: ShardScriptParser.UnaryNotContext): Ast {
+    override fun visitUnaryNot(ctx: ShardScriptParser.UnaryNotContext): PostParseAst {
         val op = UnaryOperator.Not
         val right = visit(ctx.right)
-        val args: List<Ast> = listOf()
+        val args: List<PostParseAst> = listOf()
 
-        val res = DotApplyAst(
+        val res = DotApplyPostParseAst(
             createContext(fileName, ctx.op),
             right,
             Identifier(createContext(fileName, ctx.right.start), op.idStr),
@@ -83,16 +84,16 @@ internal class AstParseTreeVisitor(private val fileName: String, val errors: Lan
         return res
     }
 
-    override fun visitUnaryNegate(ctx: ShardScriptParser.UnaryNegateContext): Ast {
+    override fun visitUnaryNegate(ctx: ShardScriptParser.UnaryNegateContext): PostParseAst {
         val op = UnaryOperator.Negate
         val right = visit(ctx.right)
-        val args: List<Ast> = listOf()
+        val args: List<PostParseAst> = listOf()
 
-        val res = DotApplyAst(createContext(fileName, ctx.op), right, Identifier(createContext(fileName, ctx.right.start), op.idStr), args)
+        val res = DotApplyPostParseAst(createContext(fileName, ctx.op), right, Identifier(createContext(fileName, ctx.right.start), op.idStr), args)
         return res
     }
 
-    override fun visitInfixMulDivMod(ctx: ShardScriptParser.InfixMulDivModContext): Ast {
+    override fun visitInfixMulDivMod(ctx: ShardScriptParser.InfixMulDivModContext): PostParseAst {
         val sourceContext = createContext(fileName, ctx.op)
         val op = when (ctx.op.text) {
             BinaryOperator.Mul.opStr -> BinaryOperator.Mul
@@ -105,7 +106,7 @@ internal class AstParseTreeVisitor(private val fileName: String, val errors: Lan
         return rewriteAsDotApply(left, listOf(right), op, sourceContext)
     }
 
-    override fun visitInfixAddSub(ctx: ShardScriptParser.InfixAddSubContext): Ast {
+    override fun visitInfixAddSub(ctx: ShardScriptParser.InfixAddSubContext): PostParseAst {
         val sourceContext = createContext(fileName, ctx.op)
         val op = if (ctx.op.text == BinaryOperator.Add.opStr) {
             BinaryOperator.Add
@@ -118,7 +119,7 @@ internal class AstParseTreeVisitor(private val fileName: String, val errors: Lan
         return rewriteAsDotApply(left, listOf(right), op, sourceContext)
     }
 
-    override fun visitInfixOrder(ctx: ShardScriptParser.InfixOrderContext): Ast {
+    override fun visitInfixOrder(ctx: ShardScriptParser.InfixOrderContext): PostParseAst {
         val sourceContext = createContext(fileName, ctx.op)
         val op = when (ctx.op.text) {
             BinaryOperator.GreaterThan.opStr -> BinaryOperator.GreaterThan
@@ -132,7 +133,7 @@ internal class AstParseTreeVisitor(private val fileName: String, val errors: Lan
         return rewriteAsDotApply(left, listOf(right), op, sourceContext)
     }
 
-    override fun visitInfixEquality(ctx: ShardScriptParser.InfixEqualityContext): Ast {
+    override fun visitInfixEquality(ctx: ShardScriptParser.InfixEqualityContext): PostParseAst {
         val sourceContext = createContext(fileName, ctx.op)
         val op = if (ctx.op.text == BinaryOperator.Equal.opStr) {
             BinaryOperator.Equal
@@ -145,7 +146,7 @@ internal class AstParseTreeVisitor(private val fileName: String, val errors: Lan
         return rewriteAsDotApply(left, listOf(right), op, sourceContext)
     }
 
-    override fun visitInfixAnd(ctx: ShardScriptParser.InfixAndContext): Ast {
+    override fun visitInfixAnd(ctx: ShardScriptParser.InfixAndContext): PostParseAst {
         val sourceContext = createContext(fileName, ctx.op)
         val op = BinaryOperator.And
 
@@ -154,7 +155,7 @@ internal class AstParseTreeVisitor(private val fileName: String, val errors: Lan
         return rewriteAsDotApply(left, listOf(right), op, sourceContext)
     }
 
-    override fun visitInfixOr(ctx: ShardScriptParser.InfixOrContext): Ast {
+    override fun visitInfixOr(ctx: ShardScriptParser.InfixOrContext): PostParseAst {
         val sourceContext = createContext(fileName, ctx.op)
         val op = BinaryOperator.Or
 
@@ -163,66 +164,66 @@ internal class AstParseTreeVisitor(private val fileName: String, val errors: Lan
         return rewriteAsDotApply(left, listOf(right), op, sourceContext)
     }
 
-    override fun visitLiteralInt(ctx: ShardScriptParser.LiteralIntContext): Ast {
+    override fun visitLiteralInt(ctx: ShardScriptParser.LiteralIntContext): PostParseAst {
         val sourceContext = createContext(fileName, ctx.value)
         val res = try {
             val bigDecimal = BigDecimal(ctx.value.text)
-            NumberLiteralAst(sourceContext, bigDecimal)
+            NumberLiteralPostParseAst(sourceContext, bigDecimal)
         } catch (_: Exception) {
             errors.add(sourceContext, InvalidNumberLiteral(Lang.decimalId.name, ctx.value.text))
-            NumberLiteralAst(sourceContext, BigDecimal.ZERO)
+            NumberLiteralPostParseAst(sourceContext, BigDecimal.ZERO)
         }
         return res
     }
 
-    override fun visitLiteralBool(ctx: ShardScriptParser.LiteralBoolContext): Ast {
-        val res = BooleanLiteralAst(createContext(fileName, ctx.value), ctx.value.text!!.toBoolean())
+    override fun visitLiteralBool(ctx: ShardScriptParser.LiteralBoolContext): PostParseAst {
+        val res = BooleanLiteralPostParseAst(createContext(fileName, ctx.value), ctx.value.text!!.toBoolean())
         return res
     }
 
-    override fun visitLiteralDecimal(ctx: ShardScriptParser.LiteralDecimalContext): Ast {
+    override fun visitLiteralDecimal(ctx: ShardScriptParser.LiteralDecimalContext): PostParseAst {
         val sourceContext = createContext(fileName, ctx.value)
         val res = try {
             val bigDecimal = BigDecimal(ctx.value.text)
-            NumberLiteralAst(sourceContext, bigDecimal)
+            NumberLiteralPostParseAst(sourceContext, bigDecimal)
         } catch (_: Exception) {
             errors.add(sourceContext, InvalidNumberLiteral(Lang.decimalId.name, ctx.value.text))
-            NumberLiteralAst(sourceContext, BigDecimal.ZERO)
+            NumberLiteralPostParseAst(sourceContext, BigDecimal.ZERO)
         }
         return res
     }
 
-    override fun visitNonEmptyString(ctx: ShardScriptParser.NonEmptyStringContext): Ast {
+    override fun visitNonEmptyString(ctx: ShardScriptParser.NonEmptyStringContext): PostParseAst {
         val parts = ctx.parts.children.map { visit(it) }
 
-        return if (parts.size == 1 && parts.first() is StringLiteralAst) {
+        return if (parts.size == 1 && parts.first() is StringLiteralPostParseAst) {
             parts.first()
         } else {
-            val res = StringInterpolationAst(createContext(fileName, ctx.start), parts.toMutableList())
+            val res = StringInterpolationPostParseAst(createContext(fileName, ctx.start), parts.toMutableList())
             res
         }
     }
 
-    override fun visitEmptyString(ctx: ShardScriptParser.EmptyStringContext): Ast {
-        val res = StringLiteralAst(createContext(fileName, ctx.start), "")
+    override fun visitEmptyString(ctx: ShardScriptParser.EmptyStringContext): PostParseAst {
+        val res = StringLiteralPostParseAst(createContext(fileName, ctx.start), "")
         return res
     }
 
-    override fun visitStringChars(ctx: ShardScriptParser.StringCharsContext): Ast {
+    override fun visitStringChars(ctx: ShardScriptParser.StringCharsContext): PostParseAst {
         val chars = ctx.chars
-        val res = StringLiteralAst(createContext(fileName, ctx.chars), resurrectString(chars.text))
+        val res = StringLiteralPostParseAst(createContext(fileName, ctx.chars), resurrectString(chars.text))
         return res
     }
 
-    override fun visitStringInterp(ctx: ShardScriptParser.StringInterpContext): Ast {
+    override fun visitStringInterp(ctx: ShardScriptParser.StringInterpContext): PostParseAst {
         return visit(ctx.interp)
     }
 
-    override fun visitStringExpr(ctx: ShardScriptParser.StringExprContext): Ast {
+    override fun visitStringExpr(ctx: ShardScriptParser.StringExprContext): PostParseAst {
         return visit(ctx.value)
     }
 
-    override fun visitFunDefStat(ctx: ShardScriptParser.FunDefStatContext): Ast {
+    override fun visitFunDefStat(ctx: ShardScriptParser.FunDefStatContext): PostParseAst {
         val typeParams: MutableList<TypeParameterDefinition> = ArrayList()
         if (ctx.tp != null) {
             ctx.tp.typeParam().forEach {
@@ -254,14 +255,14 @@ internal class AstParseTreeVisitor(private val fileName: String, val errors: Lan
         } else {
             Lang.unitId
         }
-        val body = visit(ctx.body) as BlockAst
+        val body = visit(ctx.body) as BlockPostParseAst
 
         val id = Identifier(createContext(fileName, ctx.id), ctx.id.text)
-        val res = FunctionAst(createContext(fileName, ctx.id), id, typeParams, params, ret, body)
+        val res = FunctionPostParseAst(createContext(fileName, ctx.id), id, typeParams, params, ret, body)
         return res
     }
 
-    override fun visitLambdaDef(ctx: ShardScriptParser.LambdaDefContext): Ast {
+    override fun visitLambdaDef(ctx: ShardScriptParser.LambdaDefContext): PostParseAst {
         val params: MutableList<Binder> = ArrayList()
         if (ctx.params != null) {
             ctx.params.restrictedParamDef().forEach {
@@ -273,12 +274,12 @@ internal class AstParseTreeVisitor(private val fileName: String, val errors: Lan
 
         val body = visit(ctx.body)
 
-        val res = LambdaAst(createContext(fileName, ctx.op), params, body)
+        val res = LambdaPostParseAst(createContext(fileName, ctx.op), params, body)
         return res
     }
 
-    override fun visitApplyExpr(ctx: ShardScriptParser.ApplyExprContext): Ast {
-        val args: MutableList<Ast> = ArrayList()
+    override fun visitApplyExpr(ctx: ShardScriptParser.ApplyExprContext): PostParseAst {
+        val args: MutableList<PostParseAst> = ArrayList()
         if (ctx.args != null) {
             ctx.args.expr().forEach {
                 args.add(visit(it))
@@ -287,12 +288,12 @@ internal class AstParseTreeVisitor(private val fileName: String, val errors: Lan
 
         val sourceContext = createContext(fileName, ctx.id)
         val id = Identifier(sourceContext, ctx.id.text)
-        val res = GroundApplyAst(sourceContext, id, args)
+        val res = GroundApplyPostParseAst(sourceContext, id, args)
         return res
     }
 
-    override fun visitParamApplyExpr(ctx: ShardScriptParser.ParamApplyExprContext): Ast {
-        val args: MutableList<Ast> = ArrayList()
+    override fun visitParamApplyExpr(ctx: ShardScriptParser.ParamApplyExprContext): PostParseAst {
+        val args: MutableList<PostParseAst> = ArrayList()
         if (ctx.args != null) {
             ctx.args.expr().forEach {
                 args.add(visit(it))
@@ -305,17 +306,17 @@ internal class AstParseTreeVisitor(private val fileName: String, val errors: Lan
 
         val sourceContext = createContext(fileName, ctx.id)
         val id = ParameterizedSignifier(sourceContext, Identifier(sourceContext, ctx.id.text), typeArgs)
-        val res = GroundApplyAst(sourceContext, id, args)
+        val res = GroundApplyPostParseAst(sourceContext, id, args)
         return res
     }
 
-    override fun visitObjectDefStat(ctx: ShardScriptParser.ObjectDefStatContext): Ast {
+    override fun visitObjectDefStat(ctx: ShardScriptParser.ObjectDefStatContext): PostParseAst {
         val id = Identifier(createContext(fileName, ctx.id), ctx.id.text)
-        val res = ObjectDefinitionAst(createContext(fileName, ctx.OBJECT().symbol), id)
+        val res = ObjectDefinitionPostParseAst(createContext(fileName, ctx.OBJECT().symbol), id)
         return res
     }
 
-    override fun visitRecordDefStat(ctx: ShardScriptParser.RecordDefStatContext): Ast {
+    override fun visitRecordDefStat(ctx: ShardScriptParser.RecordDefStatContext): PostParseAst {
         val typeParams: MutableList<TypeParameterDefinition> = ArrayList()
         if (ctx.tp != null) {
             ctx.tp.typeParam().forEach {
@@ -351,7 +352,7 @@ internal class AstParseTreeVisitor(private val fileName: String, val errors: Lan
         }
 
         val id = Identifier(createContext(fileName, ctx.id), ctx.id.text)
-        val res = RecordDefinitionAst(
+        val res = RecordDefinitionPostParseAst(
             createContext(fileName, ctx.id),
             id,
             typeParams,
@@ -360,16 +361,16 @@ internal class AstParseTreeVisitor(private val fileName: String, val errors: Lan
         return res
     }
 
-    override fun visitDotExpr(ctx: ShardScriptParser.DotExprContext): Ast {
+    override fun visitDotExpr(ctx: ShardScriptParser.DotExprContext): PostParseAst {
         val lhs = visit(ctx.left)
         val id = Identifier(createContext(fileName, ctx.id), ctx.id.text)
-        val res = DotAst(createContext(fileName, ctx.DOT().symbol), lhs, id)
+        val res = DotPostParseAst(createContext(fileName, ctx.DOT().symbol), lhs, id)
         return res
     }
 
-    override fun visitParamDotApply(ctx: ShardScriptParser.ParamDotApplyContext): Ast {
+    override fun visitParamDotApply(ctx: ShardScriptParser.ParamDotApplyContext): PostParseAst {
         val lhs = visit(ctx.left)
-        val args: MutableList<Ast> = ArrayList()
+        val args: MutableList<PostParseAst> = ArrayList()
         if (ctx.args != null) {
             ctx.args.expr().forEach {
                 args.add(visit(it))
@@ -381,13 +382,13 @@ internal class AstParseTreeVisitor(private val fileName: String, val errors: Lan
         }
 
         val id = ParameterizedSignifier(createContext(fileName, ctx.id), Identifier(createContext(fileName, ctx.id), ctx.id.text), typeArgs)
-        val res = DotApplyAst(createContext(fileName, ctx.DOT().symbol), lhs, id, args)
+        val res = DotApplyPostParseAst(createContext(fileName, ctx.DOT().symbol), lhs, id, args)
         return res
     }
 
-    override fun visitDotApply(ctx: ShardScriptParser.DotApplyContext): Ast {
+    override fun visitDotApply(ctx: ShardScriptParser.DotApplyContext): PostParseAst {
         val lhs = visit(ctx.left)
-        val args: MutableList<Ast> = ArrayList()
+        val args: MutableList<PostParseAst> = ArrayList()
         if (ctx.args != null) {
             ctx.args.expr().forEach {
                 args.add(visit(it))
@@ -395,11 +396,11 @@ internal class AstParseTreeVisitor(private val fileName: String, val errors: Lan
         }
 
         val id = Identifier(createContext(fileName, ctx.id), ctx.id.text)
-        val res = DotApplyAst(createContext(fileName, ctx.DOT().symbol), lhs, id, args)
+        val res = DotApplyPostParseAst(createContext(fileName, ctx.DOT().symbol), lhs, id, args)
         return res
     }
 
-    override fun visitIndexExpr(ctx: ShardScriptParser.IndexExprContext): Ast {
+    override fun visitIndexExpr(ctx: ShardScriptParser.IndexExprContext): PostParseAst {
         val sourceContext = createContext(fileName, ctx.start)
         val method = CollectionMethods.IndexLookup
 
@@ -408,7 +409,7 @@ internal class AstParseTreeVisitor(private val fileName: String, val errors: Lan
         return rewriteAsDotApply(left, listOf(right), method, sourceContext)
     }
 
-    override fun visitForStat(ctx: ShardScriptParser.ForStatContext): Ast {
+    override fun visitForStat(ctx: ShardScriptParser.ForStatContext): PostParseAst {
         val right = visit(ctx.source)
         val identifier = Identifier(createContext(fileName, ctx.id), ctx.id.text)
         val of = if (ctx.of != null) {
@@ -419,11 +420,11 @@ internal class AstParseTreeVisitor(private val fileName: String, val errors: Lan
 
         val body = visit(ctx.body)
 
-        val res = ForEachAst(createContext(fileName, ctx.FOR().symbol), identifier, of, right, body)
+        val res = ForEachPostParseAst(createContext(fileName, ctx.FOR().symbol), identifier, of, right, body)
         return res
     }
 
-    override fun visitAssignStat(ctx: ShardScriptParser.AssignStatContext): Ast {
+    override fun visitAssignStat(ctx: ShardScriptParser.AssignStatContext): PostParseAst {
         val rhs = visit(ctx.right)
         val sourceContext = createContext(fileName, ctx.start)
         return when (val lhs = ctx.left) {
@@ -437,11 +438,11 @@ internal class AstParseTreeVisitor(private val fileName: String, val errors: Lan
             is ShardScriptParser.DotExprContext -> {
                 val childLeft = visit(lhs.left)
                 val gid = Identifier(createContext(fileName, lhs.id), lhs.id.text)
-                return DotAssignAst(createContext(fileName, ctx.ASSIGN().symbol), childLeft, gid, rhs)
+                return DotAssignPostParseAst(createContext(fileName, ctx.ASSIGN().symbol), childLeft, gid, rhs)
             }
             is ShardScriptParser.RefExprContext -> {
                 val gid = Identifier(createContext(fileName, lhs.id), lhs.id.text)
-                return AssignAst(createContext(fileName, ctx.ASSIGN().symbol), gid, rhs)
+                return AssignPostParseAst(createContext(fileName, ctx.ASSIGN().symbol), gid, rhs)
             }
             else -> {
                 val lhsCtx = createContext(fileName, ctx.left.start)
@@ -451,37 +452,37 @@ internal class AstParseTreeVisitor(private val fileName: String, val errors: Lan
         }
     }
 
-    override fun visitAnyIf(ctx: ShardScriptParser.AnyIfContext): Ast {
+    override fun visitAnyIf(ctx: ShardScriptParser.AnyIfContext): PostParseAst {
         return visit(ctx.anyif)
     }
 
-    override fun visitIfElseIfExpr(ctx: ShardScriptParser.IfElseIfExprContext): Ast {
+    override fun visitIfElseIfExpr(ctx: ShardScriptParser.IfElseIfExprContext): PostParseAst {
         val sourceContext = createContext(fileName, ctx.op)
 
         val condition = visit(ctx.condition)
         val trueBranch = visit(ctx.trueb)
         val falseBranch = visit(ctx.elif)
-        val res = IfAst(sourceContext, condition, trueBranch, falseBranch)
+        val res = IfPostParseAst(sourceContext, condition, trueBranch, falseBranch)
         return res
     }
 
-    override fun visitIfElseExpr(ctx: ShardScriptParser.IfElseExprContext): Ast {
+    override fun visitIfElseExpr(ctx: ShardScriptParser.IfElseExprContext): PostParseAst {
         val sourceContext = createContext(fileName, ctx.op)
 
         val condition = visit(ctx.condition)
         val trueBranch = visit(ctx.trueb)
         val falseBranch = visit(ctx.falseb)
-        val res = IfAst(sourceContext, condition, trueBranch, falseBranch)
+        val res = IfPostParseAst(sourceContext, condition, trueBranch, falseBranch)
         return res
     }
 
-    override fun visitStandaloneIfExpr(ctx: ShardScriptParser.StandaloneIfExprContext): Ast {
+    override fun visitStandaloneIfExpr(ctx: ShardScriptParser.StandaloneIfExprContext): PostParseAst {
         val sourceContext = createContext(fileName, ctx.op)
 
         val condition = visit(ctx.condition)
-        val trueBranch = BlockAst(NotInSource, mutableListOf(visit(ctx.trueb), RefAst(NotInSource, Lang.unitId)))
-        val falseBranch = BlockAst(NotInSource, mutableListOf(RefAst(NotInSource, Lang.unitId)))
-        val res = IfAst(sourceContext, condition, trueBranch, falseBranch)
+        val trueBranch = BlockPostParseAst(NotInSource, mutableListOf(visit(ctx.trueb), RefPostParseAst(NotInSource, Lang.unitId)))
+        val falseBranch = BlockPostParseAst(NotInSource, mutableListOf(RefPostParseAst(NotInSource, Lang.unitId)))
+        val res = IfPostParseAst(sourceContext, condition, trueBranch, falseBranch)
         return res
     }
 }
