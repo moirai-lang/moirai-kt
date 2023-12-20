@@ -10,8 +10,6 @@ sealed class TypedAst(override val ctx: SourceContext) : LanguageElement {
 
 sealed class SymbolRefTypedAst(override val ctx: SourceContext) : TypedAst(ctx)
 
-sealed class DefinitionTypedAst(override val ctx: SourceContext) : TypedAst(ctx)
-
 sealed class ApplyTypedAst(override val ctx: SourceContext) : SymbolRefTypedAst(ctx) {
     abstract val args: List<TypedAst>
 }
@@ -86,50 +84,11 @@ data class BlockTypedAst(override val ctx: SourceContext, val lines: MutableList
         visitor.visit(this, param)
 }
 
-data class FunctionTypedAst(
-    override val ctx: SourceContext,
-    val identifier: Identifier,
-    val typeParams: List<TypeParameterDefinition>,
-    val formalParams: List<Binder>,
-    val returnType: Signifier,
-    val body: BlockTypedAst
-) : DefinitionTypedAst(ctx) {
-    override fun <R> accept(visitor: TypedAstVisitor<R>): R =
-        visitor.visit(this)
-
-    override fun <P, R> accept(visitor: ParameterizedTypedAstVisitor<P, R>, param: P): R =
-        visitor.visit(this, param)
-}
-
 data class LambdaTypedAst(
     override val ctx: SourceContext,
     val formalParams: List<Binder>,
     val body: TypedAst
 ) : TypedAst(ctx) {
-    override fun <R> accept(visitor: TypedAstVisitor<R>): R =
-        visitor.visit(this)
-
-    override fun <P, R> accept(visitor: ParameterizedTypedAstVisitor<P, R>, param: P): R =
-        visitor.visit(this, param)
-}
-
-data class RecordDefinitionTypedAst(
-    override val ctx: SourceContext,
-    val identifier: Identifier,
-    val typeParams: List<TypeParameterDefinition>,
-    val fields: List<FieldDef>
-) : DefinitionTypedAst(ctx) {
-    override fun <R> accept(visitor: TypedAstVisitor<R>): R =
-        visitor.visit(this)
-
-    override fun <P, R> accept(visitor: ParameterizedTypedAstVisitor<P, R>, param: P): R =
-        visitor.visit(this, param)
-}
-
-data class ObjectDefinitionTypedAst(
-    override val ctx: SourceContext,
-    val identifier: Identifier
-) : DefinitionTypedAst(ctx) {
     override fun <R> accept(visitor: TypedAstVisitor<R>): R =
         visitor.visit(this)
 
@@ -154,8 +113,6 @@ data class GroundApplyTypedAst(
     val signifier: Signifier,
     override val args: List<TypedAst>
 ) : ApplyTypedAst(ctx) {
-    lateinit var tti: TerminalTextSignifier
-
     override fun <R> accept(visitor: TypedAstVisitor<R>): R =
         visitor.visit(this)
 
@@ -169,8 +126,6 @@ data class DotApplyTypedAst(
     val signifier: Signifier,
     override val args: List<TypedAst>
 ) : ApplyTypedAst(ctx) {
-    lateinit var tti: TerminalTextSignifier
-
     override fun <R> accept(visitor: TypedAstVisitor<R>): R =
         visitor.visit(this)
 

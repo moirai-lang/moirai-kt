@@ -154,8 +154,6 @@ data class GroundApplyPostParseAst(
     val signifier: Signifier,
     override val args: List<PostParseAst>
 ) : ApplyPostParseAst(ctx) {
-    lateinit var tti: TerminalTextSignifier
-
     override fun <R> accept(visitor: PostParseAstVisitor<R>): R =
         visitor.visit(this)
 
@@ -169,8 +167,6 @@ data class DotApplyPostParseAst(
     val signifier: Signifier,
     override val args: List<PostParseAst>
 ) : ApplyPostParseAst(ctx) {
-    lateinit var tti: TerminalTextSignifier
-
     override fun <R> accept(visitor: PostParseAstVisitor<R>): R =
         visitor.visit(this)
 

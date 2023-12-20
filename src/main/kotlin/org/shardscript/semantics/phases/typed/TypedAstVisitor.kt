@@ -9,10 +9,7 @@ interface TypedAstVisitor<R> {
     fun visit(ast: RefTypedAst): R
     fun visit(ast: FileTypedAst): R
     fun visit(ast: BlockTypedAst): R
-    fun visit(ast: FunctionTypedAst): R
     fun visit(ast: LambdaTypedAst): R
-    fun visit(ast: RecordDefinitionTypedAst): R
-    fun visit(ast: ObjectDefinitionTypedAst): R
     fun visit(ast: DotTypedAst): R
     fun visit(ast: GroundApplyTypedAst): R
     fun visit(ast: DotApplyTypedAst): R
@@ -31,10 +28,7 @@ interface ParameterizedTypedAstVisitor<P, R> {
     fun visit(ast: RefTypedAst, param: P): R
     fun visit(ast: FileTypedAst, param: P): R
     fun visit(ast: BlockTypedAst, param: P): R
-    fun visit(ast: FunctionTypedAst, param: P): R
     fun visit(ast: LambdaTypedAst, param: P): R
-    fun visit(ast: RecordDefinitionTypedAst, param: P): R
-    fun visit(ast: ObjectDefinitionTypedAst, param: P): R
     fun visit(ast: DotTypedAst, param: P): R
     fun visit(ast: GroundApplyTypedAst, param: P): R
     fun visit(ast: DotApplyTypedAst, param: P): R

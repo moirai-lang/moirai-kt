@@ -10,8 +10,6 @@ sealed class CanonicalAst(override val ctx: SourceContext) : LanguageElement {
 
 sealed class SymbolRefCanonicalAst(override val ctx: SourceContext) : CanonicalAst(ctx)
 
-sealed class DefinitionCanonicalAst(override val ctx: SourceContext) : CanonicalAst(ctx)
-
 sealed class ApplyCanonicalAst(override val ctx: SourceContext) : SymbolRefCanonicalAst(ctx) {
     abstract val args: List<CanonicalAst>
 }
@@ -86,50 +84,11 @@ data class BlockCanonicalAst(override val ctx: SourceContext, val lines: Mutable
         visitor.visit(this, param)
 }
 
-data class FunctionCanonicalAst(
-    override val ctx: SourceContext,
-    val identifier: Identifier,
-    val typeParams: List<TypeParameterDefinition>,
-    val formalParams: List<Binder>,
-    val returnType: Signifier,
-    val body: BlockCanonicalAst
-) : DefinitionCanonicalAst(ctx) {
-    override fun <R> accept(visitor: CanonicalAstVisitor<R>): R =
-        visitor.visit(this)
-
-    override fun <P, R> accept(visitor: ParameterizedCanonicalAstVisitor<P, R>, param: P): R =
-        visitor.visit(this, param)
-}
-
 data class LambdaCanonicalAst(
     override val ctx: SourceContext,
     val formalParams: List<Binder>,
     val body: CanonicalAst
 ) : CanonicalAst(ctx) {
-    override fun <R> accept(visitor: CanonicalAstVisitor<R>): R =
-        visitor.visit(this)
-
-    override fun <P, R> accept(visitor: ParameterizedCanonicalAstVisitor<P, R>, param: P): R =
-        visitor.visit(this, param)
-}
-
-data class RecordDefinitionCanonicalAst(
-    override val ctx: SourceContext,
-    val identifier: Identifier,
-    val typeParams: List<TypeParameterDefinition>,
-    val fields: List<FieldDef>
-) : DefinitionCanonicalAst(ctx) {
-    override fun <R> accept(visitor: CanonicalAstVisitor<R>): R =
-        visitor.visit(this)
-
-    override fun <P, R> accept(visitor: ParameterizedCanonicalAstVisitor<P, R>, param: P): R =
-        visitor.visit(this, param)
-}
-
-data class ObjectDefinitionCanonicalAst(
-    override val ctx: SourceContext,
-    val identifier: Identifier
-) : DefinitionCanonicalAst(ctx) {
     override fun <R> accept(visitor: CanonicalAstVisitor<R>): R =
         visitor.visit(this)
 
@@ -154,8 +113,6 @@ data class GroundApplyCanonicalAst(
     val signifier: Signifier,
     override val args: List<CanonicalAst>
 ) : ApplyCanonicalAst(ctx) {
-    lateinit var tti: TerminalTextSignifier
-
     override fun <R> accept(visitor: CanonicalAstVisitor<R>): R =
         visitor.visit(this)
 
@@ -169,8 +126,6 @@ data class DotApplyCanonicalAst(
     val signifier: Signifier,
     override val args: List<CanonicalAst>
 ) : ApplyCanonicalAst(ctx) {
-    lateinit var tti: TerminalTextSignifier
-
     override fun <R> accept(visitor: CanonicalAstVisitor<R>): R =
         visitor.visit(this)
 
