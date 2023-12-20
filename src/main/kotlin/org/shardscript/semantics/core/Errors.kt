@@ -11,7 +11,7 @@ sealed class ErrorType
 
 // Frontend Errors
 data object InvalidAssign : ErrorType()
-data class InvalidIntegerLiteral(val typeId: String, val text: String) : ErrorType()
+data class InvalidNumberLiteral(val typeId: String, val text: String) : ErrorType()
 data class DuplicateImport(val import: List<String>) : ErrorType()
 data class NoSuchFile(val import: List<String>) : ErrorType()
 data class AmbiguousSymbol(val signifier: Signifier) : ErrorType()

@@ -15,15 +15,7 @@ sealed class ApplyAst(override val ctx: SourceContext) : SymbolRefAst(ctx) {
     abstract val args: List<Ast>
 }
 
-data class IntLiteralAst(override val ctx: SourceContext, val canonicalForm: Int) : Ast(ctx) {
-    override fun <R> accept(visitor: AstVisitor<R>): R =
-        visitor.visit(this)
-
-    override fun <P, R> accept(visitor: ParameterizedAstVisitor<P, R>, param: P): R =
-        visitor.visit(this, param)
-}
-
-data class DecimalLiteralAst(override val ctx: SourceContext, val canonicalForm: BigDecimal) : Ast(ctx) {
+data class NumberLiteralAst(override val ctx: SourceContext, val canonicalForm: BigDecimal) : Ast(ctx) {
     override fun <R> accept(visitor: AstVisitor<R>): R =
         visitor.visit(this)
 
@@ -32,14 +24,6 @@ data class DecimalLiteralAst(override val ctx: SourceContext, val canonicalForm:
 }
 
 data class BooleanLiteralAst(override val ctx: SourceContext, val canonicalForm: Boolean) : Ast(ctx) {
-    override fun <R> accept(visitor: AstVisitor<R>): R =
-        visitor.visit(this)
-
-    override fun <P, R> accept(visitor: ParameterizedAstVisitor<P, R>, param: P): R =
-        visitor.visit(this, param)
-}
-
-data class CharLiteralAst(override val ctx: SourceContext, val canonicalForm: Char) : Ast(ctx) {
     override fun <R> accept(visitor: AstVisitor<R>): R =
         visitor.visit(this)
 

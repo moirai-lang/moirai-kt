@@ -118,7 +118,6 @@ expr
     |   value=DECIMAL                                                                               # LiteralDecimal
     |   value=INT                                                                                   # LiteralInt
     |   value=(BOOL_TRUE|BOOL_FALSE)                                                                # LiteralBool
-    |   value=CHAR                                                                                  # LiteralChar
     |   value=string                                                                                # StringExpr
     |   left=expr op=TO right=expr                                                                  # ToExpr
     |   id=IDENTIFIER                                                                               # RefExpr

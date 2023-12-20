@@ -1,10 +1,8 @@
 package org.shardscript.semantics.core
 
 interface AstVisitor<R> {
-    fun visit(ast: IntLiteralAst): R
-    fun visit(ast: DecimalLiteralAst): R
+    fun visit(ast: NumberLiteralAst): R
     fun visit(ast: BooleanLiteralAst): R
-    fun visit(ast: CharLiteralAst): R
     fun visit(ast: StringLiteralAst): R
     fun visit(ast: StringInterpolationAst): R
     fun visit(ast: LetAst): R
@@ -25,10 +23,8 @@ interface AstVisitor<R> {
 }
 
 interface ParameterizedAstVisitor<P, R> {
-    fun visit(ast: IntLiteralAst, param: P): R
-    fun visit(ast: DecimalLiteralAst, param: P): R
+    fun visit(ast: NumberLiteralAst, param: P): R
     fun visit(ast: BooleanLiteralAst, param: P): R
-    fun visit(ast: CharLiteralAst, param: P): R
     fun visit(ast: StringLiteralAst, param: P): R
     fun visit(ast: StringInterpolationAst, param: P): R
     fun visit(ast: LetAst, param: P): R

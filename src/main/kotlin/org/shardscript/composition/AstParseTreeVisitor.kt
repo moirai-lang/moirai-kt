@@ -166,10 +166,11 @@ internal class AstParseTreeVisitor(private val fileName: String, val errors: Lan
     override fun visitLiteralInt(ctx: ShardScriptParser.LiteralIntContext): Ast {
         val sourceContext = createContext(fileName, ctx.value)
         val res = try {
-            IntLiteralAst(sourceContext, ctx.value.text.toInt())
+            val bigDecimal = BigDecimal(ctx.value.text)
+            NumberLiteralAst(sourceContext, bigDecimal)
         } catch (_: Exception) {
-            errors.add(sourceContext, InvalidIntegerLiteral(Lang.decimalId.name, ctx.value.text))
-            IntLiteralAst(sourceContext, 0)
+            errors.add(sourceContext, InvalidNumberLiteral(Lang.decimalId.name, ctx.value.text))
+            NumberLiteralAst(sourceContext, BigDecimal.ZERO)
         }
         return res
     }
@@ -180,16 +181,14 @@ internal class AstParseTreeVisitor(private val fileName: String, val errors: Lan
     }
 
     override fun visitLiteralDecimal(ctx: ShardScriptParser.LiteralDecimalContext): Ast {
-        val bigDecimal = BigDecimal(ctx.value.text)
-
-        val res = DecimalLiteralAst(createContext(fileName, ctx.value), bigDecimal)
-        return res
-    }
-
-    override fun visitLiteralChar(ctx: ShardScriptParser.LiteralCharContext): Ast {
-        val char = resurrectChar(ctx.value.text)
-
-        val res = CharLiteralAst(createContext(fileName, ctx.value), char)
+        val sourceContext = createContext(fileName, ctx.value)
+        val res = try {
+            val bigDecimal = BigDecimal(ctx.value.text)
+            NumberLiteralAst(sourceContext, bigDecimal)
+        } catch (_: Exception) {
+            errors.add(sourceContext, InvalidNumberLiteral(Lang.decimalId.name, ctx.value.text))
+            NumberLiteralAst(sourceContext, BigDecimal.ZERO)
+        }
         return res
     }
 
