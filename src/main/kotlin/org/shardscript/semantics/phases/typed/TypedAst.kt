@@ -1,6 +1,8 @@
 package org.shardscript.semantics.phases.typed
 
 import org.shardscript.semantics.core.*
+import org.shardscript.semantics.phases.parse.PostParseIdentifier
+import org.shardscript.semantics.phases.parse.PostParseSignifier
 import java.math.BigDecimal
 
 sealed class TypedAst(override val ctx: SourceContext) : LanguageElement {
@@ -48,8 +50,8 @@ data class StringInterpolationTypedAst(override val ctx: SourceContext, val comp
 
 data class LetTypedAst(
     override val ctx: SourceContext,
-    val identifier: Identifier,
-    val ofType: Signifier,
+    val identifier: PostParseIdentifier,
+    val ofType: PostParseSignifier,
     val rhs: TypedAst,
     val mutable: Boolean
 ) : SymbolRefTypedAst(ctx) {
@@ -60,7 +62,7 @@ data class LetTypedAst(
         visitor.visit(this, param)
 }
 
-data class RefTypedAst(override val ctx: SourceContext, val identifier: Identifier) : SymbolRefTypedAst(ctx) {
+data class RefTypedAst(override val ctx: SourceContext, val identifier: PostParseIdentifier) : SymbolRefTypedAst(ctx) {
     override fun <R> accept(visitor: TypedAstVisitor<R>): R =
         visitor.visit(this)
 
@@ -99,7 +101,7 @@ data class LambdaTypedAst(
 data class DotTypedAst(
     override val ctx: SourceContext,
     val lhs: TypedAst,
-    val identifier: Identifier
+    val identifier: PostParseIdentifier
 ) : SymbolRefTypedAst(ctx) {
     override fun <R> accept(visitor: TypedAstVisitor<R>): R =
         visitor.visit(this)
@@ -110,7 +112,7 @@ data class DotTypedAst(
 
 data class GroundApplyTypedAst(
     override val ctx: SourceContext,
-    val signifier: Signifier,
+    val signifier: PostParseSignifier,
     override val args: List<TypedAst>
 ) : ApplyTypedAst(ctx) {
     override fun <R> accept(visitor: TypedAstVisitor<R>): R =
@@ -123,7 +125,7 @@ data class GroundApplyTypedAst(
 data class DotApplyTypedAst(
     override val ctx: SourceContext,
     val lhs: TypedAst,
-    val signifier: Signifier,
+    val signifier: PostParseSignifier,
     override val args: List<TypedAst>
 ) : ApplyTypedAst(ctx) {
     override fun <R> accept(visitor: TypedAstVisitor<R>): R =
@@ -135,8 +137,8 @@ data class DotApplyTypedAst(
 
 data class ForEachTypedAst(
     override val ctx: SourceContext,
-    val identifier: Identifier,
-    val ofType: Signifier,
+    val identifier: PostParseIdentifier,
+    val ofType: PostParseSignifier,
     val source: TypedAst,
     val body: TypedAst
 ) : TypedAst(ctx) {
@@ -149,7 +151,7 @@ data class ForEachTypedAst(
 
 data class AssignTypedAst(
     override val ctx: SourceContext,
-    val identifier: Identifier,
+    val identifier: PostParseIdentifier,
     val rhs: TypedAst
 ) : SymbolRefTypedAst(ctx) {
     override fun <R> accept(visitor: TypedAstVisitor<R>): R =
@@ -162,7 +164,7 @@ data class AssignTypedAst(
 data class DotAssignTypedAst(
     override val ctx: SourceContext,
     val lhs: TypedAst,
-    val identifier: Identifier,
+    val identifier: PostParseIdentifier,
     val rhs: TypedAst
 ) : SymbolRefTypedAst(ctx) {
     override fun <R> accept(visitor: TypedAstVisitor<R>): R =

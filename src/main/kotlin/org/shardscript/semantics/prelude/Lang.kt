@@ -1,15 +1,15 @@
 package org.shardscript.semantics.prelude
 
-import org.shardscript.semantics.core.Identifier
+import org.shardscript.semantics.phases.parse.PostParseIdentifier
 import org.shardscript.semantics.core.NotInSource
 
 object Lang {
-    val unitId = Identifier(NotInSource, "Unit")
-    val booleanId = Identifier(NotInSource, "Boolean")
-    val charId = Identifier(NotInSource, "Char")
-    val stringId = Identifier(NotInSource, "String")
-    val decimalId = Identifier(NotInSource, "Decimal")
+    val unitId = PostParseIdentifier(NotInSource, "Unit")
+    val booleanId = PostParseIdentifier(NotInSource, "Boolean")
+    val charId = PostParseIdentifier(NotInSource, "Char")
+    val stringId = PostParseIdentifier(NotInSource, "String")
+    val decimalId = PostParseIdentifier(NotInSource, "Decimal")
 
-    val listId = Identifier(NotInSource, "List")
-    val mutableListId = Identifier(NotInSource, "MutableList")
+    val listId = PostParseIdentifier(NotInSource, "List")
+    val mutableListId = PostParseIdentifier(NotInSource, "MutableList")
 }

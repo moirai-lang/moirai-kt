@@ -50,8 +50,8 @@ data class StringInterpolationPostParseAst(override val ctx: SourceContext, val 
 
 data class LetPostParseAst(
     override val ctx: SourceContext,
-    val identifier: Identifier,
-    val ofType: Signifier,
+    val identifier: PostParseIdentifier,
+    val ofType: PostParseSignifier,
     val rhs: PostParseAst,
     val mutable: Boolean
 ) : SymbolRefPostParseAst(ctx) {
@@ -62,7 +62,7 @@ data class LetPostParseAst(
         visitor.visit(this, param)
 }
 
-data class RefPostParseAst(override val ctx: SourceContext, val identifier: Identifier) : SymbolRefPostParseAst(ctx) {
+data class RefPostParseAst(override val ctx: SourceContext, val identifier: PostParseIdentifier) : SymbolRefPostParseAst(ctx) {
     override fun <R> accept(visitor: PostParseAstVisitor<R>): R =
         visitor.visit(this)
 
@@ -88,10 +88,10 @@ data class BlockPostParseAst(override val ctx: SourceContext, val lines: Mutable
 
 data class FunctionPostParseAst(
     override val ctx: SourceContext,
-    val identifier: Identifier,
+    val identifier: PostParseIdentifier,
     val typeParams: List<TypeParameterDefinition>,
     val formalParams: List<Binder>,
-    val returnType: Signifier,
+    val returnType: PostParseSignifier,
     val body: BlockPostParseAst
 ) : DefinitionPostParseAst(ctx) {
     override fun <R> accept(visitor: PostParseAstVisitor<R>): R =
@@ -115,7 +115,7 @@ data class LambdaPostParseAst(
 
 data class RecordDefinitionPostParseAst(
     override val ctx: SourceContext,
-    val identifier: Identifier,
+    val identifier: PostParseIdentifier,
     val typeParams: List<TypeParameterDefinition>,
     val fields: List<FieldDef>
 ) : DefinitionPostParseAst(ctx) {
@@ -128,7 +128,7 @@ data class RecordDefinitionPostParseAst(
 
 data class ObjectDefinitionPostParseAst(
     override val ctx: SourceContext,
-    val identifier: Identifier
+    val identifier: PostParseIdentifier
 ) : DefinitionPostParseAst(ctx) {
     override fun <R> accept(visitor: PostParseAstVisitor<R>): R =
         visitor.visit(this)
@@ -140,7 +140,7 @@ data class ObjectDefinitionPostParseAst(
 data class DotPostParseAst(
     override val ctx: SourceContext,
     val lhs: PostParseAst,
-    val identifier: Identifier
+    val identifier: PostParseIdentifier
 ) : SymbolRefPostParseAst(ctx) {
     override fun <R> accept(visitor: PostParseAstVisitor<R>): R =
         visitor.visit(this)
@@ -151,7 +151,7 @@ data class DotPostParseAst(
 
 data class GroundApplyPostParseAst(
     override val ctx: SourceContext,
-    val signifier: Signifier,
+    val signifier: PostParseSignifier,
     override val args: List<PostParseAst>
 ) : ApplyPostParseAst(ctx) {
     override fun <R> accept(visitor: PostParseAstVisitor<R>): R =
@@ -164,7 +164,7 @@ data class GroundApplyPostParseAst(
 data class DotApplyPostParseAst(
     override val ctx: SourceContext,
     val lhs: PostParseAst,
-    val signifier: Signifier,
+    val signifier: PostParseSignifier,
     override val args: List<PostParseAst>
 ) : ApplyPostParseAst(ctx) {
     override fun <R> accept(visitor: PostParseAstVisitor<R>): R =
@@ -176,8 +176,8 @@ data class DotApplyPostParseAst(
 
 data class ForEachPostParseAst(
     override val ctx: SourceContext,
-    val identifier: Identifier,
-    val ofType: Signifier,
+    val identifier: PostParseIdentifier,
+    val ofType: PostParseSignifier,
     val source: PostParseAst,
     val body: PostParseAst
 ) : PostParseAst(ctx) {
@@ -190,7 +190,7 @@ data class ForEachPostParseAst(
 
 data class AssignPostParseAst(
     override val ctx: SourceContext,
-    val identifier: Identifier,
+    val identifier: PostParseIdentifier,
     val rhs: PostParseAst
 ) : SymbolRefPostParseAst(ctx) {
     override fun <R> accept(visitor: PostParseAstVisitor<R>): R =
@@ -203,7 +203,7 @@ data class AssignPostParseAst(
 data class DotAssignPostParseAst(
     override val ctx: SourceContext,
     val lhs: PostParseAst,
-    val identifier: Identifier,
+    val identifier: PostParseIdentifier,
     val rhs: PostParseAst
 ) : SymbolRefPostParseAst(ctx) {
     override fun <R> accept(visitor: PostParseAstVisitor<R>): R =

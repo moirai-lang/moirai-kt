@@ -1,6 +1,8 @@
 package org.shardscript.semantics.phases.canonical
 
 import org.shardscript.semantics.core.*
+import org.shardscript.semantics.phases.parse.PostParseIdentifier
+import org.shardscript.semantics.phases.parse.PostParseSignifier
 import java.math.BigDecimal
 
 sealed class CanonicalAst(override val ctx: SourceContext) : LanguageElement {
@@ -48,8 +50,8 @@ data class StringInterpolationCanonicalAst(override val ctx: SourceContext, val 
 
 data class LetCanonicalAst(
     override val ctx: SourceContext,
-    val identifier: Identifier,
-    val ofType: Signifier,
+    val identifier: PostParseIdentifier,
+    val ofType: PostParseSignifier,
     val rhs: CanonicalAst,
     val mutable: Boolean
 ) : SymbolRefCanonicalAst(ctx) {
@@ -60,7 +62,7 @@ data class LetCanonicalAst(
         visitor.visit(this, param)
 }
 
-data class RefCanonicalAst(override val ctx: SourceContext, val identifier: Identifier) : SymbolRefCanonicalAst(ctx) {
+data class RefCanonicalAst(override val ctx: SourceContext, val identifier: PostParseIdentifier) : SymbolRefCanonicalAst(ctx) {
     override fun <R> accept(visitor: CanonicalAstVisitor<R>): R =
         visitor.visit(this)
 
@@ -99,7 +101,7 @@ data class LambdaCanonicalAst(
 data class DotCanonicalAst(
     override val ctx: SourceContext,
     val lhs: CanonicalAst,
-    val identifier: Identifier
+    val identifier: PostParseIdentifier
 ) : SymbolRefCanonicalAst(ctx) {
     override fun <R> accept(visitor: CanonicalAstVisitor<R>): R =
         visitor.visit(this)
@@ -110,7 +112,7 @@ data class DotCanonicalAst(
 
 data class GroundApplyCanonicalAst(
     override val ctx: SourceContext,
-    val signifier: Signifier,
+    val signifier: PostParseSignifier,
     override val args: List<CanonicalAst>
 ) : ApplyCanonicalAst(ctx) {
     override fun <R> accept(visitor: CanonicalAstVisitor<R>): R =
@@ -123,7 +125,7 @@ data class GroundApplyCanonicalAst(
 data class DotApplyCanonicalAst(
     override val ctx: SourceContext,
     val lhs: CanonicalAst,
-    val signifier: Signifier,
+    val signifier: PostParseSignifier,
     override val args: List<CanonicalAst>
 ) : ApplyCanonicalAst(ctx) {
     override fun <R> accept(visitor: CanonicalAstVisitor<R>): R =
@@ -135,8 +137,8 @@ data class DotApplyCanonicalAst(
 
 data class ForEachCanonicalAst(
     override val ctx: SourceContext,
-    val identifier: Identifier,
-    val ofType: Signifier,
+    val identifier: PostParseIdentifier,
+    val ofType: PostParseSignifier,
     val source: CanonicalAst,
     val body: CanonicalAst
 ) : CanonicalAst(ctx) {
@@ -149,7 +151,7 @@ data class ForEachCanonicalAst(
 
 data class AssignCanonicalAst(
     override val ctx: SourceContext,
-    val identifier: Identifier,
+    val identifier: PostParseIdentifier,
     val rhs: CanonicalAst
 ) : SymbolRefCanonicalAst(ctx) {
     override fun <R> accept(visitor: CanonicalAstVisitor<R>): R =
@@ -162,7 +164,7 @@ data class AssignCanonicalAst(
 data class DotAssignCanonicalAst(
     override val ctx: SourceContext,
     val lhs: CanonicalAst,
-    val identifier: Identifier,
+    val identifier: PostParseIdentifier,
     val rhs: CanonicalAst
 ) : SymbolRefCanonicalAst(ctx) {
     override fun <R> accept(visitor: CanonicalAstVisitor<R>): R =

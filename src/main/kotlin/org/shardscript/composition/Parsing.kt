@@ -11,6 +11,7 @@ import org.antlr.v4.runtime.Token
 import org.apache.commons.lang3.StringEscapeUtils
 import org.shardscript.semantics.phases.parse.DotApplyPostParseAst
 import org.shardscript.semantics.phases.parse.GroundApplyPostParseAst
+import org.shardscript.semantics.phases.parse.PostParseIdentifier
 import org.shardscript.semantics.phases.parse.PostParseAst
 
 data class Parser(val grammar: ShardScriptParser, val listener: SyntaxErrorListener)
@@ -32,7 +33,7 @@ internal fun createContext(fileName: String, token: Token): SourceContext =
 
 internal fun rewriteAsGroundApply(
     args: List<PostParseAst>,
-    gid: Identifier,
+    gid: PostParseIdentifier,
     sourceContext: SourceContext
 ): GroundApplyPostParseAst {
     val res = GroundApplyPostParseAst(sourceContext, gid, args)
@@ -45,7 +46,7 @@ internal fun rewriteAsDotApply(
     op: BinaryOperator,
     sourceContext: SourceContext
 ): DotApplyPostParseAst {
-    val res = DotApplyPostParseAst(sourceContext, left, Identifier(NotInSource, op.idStr), args)
+    val res = DotApplyPostParseAst(sourceContext, left, PostParseIdentifier(NotInSource, op.idStr), args)
     return res
 }
 
@@ -55,7 +56,7 @@ internal fun rewriteAsDotApply(
     collectionMethod: CollectionMethods,
     sourceContext: SourceContext
 ): DotApplyPostParseAst {
-    val res = DotApplyPostParseAst(sourceContext, left, Identifier(NotInSource, collectionMethod.idStr), args)
+    val res = DotApplyPostParseAst(sourceContext, left, PostParseIdentifier(NotInSource, collectionMethod.idStr), args)
     return res
 }
 
@@ -67,14 +68,4 @@ fun resurrectString(original: String): String {
 fun persistString(original: String): String {
     val escaped = StringEscapeUtils.escapeJava(original)
     return "\"$escaped\""
-}
-
-fun resurrectChar(original: String): Char {
-    val trimmed = original.removeSurrounding("'")
-    return StringEscapeUtils.unescapeJava(trimmed).toCharArray().first()
-}
-
-fun persistChar(original: Char): String {
-    val escaped = StringEscapeUtils.escapeJava(original.toString())
-    return "\'$escaped\'"
 }
