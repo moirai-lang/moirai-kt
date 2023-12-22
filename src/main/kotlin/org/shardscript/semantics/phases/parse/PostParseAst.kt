@@ -78,7 +78,7 @@ data class FilePostParseAst(override val ctx: SourceContext, val lines: List<Pos
         visitor.visit(this, param)
 }
 
-data class BlockPostParseAst(override val ctx: SourceContext, val lines: MutableList<PostParseAst>) : PostParseAst(ctx) {
+data class BlockPostParseAst(override val ctx: SourceContext, val lines: List<PostParseAst>) : PostParseAst(ctx) {
     override fun <R> accept(visitor: PostParseAstVisitor<R>): R =
         visitor.visit(this)
 

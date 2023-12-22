@@ -80,7 +80,7 @@ data class FileScopedAst(override val ctx: SourceContext, override val localScop
         visitor.visit(this, param)
 }
 
-data class BlockScopedAst(override val ctx: SourceContext, override val localScope: LocalPostParseScope, val blockScope: LocalPostParseScope, val lines: MutableList<ScopedAst>) : ScopedAst(ctx) {
+data class BlockScopedAst(override val ctx: SourceContext, override val localScope: LocalPostParseScope, val blockScope: LocalPostParseScope, val lines: List<ScopedAst>) : ScopedAst(ctx) {
     override fun <R> accept(visitor: ScopedAstVisitor<R>): R =
         visitor.visit(this)
 
