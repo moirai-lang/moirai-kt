@@ -37,7 +37,16 @@ class BindScopesAstVisitor: ParameterizedPostParseAstVisitor<LocalPostParseScope
     override fun visit(ast: FunctionPostParseAst, param: LocalPostParseScope): ScopedAst {
         val bodyScope = LocalPostParseScope(param)
         val body = BlockScopedAst(ast.body.ctx, param, bodyScope, ast.body.lines.map { it.accept(this, bodyScope) })
-        return FunctionScopedAst(ast.ctx, param, bodyScope, ast.identifier, ast.typeParams, ast.formalParams, ast.returnType, body)
+        return FunctionScopedAst(
+            ast.ctx,
+            param,
+            bodyScope,
+            ast.identifier,
+            ast.typeParams,
+            ast.formalParams,
+            ast.returnType,
+            body
+        )
     }
 
     override fun visit(ast: LambdaPostParseAst, param: LocalPostParseScope): ScopedAst {
@@ -51,38 +60,100 @@ class BindScopesAstVisitor: ParameterizedPostParseAstVisitor<LocalPostParseScope
     }
 
     override fun visit(ast: RecordDefinitionPostParseAst, param: LocalPostParseScope): ScopedAst {
-        TODO("Not yet implemented")
+        val bodyScope = LocalPostParseScope(param)
+        return RecordDefinitionScopedAst(ast.ctx, param, bodyScope, ast.identifier, ast.typeParams, ast.fields)
     }
 
     override fun visit(ast: ObjectDefinitionPostParseAst, param: LocalPostParseScope): ScopedAst {
-        TODO("Not yet implemented")
+        return ObjectDefinitionScopedAst(ast.ctx, param, ast.identifier)
     }
 
     override fun visit(ast: DotPostParseAst, param: LocalPostParseScope): ScopedAst {
-        TODO("Not yet implemented")
+        return DotScopedAst(ast.ctx, param, ast.lhs.accept(this, param), ast.identifier)
     }
 
     override fun visit(ast: GroundApplyPostParseAst, param: LocalPostParseScope): ScopedAst {
-        TODO("Not yet implemented")
+        return GroundApplyScopedAst(ast.ctx, param, ast.signifier, ast.args.map { it.accept(this, param) })
     }
 
     override fun visit(ast: DotApplyPostParseAst, param: LocalPostParseScope): ScopedAst {
-        TODO("Not yet implemented")
+        return DotApplyScopedAst(
+            ast.ctx,
+            param,
+            ast.lhs.accept(this, param),
+            ast.signifier,
+            ast.args.map { it.accept(this, param) })
     }
 
     override fun visit(ast: ForEachPostParseAst, param: LocalPostParseScope): ScopedAst {
-        TODO("Not yet implemented")
+        val bodyScope = LocalPostParseScope(param)
+        return if (ast.body is BlockPostParseAst) {
+            val body = BlockScopedAst(ast.body.ctx, param, bodyScope, ast.body.lines.map { it.accept(this, bodyScope) })
+            ForEachScopedAst(
+                ast.ctx,
+                param,
+                bodyScope,
+                ast.identifier,
+                ast.ofType,
+                ast.source.accept(this, param),
+                body
+            )
+        } else {
+            ForEachScopedAst(
+                ast.ctx,
+                param,
+                bodyScope,
+                ast.identifier,
+                ast.ofType,
+                ast.source.accept(this, param),
+                ast.body.accept(this, bodyScope)
+            )
+        }
     }
 
     override fun visit(ast: AssignPostParseAst, param: LocalPostParseScope): ScopedAst {
-        TODO("Not yet implemented")
+        return AssignScopedAst(ast.ctx, param, ast.identifier, ast.rhs.accept(this, param))
     }
 
     override fun visit(ast: DotAssignPostParseAst, param: LocalPostParseScope): ScopedAst {
-        TODO("Not yet implemented")
+        return DotAssignScopedAst(
+            ast.ctx,
+            param,
+            ast.lhs.accept(this, param),
+            ast.identifier,
+            ast.rhs.accept(this, param)
+        )
     }
 
     override fun visit(ast: IfPostParseAst, param: LocalPostParseScope): ScopedAst {
-        TODO("Not yet implemented")
+        val trueBranchScope = LocalPostParseScope(param)
+        val falseBranchScope = LocalPostParseScope(param)
+        val trueBranch = if (ast.trueBranch is BlockPostParseAst) {
+            BlockScopedAst(
+                ast.trueBranch.ctx,
+                param,
+                trueBranchScope,
+                ast.trueBranch.lines.map { it.accept(this, trueBranchScope) })
+        } else {
+            ast.trueBranch.accept(this, trueBranchScope)
+        }
+        val falseBranch = if (ast.falseBranch is BlockPostParseAst) {
+            BlockScopedAst(
+                ast.falseBranch.ctx,
+                param,
+                falseBranchScope,
+                ast.falseBranch.lines.map { it.accept(this, falseBranchScope) })
+        } else {
+            ast.falseBranch.accept(this, falseBranchScope)
+        }
+        return IfScopedAst(
+            ast.ctx,
+            param,
+            trueBranchScope,
+            falseBranchScope,
+            ast.condition.accept(this, param),
+            trueBranch,
+            falseBranch
+        )
     }
 }
