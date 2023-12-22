@@ -1,5 +1,7 @@
 package org.shardscript.semantics.core
 
+import org.shardscript.semantics.phases.parse.PostParseIdentifier
+
 sealed class SourceContext
 
 data class InNamedSource(val fileName: String, val line: Int, val char: Int) : SourceContext()
@@ -14,6 +16,10 @@ data object InvalidAssign : ErrorType()
 data class InvalidNumberLiteral(val typeId: String, val text: String) : ErrorType()
 data class DuplicateImport(val import: List<String>) : ErrorType()
 data object SelfImport : ErrorType()
+
+data class IdentifierAlreadyExists(val identifier: PostParseIdentifier) : ErrorType()
+data class IdentifierNotFound(val identifier: PostParseIdentifier) : ErrorType()
+data class IdentifierCouldNotBeDefined(val identifier: PostParseIdentifier) : ErrorType()
 
 // General Errors
 data class SyntaxError(val msg: String) : ErrorType()

@@ -9,7 +9,7 @@ import org.shardscript.semantics.core.SourceContext
 
 data class ImportStat(val path: List<String>)
 
-internal class ImportsParseTreeListener(val errors: LanguageErrors) :
+internal class ImportsParseTreeListener(private val errors: LanguageErrors) :
     ShardScriptParserBaseListener() {
     private val accumulatedImports: MutableMap<List<String>, SourceContext> = HashMap()
     private var scriptType: ScriptType = PureTransient
