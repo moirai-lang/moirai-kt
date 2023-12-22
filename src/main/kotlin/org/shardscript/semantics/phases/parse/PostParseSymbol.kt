@@ -1,9 +1,6 @@
 package org.shardscript.semantics.phases.parse
 
-import org.shardscript.semantics.core.IdentifierAlreadyExists
-import org.shardscript.semantics.core.IdentifierCouldNotBeDefined
-import org.shardscript.semantics.core.IdentifierNotFound
-import org.shardscript.semantics.core.LanguageErrors
+import org.shardscript.semantics.core.*
 
 sealed class PostParseSymbol
 
@@ -14,6 +11,10 @@ class ObjectDefinitionSymbol(val name: String, val definition: ObjectDefinitionP
 class RecordDefinitionSymbol(val name: String, val definition: RecordDefinitionPostParseAst): PostParseSymbol()
 
 class LocalVariableSymbol(val name: String, val definition: LetPostParseAst): PostParseSymbol()
+
+class TypeParameterSymbol(val name: String, val definition: TypeParameterDefinition): PostParseSymbol()
+
+class FormalParameterSymbol(val name: String, val definition: Binder): PostParseSymbol()
 
 class SystemSymbol(val name: String): PostParseSymbol()
 

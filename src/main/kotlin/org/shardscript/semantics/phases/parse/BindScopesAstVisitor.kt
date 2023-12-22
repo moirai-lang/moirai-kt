@@ -1,6 +1,8 @@
 package org.shardscript.semantics.phases.parse
 
-class BindScopesAstVisitor: ParameterizedPostParseAstVisitor<LocalPostParseScope, ScopedAst> {
+import org.shardscript.semantics.core.*
+
+class BindScopesAstVisitor(private val errors: LanguageErrors): ParameterizedPostParseAstVisitor<LocalPostParseScope, ScopedAst> {
     override fun visit(ast: NumberLiteralPostParseAst, param: LocalPostParseScope): ScopedAst {
         return NumberLiteralScopedAst(ast.ctx, param, ast.canonicalForm)
     }
@@ -18,7 +20,9 @@ class BindScopesAstVisitor: ParameterizedPostParseAstVisitor<LocalPostParseScope
     }
 
     override fun visit(ast: LetPostParseAst, param: LocalPostParseScope): ScopedAst {
-        return LetScopedAst(ast.ctx, param, ast.identifier, ast.ofType, ast.rhs.accept(this, param), ast.mutable)
+        val res = LetScopedAst(ast.ctx, param, ast.identifier, ast.ofType, ast.rhs.accept(this, param), ast.mutable)
+        param.define(errors, ast.identifier, LocalVariableSymbol(ast.identifier.name, ast))
+        return res
     }
 
     override fun visit(ast: RefPostParseAst, param: LocalPostParseScope): ScopedAst {
@@ -37,7 +41,7 @@ class BindScopesAstVisitor: ParameterizedPostParseAstVisitor<LocalPostParseScope
     override fun visit(ast: FunctionPostParseAst, param: LocalPostParseScope): ScopedAst {
         val bodyScope = LocalPostParseScope(param)
         val body = BlockScopedAst(ast.body.ctx, param, bodyScope, ast.body.lines.map { it.accept(this, bodyScope) })
-        return FunctionScopedAst(
+        val res = FunctionScopedAst(
             ast.ctx,
             param,
             bodyScope,
@@ -47,6 +51,28 @@ class BindScopesAstVisitor: ParameterizedPostParseAstVisitor<LocalPostParseScope
             ast.returnType,
             body
         )
+        param.define(errors, ast.identifier, FunctionDefinitionSymbol(ast.identifier.name, ast))
+        val seenTypeParameters: MutableMap<String, TypeParameterDefinition> = HashMap()
+        val seenFormalParameters: MutableMap<String, Binder> = HashMap()
+        ast.typeParams.forEach {
+            if (seenTypeParameters.containsKey(it.identifier.name)) {
+                errors.add(it.identifier.ctx, DuplicateTypeParameter(it.identifier))
+            } else {
+                seenTypeParameters[it.identifier.name] = it
+                bodyScope.define(errors, it.identifier, TypeParameterSymbol(it.identifier.name, it))
+            }
+        }
+        ast.formalParams.forEach {
+            if (seenTypeParameters.containsKey(it.identifier.name)) {
+                errors.add(it.identifier.ctx, MaskingTypeParameter(it.identifier))
+            } else if (seenFormalParameters.containsKey(it.identifier.name)) {
+                errors.add(it.identifier.ctx, IdentifierAlreadyExists(it.identifier))
+            } else {
+                seenFormalParameters[it.identifier.name] = it
+                bodyScope.define(errors, it.identifier, FormalParameterSymbol(it.identifier.name, it))
+            }
+        }
+        return res
     }
 
     override fun visit(ast: LambdaPostParseAst, param: LocalPostParseScope): ScopedAst {
@@ -61,11 +87,15 @@ class BindScopesAstVisitor: ParameterizedPostParseAstVisitor<LocalPostParseScope
 
     override fun visit(ast: RecordDefinitionPostParseAst, param: LocalPostParseScope): ScopedAst {
         val bodyScope = LocalPostParseScope(param)
-        return RecordDefinitionScopedAst(ast.ctx, param, bodyScope, ast.identifier, ast.typeParams, ast.fields)
+        val res = RecordDefinitionScopedAst(ast.ctx, param, bodyScope, ast.identifier, ast.typeParams, ast.fields)
+        param.define(errors, ast.identifier, RecordDefinitionSymbol(ast.identifier.name, ast))
+        return res
     }
 
     override fun visit(ast: ObjectDefinitionPostParseAst, param: LocalPostParseScope): ScopedAst {
-        return ObjectDefinitionScopedAst(ast.ctx, param, ast.identifier)
+        val res = ObjectDefinitionScopedAst(ast.ctx, param, ast.identifier)
+        param.define(errors, ast.identifier, ObjectDefinitionSymbol(ast.identifier.name, ast))
+        return res
     }
 
     override fun visit(ast: DotPostParseAst, param: LocalPostParseScope): ScopedAst {

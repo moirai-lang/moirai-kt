@@ -21,6 +21,9 @@ data class IdentifierAlreadyExists(val identifier: PostParseIdentifier) : ErrorT
 data class IdentifierNotFound(val identifier: PostParseIdentifier) : ErrorType()
 data class IdentifierCouldNotBeDefined(val identifier: PostParseIdentifier) : ErrorType()
 
+data class DuplicateTypeParameter(val identifier: PostParseIdentifier) : ErrorType()
+data class MaskingTypeParameter(val identifier: PostParseIdentifier) : ErrorType()
+
 // General Errors
 data class SyntaxError(val msg: String) : ErrorType()
 
