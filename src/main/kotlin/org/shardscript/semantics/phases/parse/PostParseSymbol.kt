@@ -4,19 +4,7 @@ import org.shardscript.semantics.core.*
 
 sealed class PostParseSymbol
 
-class FunctionDefinitionSymbol(val name: String, val definition: FunctionPostParseAst): PostParseSymbol()
-
-class ObjectDefinitionSymbol(val name: String, val definition: ObjectDefinitionPostParseAst): PostParseSymbol()
-
-class RecordDefinitionSymbol(val name: String, val definition: RecordDefinitionPostParseAst): PostParseSymbol()
-
-class LocalVariableSymbol(val name: String, val definition: LetPostParseAst): PostParseSymbol()
-
-class TypeParameterSymbol(val name: String, val definition: TypeParameterDefinition): PostParseSymbol()
-
-class FormalParameterSymbol(val name: String, val definition: Binder): PostParseSymbol()
-
-class SystemSymbol(val name: String): PostParseSymbol()
+class NotANamespaceSymbol(val name: String): PostParseSymbol()
 
 data object ErrorSymbol: PostParseSymbol()
 
@@ -25,7 +13,7 @@ class PostParseSymbolTable {
 
     fun define(errors: LanguageErrors, identifier: PostParseIdentifier, definition: PostParseSymbol) {
         if (identifierTable.containsKey(identifier.name)) {
-            errors.add(identifier.ctx, IdentifierAlreadyExists(identifier))
+            errors.add(identifier.ctx, IdentifierAlreadyExists(identifier.ctx, identifier.name))
         } else {
             identifierTable[identifier.name] = definition
         }
@@ -39,7 +27,7 @@ class PostParseSymbolTable {
         return if (identifierTable.containsKey(identifier.name)) {
             identifierTable[identifier.name]!!
         } else {
-            errors.add(identifier.ctx, IdentifierNotFound(identifier))
+            errors.add(identifier.ctx, IdentifierNotFound(identifier.ctx, identifier.name))
             ErrorSymbol
         }
     }
@@ -59,11 +47,11 @@ sealed class PostParseScope {
 
 data object NullPostParseScope: PostParseScope() {
     override fun define(errors: LanguageErrors, identifier: PostParseIdentifier, definition: PostParseSymbol) {
-        errors.add(identifier.ctx, IdentifierCouldNotBeDefined(identifier))
+        errors.add(identifier.ctx, IdentifierCouldNotBeDefined(identifier.ctx, identifier.name))
     }
 
     override fun fetch(errors: LanguageErrors, identifier: PostParseIdentifier): PostParseSymbol {
-        errors.add(identifier.ctx, IdentifierNotFound(identifier))
+        errors.add(identifier.ctx, IdentifierNotFound(identifier.ctx, identifier.name))
         return ErrorSymbol
     }
 }

@@ -21,7 +21,7 @@ class BindScopesAstVisitor(private val errors: LanguageErrors): ParameterizedPos
 
     override fun visit(ast: LetPostParseAst, param: LocalPostParseScope): ScopedAst {
         val res = LetScopedAst(ast.ctx, param, ast.identifier, ast.ofType, ast.rhs.accept(this, param), ast.mutable)
-        param.define(errors, ast.identifier, LocalVariableSymbol(ast.identifier.name, ast))
+        param.define(errors, ast.identifier, NotANamespaceSymbol(ast.identifier.name))
         return res
     }
 
@@ -51,25 +51,25 @@ class BindScopesAstVisitor(private val errors: LanguageErrors): ParameterizedPos
             ast.returnType,
             body
         )
-        param.define(errors, ast.identifier, FunctionDefinitionSymbol(ast.identifier.name, ast))
+        param.define(errors, ast.identifier, NotANamespaceSymbol(ast.identifier.name))
         val seenTypeParameters: MutableMap<String, TypeParameterDefinition> = HashMap()
         val seenFormalParameters: MutableMap<String, Binder> = HashMap()
         ast.typeParams.forEach {
             if (seenTypeParameters.containsKey(it.identifier.name)) {
-                errors.add(it.identifier.ctx, DuplicateTypeParameter(it.identifier))
+                errors.add(it.identifier.ctx, DuplicateTypeParameter(it.identifier.ctx, it.identifier.name))
             } else {
                 seenTypeParameters[it.identifier.name] = it
-                bodyScope.define(errors, it.identifier, TypeParameterSymbol(it.identifier.name, it))
+                bodyScope.define(errors, it.identifier, NotANamespaceSymbol(it.identifier.name))
             }
         }
         ast.formalParams.forEach {
             if (seenTypeParameters.containsKey(it.identifier.name)) {
-                errors.add(it.identifier.ctx, MaskingTypeParameter(it.identifier))
+                errors.add(it.identifier.ctx, MaskingTypeParameter(it.identifier.ctx, it.identifier.name))
             } else if (seenFormalParameters.containsKey(it.identifier.name)) {
-                errors.add(it.identifier.ctx, IdentifierAlreadyExists(it.identifier))
+                errors.add(it.identifier.ctx, IdentifierAlreadyExists(it.identifier.ctx, it.identifier.name))
             } else {
                 seenFormalParameters[it.identifier.name] = it
-                bodyScope.define(errors, it.identifier, FormalParameterSymbol(it.identifier.name, it))
+                bodyScope.define(errors, it.identifier, NotANamespaceSymbol(it.identifier.name))
             }
         }
         return res
@@ -88,13 +88,13 @@ class BindScopesAstVisitor(private val errors: LanguageErrors): ParameterizedPos
     override fun visit(ast: RecordDefinitionPostParseAst, param: LocalPostParseScope): ScopedAst {
         val bodyScope = LocalPostParseScope(param)
         val res = RecordDefinitionScopedAst(ast.ctx, param, bodyScope, ast.identifier, ast.typeParams, ast.fields)
-        param.define(errors, ast.identifier, RecordDefinitionSymbol(ast.identifier.name, ast))
+        param.define(errors, ast.identifier, NotANamespaceSymbol(ast.identifier.name))
         return res
     }
 
     override fun visit(ast: ObjectDefinitionPostParseAst, param: LocalPostParseScope): ScopedAst {
         val res = ObjectDefinitionScopedAst(ast.ctx, param, ast.identifier)
-        param.define(errors, ast.identifier, ObjectDefinitionSymbol(ast.identifier.name, ast))
+        param.define(errors, ast.identifier, NotANamespaceSymbol(ast.identifier.name))
         return res
     }
 

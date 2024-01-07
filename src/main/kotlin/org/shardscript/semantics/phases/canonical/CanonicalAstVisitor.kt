@@ -10,7 +10,10 @@ interface CanonicalAstVisitor<R> {
     fun visit(ast: ExactRefCanonicalAst): R
     fun visit(ast: FileCanonicalAst): R
     fun visit(ast: BlockCanonicalAst): R
+    fun visit(ast: FunctionCanonicalAst): R
     fun visit(ast: LambdaCanonicalAst): R
+    fun visit(ast: RecordDefinitionCanonicalAst): R
+    fun visit(ast: ObjectDefinitionCanonicalAst): R
     fun visit(ast: DotCanonicalAst): R
     fun visit(ast: GroundApplyCanonicalAst): R
     fun visit(ast: DotApplyCanonicalAst): R
@@ -30,7 +33,10 @@ interface ParameterizedCanonicalAstVisitor<P, R> {
     fun visit(ast: ExactRefCanonicalAst, param: P): R
     fun visit(ast: FileCanonicalAst, param: P): R
     fun visit(ast: BlockCanonicalAst, param: P): R
+    fun visit(ast: FunctionCanonicalAst, param: P): R
     fun visit(ast: LambdaCanonicalAst, param: P): R
+    fun visit(ast: RecordDefinitionCanonicalAst, param: P): R
+    fun visit(ast: ObjectDefinitionCanonicalAst, param: P): R
     fun visit(ast: DotCanonicalAst, param: P): R
     fun visit(ast: GroundApplyCanonicalAst, param: P): R
     fun visit(ast: DotApplyCanonicalAst, param: P): R

@@ -17,12 +17,12 @@ data class InvalidNumberLiteral(val typeId: String, val text: String) : ErrorTyp
 data class DuplicateImport(val import: List<String>) : ErrorType()
 data object SelfImport : ErrorType()
 
-data class IdentifierAlreadyExists(val identifier: PostParseIdentifier) : ErrorType()
-data class IdentifierNotFound(val identifier: PostParseIdentifier) : ErrorType()
-data class IdentifierCouldNotBeDefined(val identifier: PostParseIdentifier) : ErrorType()
+data class IdentifierAlreadyExists(val ctx: SourceContext, val name: String) : ErrorType()
+data class IdentifierNotFound(val ctx: SourceContext, val name: String) : ErrorType()
+data class IdentifierCouldNotBeDefined(val ctx: SourceContext, val name: String) : ErrorType()
 
-data class DuplicateTypeParameter(val identifier: PostParseIdentifier) : ErrorType()
-data class MaskingTypeParameter(val identifier: PostParseIdentifier) : ErrorType()
+data class DuplicateTypeParameter(val ctx: SourceContext, val name: String) : ErrorType()
+data class MaskingTypeParameter(val ctx: SourceContext, val name: String) : ErrorType()
 
 // General Errors
 data class SyntaxError(val msg: String) : ErrorType()
