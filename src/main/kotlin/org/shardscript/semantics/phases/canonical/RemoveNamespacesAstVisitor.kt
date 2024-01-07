@@ -4,6 +4,10 @@ import org.shardscript.semantics.core.*
 import org.shardscript.semantics.phases.parse.*
 
 class ResolveNamespaceAstVisitor(private val errors: LanguageErrors): ParameterizedScopedAstVisitor<LocalCanonicalScope, CanonicalAst> {
+    private fun canonicalIdentifier(postParseIdentifier: PostParseIdentifier): CanonicalIdentifier {
+        return CanonicalIdentifier(postParseIdentifier.ctx, postParseIdentifier.name)
+    }
+
     override fun visit(ast: NumberLiteralScopedAst, param: LocalCanonicalScope): CanonicalAst {
         return NumberLiteralCanonicalAst(ast.ctx, param, ast.canonicalForm)
     }
@@ -21,13 +25,13 @@ class ResolveNamespaceAstVisitor(private val errors: LanguageErrors): Parameteri
     }
 
     override fun visit(ast: LetScopedAst, param: LocalCanonicalScope): CanonicalAst {
-        val res = LetCanonicalAst(ast.ctx, param, ast.identifier, ast.ofType, ast.rhs.accept(this, param), ast.mutable)
-        param.define(errors, ast.identifier, NotANamespaceSymbol(ast.identifier.name))
+        val res = LetCanonicalAst(ast.ctx, param, canonicalIdentifier(ast.identifier), canonicalIdentifier(ast.ofType), ast.rhs.accept(this, param), ast.mutable)
+        param.define(errors, canonicalIdentifier(ast.identifier), LocalVariableSymbol(ast.identifier.name, res))
         return res
     }
 
     override fun visit(ast: RefScopedAst, param: LocalCanonicalScope): CanonicalAst {
-        return RefCanonicalAst(ast.ctx, param, ast.identifier)
+        return RefCanonicalAst(ast.ctx, param, canonicalIdentifier(ast.identifier))
     }
 
     override fun visit(ast: FileScopedAst, param: LocalCanonicalScope): CanonicalAst {
@@ -46,13 +50,13 @@ class ResolveNamespaceAstVisitor(private val errors: LanguageErrors): Parameteri
             ast.ctx,
             param,
             bodyScope,
-            ast.identifier,
+            canonicalIdentifier(ast.identifier),
             ast.typeParams,
             ast.formalParams,
             ast.returnType,
             body
         )
-        param.define(errors, ast.identifier, NotANamespaceSymbol(ast.identifier.name))
+        param.define(errors, canonicalIdentifier(ast.identifier), FunctionDefinitionSymbol(ast.identifier.name, res))
         val seenTypeParameters: MutableMap<String, TypeParameterDefinition> = HashMap()
         val seenFormalParameters: MutableMap<String, Binder> = HashMap()
         ast.typeParams.forEach {
@@ -60,7 +64,7 @@ class ResolveNamespaceAstVisitor(private val errors: LanguageErrors): Parameteri
                 errors.add(it.identifier.ctx, DuplicateTypeParameter(it.identifier.ctx, it.identifier.name))
             } else {
                 seenTypeParameters[it.identifier.name] = it
-                bodyScope.define(errors, it.identifier, NotANamespaceSymbol(it.identifier.name))
+                bodyScope.define(errors, canonicalIdentifier(it.identifier), TypeParameterSymbol(it.identifier.name, it))
             }
         }
         ast.formalParams.forEach {
@@ -70,7 +74,7 @@ class ResolveNamespaceAstVisitor(private val errors: LanguageErrors): Parameteri
                 errors.add(it.identifier.ctx, IdentifierAlreadyExists(it.identifier.ctx, it.identifier.name))
             } else {
                 seenFormalParameters[it.identifier.name] = it
-                bodyScope.define(errors, it.identifier, NotANamespaceSymbol(it.identifier.name))
+                bodyScope.define(errors, canonicalIdentifier(it.identifier), FormalParameterSymbol(it.identifier.name, it))
             }
         }
         return res
@@ -78,7 +82,7 @@ class ResolveNamespaceAstVisitor(private val errors: LanguageErrors): Parameteri
 
     override fun visit(ast: LambdaScopedAst, param: LocalCanonicalScope): CanonicalAst {
         val bodyScope = LocalCanonicalScope(param)
-        return if (ast.body is BlockCanonicalAst) {
+        return if (ast.body is BlockScopedAst) {
             val body = BlockCanonicalAst(ast.body.ctx, param, bodyScope, ast.body.lines.map { it.accept(this, bodyScope) })
             LambdaCanonicalAst(ast.ctx, param, bodyScope, ast.formalParams, body)
         } else {
@@ -88,19 +92,19 @@ class ResolveNamespaceAstVisitor(private val errors: LanguageErrors): Parameteri
 
     override fun visit(ast: RecordDefinitionScopedAst, param: LocalCanonicalScope): CanonicalAst {
         val bodyScope = LocalCanonicalScope(param)
-        val res = RecordDefinitionCanonicalAst(ast.ctx, param, bodyScope, ast.identifier, ast.typeParams, ast.fields)
-        param.define(errors, ast.identifier, NotANamespaceSymbol(ast.identifier.name))
+        val res = RecordDefinitionCanonicalAst(ast.ctx, param, bodyScope, canonicalIdentifier(ast.identifier), ast.typeParams, ast.fields)
+        param.define(errors, canonicalIdentifier(ast.identifier), RecordDefinitionSymbol(ast.identifier.name, res))
         return res
     }
 
     override fun visit(ast: ObjectDefinitionScopedAst, param: LocalCanonicalScope): CanonicalAst {
-        val res = ObjectDefinitionCanonicalAst(ast.ctx, param, ast.identifier)
-        param.define(errors, ast.identifier, NotANamespaceSymbol(ast.identifier.name))
+        val res = ObjectDefinitionCanonicalAst(ast.ctx, param, canonicalIdentifier(ast.identifier))
+        param.define(errors, canonicalIdentifier(ast.identifier), ObjectDefinitionSymbol(ast.identifier.name, res))
         return res
     }
 
     override fun visit(ast: DotScopedAst, param: LocalCanonicalScope): CanonicalAst {
-        return DotCanonicalAst(ast.ctx, param, ast.lhs.accept(this, param), ast.identifier)
+        return DotCanonicalAst(ast.ctx, param, ast.lhs.accept(this, param), canonicalIdentifier(ast.identifier))
     }
 
     override fun visit(ast: GroundApplyScopedAst, param: LocalCanonicalScope): CanonicalAst {
@@ -118,13 +122,13 @@ class ResolveNamespaceAstVisitor(private val errors: LanguageErrors): Parameteri
 
     override fun visit(ast: ForEachScopedAst, param: LocalCanonicalScope): CanonicalAst {
         val bodyScope = LocalCanonicalScope(param)
-        return if (ast.body is BlockCanonicalAst) {
+        return if (ast.body is BlockScopedAst) {
             val body = BlockCanonicalAst(ast.body.ctx, param, bodyScope, ast.body.lines.map { it.accept(this, bodyScope) })
             ForEachCanonicalAst(
                 ast.ctx,
                 param,
                 bodyScope,
-                ast.identifier,
+                canonicalIdentifier(ast.identifier),
                 ast.ofType,
                 ast.source.accept(this, param),
                 body
@@ -134,7 +138,7 @@ class ResolveNamespaceAstVisitor(private val errors: LanguageErrors): Parameteri
                 ast.ctx,
                 param,
                 bodyScope,
-                ast.identifier,
+                canonicalIdentifier(ast.identifier),
                 ast.ofType,
                 ast.source.accept(this, param),
                 ast.body.accept(this, bodyScope)
@@ -143,7 +147,7 @@ class ResolveNamespaceAstVisitor(private val errors: LanguageErrors): Parameteri
     }
 
     override fun visit(ast: AssignScopedAst, param: LocalCanonicalScope): CanonicalAst {
-        return AssignCanonicalAst(ast.ctx, param, ast.identifier, ast.rhs.accept(this, param))
+        return AssignCanonicalAst(ast.ctx, param, canonicalIdentifier(ast.identifier), ast.rhs.accept(this, param))
     }
 
     override fun visit(ast: DotAssignScopedAst, param: LocalCanonicalScope): CanonicalAst {
@@ -151,7 +155,7 @@ class ResolveNamespaceAstVisitor(private val errors: LanguageErrors): Parameteri
             ast.ctx,
             param,
             ast.lhs.accept(this, param),
-            ast.identifier,
+            canonicalIdentifier(ast.identifier),
             ast.rhs.accept(this, param)
         )
     }
@@ -159,7 +163,7 @@ class ResolveNamespaceAstVisitor(private val errors: LanguageErrors): Parameteri
     override fun visit(ast: IfScopedAst, param: LocalCanonicalScope): CanonicalAst {
         val trueBranchScope = LocalCanonicalScope(param)
         val falseBranchScope = LocalCanonicalScope(param)
-        val trueBranch = if (ast.trueBranch is BlockCanonicalAst) {
+        val trueBranch = if (ast.trueBranch is BlockScopedAst) {
             BlockCanonicalAst(
                 ast.trueBranch.ctx,
                 param,
@@ -168,7 +172,7 @@ class ResolveNamespaceAstVisitor(private val errors: LanguageErrors): Parameteri
         } else {
             ast.trueBranch.accept(this, trueBranchScope)
         }
-        val falseBranch = if (ast.falseBranch is BlockCanonicalAst) {
+        val falseBranch = if (ast.falseBranch is BlockScopedAst) {
             BlockCanonicalAst(
                 ast.falseBranch.ctx,
                 param,
