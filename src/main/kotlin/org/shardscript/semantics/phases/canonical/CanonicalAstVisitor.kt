@@ -7,6 +7,7 @@ interface CanonicalAstVisitor<R> {
     fun visit(ast: StringInterpolationCanonicalAst): R
     fun visit(ast: LetCanonicalAst): R
     fun visit(ast: RefCanonicalAst): R
+    fun visit(ast: ExactRefCanonicalAst): R
     fun visit(ast: FileCanonicalAst): R
     fun visit(ast: BlockCanonicalAst): R
     fun visit(ast: LambdaCanonicalAst): R
@@ -26,6 +27,7 @@ interface ParameterizedCanonicalAstVisitor<P, R> {
     fun visit(ast: StringInterpolationCanonicalAst, param: P): R
     fun visit(ast: LetCanonicalAst, param: P): R
     fun visit(ast: RefCanonicalAst, param: P): R
+    fun visit(ast: ExactRefCanonicalAst, param: P): R
     fun visit(ast: FileCanonicalAst, param: P): R
     fun visit(ast: BlockCanonicalAst, param: P): R
     fun visit(ast: LambdaCanonicalAst, param: P): R
