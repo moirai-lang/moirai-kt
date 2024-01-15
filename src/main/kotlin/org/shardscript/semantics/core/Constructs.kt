@@ -1,7 +1,7 @@
 package org.shardscript.semantics.core
 
 interface LanguageElement {
-    var ctx: SourceContext
+    val ctx: SourceContext
 }
 
 data class Binder(val identifier: Identifier, val ofType: Signifier) {
@@ -24,14 +24,14 @@ sealed class CaseBranch : LanguageElement {
 }
 
 data class CoproductBranch(
-    override var ctx: SourceContext,
+    override val ctx: SourceContext,
     val identifier: Identifier,
     override val body: BlockAst
 ) : CaseBranch() {
     lateinit var path: List<String>
 }
 
-data class ElseBranch(override var ctx: SourceContext, override val body: BlockAst) : CaseBranch()
+data class ElseBranch(override val ctx: SourceContext, override val body: BlockAst) : CaseBranch()
 
 interface SingleTypeInstantiation {
     fun apply(

@@ -15,12 +15,12 @@ object IntegerMathOpMembers {
     private fun pluginAdd(valueType: BasicTypeSymbol, costExpression: CostExpression): GroundMemberPluginSymbol {
         val res = GroundMemberPluginSymbol(
             valueType,
-            Identifier(BinaryOperator.Add.idStr)
+            Identifier(NotInSource, BinaryOperator.Add.idStr)
         ) { t: Value, args: List<Value> ->
             (t as MathValue).evalAdd(args.first())
         }
         res.costExpression = costExpression
-        val formalParamId = Identifier("other")
+        val formalParamId = Identifier(NotInSource, "other")
         val formalParam = FunctionFormalParameterSymbol(res, formalParamId, valueType)
         res.define(formalParamId, formalParam)
 
@@ -32,12 +32,12 @@ object IntegerMathOpMembers {
     private fun pluginSub(valueType: BasicTypeSymbol, costExpression: CostExpression): GroundMemberPluginSymbol {
         val res = GroundMemberPluginSymbol(
             valueType,
-            Identifier(BinaryOperator.Sub.idStr)
+            Identifier(NotInSource, BinaryOperator.Sub.idStr)
         ) { t: Value, args: List<Value> ->
             (t as MathValue).evalSub(args.first())
         }
         res.costExpression = costExpression
-        val formalParamId = Identifier("other")
+        val formalParamId = Identifier(NotInSource, "other")
         val formalParam = FunctionFormalParameterSymbol(res, formalParamId, valueType)
         res.define(formalParamId, formalParam)
 
@@ -49,12 +49,12 @@ object IntegerMathOpMembers {
     private fun pluginMul(valueType: BasicTypeSymbol, costExpression: CostExpression): GroundMemberPluginSymbol {
         val res = GroundMemberPluginSymbol(
             valueType,
-            Identifier(BinaryOperator.Mul.idStr)
+            Identifier(NotInSource, BinaryOperator.Mul.idStr)
         ) { t: Value, args: List<Value> ->
             (t as MathValue).evalMul(args.first())
         }
         res.costExpression = costExpression
-        val formalParamId = Identifier("other")
+        val formalParamId = Identifier(NotInSource, "other")
         val formalParam = FunctionFormalParameterSymbol(res, formalParamId, valueType)
         res.define(formalParamId, formalParam)
 
@@ -66,12 +66,12 @@ object IntegerMathOpMembers {
     private fun pluginDiv(valueType: BasicTypeSymbol, costExpression: CostExpression): GroundMemberPluginSymbol {
         val res = GroundMemberPluginSymbol(
             valueType,
-            Identifier(BinaryOperator.Div.idStr)
+            Identifier(NotInSource, BinaryOperator.Div.idStr)
         ) { t: Value, args: List<Value> ->
             (t as MathValue).evalDiv(args.first())
         }
         res.costExpression = costExpression
-        val formalParamId = Identifier("other")
+        val formalParamId = Identifier(NotInSource, "other")
         val formalParam = FunctionFormalParameterSymbol(res, formalParamId, valueType)
         res.define(formalParamId, formalParam)
 
@@ -83,12 +83,12 @@ object IntegerMathOpMembers {
     private fun pluginMod(valueType: BasicTypeSymbol, costExpression: CostExpression): GroundMemberPluginSymbol {
         val res = GroundMemberPluginSymbol(
             valueType,
-            Identifier(BinaryOperator.Mod.idStr)
+            Identifier(NotInSource, BinaryOperator.Mod.idStr)
         ) { t: Value, args: List<Value> ->
             (t as MathValue).evalMod(args.first())
         }
         res.costExpression = costExpression
-        val formalParamId = Identifier("other")
+        val formalParamId = Identifier(NotInSource, "other")
         val formalParam = FunctionFormalParameterSymbol(res, formalParamId, valueType)
         res.define(formalParamId, formalParam)
 
@@ -100,7 +100,7 @@ object IntegerMathOpMembers {
     private fun pluginNegate(valueType: BasicTypeSymbol, costExpression: CostExpression): GroundMemberPluginSymbol {
         val res = GroundMemberPluginSymbol(
             valueType,
-            Identifier(UnaryOperator.Negate.idStr)
+            Identifier(NotInSource, UnaryOperator.Negate.idStr)
         ) { t: Value, _: List<Value> ->
             (t as MathValue).evalNegate()
         }
@@ -130,12 +130,12 @@ object IntegerOrderOpMembers {
     ): GroundMemberPluginSymbol {
         val res = GroundMemberPluginSymbol(
             valueType,
-            Identifier(BinaryOperator.GreaterThan.idStr)
+            Identifier(NotInSource, BinaryOperator.GreaterThan.idStr)
         ) { t: Value, args: List<Value> ->
             (t as OrderValue).evalGreaterThan(args.first())
         }
         res.costExpression = costExpression
-        val formalParamId = Identifier("other")
+        val formalParamId = Identifier(NotInSource, "other")
         val formalParam = FunctionFormalParameterSymbol(res, formalParamId, valueType)
         res.define(formalParamId, formalParam)
 
@@ -151,12 +151,12 @@ object IntegerOrderOpMembers {
     ): GroundMemberPluginSymbol {
         val res = GroundMemberPluginSymbol(
             valueType,
-            Identifier(BinaryOperator.GreaterThanEqual.idStr)
+            Identifier(NotInSource, BinaryOperator.GreaterThanEqual.idStr)
         ) { t: Value, args: List<Value> ->
             (t as OrderValue).evalGreaterThanOrEquals(args.first())
         }
         res.costExpression = costExpression
-        val formalParamId = Identifier("other")
+        val formalParamId = Identifier(NotInSource, "other")
         val formalParam = FunctionFormalParameterSymbol(res, formalParamId, valueType)
         res.define(formalParamId, formalParam)
 
@@ -172,12 +172,12 @@ object IntegerOrderOpMembers {
     ): GroundMemberPluginSymbol {
         val res = GroundMemberPluginSymbol(
             valueType,
-            Identifier(BinaryOperator.LessThan.idStr)
+            Identifier(NotInSource, BinaryOperator.LessThan.idStr)
         ) { t: Value, args: List<Value> ->
             (t as OrderValue).evalLessThan(args.first())
         }
         res.costExpression = costExpression
-        val formalParamId = Identifier("other")
+        val formalParamId = Identifier(NotInSource, "other")
         val formalParam = FunctionFormalParameterSymbol(res, formalParamId, valueType)
         res.define(formalParamId, formalParam)
 
@@ -193,12 +193,12 @@ object IntegerOrderOpMembers {
     ): GroundMemberPluginSymbol {
         val res = GroundMemberPluginSymbol(
             valueType,
-            Identifier(BinaryOperator.LessThanEqual.idStr)
+            Identifier(NotInSource, BinaryOperator.LessThanEqual.idStr)
         ) { t: Value, args: List<Value> ->
             (t as OrderValue).evalLessThanOrEquals(args.first())
         }
         res.costExpression = costExpression
-        val formalParamId = Identifier("other")
+        val formalParamId = Identifier(NotInSource, "other")
         val formalParam = FunctionFormalParameterSymbol(res, formalParamId, valueType)
         res.define(formalParamId, formalParam)
 
@@ -225,12 +225,12 @@ object ValueEqualityOpMembers {
     ): GroundMemberPluginSymbol {
         val res = GroundMemberPluginSymbol(
             valueType,
-            Identifier(BinaryOperator.Equal.idStr)
+            Identifier(NotInSource, BinaryOperator.Equal.idStr)
         ) { t: Value, args: List<Value> ->
             (t as EqualityValue).evalEquals(args.first())
         }
         res.costExpression = costExpression
-        val formalParamId = Identifier("other")
+        val formalParamId = Identifier(NotInSource, "other")
         val formalParam = FunctionFormalParameterSymbol(res, formalParamId, valueType)
         res.define(formalParamId, formalParam)
 
@@ -246,12 +246,12 @@ object ValueEqualityOpMembers {
     ): GroundMemberPluginSymbol {
         val res = GroundMemberPluginSymbol(
             valueType,
-            Identifier(BinaryOperator.NotEqual.idStr)
+            Identifier(NotInSource, BinaryOperator.NotEqual.idStr)
         ) { t: Value, args: List<Value> ->
             (t as EqualityValue).evalNotEquals(args.first())
         }
         res.costExpression = costExpression
-        val formalParamId = Identifier("other")
+        val formalParamId = Identifier(NotInSource, "other")
         val formalParam = FunctionFormalParameterSymbol(res, formalParamId, valueType)
         res.define(formalParamId, formalParam)
 
@@ -272,12 +272,12 @@ object ValueLogicalOpMembers {
     private fun pluginAnd(logicalType: BasicTypeSymbol, costExpression: CostExpression): GroundMemberPluginSymbol {
         val res = GroundMemberPluginSymbol(
             logicalType,
-            Identifier(BinaryOperator.And.idStr)
+            Identifier(NotInSource, BinaryOperator.And.idStr)
         ) { t: Value, args: List<Value> ->
             (t as LogicalValue).evalAnd(args.first())
         }
         res.costExpression = costExpression
-        val formalParamId = Identifier("other")
+        val formalParamId = Identifier(NotInSource, "other")
         val formalParam = FunctionFormalParameterSymbol(res, formalParamId, logicalType)
         res.define(formalParamId, formalParam)
 
@@ -289,12 +289,12 @@ object ValueLogicalOpMembers {
     private fun pluginOr(logicalType: BasicTypeSymbol, costExpression: CostExpression): GroundMemberPluginSymbol {
         val res = GroundMemberPluginSymbol(
             logicalType,
-            Identifier(BinaryOperator.Or.idStr)
+            Identifier(NotInSource, BinaryOperator.Or.idStr)
         ) { t: Value, args: List<Value> ->
             (t as LogicalValue).evalOr(args.first())
         }
         res.costExpression = costExpression
-        val formalParamId = Identifier("other")
+        val formalParamId = Identifier(NotInSource, "other")
         val formalParam = FunctionFormalParameterSymbol(res, formalParamId, logicalType)
         res.define(formalParamId, formalParam)
 
@@ -306,7 +306,7 @@ object ValueLogicalOpMembers {
     private fun pluginNot(logicalType: BasicTypeSymbol, costExpression: CostExpression): GroundMemberPluginSymbol {
         val res = GroundMemberPluginSymbol(
             logicalType,
-            Identifier(UnaryOperator.Not.idStr)
+            Identifier(NotInSource, UnaryOperator.Not.idStr)
         ) { t: Value, _: List<Value> ->
             (t as LogicalValue).evalNot()
         }

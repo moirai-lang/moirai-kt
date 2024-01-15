@@ -566,12 +566,12 @@ class SymbolRouterValueTable(private val prelude: PreludeTable, private val symb
 class ValueTable(private val parent: Scope<Value>) : Scope<Value> {
     data class ScopeSlot(var value: Value)
 
-    private val slotTable: MutableMap<Identifier, ScopeSlot> = HashMap()
+    private val slotTable: MutableMap<String, ScopeSlot> = HashMap()
 
     fun valuesHere() = slotTable.map { Pair(it.key, it.value.value) }.toMap()
 
     override fun define(identifier: Identifier, definition: Value) {
-        slotTable[identifier] = ScopeSlot(definition)
+        slotTable[identifier.name] = ScopeSlot(definition)
     }
 
     fun assign(identifier: Identifier, definition: Value) {
@@ -580,8 +580,8 @@ class ValueTable(private val parent: Scope<Value>) : Scope<Value> {
     }
 
     private fun fetchSlot(identifier: Identifier): ScopeSlot =
-        if (slotTable.containsKey(identifier)) {
-            slotTable[identifier]!!
+        if (slotTable.containsKey(identifier.name)) {
+            slotTable[identifier.name]!!
         } else {
             if (parent is ValueTable) {
                 parent.fetchSlot(identifier)
@@ -592,21 +592,21 @@ class ValueTable(private val parent: Scope<Value>) : Scope<Value> {
 
     override fun exists(signifier: Signifier): Boolean =
         when (signifier) {
-            is Identifier -> slotTable.containsKey(signifier) || parent.exists(signifier)
+            is Identifier -> slotTable.containsKey(signifier.name) || parent.exists(signifier)
             else -> false
         }
 
     override fun existsHere(signifier: Signifier): Boolean =
         when (signifier) {
-            is Identifier -> slotTable.containsKey(signifier)
+            is Identifier -> slotTable.containsKey(signifier.name)
             else -> false
         }
 
     override fun fetch(signifier: Signifier): Value =
         when (signifier) {
             is Identifier -> {
-                if (slotTable.containsKey(signifier)) {
-                    slotTable[signifier]!!.value
+                if (slotTable.containsKey(signifier.name)) {
+                    slotTable[signifier.name]!!.value
                 } else {
                     parent.fetch(signifier)
                 }
@@ -617,8 +617,8 @@ class ValueTable(private val parent: Scope<Value>) : Scope<Value> {
     override fun fetchHere(signifier: Signifier): Value =
         when (signifier) {
             is Identifier -> {
-                if (slotTable.containsKey(signifier)) {
-                    slotTable[signifier]!!.value
+                if (slotTable.containsKey(signifier.name)) {
+                    slotTable[signifier.name]!!.value
                 } else {
                     langThrow(signifier.ctx, IdentifierNotFound(signifier))
                 }

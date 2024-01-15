@@ -16,7 +16,7 @@ fun createListEqualsMember(
 ) {
     val equalsMemberFunction = ParameterizedMemberPluginSymbol(
         listSymbol,
-        Identifier(BinaryOperator.Equal.idStr),
+        Identifier(NotInSource, BinaryOperator.Equal.idStr),
         DoubleParentSingleFinPluginInstantiation
     ) { t: Value, args: List<Value> ->
         (t as EqualityValue).evalEquals(args.first())
@@ -30,7 +30,7 @@ fun createListEqualsMember(
     val inputSubstitution = Substitution(listSymbol.typeParams, listOf(listElementType, inputFinTypeArg))
     val inputType = inputSubstitution.apply(listSymbol)
 
-    val otherParam = FunctionFormalParameterSymbol(equalsMemberFunction, Identifier("other"), inputType)
+    val otherParam = FunctionFormalParameterSymbol(equalsMemberFunction, Identifier(NotInSource, "other"), inputType)
     equalsMemberFunction.formalParams = listOf(otherParam)
     equalsMemberFunction.returnType = booleanType
     equalsMemberFunction.costExpression = SumCostExpression(
@@ -51,7 +51,7 @@ fun createListNotEqualsMember(
 ) {
     val notEqualsMemberFunction = ParameterizedMemberPluginSymbol(
         listSymbol,
-        Identifier(BinaryOperator.NotEqual.idStr),
+        Identifier(NotInSource, BinaryOperator.NotEqual.idStr),
         DoubleParentSingleFinPluginInstantiation
     ) { t: Value, args: List<Value> ->
         (t as EqualityValue).evalNotEquals(args.first())
@@ -65,7 +65,7 @@ fun createListNotEqualsMember(
     val inputSubstitution = Substitution(listSymbol.typeParams, listOf(listElementType, inputFinTypeArg))
     val inputType = inputSubstitution.apply(listSymbol)
 
-    val otherParam = FunctionFormalParameterSymbol(notEqualsMemberFunction, Identifier("other"), inputType)
+    val otherParam = FunctionFormalParameterSymbol(notEqualsMemberFunction, Identifier(NotInSource, "other"), inputType)
     notEqualsMemberFunction.formalParams = listOf(otherParam)
     notEqualsMemberFunction.returnType = booleanType
     notEqualsMemberFunction.costExpression = SumCostExpression(
@@ -86,7 +86,7 @@ fun createMutableListEqualsMember(
 ) {
     val equalsMemberFunction = ParameterizedMemberPluginSymbol(
         mutableListSymbol,
-        Identifier(BinaryOperator.Equal.idStr),
+        Identifier(NotInSource, BinaryOperator.Equal.idStr),
         DoubleParentSingleFinPluginInstantiation
     ) { t: Value, args: List<Value> ->
         (t as EqualityValue).evalEquals(args.first())
@@ -101,7 +101,7 @@ fun createMutableListEqualsMember(
         Substitution(mutableListSymbol.typeParams, listOf(mutableListElementType, inputFinTypeArg))
     val inputType = inputSubstitution.apply(mutableListSymbol)
 
-    val otherParam = FunctionFormalParameterSymbol(equalsMemberFunction, Identifier("other"), inputType)
+    val otherParam = FunctionFormalParameterSymbol(equalsMemberFunction, Identifier(NotInSource, "other"), inputType)
     equalsMemberFunction.formalParams = listOf(otherParam)
     equalsMemberFunction.returnType = booleanType
     equalsMemberFunction.costExpression = SumCostExpression(
@@ -122,7 +122,7 @@ fun createMutableListNotEqualsMember(
 ) {
     val notEqualsMemberFunction = ParameterizedMemberPluginSymbol(
         mutableListSymbol,
-        Identifier(BinaryOperator.NotEqual.idStr),
+        Identifier(NotInSource, BinaryOperator.NotEqual.idStr),
         DoubleParentSingleFinPluginInstantiation
     ) { t: Value, args: List<Value> ->
         (t as EqualityValue).evalNotEquals(args.first())
@@ -137,7 +137,7 @@ fun createMutableListNotEqualsMember(
         Substitution(mutableListSymbol.typeParams, listOf(mutableListElementType, inputFinTypeArg))
     val inputType = inputSubstitution.apply(mutableListSymbol)
 
-    val otherParam = FunctionFormalParameterSymbol(notEqualsMemberFunction, Identifier("other"), inputType)
+    val otherParam = FunctionFormalParameterSymbol(notEqualsMemberFunction, Identifier(NotInSource, "other"), inputType)
     notEqualsMemberFunction.formalParams = listOf(otherParam)
     notEqualsMemberFunction.returnType = booleanType
     notEqualsMemberFunction.costExpression = SumCostExpression(
@@ -162,7 +162,7 @@ fun createDictionaryEqualsMember(
 ) {
     val equalsMemberFunction = ParameterizedMemberPluginSymbol(
         dictionarySymbol,
-        Identifier(BinaryOperator.Equal.idStr),
+        Identifier(NotInSource, BinaryOperator.Equal.idStr),
         TripleParentSingleFinPluginInstantiation
     ) { t: Value, args: List<Value> ->
         (t as EqualityValue).evalEquals(args.first())
@@ -178,7 +178,7 @@ fun createDictionaryEqualsMember(
         Substitution(dictionarySymbol.typeParams, listOf(dictionaryKeyType, dictionaryValueType, inputFinTypeArg))
     val inputType = inputSubstitution.apply(dictionarySymbol)
 
-    val otherParam = FunctionFormalParameterSymbol(equalsMemberFunction, Identifier("other"), inputType)
+    val otherParam = FunctionFormalParameterSymbol(equalsMemberFunction, Identifier(NotInSource, "other"), inputType)
     equalsMemberFunction.formalParams = listOf(otherParam)
     equalsMemberFunction.returnType = booleanType
     equalsMemberFunction.costExpression = SumCostExpression(
@@ -200,7 +200,7 @@ fun createDictionaryNotEqualsMember(
 ) {
     val notEqualsMemberFunction = ParameterizedMemberPluginSymbol(
         dictionarySymbol,
-        Identifier(BinaryOperator.NotEqual.idStr),
+        Identifier(NotInSource, BinaryOperator.NotEqual.idStr),
         TripleParentSingleFinPluginInstantiation
     ) { t: Value, args: List<Value> ->
         (t as EqualityValue).evalNotEquals(args.first())
@@ -216,7 +216,7 @@ fun createDictionaryNotEqualsMember(
         Substitution(dictionarySymbol.typeParams, listOf(dictionaryKeyType, dictionaryValueType, inputFinTypeArg))
     val inputType = inputSubstitution.apply(dictionarySymbol)
 
-    val otherParam = FunctionFormalParameterSymbol(notEqualsMemberFunction, Identifier("other"), inputType)
+    val otherParam = FunctionFormalParameterSymbol(notEqualsMemberFunction, Identifier(NotInSource, "other"), inputType)
     notEqualsMemberFunction.formalParams = listOf(otherParam)
     notEqualsMemberFunction.returnType = booleanType
     notEqualsMemberFunction.costExpression = SumCostExpression(
@@ -238,7 +238,7 @@ fun createMutableDictionaryEqualsMember(
 ) {
     val equalsMemberFunction = ParameterizedMemberPluginSymbol(
         mutableDictionarySymbol,
-        Identifier(BinaryOperator.Equal.idStr),
+        Identifier(NotInSource, BinaryOperator.Equal.idStr),
         TripleParentSingleFinPluginInstantiation
     ) { t: Value, args: List<Value> ->
         (t as EqualityValue).evalEquals(args.first())
@@ -257,7 +257,7 @@ fun createMutableDictionaryEqualsMember(
     )
     val inputType = inputSubstitution.apply(mutableDictionarySymbol)
 
-    val otherParam = FunctionFormalParameterSymbol(equalsMemberFunction, Identifier("other"), inputType)
+    val otherParam = FunctionFormalParameterSymbol(equalsMemberFunction, Identifier(NotInSource, "other"), inputType)
     equalsMemberFunction.formalParams = listOf(otherParam)
     equalsMemberFunction.returnType = booleanType
     equalsMemberFunction.costExpression = SumCostExpression(
@@ -279,7 +279,7 @@ fun createMutableDictionaryNotEqualsMember(
 ) {
     val notEqualsMemberFunction = ParameterizedMemberPluginSymbol(
         mutableDictionarySymbol,
-        Identifier(BinaryOperator.NotEqual.idStr),
+        Identifier(NotInSource, BinaryOperator.NotEqual.idStr),
         TripleParentSingleFinPluginInstantiation
     ) { t: Value, args: List<Value> ->
         (t as EqualityValue).evalNotEquals(args.first())
@@ -298,7 +298,7 @@ fun createMutableDictionaryNotEqualsMember(
     )
     val inputType = inputSubstitution.apply(mutableDictionarySymbol)
 
-    val otherParam = FunctionFormalParameterSymbol(notEqualsMemberFunction, Identifier("other"), inputType)
+    val otherParam = FunctionFormalParameterSymbol(notEqualsMemberFunction, Identifier(NotInSource, "other"), inputType)
     notEqualsMemberFunction.formalParams = listOf(otherParam)
     notEqualsMemberFunction.returnType = booleanType
     notEqualsMemberFunction.costExpression = SumCostExpression(
@@ -322,7 +322,7 @@ fun createSetEqualsMember(
 ) {
     val equalsMemberFunction = ParameterizedMemberPluginSymbol(
         setSymbol,
-        Identifier(BinaryOperator.Equal.idStr),
+        Identifier(NotInSource, BinaryOperator.Equal.idStr),
         DoubleParentSingleFinPluginInstantiation
     ) { t: Value, args: List<Value> ->
         (t as EqualityValue).evalEquals(args.first())
@@ -336,7 +336,7 @@ fun createSetEqualsMember(
     val inputSubstitution = Substitution(setSymbol.typeParams, listOf(setElementType, inputFinTypeArg))
     val inputType = inputSubstitution.apply(setSymbol)
 
-    val otherParam = FunctionFormalParameterSymbol(equalsMemberFunction, Identifier("other"), inputType)
+    val otherParam = FunctionFormalParameterSymbol(equalsMemberFunction, Identifier(NotInSource, "other"), inputType)
     equalsMemberFunction.formalParams = listOf(otherParam)
     equalsMemberFunction.returnType = booleanType
     equalsMemberFunction.costExpression = SumCostExpression(
@@ -357,7 +357,7 @@ fun createSetNotEqualsMember(
 ) {
     val notEqualsMemberFunction = ParameterizedMemberPluginSymbol(
         setSymbol,
-        Identifier(BinaryOperator.NotEqual.idStr),
+        Identifier(NotInSource, BinaryOperator.NotEqual.idStr),
         DoubleParentSingleFinPluginInstantiation
     ) { t: Value, args: List<Value> ->
         (t as EqualityValue).evalNotEquals(args.first())
@@ -371,7 +371,7 @@ fun createSetNotEqualsMember(
     val inputSubstitution = Substitution(setSymbol.typeParams, listOf(setElementType, inputFinTypeArg))
     val inputType = inputSubstitution.apply(setSymbol)
 
-    val otherParam = FunctionFormalParameterSymbol(notEqualsMemberFunction, Identifier("other"), inputType)
+    val otherParam = FunctionFormalParameterSymbol(notEqualsMemberFunction, Identifier(NotInSource, "other"), inputType)
     notEqualsMemberFunction.formalParams = listOf(otherParam)
     notEqualsMemberFunction.returnType = booleanType
     notEqualsMemberFunction.costExpression = SumCostExpression(
@@ -392,7 +392,7 @@ fun createMutableSetEqualsMember(
 ) {
     val equalsMemberFunction = ParameterizedMemberPluginSymbol(
         mutableSetSymbol,
-        Identifier(BinaryOperator.Equal.idStr),
+        Identifier(NotInSource, BinaryOperator.Equal.idStr),
         DoubleParentSingleFinPluginInstantiation
     ) { t: Value, args: List<Value> ->
         (t as EqualityValue).evalEquals(args.first())
@@ -407,7 +407,7 @@ fun createMutableSetEqualsMember(
         Substitution(mutableSetSymbol.typeParams, listOf(mutableSetElementType, inputFinTypeArg))
     val inputType = inputSubstitution.apply(mutableSetSymbol)
 
-    val otherParam = FunctionFormalParameterSymbol(equalsMemberFunction, Identifier("other"), inputType)
+    val otherParam = FunctionFormalParameterSymbol(equalsMemberFunction, Identifier(NotInSource, "other"), inputType)
     equalsMemberFunction.formalParams = listOf(otherParam)
     equalsMemberFunction.returnType = booleanType
     equalsMemberFunction.costExpression = SumCostExpression(
@@ -428,7 +428,7 @@ fun createMutableSetNotEqualsMember(
 ) {
     val notEqualsMemberFunction = ParameterizedMemberPluginSymbol(
         mutableSetSymbol,
-        Identifier(BinaryOperator.NotEqual.idStr),
+        Identifier(NotInSource, BinaryOperator.NotEqual.idStr),
         DoubleParentSingleFinPluginInstantiation
     ) { t: Value, args: List<Value> ->
         (t as EqualityValue).evalNotEquals(args.first())
@@ -443,7 +443,7 @@ fun createMutableSetNotEqualsMember(
         Substitution(mutableSetSymbol.typeParams, listOf(mutableSetElementType, inputFinTypeArg))
     val inputType = inputSubstitution.apply(mutableSetSymbol)
 
-    val otherParam = FunctionFormalParameterSymbol(notEqualsMemberFunction, Identifier("other"), inputType)
+    val otherParam = FunctionFormalParameterSymbol(notEqualsMemberFunction, Identifier(NotInSource, "other"), inputType)
     notEqualsMemberFunction.formalParams = listOf(otherParam)
     notEqualsMemberFunction.returnType = booleanType
     notEqualsMemberFunction.costExpression = SumCostExpression(

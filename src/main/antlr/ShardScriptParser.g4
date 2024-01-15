@@ -3,15 +3,15 @@ parser grammar ShardScriptParser;
 options { tokenVocab=ShardScriptLexer; }
 
 file
-    :   (transientShard? | (shardStat importStat*)) stat+ EOF
+    :   (transientScript? | (scriptStat importStat*)) stat+ EOF
     ;
 
-transientShard
-    :   TRANSIENT SHARD importIdSeq
+transientScript
+    :   TRANSIENT SCRIPT importIdSeq
     ;
 
-shardStat
-    :   SHARD importIdSeq
+scriptStat
+    :   SCRIPT importIdSeq
     ;
 
 importStat
@@ -157,16 +157,11 @@ ofType
     ;
 
 typeExpr
-    :   LPAREN params=restrictedTypeExprSeq RPAREN ARROW ret=restrictedTypeExpr # MultiParamFunctionType
-    |   LPAREN RPAREN ARROW ret=restrictedTypeExpr                              # NoParamFunctionType
-    |   input=restrictedTypeExpr ARROW ret=restrictedTypeExpr                   # OneParamFunctionType
-    |   id=typePath params=restrictedTypeExprParams                             # ParameterizedType
-    |   id=typePath                                                             # GroundType
-    ;
-
-typePath
-    :   IDENTIFIER (DOT IDENTIFIER)+        # MultiTypePath
-    |   IDENTIFIER                          # SingleTypePath
+    :   LPAREN params=restrictedTypeExprSeq RPAREN ARROW ret=restrictedTypeExpr     # MultiParamFunctionType
+    |   LPAREN RPAREN ARROW ret=restrictedTypeExpr                                  # NoParamFunctionType
+    |   input=restrictedTypeExpr ARROW ret=restrictedTypeExpr                       # OneParamFunctionType
+    |   id=IDENTIFIER params=restrictedTypeExprParams                               # ParameterizedType
+    |   id=IDENTIFIER                                                               # GroundType
     ;
 
 restrictedOfType
@@ -174,8 +169,8 @@ restrictedOfType
     ;
 
 restrictedTypeExpr
-    :   id=typePath params=restrictedTypeExprParams         # RestrictedParameterizedType
-    |   id=typePath                                         # RestrictedGroundType
+    :   id=IDENTIFIER params=restrictedTypeExprParams         # RestrictedParameterizedType
+    |   id=IDENTIFIER                                         # RestrictedGroundType
     ;
 
 restrictedTypeExprParams

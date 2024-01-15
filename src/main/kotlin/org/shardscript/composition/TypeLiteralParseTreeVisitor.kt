@@ -5,29 +5,13 @@ import org.shardscript.grammar.ShardScriptParserBaseVisitor
 import org.shardscript.semantics.core.*
 
 internal class TypeLiteralParseTreeVisitor(private val fileName: String) : ShardScriptParserBaseVisitor<Signifier>() {
-    override fun visitMultiTypePath(ctx: ShardScriptParser.MultiTypePathContext): Signifier {
-        val res = PathSignifier(ctx.IDENTIFIER().map {
-            val gid = Identifier(it.text)
-            gid.ctx = createContext(fileName, it.symbol)
-            gid
-        })
-        res.ctx = createContext(fileName, ctx.start)
-        return res
-    }
-
-    override fun visitSingleTypePath(ctx: ShardScriptParser.SingleTypePathContext): Signifier {
-        val res = Identifier(ctx.IDENTIFIER().text.toString())
-        res.ctx = createContext(fileName, ctx.IDENTIFIER().symbol)
-        return res
-    }
-
     override fun visitGroundType(ctx: ShardScriptParser.GroundTypeContext): Signifier {
-        return visit(ctx.id)
+        val res = Identifier(createContext(fileName, ctx.IDENTIFIER().symbol), ctx.IDENTIFIER().text.toString())
+        return res
     }
 
     override fun visitParameterizedType(ctx: ShardScriptParser.ParameterizedTypeContext): Signifier {
-        val tti = visit(ctx.id) as TerminalTextSignifier
-        tti.ctx = createContext(fileName, ctx.id.start)
+        val tti = Identifier(createContext(fileName, ctx.start), ctx.IDENTIFIER().text.toString())
 
         val args: MutableList<Signifier> = ArrayList()
         ctx.params.restrictedTypeExprOrLiteral().forEach {
@@ -35,18 +19,17 @@ internal class TypeLiteralParseTreeVisitor(private val fileName: String) : Shard
             args.add(param)
         }
 
-        val res = ParameterizedSignifier(tti, args)
-        res.ctx = createContext(fileName, ctx.start)
+        val res = ParameterizedSignifier(createContext(fileName, ctx.start), tti, args)
         return res
     }
 
     override fun visitRestrictedGroundType(ctx: ShardScriptParser.RestrictedGroundTypeContext): Signifier {
-        return visit(ctx.id)
+        val res = Identifier(createContext(fileName, ctx.IDENTIFIER().symbol), ctx.IDENTIFIER().text.toString())
+        return res
     }
 
     override fun visitRestrictedParameterizedType(ctx: ShardScriptParser.RestrictedParameterizedTypeContext): Signifier {
-        val tti = visit(ctx.id) as TerminalTextSignifier
-        tti.ctx = createContext(fileName, ctx.id.start)
+        val tti = Identifier(createContext(fileName, ctx.start), ctx.IDENTIFIER().text.toString())
 
         val args: MutableList<Signifier> = ArrayList()
         ctx.params.restrictedTypeExprOrLiteral().forEach {
@@ -54,14 +37,12 @@ internal class TypeLiteralParseTreeVisitor(private val fileName: String) : Shard
             args.add(param)
         }
 
-        val res = ParameterizedSignifier(tti, args)
-        res.ctx = createContext(fileName, ctx.start)
+        val res = ParameterizedSignifier(createContext(fileName, ctx.start), tti, args)
         return res
     }
 
     override fun visitFinLiteral(ctx: ShardScriptParser.FinLiteralContext): Signifier {
-        val res = FinLiteral(ctx.magnitude.text.toLong())
-        res.ctx = createContext(fileName, ctx.magnitude)
+        val res = FinLiteral(createContext(fileName, ctx.magnitude), ctx.magnitude.text.toLong())
         return res
     }
 
@@ -78,8 +59,7 @@ internal class TypeLiteralParseTreeVisitor(private val fileName: String) : Shard
             params.add(param)
         }
 
-        val res = FunctionTypeLiteral(params, ret)
-        res.ctx = createContext(fileName, ctx.start)
+        val res = FunctionTypeLiteral(createContext(fileName, ctx.start), params, ret)
         return res
     }
 
@@ -87,8 +67,7 @@ internal class TypeLiteralParseTreeVisitor(private val fileName: String) : Shard
         val params: MutableList<Signifier> = ArrayList()
         val ret = visit(ctx.ret)
 
-        val res = FunctionTypeLiteral(params, ret)
-        res.ctx = createContext(fileName, ctx.start)
+        val res = FunctionTypeLiteral(createContext(fileName, ctx.start), params, ret)
         return res
     }
 
@@ -99,8 +78,7 @@ internal class TypeLiteralParseTreeVisitor(private val fileName: String) : Shard
         val input = visit(ctx.input)
         params.add(input)
 
-        val res = FunctionTypeLiteral(params, ret)
-        res.ctx = createContext(fileName, ctx.start)
+        val res = FunctionTypeLiteral(createContext(fileName, ctx.start), params, ret)
         return res
     }
 }

@@ -3,62 +3,62 @@ package org.shardscript.semantics.prelude
 import org.shardscript.semantics.core.*
 
 object Lang {
-    val shardId = Identifier("shard")
-    val langId = Identifier("lang")
-    val unitId = Identifier("Unit")
-    val booleanId = Identifier("Boolean")
-    val intId = Identifier("Int")
-    val charId = Identifier("Char")
-    val stringId = Identifier("String")
-    val stringTypeId = Identifier("O")
-    val stringInputTypeId = Identifier("P")
+    val shardId = Identifier(NotInSource, "shard")
+    val langId = Identifier(NotInSource, "lang")
+    val unitId = Identifier(NotInSource, "Unit")
+    val booleanId = Identifier(NotInSource, "Boolean")
+    val intId = Identifier(NotInSource, "Int")
+    val charId = Identifier(NotInSource, "Char")
+    val stringId = Identifier(NotInSource, "String")
+    val stringTypeId = Identifier(NotInSource, "O")
+    val stringInputTypeId = Identifier(NotInSource, "P")
 
-    val decimalId = Identifier("Decimal")
-    val decimalTypeId = Identifier("O")
-    val decimalInputTypeId = Identifier("P")
+    val decimalId = Identifier(NotInSource, "Decimal")
+    val decimalTypeId = Identifier(NotInSource, "O")
+    val decimalInputTypeId = Identifier(NotInSource, "P")
 
-    val listId = Identifier("List")
-    val listElementTypeId = Identifier("E")
-    val listFinTypeId = Identifier("O")
-    val listInputFinTypeId = Identifier("P")
+    val listId = Identifier(NotInSource, "List")
+    val listElementTypeId = Identifier(NotInSource, "E")
+    val listFinTypeId = Identifier(NotInSource, "O")
+    val listInputFinTypeId = Identifier(NotInSource, "P")
 
-    val mutableListId = Identifier("MutableList")
-    val mutableListElementTypeId = Identifier("E")
-    val mutableListFinTypeId = Identifier("O")
-    val mutableListInputFinTypeId = Identifier("P")
+    val mutableListId = Identifier(NotInSource, "MutableList")
+    val mutableListElementTypeId = Identifier(NotInSource, "E")
+    val mutableListFinTypeId = Identifier(NotInSource, "O")
+    val mutableListInputFinTypeId = Identifier(NotInSource, "P")
 
-    val pairId = Identifier("Pair")
-    private val pairFirstTypeId = Identifier("A")
-    private val pairSecondTypeId = Identifier("B")
-    val pairFirstId = Identifier("first")
-    val pairSecondId = Identifier("second")
+    val pairId = Identifier(NotInSource, "Pair")
+    private val pairFirstTypeId = Identifier(NotInSource, "A")
+    private val pairSecondTypeId = Identifier(NotInSource, "B")
+    val pairFirstId = Identifier(NotInSource, "first")
+    val pairSecondId = Identifier(NotInSource, "second")
 
-    val dictionaryId = Identifier("Dictionary")
-    val dictionaryKeyTypeId = Identifier("K")
-    val dictionaryValueTypeId = Identifier("V")
-    val dictionaryFinTypeId = Identifier("O")
-    val dictionaryInputFinTypeId = Identifier("P")
+    val dictionaryId = Identifier(NotInSource, "Dictionary")
+    val dictionaryKeyTypeId = Identifier(NotInSource, "K")
+    val dictionaryValueTypeId = Identifier(NotInSource, "V")
+    val dictionaryFinTypeId = Identifier(NotInSource, "O")
+    val dictionaryInputFinTypeId = Identifier(NotInSource, "P")
 
-    val mutableDictionaryId = Identifier("MutableDictionary")
-    val mutableDictionaryKeyTypeId = Identifier("K")
-    val mutableDictionaryValueTypeId = Identifier("V")
-    val mutableDictionaryFinTypeId = Identifier("O")
-    val mutableDictionaryInputFinTypeId = Identifier("P")
+    val mutableDictionaryId = Identifier(NotInSource, "MutableDictionary")
+    val mutableDictionaryKeyTypeId = Identifier(NotInSource, "K")
+    val mutableDictionaryValueTypeId = Identifier(NotInSource, "V")
+    val mutableDictionaryFinTypeId = Identifier(NotInSource, "O")
+    val mutableDictionaryInputFinTypeId = Identifier(NotInSource, "P")
 
-    val setId = Identifier("Set")
-    val setElementTypeId = Identifier("E")
-    val setFinTypeId = Identifier("O")
-    val setInputFinTypeId = Identifier("P")
+    val setId = Identifier(NotInSource, "Set")
+    val setElementTypeId = Identifier(NotInSource, "E")
+    val setFinTypeId = Identifier(NotInSource, "O")
+    val setInputFinTypeId = Identifier(NotInSource, "P")
 
-    val mutableSetId = Identifier("MutableSet")
-    val mutableSetElementTypeId = Identifier("E")
-    val mutableSetFinTypeId = Identifier("O")
-    val mutableSetInputFinTypeId = Identifier("P")
+    val mutableSetId = Identifier(NotInSource, "MutableSet")
+    val mutableSetElementTypeId = Identifier(NotInSource, "E")
+    val mutableSetFinTypeId = Identifier(NotInSource, "O")
+    val mutableSetInputFinTypeId = Identifier(NotInSource, "P")
 
-    val rangeId = Identifier("range")
-    val rangeTypeId = Identifier("O")
-    val randomId = Identifier("random")
-    val randomTypeId = Identifier("A")
+    val rangeId = Identifier(NotInSource, "range")
+    val rangeTypeId = Identifier(NotInSource, "O")
+    val randomId = Identifier(NotInSource, "random")
+    val randomTypeId = Identifier(NotInSource, "A")
 
     const val INT_FIN: Long = (Int.MIN_VALUE.toString().length).toLong()
     val unitFin: Long = unitId.name.length.toLong()
@@ -98,11 +98,11 @@ object Lang {
         )
         val constantFin = FinTypeSymbol(architecture.defaultNodeCost)
         ValueEqualityOpMembers.members(booleanType, constantFin, booleanType).forEach { (name, plugin) ->
-            booleanType.define(Identifier(name), plugin)
+            booleanType.define(Identifier(NotInSource, name), plugin)
         }
 
         ValueLogicalOpMembers.members(booleanType, constantFin).forEach { (name, plugin) ->
-            booleanType.define(Identifier(name), plugin)
+            booleanType.define(Identifier(NotInSource, name), plugin)
         }
 
         // Integer
@@ -117,7 +117,7 @@ object Lang {
             charId
         )
         ValueEqualityOpMembers.members(charType, constantFin, charType).forEach { (name, plugin) ->
-            charType.define(Identifier(name), plugin)
+            charType.define(Identifier(NotInSource, name), plugin)
         }
 
         // List

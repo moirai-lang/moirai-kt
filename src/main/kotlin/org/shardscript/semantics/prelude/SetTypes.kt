@@ -9,7 +9,7 @@ private fun createContainsFunction(
     booleanType: BasicTypeSymbol,
     setElementTypeParam: StandardTypeParameter
 ) {
-    val containsId = Identifier(CollectionMethods.Contains.idStr)
+    val containsId = Identifier(NotInSource, CollectionMethods.Contains.idStr)
     val containsMemberFunction = ParameterizedMemberPluginSymbol(
         setType,
         containsId,
@@ -19,7 +19,7 @@ private fun createContainsFunction(
     }
     containsMemberFunction.typeParams = listOf(setElementTypeParam)
     containsMemberFunction.costExpression = costExpression
-    val containsFormalParamId = Identifier("element")
+    val containsFormalParamId = Identifier(NotInSource, "element")
     val containsFormalParam =
         FunctionFormalParameterSymbol(containsMemberFunction, containsFormalParamId, setElementTypeParam)
     containsMemberFunction.define(containsFormalParamId, containsFormalParam)
@@ -35,7 +35,7 @@ private fun createAddFunction(
     unitType: ObjectSymbol,
     setElementTypeParam: StandardTypeParameter
 ) {
-    val addId = Identifier(CollectionMethods.InsertElement.idStr)
+    val addId = Identifier(NotInSource, CollectionMethods.InsertElement.idStr)
     val addMemberFunction = ParameterizedMemberPluginSymbol(
         setType,
         addId,
@@ -45,7 +45,7 @@ private fun createAddFunction(
     }
     addMemberFunction.typeParams = listOf(setElementTypeParam)
     addMemberFunction.costExpression = costExpression
-    val addFormalParamId = Identifier("element")
+    val addFormalParamId = Identifier(NotInSource, "element")
     val addFormalParam = FunctionFormalParameterSymbol(addMemberFunction, addFormalParamId, setElementTypeParam)
     addMemberFunction.define(addFormalParamId, addFormalParam)
 
@@ -60,7 +60,7 @@ private fun createRemoveFunction(
     unitType: ObjectSymbol,
     setElementTypeParam: StandardTypeParameter
 ) {
-    val removeId = Identifier(CollectionMethods.Remove.idStr)
+    val removeId = Identifier(NotInSource, CollectionMethods.Remove.idStr)
     val removeMemberFunction = ParameterizedMemberPluginSymbol(
         setType,
         removeId,
@@ -70,7 +70,7 @@ private fun createRemoveFunction(
     }
     removeMemberFunction.typeParams = listOf(setElementTypeParam)
     removeMemberFunction.costExpression = costExpression
-    val removeFormalParamId = Identifier("element")
+    val removeFormalParamId = Identifier(NotInSource, "element")
     val removeFormalParam =
         FunctionFormalParameterSymbol(removeMemberFunction, removeFormalParamId, setElementTypeParam)
     removeMemberFunction.define(removeFormalParamId, removeFormalParam)
@@ -88,7 +88,7 @@ fun createToImmutableSetPlugin(
 ) {
     val plugin = ParameterizedMemberPluginSymbol(
         mutableSetType,
-        Identifier(CollectionMethods.ToImmutableSet.idStr),
+        Identifier(NotInSource, CollectionMethods.ToImmutableSet.idStr),
         DoubleParentArgInstantiation
     ) { t: Value, _: List<Value> ->
         (t as SetValue).evalToSet()
@@ -137,7 +137,7 @@ fun setCollectionType(
         setElementTypeParam
     )
 
-    val sizeId = Identifier(CollectionFields.Size.idStr)
+    val sizeId = Identifier(NotInSource, CollectionFields.Size.idStr)
     val sizeFieldSymbol = PlatformFieldSymbol(
         setType,
         sizeId,
@@ -215,7 +215,7 @@ fun mutableSetCollectionType(
         setType
     )
 
-    val sizeId = Identifier(CollectionFields.Size.idStr)
+    val sizeId = Identifier(NotInSource, CollectionFields.Size.idStr)
     val sizeFieldSymbol = PlatformFieldSymbol(
         mutableSetType,
         sizeId,

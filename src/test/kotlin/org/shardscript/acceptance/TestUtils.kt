@@ -54,7 +54,7 @@ fun testEval(
     sourceStore.addArtifacts(
         listOf("test", "deep", "left"),
         """
-            shard test.deep.left
+            script test.deep.left
             
             def deepLeft(x: Int, y: Int): Int {
                 x * y
@@ -65,7 +65,7 @@ fun testEval(
     sourceStore.addArtifacts(
         listOf("test", "deep", "right"),
         """
-            shard test.deep.right
+            script test.deep.right
             
             def deepRight(x: Int, y: Int): Int {
                 x * y
@@ -76,7 +76,7 @@ fun testEval(
     sourceStore.addArtifacts(
         listOf("test", "imported"),
         """
-            shard test.imported
+            script test.imported
             
             import test.deep.left
             import test.deep.right
@@ -96,7 +96,7 @@ fun testEval(
     sourceStore.addArtifacts(
         listOf("test", "duplicates"),
         """
-            shard test.duplicates
+            script test.duplicates
             
             def duplicateFunction(x: Int, y: Int): Int {
                 x * y

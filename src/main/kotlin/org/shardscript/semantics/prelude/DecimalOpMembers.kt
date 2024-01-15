@@ -24,7 +24,7 @@ object DecimalMathOpMembers {
     ): ParameterizedMemberPluginSymbol {
         val res = ParameterizedMemberPluginSymbol(
             decimalType,
-            Identifier(BinaryOperator.Add.idStr),
+            Identifier(NotInSource, BinaryOperator.Add.idStr),
             DualFinPluginInstantiation
         ) { t: Value, args: List<Value> ->
             (t as MathValue).evalAdd(args.first())
@@ -35,7 +35,7 @@ object DecimalMathOpMembers {
 
         val inputSubstitution = Substitution(listOf(decimalTypeParam), listOf(inputTypeArg))
         val inputType = inputSubstitution.apply(decimalType)
-        val formalParamId = Identifier("other")
+        val formalParamId = Identifier(NotInSource, "other")
         val formalParam = FunctionFormalParameterSymbol(res, formalParamId, inputType)
         res.define(formalParamId, formalParam)
         res.formalParams = listOf(formalParam)
@@ -65,7 +65,7 @@ object DecimalMathOpMembers {
     ): ParameterizedMemberPluginSymbol {
         val res = ParameterizedMemberPluginSymbol(
             decimalType,
-            Identifier(BinaryOperator.Sub.idStr),
+            Identifier(NotInSource, BinaryOperator.Sub.idStr),
             DualFinPluginInstantiation
         ) { t: Value, args: List<Value> ->
             (t as MathValue).evalSub(args.first())
@@ -76,7 +76,7 @@ object DecimalMathOpMembers {
 
         val inputSubstitution = Substitution(listOf(decimalTypeParam), listOf(inputTypeArg))
         val inputType = inputSubstitution.apply(decimalType)
-        val formalParamId = Identifier("other")
+        val formalParamId = Identifier(NotInSource, "other")
         val formalParam = FunctionFormalParameterSymbol(res, formalParamId, inputType)
         res.define(formalParamId, formalParam)
         res.formalParams = listOf(formalParam)
@@ -106,7 +106,7 @@ object DecimalMathOpMembers {
     ): ParameterizedMemberPluginSymbol {
         val res = ParameterizedMemberPluginSymbol(
             decimalType,
-            Identifier(BinaryOperator.Mul.idStr),
+            Identifier(NotInSource, BinaryOperator.Mul.idStr),
             DualFinPluginInstantiation
         ) { t: Value, args: List<Value> ->
             (t as MathValue).evalMul(args.first())
@@ -117,7 +117,7 @@ object DecimalMathOpMembers {
 
         val inputSubstitution = Substitution(listOf(decimalTypeParam), listOf(inputTypeArg))
         val inputType = inputSubstitution.apply(decimalType)
-        val formalParamId = Identifier("other")
+        val formalParamId = Identifier(NotInSource, "other")
         val formalParam = FunctionFormalParameterSymbol(res, formalParamId, inputType)
         res.define(formalParamId, formalParam)
         res.formalParams = listOf(formalParam)
@@ -147,7 +147,7 @@ object DecimalMathOpMembers {
     ): ParameterizedMemberPluginSymbol {
         val res = ParameterizedMemberPluginSymbol(
             decimalType,
-            Identifier(BinaryOperator.Div.idStr),
+            Identifier(NotInSource, BinaryOperator.Div.idStr),
             DualFinPluginInstantiation
         ) { t: Value, args: List<Value> ->
             (t as MathValue).evalDiv(args.first())
@@ -158,7 +158,7 @@ object DecimalMathOpMembers {
 
         val inputSubstitution = Substitution(listOf(decimalTypeParam), listOf(inputTypeArg))
         val inputType = inputSubstitution.apply(decimalType)
-        val formalParamId = Identifier("other")
+        val formalParamId = Identifier(NotInSource, "other")
         val formalParam = FunctionFormalParameterSymbol(res, formalParamId, inputType)
         res.define(formalParamId, formalParam)
         res.formalParams = listOf(formalParam)
@@ -183,7 +183,7 @@ object DecimalMathOpMembers {
     ): ParameterizedMemberPluginSymbol {
         val res = ParameterizedMemberPluginSymbol(
             decimalType,
-            Identifier(BinaryOperator.Mod.idStr),
+            Identifier(NotInSource, BinaryOperator.Mod.idStr),
             DualFinPluginInstantiation
         ) { t: Value, args: List<Value> ->
             (t as MathValue).evalMod(args.first())
@@ -194,7 +194,7 @@ object DecimalMathOpMembers {
 
         val inputSubstitution = Substitution(listOf(decimalTypeParam), listOf(inputTypeArg))
         val inputType = inputSubstitution.apply(decimalType)
-        val formalParamId = Identifier("other")
+        val formalParamId = Identifier(NotInSource, "other")
         val formalParam = FunctionFormalParameterSymbol(res, formalParamId, inputType)
         res.define(formalParamId, formalParam)
         res.formalParams = listOf(formalParam)
@@ -219,7 +219,7 @@ object DecimalMathOpMembers {
     ): ParameterizedMemberPluginSymbol {
         val res = ParameterizedMemberPluginSymbol(
             decimalType,
-            Identifier(UnaryOperator.Negate.idStr),
+            Identifier(NotInSource, UnaryOperator.Negate.idStr),
             SingleParentArgInstantiation
         ) { t: Value, _: List<Value> ->
             (t as MathValue).evalNegate()
@@ -254,7 +254,7 @@ object DecimalOrderOpMembers {
     ): ParameterizedMemberPluginSymbol {
         val res = ParameterizedMemberPluginSymbol(
             decimalType,
-            Identifier(BinaryOperator.GreaterThan.idStr),
+            Identifier(NotInSource, BinaryOperator.GreaterThan.idStr),
             DualFinPluginInstantiation
         ) { t: Value, args: List<Value> ->
             (t as OrderValue).evalGreaterThan(args.first())
@@ -265,7 +265,7 @@ object DecimalOrderOpMembers {
 
         val inputSubstitution = Substitution(listOf(decimalTypeParam), listOf(inputTypeArg))
         val inputType = inputSubstitution.apply(decimalType)
-        val formalParamId = Identifier("other")
+        val formalParamId = Identifier(NotInSource, "other")
         val formalParam = FunctionFormalParameterSymbol(res, formalParamId, inputType)
         res.define(formalParamId, formalParam)
         res.formalParams = listOf(formalParam)
@@ -294,7 +294,7 @@ object DecimalOrderOpMembers {
     ): ParameterizedMemberPluginSymbol {
         val res = ParameterizedMemberPluginSymbol(
             decimalType,
-            Identifier(BinaryOperator.GreaterThanEqual.idStr),
+            Identifier(NotInSource, BinaryOperator.GreaterThanEqual.idStr),
             DualFinPluginInstantiation
         ) { t: Value, args: List<Value> ->
             (t as OrderValue).evalGreaterThanOrEquals(args.first())
@@ -305,7 +305,7 @@ object DecimalOrderOpMembers {
 
         val inputSubstitution = Substitution(listOf(decimalTypeParam), listOf(inputTypeArg))
         val inputType = inputSubstitution.apply(decimalType)
-        val formalParamId = Identifier("other")
+        val formalParamId = Identifier(NotInSource, "other")
         val formalParam = FunctionFormalParameterSymbol(res, formalParamId, inputType)
         res.define(formalParamId, formalParam)
         res.formalParams = listOf(formalParam)
@@ -334,7 +334,7 @@ object DecimalOrderOpMembers {
     ): ParameterizedMemberPluginSymbol {
         val res = ParameterizedMemberPluginSymbol(
             decimalType,
-            Identifier(BinaryOperator.LessThan.idStr),
+            Identifier(NotInSource, BinaryOperator.LessThan.idStr),
             DualFinPluginInstantiation
         ) { t: Value, args: List<Value> ->
             (t as OrderValue).evalLessThan(args.first())
@@ -345,7 +345,7 @@ object DecimalOrderOpMembers {
 
         val inputSubstitution = Substitution(listOf(decimalTypeParam), listOf(inputTypeArg))
         val inputType = inputSubstitution.apply(decimalType)
-        val formalParamId = Identifier("other")
+        val formalParamId = Identifier(NotInSource, "other")
         val formalParam = FunctionFormalParameterSymbol(res, formalParamId, inputType)
         res.define(formalParamId, formalParam)
         res.formalParams = listOf(formalParam)
@@ -374,7 +374,7 @@ object DecimalOrderOpMembers {
     ): ParameterizedMemberPluginSymbol {
         val res = ParameterizedMemberPluginSymbol(
             decimalType,
-            Identifier(BinaryOperator.LessThanEqual.idStr),
+            Identifier(NotInSource, BinaryOperator.LessThanEqual.idStr),
             DualFinPluginInstantiation
         ) { t: Value, args: List<Value> ->
             (t as OrderValue).evalLessThanOrEquals(args.first())
@@ -385,7 +385,7 @@ object DecimalOrderOpMembers {
 
         val inputSubstitution = Substitution(listOf(decimalTypeParam), listOf(inputTypeArg))
         val inputType = inputSubstitution.apply(decimalType)
-        val formalParamId = Identifier("other")
+        val formalParamId = Identifier(NotInSource, "other")
         val formalParam = FunctionFormalParameterSymbol(res, formalParamId, inputType)
         res.define(formalParamId, formalParam)
         res.formalParams = listOf(formalParam)
@@ -425,7 +425,7 @@ object DecimalEqualityOpMembers {
     ): ParameterizedMemberPluginSymbol {
         val res = ParameterizedMemberPluginSymbol(
             decimalType,
-            Identifier(BinaryOperator.Equal.idStr),
+            Identifier(NotInSource, BinaryOperator.Equal.idStr),
             DualFinPluginInstantiation
         ) { t: Value, args: List<Value> ->
             (t as EqualityValue).evalEquals(args.first())
@@ -436,7 +436,7 @@ object DecimalEqualityOpMembers {
 
         val inputSubstitution = Substitution(listOf(decimalTypeParam), listOf(inputTypeArg))
         val inputType = inputSubstitution.apply(decimalType)
-        val formalParamId = Identifier("other")
+        val formalParamId = Identifier(NotInSource, "other")
         val formalParam = FunctionFormalParameterSymbol(res, formalParamId, inputType)
         res.define(formalParamId, formalParam)
         res.formalParams = listOf(formalParam)
@@ -465,7 +465,7 @@ object DecimalEqualityOpMembers {
     ): ParameterizedMemberPluginSymbol {
         val res = ParameterizedMemberPluginSymbol(
             decimalType,
-            Identifier(BinaryOperator.NotEqual.idStr),
+            Identifier(NotInSource, BinaryOperator.NotEqual.idStr),
             DualFinPluginInstantiation
         ) { t: Value, args: List<Value> ->
             (t as EqualityValue).evalNotEquals(args.first())
@@ -476,7 +476,7 @@ object DecimalEqualityOpMembers {
 
         val inputSubstitution = Substitution(listOf(decimalTypeParam), listOf(inputTypeArg))
         val inputType = inputSubstitution.apply(decimalType)
-        val formalParamId = Identifier("other")
+        val formalParamId = Identifier(NotInSource, "other")
         val formalParam = FunctionFormalParameterSymbol(res, formalParamId, inputType)
         res.define(formalParamId, formalParam)
         res.formalParams = listOf(formalParam)

@@ -39,7 +39,7 @@ LAMBDA: 'lambda';
 MUTABLE: 'mutable';
 OBJECT: 'object';
 RECORD: 'record';
-SHARD: 'shard';
+SCRIPT: 'script';
 TO: 'to';
 TRANSIENT: 'transient';
 VAL: 'val';

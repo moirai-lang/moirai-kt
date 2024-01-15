@@ -13,7 +13,7 @@ fun pluginToCharArray(
 ): ParameterizedMemberPluginSymbol {
     val res = ParameterizedMemberPluginSymbol(
         stringType,
-        Identifier(StringMethods.ToCharArray.idStr),
+        Identifier(NotInSource, StringMethods.ToCharArray.idStr),
         SingleParentArgInstantiation
     ) { t: Value, _: List<Value> ->
         (t as StringValue).evalToCharArray()
@@ -45,7 +45,7 @@ object StringEqualityOpMembers {
     ): ParameterizedMemberPluginSymbol {
         val res = ParameterizedMemberPluginSymbol(
             stringType,
-            Identifier(BinaryOperator.Add.idStr),
+            Identifier(NotInSource, BinaryOperator.Add.idStr),
             DualFinPluginInstantiation
         ) { t: Value, args: List<Value> ->
             (t as StringValue).evalAdd(args.first())
@@ -56,7 +56,7 @@ object StringEqualityOpMembers {
 
         val inputSubstitution = Substitution(stringType.typeParams, listOf(inputTypeArg))
         val inputType = inputSubstitution.apply(stringType)
-        val formalParamId = Identifier("other")
+        val formalParamId = Identifier(NotInSource, "other")
         val formalParam = FunctionFormalParameterSymbol(res, formalParamId, inputType)
         res.define(formalParamId, formalParam)
         res.formalParams = listOf(formalParam)
@@ -83,7 +83,7 @@ object StringEqualityOpMembers {
     ): ParameterizedMemberPluginSymbol {
         val res = ParameterizedMemberPluginSymbol(
             stringType,
-            Identifier(BinaryOperator.Equal.idStr),
+            Identifier(NotInSource, BinaryOperator.Equal.idStr),
             DualFinPluginInstantiation
         ) { t: Value, args: List<Value> ->
             (t as EqualityValue).evalEquals(args.first())
@@ -94,7 +94,7 @@ object StringEqualityOpMembers {
 
         val inputSubstitution = Substitution(stringType.typeParams, listOf(inputTypeArg))
         val inputType = inputSubstitution.apply(stringType)
-        val formalParamId = Identifier("other")
+        val formalParamId = Identifier(NotInSource, "other")
         val formalParam = FunctionFormalParameterSymbol(res, formalParamId, inputType)
         res.define(formalParamId, formalParam)
         res.formalParams = listOf(formalParam)
@@ -124,7 +124,7 @@ object StringEqualityOpMembers {
     ): ParameterizedMemberPluginSymbol {
         val res = ParameterizedMemberPluginSymbol(
             stringType,
-            Identifier(BinaryOperator.NotEqual.idStr),
+            Identifier(NotInSource, BinaryOperator.NotEqual.idStr),
             DualFinPluginInstantiation
         ) { t: Value, args: List<Value> ->
             (t as EqualityValue).evalNotEquals(args.first())
@@ -135,7 +135,7 @@ object StringEqualityOpMembers {
 
         val inputSubstitution = Substitution(stringType.typeParams, listOf(inputTypeArg))
         val inputType = inputSubstitution.apply(stringType)
-        val formalParamId = Identifier("other")
+        val formalParamId = Identifier(NotInSource, "other")
         val formalParam = FunctionFormalParameterSymbol(res, formalParamId, inputType)
         res.define(formalParamId, formalParam)
         res.formalParams = listOf(formalParam)
