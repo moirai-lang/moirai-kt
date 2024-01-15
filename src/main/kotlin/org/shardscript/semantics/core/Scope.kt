@@ -52,26 +52,6 @@ class SymbolTable(private val parent: Scope<Symbol>) : Scope<Symbol> {
     override fun exists(signifier: Signifier): Boolean =
         when (signifier) {
             is Identifier -> identifierTable.containsKey(signifier) || parent.exists(signifier)
-            is PathSignifier -> {
-                val first = signifier.elements.first()
-                if (identifierTable.containsKey(first)) {
-                    val pathRes = identifierTable[first]!!
-                    if (pathRes is Namespace) {
-                        val rest = signifier.elements.toMutableList()
-                        rest.removeAt(0)
-                        val next = if (rest.size == 1) {
-                            rest.first()
-                        } else {
-                            PathSignifier(rest.toList())
-                        }
-                        pathRes.existsHere(next) || parent.exists(signifier)
-                    } else {
-                        parent.exists(signifier)
-                    }
-                } else {
-                    parent.exists(signifier)
-                }
-            }
             is FunctionTypeLiteral -> signifier.formalParamTypes.all { exists(it) } && exists(signifier.returnType)
             is ParameterizedSignifier -> exists(signifier.tti) && signifier.args.all { exists(it) }
             is ImplicitTypeLiteral -> false
@@ -81,26 +61,6 @@ class SymbolTable(private val parent: Scope<Symbol>) : Scope<Symbol> {
     override fun existsHere(signifier: Signifier): Boolean =
         when (signifier) {
             is Identifier -> identifierTable.containsKey(signifier)
-            is PathSignifier -> {
-                val first = signifier.elements.first()
-                if (identifierTable.containsKey(first)) {
-                    val pathRes = identifierTable[first]!!
-                    if (pathRes is Namespace) {
-                        val rest = signifier.elements.toMutableList()
-                        rest.removeAt(0)
-                        val next = if (rest.size == 1) {
-                            rest.first()
-                        } else {
-                            PathSignifier(rest.toList())
-                        }
-                        pathRes.existsHere(next)
-                    } else {
-                        false
-                    }
-                } else {
-                    false
-                }
-            }
             is FunctionTypeLiteral -> signifier.formalParamTypes.all { exists(it) } && exists(signifier.returnType)
             is ParameterizedSignifier -> existsHere(signifier.tti) && signifier.args.all { exists(it) }
             is ImplicitTypeLiteral -> false
@@ -112,26 +72,6 @@ class SymbolTable(private val parent: Scope<Symbol>) : Scope<Symbol> {
             is Identifier -> {
                 if (identifierTable.containsKey(signifier)) {
                     identifierTable[signifier]!!
-                } else {
-                    parent.fetch(signifier)
-                }
-            }
-            is PathSignifier -> {
-                val first = signifier.elements.first()
-                if (identifierTable.containsKey(first)) {
-                    val pathRes = identifierTable[first]!!
-                    if (pathRes is Namespace) {
-                        val rest = signifier.elements.toMutableList()
-                        rest.removeAt(0)
-                        val next = if (rest.size == 1) {
-                            rest.first()
-                        } else {
-                            PathSignifier(rest.toList())
-                        }
-                        pathRes.fetchHere(next)
-                    } else {
-                        parent.fetch(signifier)
-                    }
                 } else {
                     parent.fetch(signifier)
                 }
@@ -178,26 +118,6 @@ class SymbolTable(private val parent: Scope<Symbol>) : Scope<Symbol> {
             is Identifier -> {
                 if (identifierTable.containsKey(signifier)) {
                     identifierTable[signifier]!!
-                } else {
-                    langThrow(signifier.ctx, IdentifierNotFound(signifier))
-                }
-            }
-            is PathSignifier -> {
-                val first = signifier.elements.first()
-                if (identifierTable.containsKey(first)) {
-                    val pathRes = identifierTable[first]!!
-                    if (pathRes is Namespace) {
-                        val rest = signifier.elements.toMutableList()
-                        rest.removeAt(0)
-                        val next = if (rest.size == 1) {
-                            rest.first()
-                        } else {
-                            PathSignifier(rest.toList())
-                        }
-                        pathRes.fetchHere(next)
-                    } else {
-                        langThrow(signifier.ctx, IdentifierNotFound(signifier))
-                    }
                 } else {
                     langThrow(signifier.ctx, IdentifierNotFound(signifier))
                 }

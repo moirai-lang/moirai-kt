@@ -5,29 +5,15 @@ import org.shardscript.grammar.ShardScriptParserBaseVisitor
 import org.shardscript.semantics.core.*
 
 internal class TypeLiteralParseTreeVisitor(private val fileName: String) : ShardScriptParserBaseVisitor<Signifier>() {
-    override fun visitMultiTypePath(ctx: ShardScriptParser.MultiTypePathContext): Signifier {
-        val res = PathSignifier(ctx.IDENTIFIER().map {
-            val gid = Identifier(it.text)
-            gid.ctx = createContext(fileName, it.symbol)
-            gid
-        })
-        res.ctx = createContext(fileName, ctx.start)
-        return res
-    }
-
-    override fun visitSingleTypePath(ctx: ShardScriptParser.SingleTypePathContext): Signifier {
+    override fun visitGroundType(ctx: ShardScriptParser.GroundTypeContext): Signifier {
         val res = Identifier(ctx.IDENTIFIER().text.toString())
         res.ctx = createContext(fileName, ctx.IDENTIFIER().symbol)
         return res
     }
 
-    override fun visitGroundType(ctx: ShardScriptParser.GroundTypeContext): Signifier {
-        return visit(ctx.id)
-    }
-
     override fun visitParameterizedType(ctx: ShardScriptParser.ParameterizedTypeContext): Signifier {
-        val tti = visit(ctx.id) as TerminalTextSignifier
-        tti.ctx = createContext(fileName, ctx.id.start)
+        val tti = Identifier(ctx.IDENTIFIER().text.toString())
+        tti.ctx = createContext(fileName, ctx.start)
 
         val args: MutableList<Signifier> = ArrayList()
         ctx.params.restrictedTypeExprOrLiteral().forEach {
@@ -41,12 +27,14 @@ internal class TypeLiteralParseTreeVisitor(private val fileName: String) : Shard
     }
 
     override fun visitRestrictedGroundType(ctx: ShardScriptParser.RestrictedGroundTypeContext): Signifier {
-        return visit(ctx.id)
+        val res = Identifier(ctx.IDENTIFIER().text.toString())
+        res.ctx = createContext(fileName, ctx.IDENTIFIER().symbol)
+        return res
     }
 
     override fun visitRestrictedParameterizedType(ctx: ShardScriptParser.RestrictedParameterizedTypeContext): Signifier {
-        val tti = visit(ctx.id) as TerminalTextSignifier
-        tti.ctx = createContext(fileName, ctx.id.start)
+        val tti = Identifier(ctx.IDENTIFIER().text.toString())
+        tti.ctx = createContext(fileName, ctx.start)
 
         val args: MutableList<Signifier> = ArrayList()
         ctx.params.restrictedTypeExprOrLiteral().forEach {
