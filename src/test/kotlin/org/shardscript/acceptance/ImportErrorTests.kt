@@ -10,7 +10,7 @@ class ImportErrorTests {
     fun duplicateImportTest() {
         failTest(
             """
-            shard test.ids.errors
+            script test.ids.errors
             import test.imported
             import test.imported
             
@@ -25,7 +25,7 @@ class ImportErrorTests {
     fun ambiguousSymbolTest() {
         failTest(
             """
-            shard test.ids.errors
+            script test.ids.errors
             import test.imported
             import test.duplicates
             
@@ -40,7 +40,7 @@ class ImportErrorTests {
     fun deepImportTestTest() {
         failTest(
             """
-            shard test.ids.errors
+            script test.ids.errors
             import test.imported
             
             deepLeft(3, 4)

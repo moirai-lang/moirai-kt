@@ -7,7 +7,7 @@ class ImportHappyTests {
     fun basicImportTest() {
         splitTest(
             """
-            shard test.ids.happy
+            script test.ids.happy
             import test.imported
             
             importedFunction(3, 4)

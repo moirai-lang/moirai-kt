@@ -3,15 +3,15 @@ parser grammar ShardScriptParser;
 options { tokenVocab=ShardScriptLexer; }
 
 file
-    :   (transientShard? | (shardStat importStat*)) stat+ EOF
+    :   (transientScript? | (scriptStat importStat*)) stat+ EOF
     ;
 
-transientShard
-    :   TRANSIENT SHARD importIdSeq
+transientScript
+    :   TRANSIENT SCRIPT importIdSeq
     ;
 
-shardStat
-    :   SHARD importIdSeq
+scriptStat
+    :   SCRIPT importIdSeq
     ;
 
 importStat
