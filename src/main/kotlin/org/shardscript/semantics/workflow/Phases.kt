@@ -57,7 +57,7 @@ fun functionScan(ast: FileAst) {
     }
 }
 
-fun propagateTypes(ast: FileAst, preludeTable: PreludeTable) {
+fun propagateTypes(ast: FileAst, preludeTable: Scope<Symbol>) {
     val propagateTypesAstVisitor = PropagateTypesAstVisitor(preludeTable)
     ast.accept(propagateTypesAstVisitor)
     val errors = propagateTypesAstVisitor.errors.toSet()
@@ -66,7 +66,7 @@ fun propagateTypes(ast: FileAst, preludeTable: PreludeTable) {
     }
 }
 
-fun checkTypes(ast: FileAst, prelude: PreludeTable) {
+fun checkTypes(ast: FileAst, prelude: Scope<Symbol>) {
     val checkTypesAstVisitor = CheckTypesAstVisitor(prelude)
     ast.accept(checkTypesAstVisitor)
     val errors = checkTypesAstVisitor.errors.toSet()

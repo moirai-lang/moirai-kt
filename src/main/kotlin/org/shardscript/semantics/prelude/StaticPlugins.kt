@@ -7,7 +7,7 @@ import org.shardscript.semantics.infer.Substitution
 import kotlin.random.Random
 
 fun createRangePlugin(
-    langNS: Namespace,
+    langNS: Scope<Symbol>,
     intType: BasicTypeSymbol,
     listType: ParameterizedBasicTypeSymbol
 ): ParameterizedStaticPluginSymbol {
@@ -58,7 +58,7 @@ fun createRangePlugin(
 }
 
 fun createRandomPlugin(
-    langNS: Namespace,
+    langNS: Scope<Symbol>,
     fin: CostExpression
 ): ParameterizedStaticPluginSymbol {
     val randomPlugin = ParameterizedStaticPluginSymbol(

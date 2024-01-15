@@ -3,8 +3,6 @@ package org.shardscript.semantics.prelude
 import org.shardscript.semantics.core.*
 
 object Lang {
-    val shardId = Identifier(NotInSource, "shard")
-    val langId = Identifier(NotInSource, "lang")
     val unitId = Identifier(NotInSource, "Unit")
     val booleanId = Identifier(NotInSource, "Boolean")
     val intId = Identifier(NotInSource, "Int")
@@ -67,33 +65,21 @@ object Lang {
 
     fun isUnitExactly(type: Type): Boolean =
         when (generatePath(type as Symbol)) {
-            listOf(shardId.name, langId.name, unitId.name) -> true
+            listOf(unitId.name) -> true
             else -> false
         }
 
-    fun initNamespace(architecture: Architecture, prelude: PreludeTable, root: Scope<Symbol>) {
-        // Top-level Namespace
-        val shardNS = Namespace(
-            root,
-            shardId
-        )
-
-        // Lang Namespace
-        val langNS = Namespace(
-            shardNS,
-            langId
-        )
-
+    fun initNamespace(architecture: Architecture, prelude: Scope<Symbol>) {
         // Unit
         val unitObject = ObjectSymbol(
-            langNS,
+            prelude,
             unitId,
             userTypeFeatureSupport
         )
 
         // Boolean
         val booleanType = BasicTypeSymbol(
-            langNS,
+            prelude,
             booleanId
         )
         val constantFin = FinTypeSymbol(architecture.defaultNodeCost)
@@ -106,14 +92,14 @@ object Lang {
         }
 
         // Integer
-        val intType = intType(architecture, intId, booleanType, langNS, setOf())
+        val intType = intType(architecture, intId, booleanType, prelude, setOf())
 
         // Decimal
-        val decimalType = decimalType(decimalId, booleanType, langNS)
+        val decimalType = decimalType(decimalId, booleanType, prelude)
 
         // Char
         val charType = BasicTypeSymbol(
-            langNS,
+            prelude,
             charId
         )
         ValueEqualityOpMembers.members(charType, constantFin, charType).forEach { (name, plugin) ->
@@ -121,14 +107,14 @@ object Lang {
         }
 
         // List
-        val listType = listCollectionType(architecture, langNS, intType, booleanType)
+        val listType = listCollectionType(architecture, prelude, intType, booleanType)
 
         // MutableList
         val mutableListType =
-            mutableListCollectionType(architecture, langNS, intType, unitObject, booleanType, listType)
+            mutableListCollectionType(architecture, prelude, intType, unitObject, booleanType, listType)
 
         // String
-        val stringType = stringType(booleanType, intType, charType, listType, langNS)
+        val stringType = stringType(booleanType, intType, charType, listType, prelude)
 
         // ToString
         insertIntegerToStringMember(intType, stringType)
@@ -140,7 +126,7 @@ object Lang {
 
         // Pair
         val pairType = ParameterizedRecordTypeSymbol(
-            langNS,
+            prelude,
             pairId,
             userTypeFeatureSupport
         )
@@ -154,13 +140,13 @@ object Lang {
         pairType.define(pairSecondId, pairSecondField)
 
         // Dictionary
-        val dictionaryType = dictionaryCollectionType(architecture, langNS, booleanType, intType, pairType)
+        val dictionaryType = dictionaryCollectionType(architecture, prelude, booleanType, intType, pairType)
 
         // MutableDictionary
         val mutableDictionaryType =
             mutableDictionaryCollectionType(
                 architecture,
-                langNS,
+                prelude,
                 booleanType,
                 intType,
                 unitObject,
@@ -169,49 +155,30 @@ object Lang {
             )
 
         // Set
-        val setType = setCollectionType(architecture, langNS, booleanType, intType)
+        val setType = setCollectionType(architecture, prelude, booleanType, intType)
 
         // MutableSet
-        val mutableSetType = mutableSetCollectionType(architecture, langNS, booleanType, intType, unitObject, setType)
+        val mutableSetType = mutableSetCollectionType(architecture, prelude, booleanType, intType, unitObject, setType)
 
         // Static
-        val rangePlugin = createRangePlugin(langNS, intType, listType)
-        val randomPlugin = createRandomPlugin(langNS, constantFin)
+        val rangePlugin = createRangePlugin(prelude, intType, listType)
+        val randomPlugin = createRandomPlugin(prelude, constantFin)
 
         // Compose output
-        langNS.define(unitId, unitObject)
-        langNS.define(booleanId, booleanType)
-        langNS.define(intId, intType)
-        langNS.define(decimalId, decimalType)
-        langNS.define(listId, listType)
-        langNS.define(mutableListId, mutableListType)
-        langNS.define(pairId, pairType)
-        langNS.define(dictionaryId, dictionaryType)
-        langNS.define(mutableDictionaryId, mutableDictionaryType)
-        langNS.define(setId, setType)
-        langNS.define(mutableSetId, mutableSetType)
-        langNS.define(charId, charType)
-        langNS.define(stringId, stringType)
-        langNS.define(rangeId, rangePlugin)
-        langNS.define(randomId, randomPlugin)
-        shardNS.define(langId, langNS)
-
-        root.define(shardId, shardNS)
-
-        prelude.register(unitId, langNS)
-        prelude.register(booleanId, langNS)
-        prelude.register(intId, langNS)
-        prelude.register(decimalId, langNS)
-        prelude.register(listId, langNS)
-        prelude.register(mutableListId, langNS)
-        prelude.register(pairId, langNS)
-        prelude.register(dictionaryId, langNS)
-        prelude.register(mutableDictionaryId, langNS)
-        prelude.register(setId, langNS)
-        prelude.register(mutableSetId, langNS)
-        prelude.register(charId, langNS)
-        prelude.register(stringId, langNS)
-        prelude.register(rangeId, langNS)
-        prelude.register(randomId, langNS)
+        prelude.define(unitId, unitObject)
+        prelude.define(booleanId, booleanType)
+        prelude.define(intId, intType)
+        prelude.define(decimalId, decimalType)
+        prelude.define(listId, listType)
+        prelude.define(mutableListId, mutableListType)
+        prelude.define(pairId, pairType)
+        prelude.define(dictionaryId, dictionaryType)
+        prelude.define(mutableDictionaryId, mutableDictionaryType)
+        prelude.define(setId, setType)
+        prelude.define(mutableSetId, mutableSetType)
+        prelude.define(charId, charType)
+        prelude.define(stringId, stringType)
+        prelude.define(rangeId, rangePlugin)
+        prelude.define(randomId, randomPlugin)
     }
 }

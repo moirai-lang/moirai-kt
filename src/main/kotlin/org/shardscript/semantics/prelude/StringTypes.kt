@@ -8,7 +8,7 @@ fun stringType(
     intType: BasicTypeSymbol,
     charType: BasicTypeSymbol,
     listType: ParameterizedBasicTypeSymbol,
-    langNS: Namespace
+    langNS: Scope<Symbol>
 ): ParameterizedBasicTypeSymbol {
     val stringType = ParameterizedBasicTypeSymbol(
         langNS,

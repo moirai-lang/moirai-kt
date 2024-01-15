@@ -25,55 +25,6 @@ sealed class NamedSymbolWithMembers(
 
 data object ErrorSymbol : Symbol(), Type
 
-class PreludeTable(
-    override val parent: Scope<Symbol>,
-    private val scopeTable: MutableMap<String, Scope<Symbol>> = HashMap()
-) : SymbolTableElement(), Scope<Symbol> {
-    fun register(identifier: Identifier, scope: Scope<Symbol>) {
-        if (scopeTable.containsKey(identifier.name)) {
-            langThrow(identifier.ctx, PreludeScopeAlreadyExists(identifier))
-        } else {
-            scopeTable[identifier.name] = scope
-        }
-    }
-
-    override fun define(identifier: Identifier, definition: Symbol) {
-        parent.define(identifier, definition)
-    }
-
-    override fun exists(signifier: Signifier): Boolean {
-        return if (signifier is Identifier && scopeTable.containsKey(signifier.name)) {
-            scopeTable[signifier.name]!!.exists(signifier)
-        } else {
-            parent.exists(signifier)
-        }
-    }
-
-    override fun existsHere(signifier: Signifier): Boolean {
-        return if (signifier is Identifier && scopeTable.containsKey(signifier.name)) {
-            scopeTable[signifier.name]!!.existsHere(signifier)
-        } else {
-            parent.existsHere(signifier)
-        }
-    }
-
-    override fun fetch(signifier: Signifier): Symbol {
-        return if (signifier is Identifier && scopeTable.containsKey(signifier.name)) {
-            scopeTable[signifier.name]!!.fetch(signifier)
-        } else {
-            parent.fetch(signifier)
-        }
-    }
-
-    override fun fetchHere(signifier: Signifier): Symbol {
-        return if (signifier is Identifier && scopeTable.containsKey(signifier.name)) {
-            scopeTable[signifier.name]!!.fetchHere(signifier)
-        } else {
-            parent.fetchHere(signifier)
-        }
-    }
-}
-
 class ImportTable(
     override val parent: Scope<Symbol>,
     private val scopeTable: MutableMap<String, MutableList<Scope<Symbol>>> = HashMap()
@@ -178,14 +129,7 @@ data class SystemRootNamespace(
 
 data class UserRootNamespace(
     override val parent: Scope<Symbol>
-) : NamespaceBase(parent) {
-    override fun define(identifier: Identifier, definition: Symbol) {
-        if (identifier == Lang.shardId) {
-            langThrow(identifier.ctx, SystemReservedNamespace(identifier))
-        }
-        super.define(identifier, definition)
-    }
-}
+) : NamespaceBase(parent)
 
 data class Namespace(
     override val parent: Scope<Symbol>,

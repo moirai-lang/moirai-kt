@@ -111,7 +111,7 @@ fun createToImmutableSetPlugin(
 
 fun setCollectionType(
     architecture: Architecture,
-    langNS: Namespace,
+    langNS: Scope<Symbol>,
     booleanType: BasicTypeSymbol,
     intType: BasicTypeSymbol
 ): ParameterizedBasicTypeSymbol {
@@ -157,7 +157,7 @@ fun setCollectionType(
 
 fun mutableSetCollectionType(
     architecture: Architecture,
-    langNS: Namespace,
+    langNS: Scope<Symbol>,
     booleanType: BasicTypeSymbol,
     intType: BasicTypeSymbol,
     unitType: ObjectSymbol,

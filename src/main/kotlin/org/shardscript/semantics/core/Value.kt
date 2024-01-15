@@ -75,7 +75,7 @@ class RecordValue(val symbol: Symbol, val fields: ValueTable) : Value() {
     }
 }
 
-data class RecordConstructorValue(val prelude: PreludeTable, val symbol: Symbol) : Value() {
+data class RecordConstructorValue(val prelude: Scope<Symbol>, val symbol: Symbol) : Value() {
     fun apply(args: List<Value>): RecordValue {
         return when (symbol) {
             is GroundRecordTypeSymbol -> {
@@ -492,7 +492,7 @@ data class DictionaryValue(
     }
 }
 
-class SymbolRouterValueTable(private val prelude: PreludeTable, private val symbols: Scope<Symbol>) : Scope<Value> {
+class SymbolRouterValueTable(private val prelude: Scope<Symbol>, private val symbols: Scope<Symbol>) : Scope<Value> {
     override fun define(identifier: Identifier, definition: Value) {
         langThrow(identifier.ctx, IdentifierCouldNotBeDefined(identifier))
     }
@@ -524,7 +524,7 @@ class SymbolRouterValueTable(private val prelude: PreludeTable, private val symb
             }
             is ObjectSymbol -> {
                 when (generatePath(res)) {
-                    listOf(Lang.shardId.name, Lang.langId.name, Lang.unitId.name) -> UnitValue
+                    listOf(Lang.unitId.name) -> UnitValue
                     else -> ObjectValue(res)
                 }
             }

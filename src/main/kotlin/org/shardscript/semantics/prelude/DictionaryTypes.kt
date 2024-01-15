@@ -142,7 +142,7 @@ fun createToImmutableDictionaryPlugin(
 
 fun dictionaryCollectionType(
     architecture: Architecture,
-    langNS: Namespace,
+    langNS: Scope<Symbol>,
     booleanType: BasicTypeSymbol,
     intType: BasicTypeSymbol,
     pairType: ParameterizedRecordTypeSymbol
@@ -210,7 +210,7 @@ fun dictionaryCollectionType(
 
 fun mutableDictionaryCollectionType(
     architecture: Architecture,
-    langNS: Namespace,
+    langNS: Scope<Symbol>,
     booleanType: BasicTypeSymbol,
     intType: BasicTypeSymbol,
     unitType: ObjectSymbol,

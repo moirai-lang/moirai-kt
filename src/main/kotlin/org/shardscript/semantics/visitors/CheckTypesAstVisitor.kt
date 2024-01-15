@@ -3,7 +3,7 @@ package org.shardscript.semantics.visitors
 import org.shardscript.semantics.core.*
 import org.shardscript.semantics.prelude.Lang
 
-class CheckTypesAstVisitor(private val prelude: PreludeTable) : UnitAstVisitor() {
+class CheckTypesAstVisitor(private val prelude: Scope<Symbol>) : UnitAstVisitor() {
     override fun visit(ast: StringInterpolationAst) {
         try {
             super.visit(ast)

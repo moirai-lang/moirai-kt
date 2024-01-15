@@ -85,7 +85,7 @@ object RandomInstantiation : SingleTypeInstantiation {
             }
         }
         return when (generatePath((res.substitutionChain).replayArgs().first() as Symbol)) {
-            listOf(Lang.shardId.name, Lang.langId.name, Lang.intId.name) -> res
+            listOf(Lang.intId.name) -> res
             else -> {
                 errors.add(ctx, RandomRequiresIntLong)
                 throw LanguageException(errors.toSet())

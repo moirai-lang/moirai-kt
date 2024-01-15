@@ -4,7 +4,7 @@ import org.shardscript.semantics.core.*
 import org.shardscript.semantics.prelude.Lang
 
 data class SystemScopes(
-    val prelude: PreludeTable,
+    val prelude: Scope<Symbol>,
     val systemRoot: SystemRootNamespace
 )
 
@@ -23,9 +23,9 @@ data class SemanticArtifacts(
 )
 
 fun createSystemScopes(architecture: Architecture): SystemScopes {
-    val prelude = PreludeTable(NullSymbolTable)
+    val prelude = SymbolTable(NullSymbolTable)
     val root = SystemRootNamespace(prelude)
-    Lang.initNamespace(architecture, prelude, root)
+    Lang.initNamespace(architecture, prelude)
     return SystemScopes(prelude, root)
 }
 

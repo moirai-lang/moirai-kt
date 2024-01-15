@@ -99,7 +99,6 @@ fun filterValidGroundApply(
         is SumCostExpression,
         is ProductCostExpression,
         is MaxCostExpression,
-        is PreludeTable,
         is ImportTable,
         is FieldSymbol,
         is PlatformFieldSymbol,
@@ -154,7 +153,6 @@ fun filterValidDotApply(
         is SumCostExpression,
         is ProductCostExpression,
         is MaxCostExpression,
-        is PreludeTable,
         is ImportTable,
         is FunctionFormalParameterSymbol,
         is FieldSymbol,
@@ -272,7 +270,7 @@ fun inlineGeneratePath(symbol: Symbol, path: MutableList<String>) {
 
 fun checkTypes(
     ctx: SourceContext,
-    prelude: PreludeTable,
+    prelude: Scope<Symbol>,
     errors: LanguageErrors,
     expected: Type,
     actual: Type
@@ -331,7 +329,7 @@ fun checkTypes(
 
 fun checkTypes(
     ctx: SourceContext,
-    prelude: PreludeTable,
+    prelude: Scope<Symbol>,
     errors: LanguageErrors,
     expectedTypeArgs: List<Type>,
     actualTypeArgs: List<Type>
@@ -345,7 +343,7 @@ fun checkTypes(
     }
 }
 
-fun checkApply(prelude: PreludeTable, errors: LanguageErrors, ast: ApplyAst) {
+fun checkApply(prelude: Scope<Symbol>, errors: LanguageErrors, ast: ApplyAst) {
     when (val symbol = ast.symbolRef) {
         is GroundFunctionSymbol -> {
             checkArgs(prelude, errors, symbol.type(), ast)
@@ -400,7 +398,7 @@ fun checkApply(prelude: PreludeTable, errors: LanguageErrors, ast: ApplyAst) {
     }
 }
 
-fun checkArgs(prelude: PreludeTable, errors: LanguageErrors, type: FunctionTypeSymbol, ast: ApplyAst) {
+fun checkArgs(prelude: Scope<Symbol>, errors: LanguageErrors, type: FunctionTypeSymbol, ast: ApplyAst) {
     if (type.formalParamTypes.size != ast.args.size) {
         errors.add(ast.ctx, IncorrectNumberOfArgs(type.formalParamTypes.size, ast.args.size))
     } else {
@@ -411,7 +409,7 @@ fun checkArgs(prelude: PreludeTable, errors: LanguageErrors, type: FunctionTypeS
     }
 }
 
-fun checkArgs(prelude: PreludeTable, errors: LanguageErrors, type: GroundRecordTypeSymbol, ast: ApplyAst) {
+fun checkArgs(prelude: Scope<Symbol>, errors: LanguageErrors, type: GroundRecordTypeSymbol, ast: ApplyAst) {
     if (type.fields.size != ast.args.size) {
         errors.add(ast.ctx, IncorrectNumberOfArgs(type.fields.size, ast.args.size))
     } else {
@@ -422,7 +420,7 @@ fun checkArgs(prelude: PreludeTable, errors: LanguageErrors, type: GroundRecordT
 }
 
 fun checkArgs(
-    prelude: PreludeTable,
+    prelude: Scope<Symbol>,
     errors: LanguageErrors,
     instantiation: SymbolInstantiation,
     parameterizedType: ParameterizedRecordTypeSymbol,
@@ -439,7 +437,7 @@ fun checkArgs(
 }
 
 fun checkArgs(
-    prelude: PreludeTable,
+    prelude: Scope<Symbol>,
     errors: LanguageErrors,
     instantiation: SymbolInstantiation,
     parameterizedType: ParameterizedBasicTypeSymbol,

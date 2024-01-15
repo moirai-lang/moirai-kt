@@ -7,7 +7,7 @@ fun intType(
     architecture: Architecture,
     numericId: Identifier,
     booleanType: BasicTypeSymbol,
-    langNS: Namespace,
+    langNS: Scope<Symbol>,
     filters: Set<String>
 ): BasicTypeSymbol {
     val intType = BasicTypeSymbol(
@@ -36,7 +36,7 @@ fun intType(
 fun decimalType(
     numericId: Identifier,
     booleanType: BasicTypeSymbol,
-    langNS: Namespace
+    langNS: Scope<Symbol>
 ): ParameterizedBasicTypeSymbol {
     val decimalType = ParameterizedBasicTypeSymbol(
         langNS,

@@ -137,7 +137,7 @@ fun createToImmutableListPlugin(
 
 fun listCollectionType(
     architecture: Architecture,
-    langNS: Namespace,
+    langNS: Scope<Symbol>,
     intType: BasicTypeSymbol,
     booleanType: BasicTypeSymbol
 ): ParameterizedBasicTypeSymbol {
@@ -182,7 +182,7 @@ fun listCollectionType(
 
 fun mutableListCollectionType(
     architecture: Architecture,
-    langNS: Namespace,
+    langNS: Scope<Symbol>,
     intType: BasicTypeSymbol,
     unitType: ObjectSymbol,
     booleanType: BasicTypeSymbol,
