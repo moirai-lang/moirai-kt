@@ -32,8 +32,7 @@ internal fun rewriteAsGroundApply(
     gid: Identifier,
     sourceContext: SourceContext
 ): GroundApplyAst {
-    val res = GroundApplyAst(gid, args)
-    res.ctx = sourceContext
+    val res = GroundApplyAst(sourceContext, gid, args)
     return res
 }
 
@@ -43,8 +42,7 @@ internal fun rewriteAsDotApply(
     op: BinaryOperator,
     sourceContext: SourceContext
 ): DotApplyAst {
-    val res = DotApplyAst(left, Identifier(op.idStr), args)
-    res.ctx = sourceContext
+    val res = DotApplyAst(sourceContext, left, Identifier(NotInSource, op.idStr), args)
     return res
 }
 
@@ -54,8 +52,7 @@ internal fun rewriteAsDotApply(
     collectionMethod: CollectionMethods,
     sourceContext: SourceContext
 ): DotApplyAst {
-    val res = DotApplyAst(left, Identifier(collectionMethod.idStr), args)
-    res.ctx = sourceContext
+    val res = DotApplyAst(sourceContext, left, Identifier(NotInSource, collectionMethod.idStr), args)
     return res
 }
 

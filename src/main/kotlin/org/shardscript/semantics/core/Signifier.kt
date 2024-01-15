@@ -1,44 +1,31 @@
 package org.shardscript.semantics.core
 
-sealed class Signifier : LanguageElement {
-    override var ctx: SourceContext = NotInSource
-}
+sealed class Signifier : LanguageElement
 
 sealed class TerminalSignifier : Signifier()
 sealed class TerminalTextSignifier : TerminalSignifier()
 
 data class FunctionTypeLiteral(
+    override val ctx: SourceContext,
     val formalParamTypes: List<Signifier>,
     val returnType: Signifier
 ) : Signifier()
 
-class ImplicitTypeLiteral : TerminalSignifier() {
+class ImplicitTypeLiteral(override val ctx: SourceContext) : TerminalSignifier() {
     private object HashCodeHelper
 
     override fun equals(other: Any?): Boolean = other != null && other is ImplicitTypeLiteral
     override fun hashCode(): Int = HashCodeHelper.hashCode()
 }
 
-data class ParameterizedSignifier(val tti: TerminalTextSignifier, val args: List<Signifier>) : Signifier()
-data class Identifier(val name: String) : TerminalTextSignifier()
-data class FinLiteral(val magnitude: Long) : TerminalSignifier()
+data class ParameterizedSignifier(
+    override val ctx: SourceContext,
+    val tti: TerminalTextSignifier,
+    val args: List<Signifier>
+) : Signifier()
 
-fun printIdentifier(signifier: Signifier): String =
-    when (signifier) {
-        is Identifier -> signifier.name
-        is ImplicitTypeLiteral -> langThrow(TypeSystemBug)
-        is FinLiteral -> signifier.magnitude.toString()
-        is FunctionTypeLiteral -> "(${
-            signifier.formalParamTypes.joinToString(
-                ", ",
-                transform = { printIdentifier(it) })
-        }) -> ${printIdentifier(signifier.returnType)}"
-        is ParameterizedSignifier -> "${printIdentifier(signifier)}<${
-            signifier.args.joinToString(
-                ", ",
-                transform = { printIdentifier(it) })
-        }>"
-    }
+data class Identifier(override val ctx: SourceContext, val name: String) : TerminalTextSignifier()
+data class FinLiteral(override val ctx: SourceContext, val magnitude: Long) : TerminalSignifier()
 
 fun linearizeIdentifiers(signifiers: List<Signifier>): List<TerminalSignifier> {
     val res: MutableList<TerminalSignifier> = ArrayList()

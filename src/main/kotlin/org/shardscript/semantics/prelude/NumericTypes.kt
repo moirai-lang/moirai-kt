@@ -17,17 +17,17 @@ fun intType(
     val constantFin = FinTypeSymbol(architecture.defaultNodeCost)
     IntegerMathOpMembers.members(intType, constantFin).forEach { (name, plugin) ->
         if (!filters.contains(name)) {
-            intType.define(Identifier(name), plugin)
+            intType.define(Identifier(NotInSource, name), plugin)
         }
     }
     IntegerOrderOpMembers.members(intType, constantFin, booleanType).forEach { (name, plugin) ->
         if (!filters.contains(name)) {
-            intType.define(Identifier(name), plugin)
+            intType.define(Identifier(NotInSource, name), plugin)
         }
     }
     ValueEqualityOpMembers.members(intType, constantFin, booleanType).forEach { (name, plugin) ->
         if (!filters.contains(name)) {
-            intType.define(Identifier(name), plugin)
+            intType.define(Identifier(NotInSource, name), plugin)
         }
     }
     return intType
@@ -54,13 +54,13 @@ fun decimalType(
     decimalType.fields = listOf()
 
     DecimalMathOpMembers.members(decimalType, decimalTypeParam).forEach { (name, plugin) ->
-        decimalType.define(Identifier(name), plugin)
+        decimalType.define(Identifier(NotInSource, name), plugin)
     }
     DecimalOrderOpMembers.members(decimalType, decimalTypeParam, booleanType).forEach { (name, plugin) ->
-        decimalType.define(Identifier(name), plugin)
+        decimalType.define(Identifier(NotInSource, name), plugin)
     }
     DecimalEqualityOpMembers.members(decimalType, decimalTypeParam, booleanType).forEach { (name, plugin) ->
-        decimalType.define(Identifier(name), plugin)
+        decimalType.define(Identifier(NotInSource, name), plugin)
     }
     return decimalType
 }

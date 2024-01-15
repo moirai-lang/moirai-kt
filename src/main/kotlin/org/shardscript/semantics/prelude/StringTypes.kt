@@ -25,13 +25,13 @@ fun stringType(
     }
 
     StringEqualityOpMembers.members(stringType, stringTypeParam, booleanType).forEach { (name, plugin) ->
-        stringType.define(Identifier(name), plugin)
+        stringType.define(Identifier(NotInSource, name), plugin)
     }
 
     val toCharArray = pluginToCharArray(stringType, stringTypeParam, charType, listType)
-    stringType.define(Identifier(StringMethods.ToCharArray.idStr), toCharArray)
+    stringType.define(Identifier(NotInSource, StringMethods.ToCharArray.idStr), toCharArray)
 
-    val sizeId = Identifier(CollectionFields.Size.idStr)
+    val sizeId = Identifier(NotInSource, CollectionFields.Size.idStr)
     val sizeFieldSymbol = PlatformFieldSymbol(
         stringType,
         sizeId,

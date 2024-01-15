@@ -319,7 +319,7 @@ class PropagateTypesAstVisitor(
             if (ast.typeParams.isEmpty()) {
                 val groundFunctionSymbol = ast.scope as GroundFunctionSymbol
                 if (Lang.isUnitExactly(groundFunctionSymbol.returnType) && !Lang.isUnitExactly(ast.body.readType())) {
-                    val refAst = RefAst(Lang.unitId)
+                    val refAst = RefAst(NotInSource, Lang.unitId)
                     refAst.scope = ast.body.scope
                     refAst.accept(this)
                     ast.body.lines.add(refAst)
@@ -328,7 +328,7 @@ class PropagateTypesAstVisitor(
             } else {
                 val parameterizedFunctionSymbol = ast.scope as ParameterizedFunctionSymbol
                 if (Lang.isUnitExactly(parameterizedFunctionSymbol.returnType) && !Lang.isUnitExactly(ast.body.readType())) {
-                    val refAst = RefAst(Lang.unitId)
+                    val refAst = RefAst(NotInSource, Lang.unitId)
                     refAst.scope = ast.body.scope
                     refAst.accept(this)
                     ast.body.lines.add(refAst)

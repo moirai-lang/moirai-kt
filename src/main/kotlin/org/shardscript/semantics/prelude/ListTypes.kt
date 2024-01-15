@@ -9,7 +9,7 @@ private fun createGetFunction(
     intType: BasicTypeSymbol,
     listElementTypeParam: StandardTypeParameter
 ) {
-    val getId = Identifier(CollectionMethods.IndexLookup.idStr)
+    val getId = Identifier(NotInSource, CollectionMethods.IndexLookup.idStr)
     val getMemberFunction = ParameterizedMemberPluginSymbol(
         listType,
         getId,
@@ -19,7 +19,7 @@ private fun createGetFunction(
     }
     getMemberFunction.typeParams = listOf(listElementTypeParam)
     getMemberFunction.costExpression = costExpression
-    val getFormalParamId = Identifier("index")
+    val getFormalParamId = Identifier(NotInSource, "index")
     val getFormalParam = FunctionFormalParameterSymbol(getMemberFunction, getFormalParamId, intType)
     getMemberFunction.define(getFormalParamId, getFormalParam)
 
@@ -34,7 +34,7 @@ private fun createAddFunction(
     unitType: ObjectSymbol,
     listElementTypeParam: StandardTypeParameter
 ) {
-    val addId = Identifier(CollectionMethods.InsertElement.idStr)
+    val addId = Identifier(NotInSource, CollectionMethods.InsertElement.idStr)
     val addMemberFunction = ParameterizedMemberPluginSymbol(
         listType,
         addId,
@@ -44,7 +44,7 @@ private fun createAddFunction(
     }
     addMemberFunction.typeParams = listOf(listElementTypeParam)
     addMemberFunction.costExpression = costExpression
-    val addFormalParamId = Identifier("element")
+    val addFormalParamId = Identifier(NotInSource, "element")
     val addFormalParam = FunctionFormalParameterSymbol(addMemberFunction, addFormalParamId, listElementTypeParam)
     addMemberFunction.define(addFormalParamId, addFormalParam)
 
@@ -60,7 +60,7 @@ private fun createSetFunction(
     intType: BasicTypeSymbol,
     listElementTypeParam: StandardTypeParameter
 ) {
-    val setId = Identifier(CollectionMethods.IndexAssign.idStr)
+    val setId = Identifier(NotInSource, CollectionMethods.IndexAssign.idStr)
     val setMemberFunction = ParameterizedMemberPluginSymbol(
         listType,
         setId,
@@ -70,11 +70,11 @@ private fun createSetFunction(
     }
     setMemberFunction.typeParams = listOf(listElementTypeParam)
     setMemberFunction.costExpression = costExpression
-    val indexFormalParamId = Identifier("index")
+    val indexFormalParamId = Identifier(NotInSource, "index")
     val indexFormalParam = FunctionFormalParameterSymbol(setMemberFunction, indexFormalParamId, intType)
     setMemberFunction.define(indexFormalParamId, indexFormalParam)
 
-    val valueFormalParamId = Identifier("value")
+    val valueFormalParamId = Identifier(NotInSource, "value")
     val valueFormalParam = FunctionFormalParameterSymbol(setMemberFunction, valueFormalParamId, listElementTypeParam)
     setMemberFunction.define(valueFormalParamId, valueFormalParam)
 
@@ -89,7 +89,7 @@ private fun createRemoveAtFunction(
     unitType: ObjectSymbol,
     intType: BasicTypeSymbol
 ) {
-    val removeAtId = Identifier(CollectionMethods.RemoveAtIndex.idStr)
+    val removeAtId = Identifier(NotInSource, CollectionMethods.RemoveAtIndex.idStr)
     val removeAtMemberFunction = GroundMemberPluginSymbol(
         listType,
         removeAtId
@@ -97,7 +97,7 @@ private fun createRemoveAtFunction(
         (t as ListValue).evalRemoveAt(args.first())
     }
     removeAtMemberFunction.costExpression = costExpression
-    val removeAtFormalParamId = Identifier("index")
+    val removeAtFormalParamId = Identifier(NotInSource, "index")
     val removeAtFormalParam = FunctionFormalParameterSymbol(removeAtMemberFunction, removeAtFormalParamId, intType)
     removeAtMemberFunction.define(removeAtFormalParamId, removeAtFormalParam)
 
@@ -114,7 +114,7 @@ fun createToImmutableListPlugin(
 ) {
     val plugin = ParameterizedMemberPluginSymbol(
         mutableListType,
-        Identifier(CollectionMethods.ToImmutableList.idStr),
+        Identifier(NotInSource, CollectionMethods.ToImmutableList.idStr),
         DoubleParentArgInstantiation
     ) { t: Value, _: List<Value> ->
         (t as ListValue).evalToList()
@@ -162,7 +162,7 @@ fun listCollectionType(
         listElementTypeParam
     )
 
-    val sizeId = Identifier(CollectionFields.Size.idStr)
+    val sizeId = Identifier(NotInSource, CollectionFields.Size.idStr)
     val sizeFieldSymbol = PlatformFieldSymbol(
         listType,
         sizeId,
@@ -247,7 +247,7 @@ fun mutableListCollectionType(
         listType
     )
 
-    val sizeId = Identifier(CollectionFields.Size.idStr)
+    val sizeId = Identifier(NotInSource, CollectionFields.Size.idStr)
     val sizeFieldSymbol = PlatformFieldSymbol(
         mutableListType,
         sizeId,

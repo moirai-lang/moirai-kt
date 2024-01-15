@@ -10,7 +10,7 @@ fun insertIntegerToStringMember(
 ) {
     val res = GroundMemberPluginSymbol(
         integerType,
-        Identifier(StringMethods.ToString.idStr),
+        Identifier(NotInSource, StringMethods.ToString.idStr),
     { t: Value, _: List<Value> ->
         (t as IntValue).evalToString()
     })
@@ -30,7 +30,7 @@ fun insertUnitToStringMember(
 ) {
     val res = GroundMemberPluginSymbol(
         unitType,
-        Identifier(StringMethods.ToString.idStr),
+        Identifier(NotInSource, StringMethods.ToString.idStr),
     { t: Value, _: List<Value> ->
         (t as UnitValue).evalToString()
     })
@@ -50,7 +50,7 @@ fun insertBooleanToStringMember(
 ) {
     val res = GroundMemberPluginSymbol(
         booleanType,
-        Identifier(StringMethods.ToString.idStr),
+        Identifier(NotInSource, StringMethods.ToString.idStr),
     { t: Value, _: List<Value> ->
         (t as BooleanValue).evalToString()
     })
@@ -70,7 +70,7 @@ fun insertDecimalToStringMember(
 ) {
     val res = ParameterizedMemberPluginSymbol(
         decimalType,
-        Identifier(StringMethods.ToString.idStr),
+        Identifier(NotInSource, StringMethods.ToString.idStr),
         SingleParentArgInstantiation,
     { t: Value, _: List<Value> ->
         (t as DecimalValue).evalToString()
@@ -91,7 +91,7 @@ fun insertStringToStringMember(
 ) {
     val res = ParameterizedMemberPluginSymbol(
         stringType,
-        Identifier(StringMethods.ToString.idStr),
+        Identifier(NotInSource, StringMethods.ToString.idStr),
         SingleParentArgInstantiation,
     { t: Value, _: List<Value> ->
         (t as StringValue).evalToString()
@@ -113,7 +113,7 @@ fun insertCharToStringMember(
 ) {
     val res = GroundMemberPluginSymbol(
         charType,
-        Identifier(StringMethods.ToString.idStr),
+        Identifier(NotInSource, StringMethods.ToString.idStr),
     { t: Value, _: List<Value> ->
         (t as CharValue).evalToString()
     })

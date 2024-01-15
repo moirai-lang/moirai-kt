@@ -40,11 +40,11 @@ fun createRangePlugin(
     rangePlugin.define(Lang.rangeTypeId, rangeTypeParam)
     rangePlugin.typeParams = listOf(rangeTypeParam)
 
-    val beginFormalParamId = Identifier("begin")
+    val beginFormalParamId = Identifier(NotInSource, "begin")
     val beginFormalParam = FunctionFormalParameterSymbol(rangePlugin, beginFormalParamId, intType)
     rangePlugin.define(beginFormalParamId, beginFormalParam)
 
-    val endFormalParamId = Identifier("end")
+    val endFormalParamId = Identifier(NotInSource, "end")
     val endFormalParam = FunctionFormalParameterSymbol(rangePlugin, endFormalParamId, intType)
     rangePlugin.define(endFormalParamId, endFormalParam)
     rangePlugin.formalParams = listOf(beginFormalParam, endFormalParam)
@@ -110,11 +110,11 @@ fun createRandomPlugin(
     randomPlugin.define(Lang.randomTypeId, randomTypeParam)
     randomPlugin.typeParams = listOf(randomTypeParam)
 
-    val beginFormalParamId = Identifier("offset")
+    val beginFormalParamId = Identifier(NotInSource, "offset")
     val beginFormalParam = FunctionFormalParameterSymbol(randomPlugin, beginFormalParamId, randomTypeParam)
     randomPlugin.define(beginFormalParamId, beginFormalParam)
 
-    val endFormalParamId = Identifier("limit")
+    val endFormalParamId = Identifier(NotInSource, "limit")
     val endFormalParam = FunctionFormalParameterSymbol(randomPlugin, endFormalParamId, randomTypeParam)
     randomPlugin.define(endFormalParamId, endFormalParam)
     randomPlugin.formalParams = listOf(beginFormalParam, endFormalParam)
