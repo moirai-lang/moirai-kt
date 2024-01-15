@@ -29,9 +29,9 @@ object NullSymbolTable : Scope<Symbol> {
 }
 
 class SymbolTable(private val parent: Scope<Symbol>) : Scope<Symbol> {
-    private val identifierTable: MutableMap<Identifier, Symbol> = HashMap()
+    private val identifierTable: MutableMap<String, Symbol> = HashMap()
 
-    fun toMap(): Map<Identifier, Symbol> = identifierTable.toMap()
+    fun toMap(): Map<String, Symbol> = identifierTable.toMap()
 
     private fun toType(signifier: Signifier, symbol: Symbol): Type {
         if (symbol is Type) {
@@ -42,16 +42,16 @@ class SymbolTable(private val parent: Scope<Symbol>) : Scope<Symbol> {
     }
 
     override fun define(identifier: Identifier, definition: Symbol) {
-        if (identifierTable.containsKey(identifier)) {
+        if (identifierTable.containsKey(identifier.name)) {
             langThrow(identifier.ctx, IdentifierAlreadyExists(identifier))
         } else {
-            identifierTable[identifier] = definition
+            identifierTable[identifier.name] = definition
         }
     }
 
     override fun exists(signifier: Signifier): Boolean =
         when (signifier) {
-            is Identifier -> identifierTable.containsKey(signifier) || parent.exists(signifier)
+            is Identifier -> identifierTable.containsKey(signifier.name) || parent.exists(signifier)
             is FunctionTypeLiteral -> signifier.formalParamTypes.all { exists(it) } && exists(signifier.returnType)
             is ParameterizedSignifier -> exists(signifier.tti) && signifier.args.all { exists(it) }
             is ImplicitTypeLiteral -> false
@@ -60,7 +60,7 @@ class SymbolTable(private val parent: Scope<Symbol>) : Scope<Symbol> {
 
     override fun existsHere(signifier: Signifier): Boolean =
         when (signifier) {
-            is Identifier -> identifierTable.containsKey(signifier)
+            is Identifier -> identifierTable.containsKey(signifier.name)
             is FunctionTypeLiteral -> signifier.formalParamTypes.all { exists(it) } && exists(signifier.returnType)
             is ParameterizedSignifier -> existsHere(signifier.tti) && signifier.args.all { exists(it) }
             is ImplicitTypeLiteral -> false
@@ -70,8 +70,8 @@ class SymbolTable(private val parent: Scope<Symbol>) : Scope<Symbol> {
     override fun fetch(signifier: Signifier): Symbol =
         when (signifier) {
             is Identifier -> {
-                if (identifierTable.containsKey(signifier)) {
-                    identifierTable[signifier]!!
+                if (identifierTable.containsKey(signifier.name)) {
+                    identifierTable[signifier.name]!!
                 } else {
                     parent.fetch(signifier)
                 }
@@ -116,8 +116,8 @@ class SymbolTable(private val parent: Scope<Symbol>) : Scope<Symbol> {
     override fun fetchHere(signifier: Signifier): Symbol =
         when (signifier) {
             is Identifier -> {
-                if (identifierTable.containsKey(signifier)) {
-                    identifierTable[signifier]!!
+                if (identifierTable.containsKey(signifier.name)) {
+                    identifierTable[signifier.name]!!
                 } else {
                     langThrow(signifier.ctx, IdentifierNotFound(signifier))
                 }

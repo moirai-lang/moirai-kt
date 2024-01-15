@@ -90,7 +90,7 @@ fun processAstAllPhases(
     existingArtifacts.forEach { artifact ->
         registerImports(artifact.processedAst, userScopes.imports)
         artifact.userScopes.userRoot.symbolTable.toMap().forEach { entry ->
-            userScopes.userRoot.define(entry.key, entry.value)
+            userScopes.userRoot.define(Identifier(NotInSource, entry.key), entry.value)
         }
     }
 

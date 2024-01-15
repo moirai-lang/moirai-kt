@@ -27,13 +27,13 @@ data object ErrorSymbol : Symbol(), Type
 
 class PreludeTable(
     override val parent: Scope<Symbol>,
-    private val scopeTable: MutableMap<Signifier, Scope<Symbol>> = HashMap()
+    private val scopeTable: MutableMap<String, Scope<Symbol>> = HashMap()
 ) : SymbolTableElement(), Scope<Symbol> {
-    fun register(signifier: Signifier, scope: Scope<Symbol>) {
-        if (scopeTable.containsKey(signifier)) {
-            langThrow(signifier.ctx, PreludeScopeAlreadyExists(signifier))
+    fun register(identifier: Identifier, scope: Scope<Symbol>) {
+        if (scopeTable.containsKey(identifier.name)) {
+            langThrow(identifier.ctx, PreludeScopeAlreadyExists(identifier))
         } else {
-            scopeTable[signifier] = scope
+            scopeTable[identifier.name] = scope
         }
     }
 
@@ -42,32 +42,32 @@ class PreludeTable(
     }
 
     override fun exists(signifier: Signifier): Boolean {
-        return if (scopeTable.containsKey(signifier)) {
-            scopeTable[signifier]!!.exists(signifier)
+        return if (signifier is Identifier && scopeTable.containsKey(signifier.name)) {
+            scopeTable[signifier.name]!!.exists(signifier)
         } else {
             parent.exists(signifier)
         }
     }
 
     override fun existsHere(signifier: Signifier): Boolean {
-        return if (scopeTable.containsKey(signifier)) {
-            scopeTable[signifier]!!.existsHere(signifier)
+        return if (signifier is Identifier && scopeTable.containsKey(signifier.name)) {
+            scopeTable[signifier.name]!!.existsHere(signifier)
         } else {
             parent.existsHere(signifier)
         }
     }
 
     override fun fetch(signifier: Signifier): Symbol {
-        return if (scopeTable.containsKey(signifier)) {
-            scopeTable[signifier]!!.fetch(signifier)
+        return if (signifier is Identifier && scopeTable.containsKey(signifier.name)) {
+            scopeTable[signifier.name]!!.fetch(signifier)
         } else {
             parent.fetch(signifier)
         }
     }
 
     override fun fetchHere(signifier: Signifier): Symbol {
-        return if (scopeTable.containsKey(signifier)) {
-            scopeTable[signifier]!!.fetchHere(signifier)
+        return if (signifier is Identifier && scopeTable.containsKey(signifier.name)) {
+            scopeTable[signifier.name]!!.fetchHere(signifier)
         } else {
             parent.fetchHere(signifier)
         }
@@ -76,17 +76,17 @@ class PreludeTable(
 
 class ImportTable(
     override val parent: Scope<Symbol>,
-    private val scopeTable: MutableMap<Signifier, MutableList<Scope<Symbol>>> = HashMap()
+    private val scopeTable: MutableMap<String, MutableList<Scope<Symbol>>> = HashMap()
 ) : SymbolTableElement(), Scope<Symbol> {
     fun addAll(other: ImportTable) {
         scopeTable.putAll(other.scopeTable)
     }
 
-    fun register(signifier: Signifier, scope: Scope<Symbol>) {
-        if (scopeTable.containsKey(signifier)) {
-            scopeTable[signifier]!!.add(scope)
+    fun register(identifier: Identifier, scope: Scope<Symbol>) {
+        if (scopeTable.containsKey(identifier.name)) {
+            scopeTable[identifier.name]!!.add(scope)
         } else {
-            scopeTable[signifier] = mutableListOf(scope)
+            scopeTable[identifier.name] = mutableListOf(scope)
         }
     }
 
@@ -95,8 +95,8 @@ class ImportTable(
     }
 
     override fun exists(signifier: Signifier): Boolean {
-        return if (scopeTable.containsKey(signifier)) {
-            val scopes = scopeTable[signifier]!!
+        return if (signifier is Identifier && scopeTable.containsKey(signifier.name)) {
+            val scopes = scopeTable[signifier.name]!!
             if (scopes.size > 1) {
                 langThrow(signifier.ctx, AmbiguousSymbol(signifier))
             }
@@ -107,8 +107,8 @@ class ImportTable(
     }
 
     override fun existsHere(signifier: Signifier): Boolean {
-        return if (scopeTable.containsKey(signifier)) {
-            val scopes = scopeTable[signifier]!!
+        return if (signifier is Identifier && scopeTable.containsKey(signifier.name)) {
+            val scopes = scopeTable[signifier.name]!!
             if (scopes.size > 1) {
                 langThrow(signifier.ctx, AmbiguousSymbol(signifier))
             }
@@ -119,8 +119,8 @@ class ImportTable(
     }
 
     override fun fetch(signifier: Signifier): Symbol {
-        return if (scopeTable.containsKey(signifier)) {
-            val scopes = scopeTable[signifier]!!
+        return if (signifier is Identifier && scopeTable.containsKey(signifier.name)) {
+            val scopes = scopeTable[signifier.name]!!
             if (scopes.size > 1) {
                 langThrow(signifier.ctx, AmbiguousSymbol(signifier))
             }
@@ -131,8 +131,8 @@ class ImportTable(
     }
 
     override fun fetchHere(signifier: Signifier): Symbol {
-        return if (scopeTable.containsKey(signifier)) {
-            val scopes = scopeTable[signifier]!!
+        return if (signifier is Identifier && scopeTable.containsKey(signifier.name)) {
+            val scopes = scopeTable[signifier.name]!!
             if (scopes.size > 1) {
                 langThrow(signifier.ctx, AmbiguousSymbol(signifier))
             }
@@ -154,7 +154,7 @@ sealed class NamespaceBase(
                     when (val existing = fetchHere(identifier)) {
                         is NamespaceBase -> {
                             definition.symbolTable.toMap().entries.forEach {
-                                existing.define(it.key, it.value)
+                                existing.define(Identifier(NotInSource, it.key), it.value)
                             }
                         }
                         else -> {
