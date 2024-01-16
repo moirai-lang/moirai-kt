@@ -167,8 +167,3 @@ fun enforceCostLimit(ast: FileAst, architecture: Architecture) {
         filterThrow(setOf(LanguageError(NotInSource, CostOverLimit)))
     }
 }
-
-fun registerImports(ast: FileAst, imports: ImportTable) {
-    val importVisitor = ImportSymbolsAstVisitor(imports)
-    ast.accept(importVisitor)
-}

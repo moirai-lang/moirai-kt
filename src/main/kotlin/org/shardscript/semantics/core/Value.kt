@@ -5,10 +5,6 @@ import java.math.BigDecimal
 
 sealed class Value
 
-class NamespaceValue(
-    val router: SymbolRouterValueTable
-) : Value()
-
 data object UnitValue : Value() {
     fun evalToString(): Value {
         return StringValue(Lang.unitId.name)
@@ -528,10 +524,6 @@ class SymbolRouterValueTable(private val prelude: Scope<Symbol>, private val sym
                     else -> ObjectValue(res)
                 }
             }
-            is Namespace -> {
-                val router = SymbolRouterValueTable(prelude, res)
-                NamespaceValue(router)
-            }
             else -> langThrow(signifier.ctx, IdentifierNotFound(signifier))
         }
 
@@ -555,10 +547,6 @@ class SymbolRouterValueTable(private val prelude: Scope<Symbol>, private val sym
                 else -> langThrow(signifier.ctx, IdentifierNotFound(signifier))
             }
             is ObjectSymbol -> ObjectValue(res)
-            is Namespace -> {
-                val router = SymbolRouterValueTable(prelude, res)
-                NamespaceValue(router)
-            }
             else -> langThrow(signifier.ctx, IdentifierNotFound(signifier))
         }
 }

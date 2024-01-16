@@ -3,15 +3,10 @@ package org.shardscript.semantics.workflow
 import org.shardscript.semantics.core.*
 import org.shardscript.semantics.prelude.Lang
 
-data class SystemScopes(
-    val prelude: Scope<Symbol>,
-    val systemRoot: SystemRootNamespace
-)
-
 data class UserScopes(
-    val systemScopes: SystemScopes,
-    val imports: ImportTable,
-    val userRoot: UserRootNamespace
+    val prelude: SymbolTable,
+    val imports: SymbolTable,
+    val userRoot: SymbolTable
 )
 
 data class SemanticArtifacts(
@@ -22,17 +17,12 @@ data class SemanticArtifacts(
     val sortedFunctions: SortResult<Symbol>
 )
 
-fun createSystemScopes(architecture: Architecture): SystemScopes {
+fun createUserScopes(architecture: Architecture): UserScopes {
     val prelude = SymbolTable(NullSymbolTable)
-    val root = SystemRootNamespace(prelude)
     Lang.initNamespace(architecture, prelude)
-    return SystemScopes(prelude, root)
-}
-
-fun createUserScopes(systemScopes: SystemScopes): UserScopes {
-    val imports = ImportTable(systemScopes.systemRoot, mutableMapOf())
-    val userRoot = UserRootNamespace(imports)
-    return UserScopes(systemScopes, imports, userRoot)
+    val imports = SymbolTable(prelude)
+    val userRoot = SymbolTable(imports)
+    return UserScopes(prelude, imports, userRoot)
 }
 
 fun topologicallySortAllArtifacts(
@@ -81,15 +71,13 @@ fun topologicallySortAllArtifacts(
 }
 
 fun processAstAllPhases(
-    systemScopes: SystemScopes,
     ast: FileAst,
     architecture: Architecture,
     existingArtifacts: List<SemanticArtifacts>
 ): SemanticArtifacts {
-    val userScopes = createUserScopes(systemScopes)
+    val userScopes = createUserScopes(architecture)
     existingArtifacts.forEach { artifact ->
-        registerImports(artifact.processedAst, userScopes.imports)
-        artifact.userScopes.userRoot.symbolTable.toMap().forEach { entry ->
+        artifact.userScopes.userRoot.toMap().forEach { entry ->
             userScopes.userRoot.define(Identifier(NotInSource, entry.key), entry.value)
         }
     }
@@ -101,8 +89,8 @@ fun processAstAllPhases(
     val sortedRecords = simpleRecursiveRecordDetection(ast)
     recordScan(ast)
     functionScan(ast)
-    propagateTypes(ast, systemScopes.prelude)
-    checkTypes(ast, systemScopes.prelude)
+    propagateTypes(ast, userScopes.prelude)
+    checkTypes(ast, userScopes.prelude)
     bans(ast)
     calculateCostMultipliers(ast, architecture)
 

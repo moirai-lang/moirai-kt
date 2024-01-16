@@ -87,9 +87,6 @@ class EvalAstVisitor(private val globalScope: ValueTable) : ParameterizedAstVisi
             is StringValue -> {
                 (ast.symbolRef as PlatformFieldSymbol).accessor(lhs)
             }
-            is NamespaceValue -> {
-                lhs.router.fetchHere(ast.identifier)
-            }
             else -> {
                 langThrow(ast.ctx, TypeSystemBug)
             }
@@ -131,57 +128,19 @@ class EvalAstVisitor(private val globalScope: ValueTable) : ParameterizedAstVisi
     override fun visit(ast: DotApplyAst, param: ValueTable): Value {
         val args = ast.args.map { it.accept(this, param) }
         try {
-            when (val lhs = ast.lhs.accept(this, param)) {
-                is NamespaceValue -> {
-                    return when (val toApply = lhs.router.fetchHere(ast.tti)) {
-                        is RecordConstructorValue -> {
-                            toApply.apply(args)
-                        }
-                        is PluginValue -> {
-                            toApply.invoke(args)
-                        }
-                        else -> {
-                            langThrow(ast.ctx, TypeSystemBug)
-                        }
-                    }
+            val lhs = ast.lhs.accept(this, param)
+            when (val toApply = ast.symbolRef) {
+                is GroundMemberPluginSymbol -> {
+                    return toApply.invoke(lhs, args)
                 }
-                else -> {
-                    when (val toApply = ast.symbolRef) {
-                        is GroundMemberPluginSymbol -> {
-                            return toApply.invoke(lhs, args)
-                        }
-                        is SymbolInstantiation -> {
-                            when (val parameterizedType = toApply.substitutionChain.originalSymbol) {
-                                is ParameterizedFunctionSymbol -> {
-                                    when (lhs) {
-                                        is RecordValue -> {
-                                            val functionScope = ValueTable(lhs.fields)
-                                            val function = parameterizedType.body
-                                            parameterizedType.formalParams.zip(args).forEach {
-                                                functionScope.define(it.first.identifier, it.second)
-                                            }
-                                            return function.accept(this, functionScope)
-                                        }
-                                        else -> {
-                                            langThrow(ast.ctx, TypeSystemBug)
-                                        }
-                                    }
-                                }
-                                is ParameterizedMemberPluginSymbol -> {
-                                    return parameterizedType.invoke(lhs, args)
-                                }
-                                else -> langThrow(ast.ctx, TypeSystemBug)
-                            }
-                        }
-                        is ParameterizedStaticPluginSymbol -> {
-                            langThrow(ast.ctx, TypeSystemBug)
-                        }
-                        is GroundFunctionSymbol -> {
+                is SymbolInstantiation -> {
+                    when (val parameterizedType = toApply.substitutionChain.originalSymbol) {
+                        is ParameterizedFunctionSymbol -> {
                             when (lhs) {
                                 is RecordValue -> {
                                     val functionScope = ValueTable(lhs.fields)
-                                    val function = toApply.body
-                                    toApply.formalParams.zip(args).forEach {
+                                    val function = parameterizedType.body
+                                    parameterizedType.formalParams.zip(args).forEach {
                                         functionScope.define(it.first.identifier, it.second)
                                     }
                                     return function.accept(this, functionScope)
@@ -191,10 +150,32 @@ class EvalAstVisitor(private val globalScope: ValueTable) : ParameterizedAstVisi
                                 }
                             }
                         }
+                        is ParameterizedMemberPluginSymbol -> {
+                            return parameterizedType.invoke(lhs, args)
+                        }
+                        else -> langThrow(ast.ctx, TypeSystemBug)
+                    }
+                }
+                is ParameterizedStaticPluginSymbol -> {
+                    langThrow(ast.ctx, TypeSystemBug)
+                }
+                is GroundFunctionSymbol -> {
+                    when (lhs) {
+                        is RecordValue -> {
+                            val functionScope = ValueTable(lhs.fields)
+                            val function = toApply.body
+                            toApply.formalParams.zip(args).forEach {
+                                functionScope.define(it.first.identifier, it.second)
+                            }
+                            return function.accept(this, functionScope)
+                        }
                         else -> {
                             langThrow(ast.ctx, TypeSystemBug)
                         }
                     }
+                }
+                else -> {
+                    langThrow(ast.ctx, TypeSystemBug)
                 }
             }
         } catch (ex: ArithmeticException) {

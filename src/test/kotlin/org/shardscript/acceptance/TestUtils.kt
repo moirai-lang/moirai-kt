@@ -5,7 +5,6 @@ import org.shardscript.composition.LocalSourceStore
 import org.shardscript.composition.SourceStore
 import org.shardscript.eval.EvalAstVisitor
 import org.shardscript.semantics.core.*
-import org.shardscript.semantics.workflow.createSystemScopes
 import java.math.BigDecimal
 import org.junit.jupiter.api.Assertions
 
@@ -29,10 +28,9 @@ fun eval(
 ): Value {
     val frontend = CompilerFrontend(architecture, sourceStore)
 
-    val systemScopes = createSystemScopes(architecture)
-    val executionArtifacts = frontend.compile(source, systemScopes)
+    val executionArtifacts = frontend.compile(source)
 
-    val prelude = executionArtifacts.semanticArtifacts.userScopes.systemScopes.prelude
+    val prelude = executionArtifacts.semanticArtifacts.userScopes.prelude
 
     val router = SymbolRouterValueTable(
         prelude,
