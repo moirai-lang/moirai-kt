@@ -6,7 +6,7 @@ import org.shardscript.semantics.prelude.Lang
 data class UserScopes(
     val prelude: SymbolTable,
     val imports: SymbolTable,
-    val userRoot: SymbolTable
+    val exports: SymbolTable
 )
 
 data class SemanticArtifacts(
@@ -77,12 +77,12 @@ fun processAstAllPhases(
 ): SemanticArtifacts {
     val userScopes = createUserScopes(architecture)
     existingArtifacts.forEach { artifact ->
-        artifact.userScopes.userRoot.toMap().forEach { entry ->
-            userScopes.userRoot.define(Identifier(NotInSource, entry.key), entry.value)
+        artifact.userScopes.exports.toMap().forEach { entry ->
+            userScopes.imports.define(Identifier(NotInSource, entry.key), entry.value)
         }
     }
 
-    val fileScope = SymbolTable(userScopes.userRoot)
+    val fileScope = SymbolTable(userScopes.imports)
 
     bindScopes(ast, fileScope, architecture)
     parameterScan(ast)
@@ -93,6 +93,19 @@ fun processAstAllPhases(
     checkTypes(ast, userScopes.prelude)
     bans(ast)
     calculateCostMultipliers(ast, architecture)
+
+    // By default, records, objects, and functions are exported
+    fileScope.toMap().forEach { kvp ->
+        when (kvp.value) {
+            is ObjectSymbol,
+            is GroundFunctionSymbol,
+            is ParameterizedFunctionSymbol,
+            is GroundRecordTypeSymbol,
+            is ParameterizedRecordTypeSymbol -> userScopes.exports.define(Identifier(NotInSource, kvp.key), kvp.value)
+
+            else -> Unit
+        }
+    }
 
     val sortedFunctions = sortFunctions(ast)
     sortedFunctions.sorted.forEach { calculateCost(it, architecture) }

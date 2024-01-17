@@ -4,6 +4,7 @@ import org.shardscript.semantics.core.AmbiguousSymbol
 import org.shardscript.semantics.core.DuplicateImport
 import org.shardscript.semantics.core.IdentifierNotFound
 import org.junit.jupiter.api.Test
+import org.shardscript.semantics.core.IdentifierAlreadyExists
 
 class ImportErrorTests {
     @Test
@@ -32,7 +33,7 @@ class ImportErrorTests {
             duplicateFunction(3, 4)
         """.trimIndent(), 1
         ) {
-            it.error is AmbiguousSymbol
+            it.error is IdentifierAlreadyExists
         }
     }
 
