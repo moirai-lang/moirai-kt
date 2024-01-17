@@ -14,8 +14,7 @@ class CompilerFrontend(
     private val sourceStore: SourceStore
 ) {
     fun compile(
-        contents: String,
-        systemScopes: SystemScopes
+        contents: String
     ): ExecutionArtifacts {
         val importFanOut = preScanImportFanOut(sourceStore, contents)
         val errors = LanguageErrors()
@@ -27,7 +26,6 @@ class CompilerFrontend(
             val rawAst = astParseTreeVisitor.visit(res.parseTree) as FileAst
 
             val artifacts = processAstAllPhases(
-                systemScopes,
                 rawAst,
                 architecture,
                 listOf()
@@ -61,7 +59,6 @@ class CompilerFrontend(
             val scriptType = importScan.scriptType as NamedScriptType
 
             val artifacts = processAstAllPhases(
-                systemScopes,
                 rawAst,
                 architecture,
                 existingArtifacts

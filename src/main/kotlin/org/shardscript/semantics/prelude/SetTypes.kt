@@ -110,7 +110,6 @@ fun createToImmutableSetPlugin(
 }
 
 fun setCollectionType(
-    architecture: Architecture,
     langNS: Scope<Symbol>,
     booleanType: BasicTypeSymbol,
     intType: BasicTypeSymbol
@@ -131,7 +130,7 @@ fun setCollectionType(
     }
 
     createContainsFunction(
-        FinTypeSymbol(architecture.defaultNodeCost),
+        ConstantFinTypeSymbol,
         setType,
         booleanType,
         setElementTypeParam
@@ -156,7 +155,6 @@ fun setCollectionType(
 }
 
 fun mutableSetCollectionType(
-    architecture: Architecture,
     langNS: Scope<Symbol>,
     booleanType: BasicTypeSymbol,
     intType: BasicTypeSymbol,
@@ -185,7 +183,7 @@ fun mutableSetCollectionType(
         }
     }
 
-    val constantFin = FinTypeSymbol(architecture.defaultNodeCost)
+    val constantFin = ConstantFinTypeSymbol
 
     createContainsFunction(
         constantFin,

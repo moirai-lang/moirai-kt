@@ -136,7 +136,6 @@ fun createToImmutableListPlugin(
 }
 
 fun listCollectionType(
-    architecture: Architecture,
     langNS: Scope<Symbol>,
     intType: BasicTypeSymbol,
     booleanType: BasicTypeSymbol
@@ -156,7 +155,7 @@ fun listCollectionType(
         ImmutableBasicTypeMode
     }
     createGetFunction(
-        FinTypeSymbol(architecture.defaultNodeCost),
+        ConstantFinTypeSymbol,
         listType,
         intType,
         listElementTypeParam
@@ -181,7 +180,6 @@ fun listCollectionType(
 }
 
 fun mutableListCollectionType(
-    architecture: Architecture,
     langNS: Scope<Symbol>,
     intType: BasicTypeSymbol,
     unitType: ObjectSymbol,
@@ -210,7 +208,7 @@ fun mutableListCollectionType(
         }
     }
 
-    val constantFin = FinTypeSymbol(architecture.defaultNodeCost)
+    val constantFin = ConstantFinTypeSymbol
     createGetFunction(
         constantFin,
         mutableListType,

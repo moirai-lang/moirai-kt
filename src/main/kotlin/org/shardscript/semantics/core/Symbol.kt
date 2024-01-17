@@ -1,7 +1,6 @@
 package org.shardscript.semantics.core
 
 import org.shardscript.semantics.infer.SubstitutionChain
-import org.shardscript.semantics.prelude.Lang
 
 /**
  * Core Primitives
@@ -24,117 +23,6 @@ sealed class NamedSymbolWithMembers(
 ): NamedSymbolTableElement(), Scope<Symbol> by symbolTable
 
 data object ErrorSymbol : Symbol(), Type
-
-class ImportTable(
-    override val parent: Scope<Symbol>,
-    private val scopeTable: MutableMap<String, MutableList<Scope<Symbol>>> = HashMap()
-) : SymbolTableElement(), Scope<Symbol> {
-    fun addAll(other: ImportTable) {
-        scopeTable.putAll(other.scopeTable)
-    }
-
-    fun register(identifier: Identifier, scope: Scope<Symbol>) {
-        if (scopeTable.containsKey(identifier.name)) {
-            scopeTable[identifier.name]!!.add(scope)
-        } else {
-            scopeTable[identifier.name] = mutableListOf(scope)
-        }
-    }
-
-    override fun define(identifier: Identifier, definition: Symbol) {
-        parent.define(identifier, definition)
-    }
-
-    override fun exists(signifier: Signifier): Boolean {
-        return if (signifier is Identifier && scopeTable.containsKey(signifier.name)) {
-            val scopes = scopeTable[signifier.name]!!
-            if (scopes.size > 1) {
-                langThrow(signifier.ctx, AmbiguousSymbol(signifier))
-            }
-            scopes.first().exists(signifier)
-        } else {
-            parent.exists(signifier)
-        }
-    }
-
-    override fun existsHere(signifier: Signifier): Boolean {
-        return if (signifier is Identifier && scopeTable.containsKey(signifier.name)) {
-            val scopes = scopeTable[signifier.name]!!
-            if (scopes.size > 1) {
-                langThrow(signifier.ctx, AmbiguousSymbol(signifier))
-            }
-            scopes.first().existsHere(signifier)
-        } else {
-            parent.existsHere(signifier)
-        }
-    }
-
-    override fun fetch(signifier: Signifier): Symbol {
-        return if (signifier is Identifier && scopeTable.containsKey(signifier.name)) {
-            val scopes = scopeTable[signifier.name]!!
-            if (scopes.size > 1) {
-                langThrow(signifier.ctx, AmbiguousSymbol(signifier))
-            }
-            scopes.first().fetch(signifier)
-        } else {
-            parent.fetch(signifier)
-        }
-    }
-
-    override fun fetchHere(signifier: Signifier): Symbol {
-        return if (signifier is Identifier && scopeTable.containsKey(signifier.name)) {
-            val scopes = scopeTable[signifier.name]!!
-            if (scopes.size > 1) {
-                langThrow(signifier.ctx, AmbiguousSymbol(signifier))
-            }
-            scopes.first().fetchHere(signifier)
-        } else {
-            parent.fetchHere(signifier)
-        }
-    }
-}
-
-sealed class NamespaceBase(
-    override val parent: Scope<Symbol>,
-    val symbolTable: SymbolTable = SymbolTable(parent)
-) : SymbolTableElement(), Scope<Symbol> by symbolTable {
-    override fun define(identifier: Identifier, definition: Symbol) {
-        when (definition) {
-            is NamespaceBase -> {
-                if (existsHere(identifier)) {
-                    when (val existing = fetchHere(identifier)) {
-                        is NamespaceBase -> {
-                            definition.symbolTable.toMap().entries.forEach {
-                                existing.define(Identifier(NotInSource, it.key), it.value)
-                            }
-                        }
-                        else -> {
-                            symbolTable.define(identifier, definition)
-                        }
-                    }
-                } else {
-                    symbolTable.define(identifier, definition)
-                }
-            }
-            else -> {
-                symbolTable.define(identifier, definition)
-            }
-        }
-    }
-}
-
-data class SystemRootNamespace(
-    override val parent: Scope<Symbol>
-) : NamespaceBase(parent)
-
-data class UserRootNamespace(
-    override val parent: Scope<Symbol>
-) : NamespaceBase(parent)
-
-data class Namespace(
-    override val parent: Scope<Symbol>,
-    val identifier: Identifier
-) : NamespaceBase(parent)
 
 data class Block(
     override val parent: Scope<Symbol>,
@@ -193,6 +81,12 @@ data class MutableFinTypeParameter(
 }
 
 data class FinTypeSymbol(val magnitude: Long) : Symbol(), CostExpression, Type {
+    override fun <R> accept(visitor: CostExpressionVisitor<R>): R {
+        return visitor.visit(this)
+    }
+}
+
+data object ConstantFinTypeSymbol : Symbol(), CostExpression, Type {
     override fun <R> accept(visitor: CostExpressionVisitor<R>): R {
         return visitor.visit(this)
     }

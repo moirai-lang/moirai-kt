@@ -3,15 +3,10 @@ package org.shardscript.semantics.workflow
 import org.shardscript.semantics.core.*
 import org.shardscript.semantics.prelude.Lang
 
-data class SystemScopes(
-    val prelude: Scope<Symbol>,
-    val systemRoot: SystemRootNamespace
-)
-
 data class UserScopes(
-    val systemScopes: SystemScopes,
-    val imports: ImportTable,
-    val userRoot: UserRootNamespace
+    val prelude: SymbolTable,
+    val imports: SymbolTable,
+    val exports: SymbolTable
 )
 
 data class SemanticArtifacts(
@@ -22,17 +17,10 @@ data class SemanticArtifacts(
     val sortedFunctions: SortResult<Symbol>
 )
 
-fun createSystemScopes(architecture: Architecture): SystemScopes {
-    val prelude = SymbolTable(NullSymbolTable)
-    val root = SystemRootNamespace(prelude)
-    Lang.initNamespace(architecture, prelude)
-    return SystemScopes(prelude, root)
-}
-
-fun createUserScopes(systemScopes: SystemScopes): UserScopes {
-    val imports = ImportTable(systemScopes.systemRoot, mutableMapOf())
-    val userRoot = UserRootNamespace(imports)
-    return UserScopes(systemScopes, imports, userRoot)
+fun createUserScopes(): UserScopes {
+    val imports = SymbolTable(Lang.prelude)
+    val userRoot = SymbolTable(imports)
+    return UserScopes(Lang.prelude, imports, userRoot)
 }
 
 fun topologicallySortAllArtifacts(
@@ -81,30 +69,41 @@ fun topologicallySortAllArtifacts(
 }
 
 fun processAstAllPhases(
-    systemScopes: SystemScopes,
     ast: FileAst,
     architecture: Architecture,
     existingArtifacts: List<SemanticArtifacts>
 ): SemanticArtifacts {
-    val userScopes = createUserScopes(systemScopes)
+    val userScopes = createUserScopes()
     existingArtifacts.forEach { artifact ->
-        registerImports(artifact.processedAst, userScopes.imports)
-        artifact.userScopes.userRoot.symbolTable.toMap().forEach { entry ->
-            userScopes.userRoot.define(Identifier(NotInSource, entry.key), entry.value)
+        artifact.userScopes.exports.toMap().forEach { entry ->
+            userScopes.imports.define(Identifier(NotInSource, entry.key), entry.value)
         }
     }
 
-    val fileScope = SymbolTable(userScopes.userRoot)
+    val fileScope = SymbolTable(userScopes.imports)
 
     bindScopes(ast, fileScope, architecture)
     parameterScan(ast)
     val sortedRecords = simpleRecursiveRecordDetection(ast)
     recordScan(ast)
     functionScan(ast)
-    propagateTypes(ast, systemScopes.prelude)
-    checkTypes(ast, systemScopes.prelude)
+    propagateTypes(ast, userScopes.prelude)
+    checkTypes(ast, userScopes.prelude)
     bans(ast)
     calculateCostMultipliers(ast, architecture)
+
+    // By default, records, objects, and functions are exported
+    fileScope.toMap().forEach { kvp ->
+        when (kvp.value) {
+            is ObjectSymbol,
+            is GroundFunctionSymbol,
+            is ParameterizedFunctionSymbol,
+            is GroundRecordTypeSymbol,
+            is ParameterizedRecordTypeSymbol -> userScopes.exports.define(Identifier(NotInSource, kvp.key), kvp.value)
+
+            else -> Unit
+        }
+    }
 
     val sortedFunctions = sortFunctions(ast)
     sortedFunctions.sorted.forEach { calculateCost(it, architecture) }

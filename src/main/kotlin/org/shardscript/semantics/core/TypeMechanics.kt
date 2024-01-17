@@ -31,6 +31,7 @@ fun filterValidTypes(ctx: SourceContext, errors: LanguageErrors, type: Type): Ty
         }
 
         is FinTypeSymbol,
+        is ConstantFinTypeSymbol,
         is ImmutableFinTypeParameter,
         is MutableFinTypeParameter -> {
             errors.add(ctx, ExpectOtherError)
@@ -86,20 +87,17 @@ fun filterValidGroundApply(
         is FunctionTypeSymbol,
         is ParameterizedMemberPluginSymbol,
         is FinTypeSymbol,
+        is ConstantFinTypeSymbol,
         is ImmutableFinTypeParameter,
         is MutableFinTypeParameter,
         is GroundMemberPluginSymbol,
         is BasicTypeSymbol,
         is ObjectSymbol,
         is StandardTypeParameter,
-        is Namespace,
-        is SystemRootNamespace,
-        is UserRootNamespace,
         is Block,
         is SumCostExpression,
         is ProductCostExpression,
         is MaxCostExpression,
-        is ImportTable,
         is FieldSymbol,
         is PlatformFieldSymbol,
         is LambdaSymbol,
@@ -141,19 +139,16 @@ fun filterValidDotApply(
         is FunctionTypeSymbol,
         is ParameterizedMemberPluginSymbol,
         is FinTypeSymbol,
+        is ConstantFinTypeSymbol,
         is ImmutableFinTypeParameter,
         is MutableFinTypeParameter,
         is BasicTypeSymbol,
         is ObjectSymbol,
         is StandardTypeParameter,
-        is Namespace,
-        is SystemRootNamespace,
-        is UserRootNamespace,
         is Block,
         is SumCostExpression,
         is ProductCostExpression,
         is MaxCostExpression,
-        is ImportTable,
         is FunctionFormalParameterSymbol,
         is FieldSymbol,
         is PlatformFieldSymbol,
@@ -223,12 +218,6 @@ fun inlineGeneratePath(symbol: Symbol, path: MutableList<String>) {
             path.add(symbol.identifier.name)
         }
         is ParameterizedStaticPluginSymbol -> {
-            if (symbol.parent is Symbol) {
-                inlineGeneratePath(symbol.parent, path)
-            }
-            path.add(symbol.identifier.name)
-        }
-        is Namespace -> {
             if (symbol.parent is Symbol) {
                 inlineGeneratePath(symbol.parent, path)
             }
