@@ -84,6 +84,12 @@ object Lang {
         intId
     )
 
+    // Char
+    val charType = BasicTypeSymbol(
+        prelude,
+        charId
+    )
+
     // Decimal
     val decimalType = decimalType(decimalId, booleanType, prelude)
 
@@ -91,27 +97,21 @@ object Lang {
         IntegerMathOpMembers.members().forEach { (name, plugin) ->
             intType.define(Identifier(NotInSource, name), plugin)
         }
-        IntegerOrderOpMembers.members(intType, ConstantFinTypeSymbol, booleanType).forEach { (name, plugin) ->
+        IntegerOrderOpMembers.members().forEach { (name, plugin) ->
             intType.define(Identifier(NotInSource, name), plugin)
         }
-        ValueEqualityOpMembers.members(intType, ConstantFinTypeSymbol, booleanType).forEach { (name, plugin) ->
+        IntegerEqualityOpMembers.members().forEach { (name, plugin) ->
             intType.define(Identifier(NotInSource, name), plugin)
         }
 
-        ValueEqualityOpMembers.members(booleanType, ConstantFinTypeSymbol, booleanType).forEach { (name, plugin) ->
+        BooleanEqualityOpMembers.members().forEach { (name, plugin) ->
+            booleanType.define(Identifier(NotInSource, name), plugin)
+        }
+        ValueLogicalOpMembers.members().forEach { (name, plugin) ->
             booleanType.define(Identifier(NotInSource, name), plugin)
         }
 
-        ValueLogicalOpMembers.members(booleanType, ConstantFinTypeSymbol).forEach { (name, plugin) ->
-            booleanType.define(Identifier(NotInSource, name), plugin)
-        }
-
-        // Char
-        val charType = BasicTypeSymbol(
-            prelude,
-            charId
-        )
-        ValueEqualityOpMembers.members(charType, ConstantFinTypeSymbol, charType).forEach { (name, plugin) ->
+        CharEqualityOpMembers.members().forEach { (name, plugin) ->
             charType.define(Identifier(NotInSource, name), plugin)
         }
 
