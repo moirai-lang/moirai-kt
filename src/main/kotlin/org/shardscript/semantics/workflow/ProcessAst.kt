@@ -17,12 +17,10 @@ data class SemanticArtifacts(
     val sortedFunctions: SortResult<Symbol>
 )
 
-fun createUserScopes(architecture: Architecture): UserScopes {
-    val prelude = SymbolTable(NullSymbolTable)
-    Lang.initNamespace(architecture, prelude)
-    val imports = SymbolTable(prelude)
+fun createUserScopes(): UserScopes {
+    val imports = SymbolTable(Lang.prelude)
     val userRoot = SymbolTable(imports)
-    return UserScopes(prelude, imports, userRoot)
+    return UserScopes(Lang.prelude, imports, userRoot)
 }
 
 fun topologicallySortAllArtifacts(
@@ -75,7 +73,7 @@ fun processAstAllPhases(
     architecture: Architecture,
     existingArtifacts: List<SemanticArtifacts>
 ): SemanticArtifacts {
-    val userScopes = createUserScopes(architecture)
+    val userScopes = createUserScopes()
     existingArtifacts.forEach { artifact ->
         artifact.userScopes.exports.toMap().forEach { entry ->
             userScopes.imports.define(Identifier(NotInSource, entry.key), entry.value)

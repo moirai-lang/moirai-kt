@@ -31,6 +31,7 @@ fun filterValidTypes(ctx: SourceContext, errors: LanguageErrors, type: Type): Ty
         }
 
         is FinTypeSymbol,
+        is ConstantFinTypeSymbol,
         is ImmutableFinTypeParameter,
         is MutableFinTypeParameter -> {
             errors.add(ctx, ExpectOtherError)
@@ -86,6 +87,7 @@ fun filterValidGroundApply(
         is FunctionTypeSymbol,
         is ParameterizedMemberPluginSymbol,
         is FinTypeSymbol,
+        is ConstantFinTypeSymbol,
         is ImmutableFinTypeParameter,
         is MutableFinTypeParameter,
         is GroundMemberPluginSymbol,
@@ -137,6 +139,7 @@ fun filterValidDotApply(
         is FunctionTypeSymbol,
         is ParameterizedMemberPluginSymbol,
         is FinTypeSymbol,
+        is ConstantFinTypeSymbol,
         is ImmutableFinTypeParameter,
         is MutableFinTypeParameter,
         is BasicTypeSymbol,

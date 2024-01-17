@@ -10,6 +10,7 @@ interface CostExpressionVisitor<R> {
     fun visit(costExpression: ImmutableFinTypeParameter): R
     fun visit(costExpression: MutableFinTypeParameter): R
     fun visit(costExpression: FinTypeSymbol): R
+    fun visit(costExpression: ConstantFinTypeSymbol): R
     fun visit(costExpression: SumCostExpression): R
     fun visit(costExpression: ProductCostExpression): R
     fun visit(costExpression: MaxCostExpression): R
@@ -35,6 +36,10 @@ class EvalCostExpressionVisitor(val architecture: Architecture): CostExpressionV
             langThrow(NegativeFin)
         }
         return costExpression.magnitude
+    }
+
+    override fun visit(costExpression: ConstantFinTypeSymbol): Long {
+        return architecture.defaultNodeCost
     }
 
     override fun visit(costExpression: SumCostExpression): Long {
@@ -114,6 +119,10 @@ object CanEvalCostExpressionVisitor: CostExpressionVisitor<Boolean> {
         return true
     }
 
+    override fun visit(costExpression: ConstantFinTypeSymbol): Boolean {
+        return true
+    }
+
     override fun visit(costExpression: SumCostExpression): Boolean {
         return costExpression.children.all { it.accept(this) }
     }
@@ -137,6 +146,8 @@ object ValidateCostExpressionVisitor: CostExpressionVisitor<Unit> {
     }
 
     override fun visit(costExpression: FinTypeSymbol) = Unit
+
+    override fun visit(costExpression: ConstantFinTypeSymbol) = Unit
 
     override fun visit(costExpression: SumCostExpression) {
         costExpression.children.forEach { it.accept(this) }

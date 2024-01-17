@@ -88,6 +88,7 @@ class Substitution(
                 res
             }
             is FinTypeSymbol -> costExpression
+            is ConstantFinTypeSymbol -> costExpression
             is SumCostExpression -> SumCostExpression(costExpression.children.map { applyCost(it) })
             is ProductCostExpression -> ProductCostExpression(costExpression.children.map { applyCost(it) })
             is MaxCostExpression -> MaxCostExpression(costExpression.children.map { applyCost(it) })

@@ -3,6 +3,8 @@ package org.shardscript.semantics.prelude
 import org.shardscript.semantics.core.*
 
 object Lang {
+    val prelude = SymbolTable(NullSymbolTable)
+
     val unitId = Identifier(NotInSource, "Unit")
     val booleanId = Identifier(NotInSource, "Boolean")
     val intId = Identifier(NotInSource, "Int")
@@ -69,7 +71,7 @@ object Lang {
             else -> false
         }
 
-    fun initNamespace(architecture: Architecture, prelude: Scope<Symbol>) {
+    init {
         // Unit
         val unitObject = ObjectSymbol(
             prelude,
@@ -82,7 +84,7 @@ object Lang {
             prelude,
             booleanId
         )
-        val constantFin = FinTypeSymbol(architecture.defaultNodeCost)
+        val constantFin = ConstantFinTypeSymbol
         ValueEqualityOpMembers.members(booleanType, constantFin, booleanType).forEach { (name, plugin) ->
             booleanType.define(Identifier(NotInSource, name), plugin)
         }
@@ -92,7 +94,7 @@ object Lang {
         }
 
         // Integer
-        val intType = intType(architecture, intId, booleanType, prelude, setOf())
+        val intType = intType(intId, booleanType, prelude, setOf())
 
         // Decimal
         val decimalType = decimalType(decimalId, booleanType, prelude)
@@ -107,11 +109,11 @@ object Lang {
         }
 
         // List
-        val listType = listCollectionType(architecture, prelude, intType, booleanType)
+        val listType = listCollectionType(prelude, intType, booleanType)
 
         // MutableList
         val mutableListType =
-            mutableListCollectionType(architecture, prelude, intType, unitObject, booleanType, listType)
+            mutableListCollectionType(prelude, intType, unitObject, booleanType, listType)
 
         // String
         val stringType = stringType(booleanType, intType, charType, listType, prelude)
@@ -140,12 +142,11 @@ object Lang {
         pairType.define(pairSecondId, pairSecondField)
 
         // Dictionary
-        val dictionaryType = dictionaryCollectionType(architecture, prelude, booleanType, intType, pairType)
+        val dictionaryType = dictionaryCollectionType(prelude, booleanType, intType, pairType)
 
         // MutableDictionary
         val mutableDictionaryType =
             mutableDictionaryCollectionType(
-                architecture,
                 prelude,
                 booleanType,
                 intType,
@@ -155,10 +156,10 @@ object Lang {
             )
 
         // Set
-        val setType = setCollectionType(architecture, prelude, booleanType, intType)
+        val setType = setCollectionType(prelude, booleanType, intType)
 
         // MutableSet
-        val mutableSetType = mutableSetCollectionType(architecture, prelude, booleanType, intType, unitObject, setType)
+        val mutableSetType = mutableSetCollectionType(prelude, booleanType, intType, unitObject, setType)
 
         // Static
         val rangePlugin = createRangePlugin(prelude, intType, listType)

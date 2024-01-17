@@ -181,6 +181,7 @@ fun constrainCost(
 ): List<Constraint<TypeParameter, Type>> =
     when (expected) {
         is FinTypeSymbol -> listOf()
+        is ConstantFinTypeSymbol -> listOf()
         is ImmutableFinTypeParameter -> if (typeParams.contains(expected)) {
             listOf(
                 Constraint(

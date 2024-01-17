@@ -4,7 +4,6 @@ import org.shardscript.semantics.core.*
 import org.shardscript.semantics.infer.DecimalInstantiation
 
 fun intType(
-    architecture: Architecture,
     numericId: Identifier,
     booleanType: BasicTypeSymbol,
     langNS: Scope<Symbol>,
@@ -14,7 +13,7 @@ fun intType(
         langNS,
         numericId
     )
-    val constantFin = FinTypeSymbol(architecture.defaultNodeCost)
+    val constantFin = ConstantFinTypeSymbol
     IntegerMathOpMembers.members(intType, constantFin).forEach { (name, plugin) ->
         if (!filters.contains(name)) {
             intType.define(Identifier(NotInSource, name), plugin)

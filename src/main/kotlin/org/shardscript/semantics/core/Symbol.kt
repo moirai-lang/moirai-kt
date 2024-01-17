@@ -86,6 +86,12 @@ data class FinTypeSymbol(val magnitude: Long) : Symbol(), CostExpression, Type {
     }
 }
 
+data object ConstantFinTypeSymbol : Symbol(), CostExpression, Type {
+    override fun <R> accept(visitor: CostExpressionVisitor<R>): R {
+        return visitor.visit(this)
+    }
+}
+
 data class SumCostExpression(val children: List<CostExpression>) : Symbol(), CostExpression {
     override fun <R> accept(visitor: CostExpressionVisitor<R>): R {
         return visitor.visit(this)

@@ -141,7 +141,6 @@ fun createToImmutableDictionaryPlugin(
 }
 
 fun dictionaryCollectionType(
-    architecture: Architecture,
     langNS: Scope<Symbol>,
     booleanType: BasicTypeSymbol,
     intType: BasicTypeSymbol,
@@ -165,14 +164,14 @@ fun dictionaryCollectionType(
     }
 
     createGetFunction(
-        FinTypeSymbol(architecture.defaultNodeCost),
+        ConstantFinTypeSymbol,
         dictionaryType,
         dictionaryKeyTypeParam,
         dictionaryValueTypeParam
     )
 
     createContainsFunction(
-        FinTypeSymbol(architecture.defaultNodeCost),
+        ConstantFinTypeSymbol,
         dictionaryType,
         dictionaryKeyTypeParam,
         booleanType
@@ -209,7 +208,6 @@ fun dictionaryCollectionType(
 }
 
 fun mutableDictionaryCollectionType(
-    architecture: Architecture,
     langNS: Scope<Symbol>,
     booleanType: BasicTypeSymbol,
     intType: BasicTypeSymbol,
@@ -244,7 +242,7 @@ fun mutableDictionaryCollectionType(
         }
     }
 
-    val constantFin = FinTypeSymbol(architecture.defaultNodeCost)
+    val constantFin = ConstantFinTypeSymbol
     createGetFunction(
         constantFin,
         mutableDictionaryType,
@@ -253,7 +251,7 @@ fun mutableDictionaryCollectionType(
     )
 
     createContainsFunction(
-        FinTypeSymbol(architecture.defaultNodeCost),
+        ConstantFinTypeSymbol,
         mutableDictionaryType,
         mutableDictionaryKeyTypeParam,
         booleanType
