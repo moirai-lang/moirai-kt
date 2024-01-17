@@ -1,6 +1,5 @@
 package org.shardscript.acceptance
 
-import org.shardscript.semantics.core.AmbiguousSymbol
 import org.shardscript.semantics.core.DuplicateImport
 import org.shardscript.semantics.core.IdentifierNotFound
 import org.junit.jupiter.api.Test

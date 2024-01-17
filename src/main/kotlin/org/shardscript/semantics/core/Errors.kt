@@ -30,7 +30,6 @@ data class ImpossibleState(val msg: String) : ErrorType()
 // Define errors
 data class IdentifierCouldNotBeDefined(val identifier: Identifier) : ErrorType()
 data class IdentifierAlreadyExists(val identifier: Identifier) : ErrorType()
-data class SystemReservedNamespace(val identifier: Identifier) : ErrorType()
 
 // Fetch errors
 data class IdentifierNotFound(val signifier: Signifier) : ErrorType()
@@ -78,8 +77,6 @@ data object InvalidCostUpperLimit: ErrorType()
 data class SymbolCouldNotBeApplied(val signifier: Signifier) : ErrorType()
 data class SymbolIsNotAField(val signifier: Signifier) : ErrorType()
 data class SymbolIsNotAType(val signifier: Signifier) : ErrorType()
-data class InvalidNamespaceDot(val signifier: Signifier) : ErrorType()
-data class PreludeScopeAlreadyExists(val signifier: Signifier) : ErrorType()
 data class InvalidSource(val type: Type) : ErrorType(), TypeHostErrorType {
     override val types: List<Type> = listOf(type)
 }
@@ -126,10 +123,6 @@ data class ForeignTypeParameter(val identifier: Identifier) : ErrorType()
 
 data class MaskingTypeParameter(val identifier: Identifier) : ErrorType()
 data class CannotExplicitlyInstantiate(val symbol: Symbol) : ErrorType(), SymbolHostErrorType {
-    override val symbols: List<Symbol> = listOf(symbol)
-}
-
-data class MustExplicitlyInstantiate(val symbol: Symbol) : ErrorType(), SymbolHostErrorType {
     override val symbols: List<Symbol> = listOf(symbol)
 }
 
