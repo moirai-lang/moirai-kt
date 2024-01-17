@@ -65,21 +65,20 @@ object Lang {
     const val BOOL_FIN: Long = false.toString().length.toLong()
     const val CHAR_FIN: Long = 1L
 
-    fun isUnitExactly(type: Type): Boolean = type is PlatformObjectSymbol && type.identifier == unitId
+    // Unit
+    val unitObject = PlatformObjectSymbol(
+        prelude,
+        unitId,
+        userTypeFeatureSupport
+    )
+
+    // Boolean
+    val booleanType = BasicTypeSymbol(
+        prelude,
+        booleanId
+    )
 
     init {
-        // Unit
-        val unitObject = PlatformObjectSymbol(
-            prelude,
-            unitId,
-            userTypeFeatureSupport
-        )
-
-        // Boolean
-        val booleanType = BasicTypeSymbol(
-            prelude,
-            booleanId
-        )
         val constantFin = ConstantFinTypeSymbol
         ValueEqualityOpMembers.members(booleanType, constantFin, booleanType).forEach { (name, plugin) ->
             booleanType.define(Identifier(NotInSource, name), plugin)
