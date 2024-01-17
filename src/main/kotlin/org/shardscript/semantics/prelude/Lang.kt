@@ -78,28 +78,40 @@ object Lang {
         booleanId
     )
 
+    // Integer
+    val intType = BasicTypeSymbol(
+        prelude,
+        intId
+    )
+
+    // Decimal
+    val decimalType = decimalType(decimalId, booleanType, prelude)
+
     init {
-        val constantFin = ConstantFinTypeSymbol
-        ValueEqualityOpMembers.members(booleanType, constantFin, booleanType).forEach { (name, plugin) ->
+        IntegerMathOpMembers.members().forEach { (name, plugin) ->
+            intType.define(Identifier(NotInSource, name), plugin)
+        }
+        IntegerOrderOpMembers.members(intType, ConstantFinTypeSymbol, booleanType).forEach { (name, plugin) ->
+            intType.define(Identifier(NotInSource, name), plugin)
+        }
+        ValueEqualityOpMembers.members(intType, ConstantFinTypeSymbol, booleanType).forEach { (name, plugin) ->
+            intType.define(Identifier(NotInSource, name), plugin)
+        }
+
+        ValueEqualityOpMembers.members(booleanType, ConstantFinTypeSymbol, booleanType).forEach { (name, plugin) ->
             booleanType.define(Identifier(NotInSource, name), plugin)
         }
 
-        ValueLogicalOpMembers.members(booleanType, constantFin).forEach { (name, plugin) ->
+        ValueLogicalOpMembers.members(booleanType, ConstantFinTypeSymbol).forEach { (name, plugin) ->
             booleanType.define(Identifier(NotInSource, name), plugin)
         }
-
-        // Integer
-        val intType = intType(intId, booleanType, prelude, setOf())
-
-        // Decimal
-        val decimalType = decimalType(decimalId, booleanType, prelude)
 
         // Char
         val charType = BasicTypeSymbol(
             prelude,
             charId
         )
-        ValueEqualityOpMembers.members(charType, constantFin, charType).forEach { (name, plugin) ->
+        ValueEqualityOpMembers.members(charType, ConstantFinTypeSymbol, charType).forEach { (name, plugin) ->
             charType.define(Identifier(NotInSource, name), plugin)
         }
 
@@ -158,7 +170,7 @@ object Lang {
 
         // Static
         val rangePlugin = createRangePlugin(prelude, intType, listType)
-        val randomPlugin = createRandomPlugin(prelude, constantFin)
+        val randomPlugin = createRandomPlugin(prelude, ConstantFinTypeSymbol)
 
         // Compose output
         prelude.define(unitId, unitObject)

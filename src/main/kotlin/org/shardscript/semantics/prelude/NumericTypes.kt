@@ -3,35 +3,6 @@ package org.shardscript.semantics.prelude
 import org.shardscript.semantics.core.*
 import org.shardscript.semantics.infer.DecimalInstantiation
 
-fun intType(
-    numericId: Identifier,
-    booleanType: BasicTypeSymbol,
-    langNS: Scope<Symbol>,
-    filters: Set<String>
-): BasicTypeSymbol {
-    val intType = BasicTypeSymbol(
-        langNS,
-        numericId
-    )
-    val constantFin = ConstantFinTypeSymbol
-    IntegerMathOpMembers.members(intType, constantFin).forEach { (name, plugin) ->
-        if (!filters.contains(name)) {
-            intType.define(Identifier(NotInSource, name), plugin)
-        }
-    }
-    IntegerOrderOpMembers.members(intType, constantFin, booleanType).forEach { (name, plugin) ->
-        if (!filters.contains(name)) {
-            intType.define(Identifier(NotInSource, name), plugin)
-        }
-    }
-    ValueEqualityOpMembers.members(intType, constantFin, booleanType).forEach { (name, plugin) ->
-        if (!filters.contains(name)) {
-            intType.define(Identifier(NotInSource, name), plugin)
-        }
-    }
-    return intType
-}
-
 fun decimalType(
     numericId: Identifier,
     booleanType: BasicTypeSymbol,
