@@ -31,7 +31,7 @@ private fun createGetFunction(
 private fun createAddFunction(
     costExpression: CostExpression,
     listType: ParameterizedBasicTypeSymbol,
-    unitType: ObjectSymbol,
+    unitType: PlatformObjectSymbol,
     listElementTypeParam: StandardTypeParameter
 ) {
     val addId = Identifier(NotInSource, CollectionMethods.InsertElement.idStr)
@@ -56,7 +56,7 @@ private fun createAddFunction(
 private fun createSetFunction(
     costExpression: CostExpression,
     listType: ParameterizedBasicTypeSymbol,
-    unitType: ObjectSymbol,
+    unitType: PlatformObjectSymbol,
     intType: BasicTypeSymbol,
     listElementTypeParam: StandardTypeParameter
 ) {
@@ -86,7 +86,7 @@ private fun createSetFunction(
 private fun createRemoveAtFunction(
     costExpression: CostExpression,
     listType: ParameterizedBasicTypeSymbol,
-    unitType: ObjectSymbol,
+    unitType: PlatformObjectSymbol,
     intType: BasicTypeSymbol
 ) {
     val removeAtId = Identifier(NotInSource, CollectionMethods.RemoveAtIndex.idStr)
@@ -182,7 +182,7 @@ fun listCollectionType(
 fun mutableListCollectionType(
     langNS: Scope<Symbol>,
     intType: BasicTypeSymbol,
-    unitType: ObjectSymbol,
+    unitType: PlatformObjectSymbol,
     booleanType: BasicTypeSymbol,
     listType: ParameterizedBasicTypeSymbol
 ): ParameterizedBasicTypeSymbol {

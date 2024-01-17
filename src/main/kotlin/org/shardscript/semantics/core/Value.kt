@@ -505,10 +505,12 @@ class SymbolRouterValueTable(private val prelude: Scope<Symbol>, private val sym
                 val fv = FunctionValue(res.formalParams, res.body)
                 fv
             }
+
             is ParameterizedFunctionSymbol -> {
                 val fv = FunctionValue(res.formalParams, res.body)
                 fv
             }
+
             is ParameterizedStaticPluginSymbol -> PluginValue(res.plugin)
             is GroundRecordTypeSymbol -> RecordConstructorValue(prelude, res)
             is ParameterizedRecordTypeSymbol -> RecordConstructorValue(prelude, res)
@@ -518,12 +520,14 @@ class SymbolRouterValueTable(private val prelude: Scope<Symbol>, private val sym
                 Lang.setId, Lang.mutableSetId -> SetConstructorValue(res.modeSelector)
                 else -> langThrow(signifier.ctx, IdentifierNotFound(signifier))
             }
-            is ObjectSymbol -> {
-                when (generatePath(res)) {
-                    listOf(Lang.unitId.name) -> UnitValue
-                    else -> ObjectValue(res)
-                }
+
+            is PlatformObjectSymbol -> if (res.identifier == Lang.unitId) {
+                UnitValue
+            } else {
+                langThrow(signifier.ctx, TypeSystemBug)
             }
+
+            is ObjectSymbol -> ObjectValue(res)
             else -> langThrow(signifier.ctx, IdentifierNotFound(signifier))
         }
 

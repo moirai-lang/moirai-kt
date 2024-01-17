@@ -186,6 +186,12 @@ data class PlatformFieldSymbol(
 /**
  * Data Types
  */
+data class PlatformObjectSymbol(
+    override val parent: Scope<Symbol>,
+    override val identifier: Identifier,
+    val featureSupport: FeatureSupport
+) : NamedSymbolWithMembers(parent), Type
+
 data class ObjectSymbol(
     override val parent: Scope<Symbol>,
     override val identifier: Identifier,

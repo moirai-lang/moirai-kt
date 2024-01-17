@@ -25,7 +25,7 @@ fun insertIntegerToStringMember(
 }
 
 fun insertUnitToStringMember(
-    unitType: ObjectSymbol,
+    unitType: PlatformObjectSymbol,
     stringType: ParameterizedBasicTypeSymbol
 ) {
     val res = GroundMemberPluginSymbol(

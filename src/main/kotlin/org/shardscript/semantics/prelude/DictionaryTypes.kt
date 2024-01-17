@@ -57,7 +57,7 @@ private fun createContainsFunction(
 private fun createSetFunction(
     costExpression: CostExpression,
     dictionaryType: ParameterizedBasicTypeSymbol,
-    unitType: ObjectSymbol,
+    unitType: PlatformObjectSymbol,
     dictionaryKeyTypeParam: StandardTypeParameter,
     dictionaryValueTypeParam: StandardTypeParameter
 ) {
@@ -88,7 +88,7 @@ private fun createSetFunction(
 private fun createRemoveFunction(
     costExpression: CostExpression,
     dictionaryType: ParameterizedBasicTypeSymbol,
-    unitType: ObjectSymbol,
+    unitType: PlatformObjectSymbol,
     dictionaryKeyTypeParam: StandardTypeParameter
 ) {
     val removeId = Identifier(NotInSource, CollectionMethods.Remove.idStr)
@@ -211,7 +211,7 @@ fun mutableDictionaryCollectionType(
     langNS: Scope<Symbol>,
     booleanType: BasicTypeSymbol,
     intType: BasicTypeSymbol,
-    unitType: ObjectSymbol,
+    unitType: PlatformObjectSymbol,
     pairType: ParameterizedRecordTypeSymbol,
     dictionaryType: ParameterizedBasicTypeSymbol
 ): ParameterizedBasicTypeSymbol {

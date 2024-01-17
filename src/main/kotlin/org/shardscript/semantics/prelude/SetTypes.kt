@@ -32,7 +32,7 @@ private fun createContainsFunction(
 private fun createAddFunction(
     costExpression: CostExpression,
     setType: ParameterizedBasicTypeSymbol,
-    unitType: ObjectSymbol,
+    unitType: PlatformObjectSymbol,
     setElementTypeParam: StandardTypeParameter
 ) {
     val addId = Identifier(NotInSource, CollectionMethods.InsertElement.idStr)
@@ -57,7 +57,7 @@ private fun createAddFunction(
 private fun createRemoveFunction(
     costExpression: CostExpression,
     setType: ParameterizedBasicTypeSymbol,
-    unitType: ObjectSymbol,
+    unitType: PlatformObjectSymbol,
     setElementTypeParam: StandardTypeParameter
 ) {
     val removeId = Identifier(NotInSource, CollectionMethods.Remove.idStr)
@@ -158,7 +158,7 @@ fun mutableSetCollectionType(
     langNS: Scope<Symbol>,
     booleanType: BasicTypeSymbol,
     intType: BasicTypeSymbol,
-    unitType: ObjectSymbol,
+    unitType: PlatformObjectSymbol,
     setType: ParameterizedBasicTypeSymbol
 ): ParameterizedBasicTypeSymbol {
     val mutableSetType = ParameterizedBasicTypeSymbol(

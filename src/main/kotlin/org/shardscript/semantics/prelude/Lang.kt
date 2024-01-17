@@ -65,15 +65,11 @@ object Lang {
     const val BOOL_FIN: Long = false.toString().length.toLong()
     const val CHAR_FIN: Long = 1L
 
-    fun isUnitExactly(type: Type): Boolean =
-        when (generatePath(type as Symbol)) {
-            listOf(unitId.name) -> true
-            else -> false
-        }
+    fun isUnitExactly(type: Type): Boolean = type is PlatformObjectSymbol && type.identifier == unitId
 
     init {
         // Unit
-        val unitObject = ObjectSymbol(
+        val unitObject = PlatformObjectSymbol(
             prelude,
             unitId,
             userTypeFeatureSupport
