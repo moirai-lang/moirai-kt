@@ -1,6 +1,7 @@
 package org.shardscript.semantics.prelude
 
 import org.shardscript.semantics.core.*
+import org.shardscript.semantics.infer.DecimalInstantiation
 
 object Lang {
     val prelude = SymbolTable(NullSymbolTable)
@@ -91,7 +92,13 @@ object Lang {
     )
 
     // Decimal
-    val decimalType = decimalType(decimalId, booleanType, prelude)
+    val decimalType = ParameterizedBasicTypeSymbol(
+        prelude,
+        decimalId,
+        DecimalInstantiation(),
+        userTypeFeatureSupport
+    )
+    val decimalTypeParam = ImmutableFinTypeParameter(decimalType, decimalTypeId)
 
     init {
         IntegerMathOpMembers.members().forEach { (name, plugin) ->
@@ -113,6 +120,23 @@ object Lang {
 
         CharEqualityOpMembers.members().forEach { (name, plugin) ->
             charType.define(Identifier(NotInSource, name), plugin)
+        }
+
+        decimalType.define(decimalTypeId, decimalTypeParam)
+        decimalType.typeParams = listOf(decimalTypeParam)
+        decimalType.modeSelector = { _ ->
+            ImmutableBasicTypeMode
+        }
+        decimalType.fields = listOf()
+
+        DecimalMathOpMembers.members().forEach { (name, plugin) ->
+            decimalType.define(Identifier(NotInSource, name), plugin)
+        }
+        DecimalOrderOpMembers.members(decimalType, decimalTypeParam, booleanType).forEach { (name, plugin) ->
+            decimalType.define(Identifier(NotInSource, name), plugin)
+        }
+        DecimalEqualityOpMembers.members(decimalType, decimalTypeParam, booleanType).forEach { (name, plugin) ->
+            decimalType.define(Identifier(NotInSource, name), plugin)
         }
 
         // List
