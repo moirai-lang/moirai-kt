@@ -2,6 +2,8 @@ package org.shardscript.semantics.prelude
 
 import org.shardscript.semantics.core.*
 import org.shardscript.semantics.infer.DecimalInstantiation
+import org.shardscript.semantics.infer.ListInstantiation
+import org.shardscript.semantics.infer.MutableListInstantiation
 
 object Lang {
     val prelude = SymbolTable(NullSymbolTable)
@@ -100,6 +102,26 @@ object Lang {
     )
     val decimalTypeParam = ImmutableFinTypeParameter(decimalType, decimalTypeId)
 
+    // List
+    val listType = ParameterizedBasicTypeSymbol(
+        prelude,
+        listId,
+        ListInstantiation(),
+        immutableOrderedFeatureSupport
+    )
+    val listElementTypeParam = StandardTypeParameter(listType, listElementTypeId)
+    val listFinTypeParam = ImmutableFinTypeParameter(listType, listFinTypeId)
+
+    // MutableList
+    val mutableListType = ParameterizedBasicTypeSymbol(
+        prelude,
+        mutableListId,
+        MutableListInstantiation(),
+        noFeatureSupport
+    )
+    val mutableListElementTypeParam = StandardTypeParameter(mutableListType, mutableListElementTypeId)
+    val mutableListFinTypeParam = MutableFinTypeParameter(mutableListType, mutableListFinTypeId)
+
     init {
         IntegerMathOpMembers.members().forEach { (name, plugin) ->
             intType.define(Identifier(NotInSource, name), plugin)
@@ -139,12 +161,8 @@ object Lang {
             decimalType.define(Identifier(NotInSource, name), plugin)
         }
 
-        // List
-        val listType = listCollectionType(prelude, intType, booleanType)
-
-        // MutableList
-        val mutableListType =
-            mutableListCollectionType(prelude, intType, unitObject, booleanType, listType)
+        ListTypes.listCollectionType()
+        ListTypes.mutableListCollectionType()
 
         // String
         val stringType = stringType(booleanType, intType, charType, listType, prelude)

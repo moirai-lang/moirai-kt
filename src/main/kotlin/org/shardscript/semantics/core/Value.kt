@@ -73,6 +73,9 @@ object Plugins {
         },
         ValueLogicalOpMembers.not to GroundMemberPlugin { t: Value, _: List<Value> ->
             (t as LogicalValue).evalNot()
+        },
+        ListTypes.removeAtFunction to GroundMemberPlugin { t: Value, args: List<Value> ->
+            (t as ListValue).evalRemoveAt(args.first())
         }
     )
 }
