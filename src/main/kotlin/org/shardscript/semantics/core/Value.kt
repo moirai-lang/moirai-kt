@@ -76,6 +76,18 @@ object Plugins {
         },
         ListTypes.removeAtFunction to GroundMemberPlugin { t: Value, args: List<Value> ->
             (t as ListValue).evalRemoveAt(args.first())
+        },
+        ToStringMembers.integerToStringMember to GroundMemberPlugin { t: Value, _: List<Value> ->
+            (t as IntValue).evalToString()
+        },
+        ToStringMembers.unitToStringMember to GroundMemberPlugin { t: Value, _: List<Value> ->
+            (t as UnitValue).evalToString()
+        },
+        ToStringMembers.booleanToStringMember to GroundMemberPlugin { t: Value, _: List<Value> ->
+            (t as BooleanValue).evalToString()
+        },
+        ToStringMembers.charToStringMember to GroundMemberPlugin { t: Value, _: List<Value> ->
+            (t as CharValue).evalToString()
         }
     )
 }

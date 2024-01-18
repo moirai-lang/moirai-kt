@@ -4,6 +4,7 @@ import org.shardscript.semantics.core.*
 import org.shardscript.semantics.infer.DecimalInstantiation
 import org.shardscript.semantics.infer.ListInstantiation
 import org.shardscript.semantics.infer.MutableListInstantiation
+import org.shardscript.semantics.infer.StringInstantiation
 
 object Lang {
     val prelude = SymbolTable(NullSymbolTable)
@@ -122,6 +123,16 @@ object Lang {
     val mutableListElementTypeParam = StandardTypeParameter(mutableListType, mutableListElementTypeId)
     val mutableListFinTypeParam = MutableFinTypeParameter(mutableListType, mutableListFinTypeId)
 
+    // String
+    val stringType = ParameterizedBasicTypeSymbol(
+        prelude,
+        stringId,
+        StringInstantiation(),
+        userTypeFeatureSupport
+    )
+
+    val stringTypeParam = ImmutableFinTypeParameter(stringType, stringTypeId)
+
     init {
         IntegerMathOpMembers.members().forEach { (name, plugin) ->
             intType.define(Identifier(NotInSource, name), plugin)
@@ -164,16 +175,11 @@ object Lang {
         ListTypes.listCollectionType()
         ListTypes.mutableListCollectionType()
 
-        // String
-        val stringType = stringType(booleanType, intType, charType, listType, prelude)
+        stringType()
 
         // ToString
-        insertIntegerToStringMember(intType, stringType)
-        insertUnitToStringMember(unitObject, stringType)
-        insertBooleanToStringMember(booleanType, stringType)
-        insertDecimalToStringMember(decimalType, stringType)
-        insertCharToStringMember(charType, stringType)
-        insertStringToStringMember(stringType)
+        ToStringMembers.insertDecimalToStringMember(decimalType, stringType)
+        ToStringMembers.insertStringToStringMember(stringType)
 
         // Pair
         val pairType = ParameterizedRecordTypeSymbol(

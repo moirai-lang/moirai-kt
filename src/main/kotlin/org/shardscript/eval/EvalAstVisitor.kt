@@ -131,7 +131,7 @@ class EvalAstVisitor(private val globalScope: ValueTable) : ParameterizedAstVisi
             val lhs = ast.lhs.accept(this, param)
             when (val toApply = ast.symbolRef) {
                 is GroundMemberPluginSymbol -> {
-                    return toApply.invoke(lhs, args)
+                    return Plugins.groundMemberPlugins[toApply]!!.invoke(lhs, args)
                 }
                 is SymbolInstantiation -> {
                     when (val parameterizedType = toApply.substitutionChain.originalSymbol) {

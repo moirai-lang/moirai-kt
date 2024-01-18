@@ -4,124 +4,115 @@ import org.shardscript.semantics.core.*
 import org.shardscript.semantics.infer.SingleParentArgInstantiation
 import org.shardscript.semantics.infer.Substitution
 
-fun insertIntegerToStringMember(
-    integerType: BasicTypeSymbol,
-    stringType: ParameterizedBasicTypeSymbol
-) {
-    val res = GroundMemberPluginSymbol(
-        integerType,
-        Identifier(NotInSource, StringMethods.ToString.idStr),
-    { t: Value, _: List<Value> ->
-        (t as IntValue).evalToString()
-    })
-    val fin = FinTypeSymbol(Lang.INT_FIN)
-    res.costExpression = fin
+object ToStringMembers {
+    val integerToStringMember = insertIntegerToStringMember()
+    val unitToStringMember = insertUnitToStringMember()
+    val booleanToStringMember = insertBooleanToStringMember()
+    val charToStringMember = insertCharToStringMember()
 
-    val substitution = Substitution(stringType.typeParams, listOf(fin))
-    val stringInstantiation = substitution.apply(stringType)
-    res.formalParams = listOf()
-    res.returnType = stringInstantiation
-    integerType.define(res.identifier, res)
-}
+    private fun insertIntegerToStringMember(): GroundMemberPluginSymbol {
+        val res = GroundMemberPluginSymbol(
+            Lang.intType,
+            Identifier(NotInSource, StringMethods.ToString.idStr)
+        )
+        val fin = FinTypeSymbol(Lang.INT_FIN)
+        res.costExpression = fin
 
-fun insertUnitToStringMember(
-    unitType: PlatformObjectSymbol,
-    stringType: ParameterizedBasicTypeSymbol
-) {
-    val res = GroundMemberPluginSymbol(
-        unitType,
-        Identifier(NotInSource, StringMethods.ToString.idStr),
-    { t: Value, _: List<Value> ->
-        (t as UnitValue).evalToString()
-    })
-    val fin = FinTypeSymbol(Lang.unitFin)
-    res.costExpression = fin
+        val substitution = Substitution(Lang.stringType.typeParams, listOf(fin))
+        val stringInstantiation = substitution.apply(Lang.stringType)
+        res.formalParams = listOf()
+        res.returnType = stringInstantiation
+        Lang.intType.define(res.identifier, res)
+        return res
+    }
 
-    val substitution = Substitution(stringType.typeParams, listOf(fin))
-    val stringInstantiation = substitution.apply(stringType)
-    res.formalParams = listOf()
-    res.returnType = stringInstantiation
-    unitType.define(res.identifier, res)
-}
+    private fun insertUnitToStringMember(): GroundMemberPluginSymbol {
+        val res = GroundMemberPluginSymbol(
+            Lang.unitObject,
+            Identifier(NotInSource, StringMethods.ToString.idStr)
+        )
+        val fin = FinTypeSymbol(Lang.unitFin)
+        res.costExpression = fin
 
-fun insertBooleanToStringMember(
-    booleanType: BasicTypeSymbol,
-    stringType: ParameterizedBasicTypeSymbol
-) {
-    val res = GroundMemberPluginSymbol(
-        booleanType,
-        Identifier(NotInSource, StringMethods.ToString.idStr),
-    { t: Value, _: List<Value> ->
-        (t as BooleanValue).evalToString()
-    })
-    val fin = FinTypeSymbol(Lang.BOOL_FIN)
-    res.costExpression = fin
+        val substitution = Substitution(Lang.stringType.typeParams, listOf(fin))
+        val stringInstantiation = substitution.apply(Lang.stringType)
+        res.formalParams = listOf()
+        res.returnType = stringInstantiation
+        Lang.unitObject.define(res.identifier, res)
+        return res
+    }
 
-    val substitution = Substitution(stringType.typeParams, listOf(fin))
-    val stringInstantiation = substitution.apply(stringType)
-    res.formalParams = listOf()
-    res.returnType = stringInstantiation
-    booleanType.define(res.identifier, res)
-}
+    private fun insertBooleanToStringMember(): GroundMemberPluginSymbol {
+        val res = GroundMemberPluginSymbol(
+            Lang.booleanType,
+            Identifier(NotInSource, StringMethods.ToString.idStr)
+        )
+        val fin = FinTypeSymbol(Lang.BOOL_FIN)
+        res.costExpression = fin
 
-fun insertDecimalToStringMember(
-    decimalType: ParameterizedBasicTypeSymbol,
-    stringType: ParameterizedBasicTypeSymbol
-) {
-    val res = ParameterizedMemberPluginSymbol(
-        decimalType,
-        Identifier(NotInSource, StringMethods.ToString.idStr),
-        SingleParentArgInstantiation,
-    { t: Value, _: List<Value> ->
-        (t as DecimalValue).evalToString()
-    })
-    val fin = decimalType.typeParams.first()
-    res.costExpression = fin as ImmutableFinTypeParameter
-    res.typeParams = listOf(fin)
+        val substitution = Substitution(Lang.stringType.typeParams, listOf(fin))
+        val stringInstantiation = substitution.apply(Lang.stringType)
+        res.formalParams = listOf()
+        res.returnType = stringInstantiation
+        Lang.booleanType.define(res.identifier, res)
+        return res
+    }
 
-    val substitution = Substitution(stringType.typeParams, listOf(fin))
-    val stringInstantiation = substitution.apply(stringType)
-    res.formalParams = listOf()
-    res.returnType = stringInstantiation
-    decimalType.define(res.identifier, res)
-}
+    private fun insertCharToStringMember(): GroundMemberPluginSymbol {
+        val res = GroundMemberPluginSymbol(
+            Lang.charType,
+            Identifier(NotInSource, StringMethods.ToString.idStr)
+        )
+        val fin = FinTypeSymbol(Lang.CHAR_FIN)
+        res.costExpression = fin
+        val substitution = Substitution(Lang.stringType.typeParams, listOf(fin))
+        val stringInstantiation = substitution.apply(Lang.stringType)
+        res.formalParams = listOf()
+        res.returnType = stringInstantiation
+        Lang.charType.define(res.identifier, res)
+        return res
+    }
 
-fun insertStringToStringMember(
-    stringType: ParameterizedBasicTypeSymbol
-) {
-    val res = ParameterizedMemberPluginSymbol(
-        stringType,
-        Identifier(NotInSource, StringMethods.ToString.idStr),
-        SingleParentArgInstantiation,
-    { t: Value, _: List<Value> ->
-        (t as StringValue).evalToString()
-    })
-    val fin = stringType.typeParams.first()
-    res.costExpression = fin as ImmutableFinTypeParameter
-    res.typeParams = listOf(fin)
+    fun insertDecimalToStringMember(
+        decimalType: ParameterizedBasicTypeSymbol,
+        stringType: ParameterizedBasicTypeSymbol
+    ) {
+        val res = ParameterizedMemberPluginSymbol(
+            decimalType,
+            Identifier(NotInSource, StringMethods.ToString.idStr),
+            SingleParentArgInstantiation,
+            { t: Value, _: List<Value> ->
+                (t as DecimalValue).evalToString()
+            })
+        val fin = decimalType.typeParams.first()
+        res.costExpression = fin as ImmutableFinTypeParameter
+        res.typeParams = listOf(fin)
 
-    res.formalParams = listOf()
-    val substitution = Substitution(stringType.typeParams, listOf(fin))
-    val outputType = substitution.apply(stringType)
-    res.returnType = outputType
-    stringType.define(res.identifier, res)
-}
+        val substitution = Substitution(stringType.typeParams, listOf(fin))
+        val stringInstantiation = substitution.apply(stringType)
+        res.formalParams = listOf()
+        res.returnType = stringInstantiation
+        decimalType.define(res.identifier, res)
+    }
 
-fun insertCharToStringMember(
-    charType: BasicTypeSymbol,
-    stringType: ParameterizedBasicTypeSymbol
-) {
-    val res = GroundMemberPluginSymbol(
-        charType,
-        Identifier(NotInSource, StringMethods.ToString.idStr),
-    { t: Value, _: List<Value> ->
-        (t as CharValue).evalToString()
-    })
-    val fin = FinTypeSymbol(Lang.CHAR_FIN)
-    res.costExpression = fin
-    val substitution = Substitution(stringType.typeParams, listOf(fin))
-    val stringInstantiation = substitution.apply(stringType)
-    res.formalParams = listOf()
-    res.returnType = stringInstantiation
-    charType.define(res.identifier, res)
+    fun insertStringToStringMember(
+        stringType: ParameterizedBasicTypeSymbol
+    ) {
+        val res = ParameterizedMemberPluginSymbol(
+            stringType,
+            Identifier(NotInSource, StringMethods.ToString.idStr),
+            SingleParentArgInstantiation,
+            { t: Value, _: List<Value> ->
+                (t as StringValue).evalToString()
+            })
+        val fin = stringType.typeParams.first()
+        res.costExpression = fin as ImmutableFinTypeParameter
+        res.typeParams = listOf(fin)
+
+        res.formalParams = listOf()
+        val substitution = Substitution(stringType.typeParams, listOf(fin))
+        val outputType = substitution.apply(stringType)
+        res.returnType = outputType
+        stringType.define(res.identifier, res)
+    }
 }
