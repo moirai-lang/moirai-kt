@@ -90,6 +90,15 @@ object Plugins {
             (t as CharValue).evalToString()
         }
     )
+
+    val parameterizedMemberPlugins: Map<ParameterizedMemberPluginSymbol, GroundMemberPlugin> = mapOf(
+        ToStringMembers.decimalToStringMember to GroundMemberPlugin { t: Value, _: List<Value> ->
+            (t as DecimalValue).evalToString()
+        },
+        ToStringMembers.stringToStringMember to GroundMemberPlugin { t: Value, _: List<Value> ->
+            (t as StringValue).evalToString()
+        }
+    )
 }
 
 class ObjectValue(

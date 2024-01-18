@@ -251,10 +251,8 @@ data class GroundMemberPluginSymbol(
 data class ParameterizedMemberPluginSymbol(
     override val parent: Scope<Symbol>,
     override val identifier: Identifier,
-    val instantiation: TwoTypeInstantiation,
-    val plugin: (Value, List<Value>) -> Value
+    val instantiation: TwoTypeInstantiation
 ) : ParameterizedSymbol(parent) {
-    fun invoke(t: Value, args: List<Value>): Value = plugin(t, args)
     override lateinit var typeParams: List<TypeParameter>
 
     lateinit var formalParams: List<FunctionFormalParameterSymbol>

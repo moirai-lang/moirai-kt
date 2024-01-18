@@ -151,7 +151,7 @@ class EvalAstVisitor(private val globalScope: ValueTable) : ParameterizedAstVisi
                             }
                         }
                         is ParameterizedMemberPluginSymbol -> {
-                            return parameterizedType.invoke(lhs, args)
+                            return Plugins.parameterizedMemberPlugins[parameterizedType]!!.invoke(lhs, args)
                         }
                         else -> langThrow(ast.ctx, TypeSystemBug)
                     }

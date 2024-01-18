@@ -9,6 +9,8 @@ object ToStringMembers {
     val unitToStringMember = insertUnitToStringMember()
     val booleanToStringMember = insertBooleanToStringMember()
     val charToStringMember = insertCharToStringMember()
+    val decimalToStringMember = insertDecimalToStringMember()
+    val stringToStringMember = insertStringToStringMember()
 
     private fun insertIntegerToStringMember(): GroundMemberPluginSymbol {
         val res = GroundMemberPluginSymbol(
@@ -73,46 +75,37 @@ object ToStringMembers {
         return res
     }
 
-    fun insertDecimalToStringMember(
-        decimalType: ParameterizedBasicTypeSymbol,
-        stringType: ParameterizedBasicTypeSymbol
-    ) {
+    fun insertDecimalToStringMember(): ParameterizedMemberPluginSymbol {
         val res = ParameterizedMemberPluginSymbol(
-            decimalType,
+            Lang.decimalType,
             Identifier(NotInSource, StringMethods.ToString.idStr),
-            SingleParentArgInstantiation,
-            { t: Value, _: List<Value> ->
-                (t as DecimalValue).evalToString()
-            })
-        val fin = decimalType.typeParams.first()
+            SingleParentArgInstantiation)
+        val fin = Lang.decimalType.typeParams.first()
         res.costExpression = fin as ImmutableFinTypeParameter
         res.typeParams = listOf(fin)
 
-        val substitution = Substitution(stringType.typeParams, listOf(fin))
-        val stringInstantiation = substitution.apply(stringType)
+        val substitution = Substitution(Lang.stringType.typeParams, listOf(fin))
+        val stringInstantiation = substitution.apply(Lang.stringType)
         res.formalParams = listOf()
         res.returnType = stringInstantiation
-        decimalType.define(res.identifier, res)
+        Lang.decimalType.define(res.identifier, res)
+        return res
     }
 
-    fun insertStringToStringMember(
-        stringType: ParameterizedBasicTypeSymbol
-    ) {
+    fun insertStringToStringMember(): ParameterizedMemberPluginSymbol {
         val res = ParameterizedMemberPluginSymbol(
-            stringType,
+            Lang.stringType,
             Identifier(NotInSource, StringMethods.ToString.idStr),
-            SingleParentArgInstantiation,
-            { t: Value, _: List<Value> ->
-                (t as StringValue).evalToString()
-            })
-        val fin = stringType.typeParams.first()
+            SingleParentArgInstantiation)
+        val fin = Lang.stringType.typeParams.first()
         res.costExpression = fin as ImmutableFinTypeParameter
         res.typeParams = listOf(fin)
 
         res.formalParams = listOf()
-        val substitution = Substitution(stringType.typeParams, listOf(fin))
-        val outputType = substitution.apply(stringType)
+        val substitution = Substitution(Lang.stringType.typeParams, listOf(fin))
+        val outputType = substitution.apply(Lang.stringType)
         res.returnType = outputType
-        stringType.define(res.identifier, res)
+        Lang.stringType.define(res.identifier, res)
+        return res
     }
 }
