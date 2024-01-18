@@ -239,11 +239,8 @@ data class ParameterizedBasicTypeSymbol(
  */
 data class GroundMemberPluginSymbol(
     override val parent: Scope<Symbol>,
-    override val identifier: Identifier,
-    val plugin: (Value, List<Value>) -> Value
+    override val identifier: Identifier
 ) : NamedSymbolWithMembers(parent) {
-    fun invoke(t: Value, args: List<Value>): Value = plugin(t, args)
-
     lateinit var formalParams: List<FunctionFormalParameterSymbol>
     lateinit var returnType: Type
     lateinit var costExpression: CostExpression

@@ -1,6 +1,6 @@
 package org.shardscript.semantics.core
 
-import org.shardscript.semantics.prelude.Lang
+import org.shardscript.semantics.prelude.*
 import java.math.BigDecimal
 
 sealed class Value
@@ -9,6 +9,72 @@ data object UnitValue : Value() {
     fun evalToString(): Value {
         return StringValue(Lang.unitId.name)
     }
+}
+
+data class GroundMemberPlugin(private val plugin: (Value, List<Value>) -> Value) {
+    fun invoke(t: Value, args: List<Value>): Value = plugin(t, args)
+}
+
+object Plugins {
+    val groundMemberPlugins: Map<GroundMemberPluginSymbol, GroundMemberPlugin> = mapOf(
+        IntegerMathOpMembers.add to GroundMemberPlugin { t: Value, args: List<Value> ->
+            (t as MathValue).evalAdd(args.first())
+        },
+        IntegerMathOpMembers.sub to GroundMemberPlugin { t: Value, args: List<Value> ->
+            (t as MathValue).evalSub(args.first())
+        },
+        IntegerMathOpMembers.mul to GroundMemberPlugin { t: Value, args: List<Value> ->
+            (t as MathValue).evalMul(args.first())
+        },
+        IntegerMathOpMembers.div to GroundMemberPlugin { t: Value, args: List<Value> ->
+            (t as MathValue).evalDiv(args.first())
+        },
+        IntegerMathOpMembers.mod to GroundMemberPlugin { t: Value, args: List<Value> ->
+            (t as MathValue).evalMod(args.first())
+        },
+        IntegerMathOpMembers.negate to GroundMemberPlugin { t: Value, _: List<Value> ->
+            (t as MathValue).evalNegate()
+        },
+        IntegerOrderOpMembers.greaterThan to GroundMemberPlugin { t: Value, args: List<Value> ->
+            (t as OrderValue).evalGreaterThan(args.first())
+        },
+        IntegerOrderOpMembers.greaterThanOrEquals to GroundMemberPlugin { t: Value, args: List<Value> ->
+            (t as OrderValue).evalGreaterThanOrEquals(args.first())
+        },
+        IntegerOrderOpMembers.lessThan to GroundMemberPlugin { t: Value, args: List<Value> ->
+            (t as OrderValue).evalLessThan(args.first())
+        },
+        IntegerOrderOpMembers.lessThanOrEquals to GroundMemberPlugin { t: Value, args: List<Value> ->
+            (t as OrderValue).evalLessThanOrEquals(args.first())
+        },
+        IntegerEqualityOpMembers.equals to GroundMemberPlugin { t: Value, args: List<Value> ->
+            (t as EqualityValue).evalEquals(args.first())
+        },
+        IntegerEqualityOpMembers.notEquals to GroundMemberPlugin { t: Value, args: List<Value> ->
+            (t as EqualityValue).evalNotEquals(args.first())
+        },
+        BooleanEqualityOpMembers.equals to GroundMemberPlugin { t: Value, args: List<Value> ->
+            (t as EqualityValue).evalEquals(args.first())
+        },
+        BooleanEqualityOpMembers.notEquals to GroundMemberPlugin { t: Value, args: List<Value> ->
+            (t as EqualityValue).evalNotEquals(args.first())
+        },
+        CharEqualityOpMembers.equals to GroundMemberPlugin { t: Value, args: List<Value> ->
+            (t as EqualityValue).evalEquals(args.first())
+        },
+        CharEqualityOpMembers.notEquals to GroundMemberPlugin { t: Value, args: List<Value> ->
+            (t as EqualityValue).evalNotEquals(args.first())
+        },
+        ValueLogicalOpMembers.and to GroundMemberPlugin { t: Value, args: List<Value> ->
+            (t as LogicalValue).evalAnd(args.first())
+        },
+        ValueLogicalOpMembers.or to GroundMemberPlugin { t: Value, args: List<Value> ->
+            (t as LogicalValue).evalOr(args.first())
+        },
+        ValueLogicalOpMembers.not to GroundMemberPlugin { t: Value, _: List<Value> ->
+            (t as LogicalValue).evalNot()
+        }
+    )
 }
 
 class ObjectValue(
