@@ -222,24 +222,21 @@ object DecimalMathOpMembers {
 }
 
 object DecimalOrderOpMembers {
-    fun members(
-        decimalType: ParameterizedBasicTypeSymbol,
-        decimalTypeParam: ImmutableFinTypeParameter,
-        booleanType: BasicTypeSymbol
-    ): Map<String, ParameterizedMemberPluginSymbol> = mapOf(
-        BinaryOperator.GreaterThan.idStr to pluginGreaterThan(decimalType, decimalTypeParam, booleanType),
-        BinaryOperator.GreaterThanEqual.idStr to pluginGreaterThanOrEquals(decimalType, decimalTypeParam, booleanType),
-        BinaryOperator.LessThan.idStr to pluginLessThan(decimalType, decimalTypeParam, booleanType),
-        BinaryOperator.LessThanEqual.idStr to pluginLessThanOrEquals(decimalType, decimalTypeParam, booleanType)
+    val greaterThan = pluginGreaterThan()
+    val greaterThanOrEquals = pluginGreaterThanOrEquals()
+    val lessThan = pluginLessThan()
+    val lessThanOrEquals = pluginLessThanOrEquals()
+
+    fun members(): Map<String, ParameterizedMemberPluginSymbol> = mapOf(
+        BinaryOperator.GreaterThan.idStr to greaterThan,
+        BinaryOperator.GreaterThanEqual.idStr to greaterThanOrEquals,
+        BinaryOperator.LessThan.idStr to lessThan,
+        BinaryOperator.LessThanEqual.idStr to lessThanOrEquals
     )
 
-    private fun pluginGreaterThan(
-        decimalType: ParameterizedBasicTypeSymbol,
-        decimalTypeParam: ImmutableFinTypeParameter,
-        booleanType: BasicTypeSymbol
-    ): ParameterizedMemberPluginSymbol {
+    private fun pluginGreaterThan(): ParameterizedMemberPluginSymbol {
         val res = ParameterizedMemberPluginSymbol(
-            decimalType,
+            Lang.decimalType,
             Identifier(NotInSource, BinaryOperator.GreaterThan.idStr),
             DualFinPluginInstantiation
         ) { t: Value, args: List<Value> ->
@@ -247,10 +244,10 @@ object DecimalOrderOpMembers {
         }
         val inputTypeArg = ImmutableFinTypeParameter(res, Lang.decimalInputTypeId)
         res.define(inputTypeArg.identifier, inputTypeArg)
-        res.typeParams = listOf(decimalTypeParam, inputTypeArg)
+        res.typeParams = listOf(Lang.decimalTypeParam, inputTypeArg)
 
-        val inputSubstitution = Substitution(listOf(decimalTypeParam), listOf(inputTypeArg))
-        val inputType = inputSubstitution.apply(decimalType)
+        val inputSubstitution = Substitution(listOf(Lang.decimalTypeParam), listOf(inputTypeArg))
+        val inputType = inputSubstitution.apply(Lang.decimalType)
         val formalParamId = Identifier(NotInSource, "other")
         val formalParam = FunctionFormalParameterSymbol(res, formalParamId, inputType)
         res.define(formalParamId, formalParam)
@@ -261,25 +258,21 @@ object DecimalOrderOpMembers {
                 CommonCostExpressions.twoPass,
                 MaxCostExpression(
                     listOf(
-                        decimalTypeParam,
+                        Lang.decimalTypeParam,
                         inputTypeArg
                     )
                 )
             )
         )
-        res.returnType = booleanType
+        res.returnType = Lang.booleanType
 
         res.costExpression = outputTypeArg
         return res
     }
 
-    private fun pluginGreaterThanOrEquals(
-        decimalType: ParameterizedBasicTypeSymbol,
-        decimalTypeParam: ImmutableFinTypeParameter,
-        booleanType: BasicTypeSymbol
-    ): ParameterizedMemberPluginSymbol {
+    private fun pluginGreaterThanOrEquals(): ParameterizedMemberPluginSymbol {
         val res = ParameterizedMemberPluginSymbol(
-            decimalType,
+            Lang.decimalType,
             Identifier(NotInSource, BinaryOperator.GreaterThanEqual.idStr),
             DualFinPluginInstantiation
         ) { t: Value, args: List<Value> ->
@@ -287,10 +280,10 @@ object DecimalOrderOpMembers {
         }
         val inputTypeArg = ImmutableFinTypeParameter(res, Lang.decimalInputTypeId)
         res.define(inputTypeArg.identifier, inputTypeArg)
-        res.typeParams = listOf(decimalTypeParam, inputTypeArg)
+        res.typeParams = listOf(Lang.decimalTypeParam, inputTypeArg)
 
-        val inputSubstitution = Substitution(listOf(decimalTypeParam), listOf(inputTypeArg))
-        val inputType = inputSubstitution.apply(decimalType)
+        val inputSubstitution = Substitution(listOf(Lang.decimalTypeParam), listOf(inputTypeArg))
+        val inputType = inputSubstitution.apply(Lang.decimalType)
         val formalParamId = Identifier(NotInSource, "other")
         val formalParam = FunctionFormalParameterSymbol(res, formalParamId, inputType)
         res.define(formalParamId, formalParam)
@@ -301,25 +294,21 @@ object DecimalOrderOpMembers {
                 CommonCostExpressions.twoPass,
                 MaxCostExpression(
                     listOf(
-                        decimalTypeParam,
+                        Lang.decimalTypeParam,
                         inputTypeArg
                     )
                 )
             )
         )
-        res.returnType = booleanType
+        res.returnType = Lang.booleanType
 
         res.costExpression = outputTypeArg
         return res
     }
 
-    private fun pluginLessThan(
-        decimalType: ParameterizedBasicTypeSymbol,
-        decimalTypeParam: ImmutableFinTypeParameter,
-        booleanType: BasicTypeSymbol
-    ): ParameterizedMemberPluginSymbol {
+    private fun pluginLessThan(): ParameterizedMemberPluginSymbol {
         val res = ParameterizedMemberPluginSymbol(
-            decimalType,
+            Lang.decimalType,
             Identifier(NotInSource, BinaryOperator.LessThan.idStr),
             DualFinPluginInstantiation
         ) { t: Value, args: List<Value> ->
@@ -327,10 +316,10 @@ object DecimalOrderOpMembers {
         }
         val inputTypeArg = ImmutableFinTypeParameter(res, Lang.decimalInputTypeId)
         res.define(inputTypeArg.identifier, inputTypeArg)
-        res.typeParams = listOf(decimalTypeParam, inputTypeArg)
+        res.typeParams = listOf(Lang.decimalTypeParam, inputTypeArg)
 
-        val inputSubstitution = Substitution(listOf(decimalTypeParam), listOf(inputTypeArg))
-        val inputType = inputSubstitution.apply(decimalType)
+        val inputSubstitution = Substitution(listOf(Lang.decimalTypeParam), listOf(inputTypeArg))
+        val inputType = inputSubstitution.apply(Lang.decimalType)
         val formalParamId = Identifier(NotInSource, "other")
         val formalParam = FunctionFormalParameterSymbol(res, formalParamId, inputType)
         res.define(formalParamId, formalParam)
@@ -341,25 +330,21 @@ object DecimalOrderOpMembers {
                 CommonCostExpressions.twoPass,
                 MaxCostExpression(
                     listOf(
-                        decimalTypeParam,
+                        Lang.decimalTypeParam,
                         inputTypeArg
                     )
                 )
             )
         )
-        res.returnType = booleanType
+        res.returnType = Lang.booleanType
 
         res.costExpression = outputTypeArg
         return res
     }
 
-    private fun pluginLessThanOrEquals(
-        decimalType: ParameterizedBasicTypeSymbol,
-        decimalTypeParam: ImmutableFinTypeParameter,
-        booleanType: BasicTypeSymbol
-    ): ParameterizedMemberPluginSymbol {
+    private fun pluginLessThanOrEquals(): ParameterizedMemberPluginSymbol {
         val res = ParameterizedMemberPluginSymbol(
-            decimalType,
+            Lang.decimalType,
             Identifier(NotInSource, BinaryOperator.LessThanEqual.idStr),
             DualFinPluginInstantiation
         ) { t: Value, args: List<Value> ->
@@ -367,10 +352,10 @@ object DecimalOrderOpMembers {
         }
         val inputTypeArg = ImmutableFinTypeParameter(res, Lang.decimalInputTypeId)
         res.define(inputTypeArg.identifier, inputTypeArg)
-        res.typeParams = listOf(decimalTypeParam, inputTypeArg)
+        res.typeParams = listOf(Lang.decimalTypeParam, inputTypeArg)
 
-        val inputSubstitution = Substitution(listOf(decimalTypeParam), listOf(inputTypeArg))
-        val inputType = inputSubstitution.apply(decimalType)
+        val inputSubstitution = Substitution(listOf(Lang.decimalTypeParam), listOf(inputTypeArg))
+        val inputType = inputSubstitution.apply(Lang.decimalType)
         val formalParamId = Identifier(NotInSource, "other")
         val formalParam = FunctionFormalParameterSymbol(res, formalParamId, inputType)
         res.define(formalParamId, formalParam)
@@ -381,13 +366,13 @@ object DecimalOrderOpMembers {
                 CommonCostExpressions.twoPass,
                 MaxCostExpression(
                     listOf(
-                        decimalTypeParam,
+                        Lang.decimalTypeParam,
                         inputTypeArg
                     )
                 )
             )
         )
-        res.returnType = booleanType
+        res.returnType = Lang.booleanType
 
         res.costExpression = outputTypeArg
         return res
@@ -395,22 +380,17 @@ object DecimalOrderOpMembers {
 }
 
 object DecimalEqualityOpMembers {
-    fun members(
-        decimalType: ParameterizedBasicTypeSymbol,
-        decimalTypeParam: ImmutableFinTypeParameter,
-        booleanType: BasicTypeSymbol
-    ): Map<String, ParameterizedMemberPluginSymbol> = mapOf(
-        BinaryOperator.Equal.idStr to pluginEquals(decimalType, decimalTypeParam, booleanType),
-        BinaryOperator.NotEqual.idStr to pluginNotEquals(decimalType, decimalTypeParam, booleanType)
+    val equals = pluginEquals()
+    val notEquals = pluginNotEquals()
+
+    fun members(): Map<String, ParameterizedMemberPluginSymbol> = mapOf(
+        BinaryOperator.Equal.idStr to equals,
+        BinaryOperator.NotEqual.idStr to notEquals
     )
 
-    private fun pluginEquals(
-        decimalType: ParameterizedBasicTypeSymbol,
-        decimalTypeParam: ImmutableFinTypeParameter,
-        booleanType: BasicTypeSymbol
-    ): ParameterizedMemberPluginSymbol {
+    private fun pluginEquals(): ParameterizedMemberPluginSymbol {
         val res = ParameterizedMemberPluginSymbol(
-            decimalType,
+            Lang.decimalType,
             Identifier(NotInSource, BinaryOperator.Equal.idStr),
             DualFinPluginInstantiation
         ) { t: Value, args: List<Value> ->
@@ -418,10 +398,10 @@ object DecimalEqualityOpMembers {
         }
         val inputTypeArg = ImmutableFinTypeParameter(res, Lang.decimalInputTypeId)
         res.define(inputTypeArg.identifier, inputTypeArg)
-        res.typeParams = listOf(decimalTypeParam, inputTypeArg)
+        res.typeParams = listOf(Lang.decimalTypeParam, inputTypeArg)
 
-        val inputSubstitution = Substitution(listOf(decimalTypeParam), listOf(inputTypeArg))
-        val inputType = inputSubstitution.apply(decimalType)
+        val inputSubstitution = Substitution(listOf(Lang.decimalTypeParam), listOf(inputTypeArg))
+        val inputType = inputSubstitution.apply(Lang.decimalType)
         val formalParamId = Identifier(NotInSource, "other")
         val formalParam = FunctionFormalParameterSymbol(res, formalParamId, inputType)
         res.define(formalParamId, formalParam)
@@ -432,25 +412,21 @@ object DecimalEqualityOpMembers {
                 CommonCostExpressions.twoPass,
                 MaxCostExpression(
                     listOf(
-                        decimalTypeParam,
+                        Lang.decimalTypeParam,
                         inputTypeArg
                     )
                 )
             )
         )
-        res.returnType = booleanType
+        res.returnType = Lang.booleanType
 
         res.costExpression = outputTypeArg
         return res
     }
 
-    private fun pluginNotEquals(
-        decimalType: ParameterizedBasicTypeSymbol,
-        decimalTypeParam: ImmutableFinTypeParameter,
-        booleanType: BasicTypeSymbol
-    ): ParameterizedMemberPluginSymbol {
+    private fun pluginNotEquals(): ParameterizedMemberPluginSymbol {
         val res = ParameterizedMemberPluginSymbol(
-            decimalType,
+            Lang.decimalType,
             Identifier(NotInSource, BinaryOperator.NotEqual.idStr),
             DualFinPluginInstantiation
         ) { t: Value, args: List<Value> ->
@@ -458,10 +434,10 @@ object DecimalEqualityOpMembers {
         }
         val inputTypeArg = ImmutableFinTypeParameter(res, Lang.decimalInputTypeId)
         res.define(inputTypeArg.identifier, inputTypeArg)
-        res.typeParams = listOf(decimalTypeParam, inputTypeArg)
+        res.typeParams = listOf(Lang.decimalTypeParam, inputTypeArg)
 
-        val inputSubstitution = Substitution(listOf(decimalTypeParam), listOf(inputTypeArg))
-        val inputType = inputSubstitution.apply(decimalType)
+        val inputSubstitution = Substitution(listOf(Lang.decimalTypeParam), listOf(inputTypeArg))
+        val inputType = inputSubstitution.apply(Lang.decimalType)
         val formalParamId = Identifier(NotInSource, "other")
         val formalParam = FunctionFormalParameterSymbol(res, formalParamId, inputType)
         res.define(formalParamId, formalParam)
@@ -472,13 +448,13 @@ object DecimalEqualityOpMembers {
                 CommonCostExpressions.twoPass,
                 MaxCostExpression(
                     listOf(
-                        decimalTypeParam,
+                        Lang.decimalTypeParam,
                         inputTypeArg
                     )
                 )
             )
         )
-        res.returnType = booleanType
+        res.returnType = Lang.booleanType
 
         res.costExpression = outputTypeArg
         return res

@@ -132,10 +132,10 @@ object Lang {
         DecimalMathOpMembers.members().forEach { (name, plugin) ->
             decimalType.define(Identifier(NotInSource, name), plugin)
         }
-        DecimalOrderOpMembers.members(decimalType, decimalTypeParam, booleanType).forEach { (name, plugin) ->
+        DecimalOrderOpMembers.members().forEach { (name, plugin) ->
             decimalType.define(Identifier(NotInSource, name), plugin)
         }
-        DecimalEqualityOpMembers.members(decimalType, decimalTypeParam, booleanType).forEach { (name, plugin) ->
+        DecimalEqualityOpMembers.members().forEach { (name, plugin) ->
             decimalType.define(Identifier(NotInSource, name), plugin)
         }
 
