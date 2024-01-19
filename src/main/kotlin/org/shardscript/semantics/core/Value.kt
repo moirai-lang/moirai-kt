@@ -145,6 +145,18 @@ object Plugins {
         },
         DecimalEqualityOpMembers.notEquals to GroundMemberPlugin { t: Value, args: List<Value> ->
             (t as EqualityValue).evalNotEquals(args.first())
+        },
+        EqualityMembers.listEquals to GroundMemberPlugin { t: Value, args: List<Value> ->
+            (t as EqualityValue).evalEquals(args.first())
+        },
+        EqualityMembers.listNotEquals to GroundMemberPlugin { t: Value, args: List<Value> ->
+            (t as EqualityValue).evalNotEquals(args.first())
+        },
+        EqualityMembers.mutableListEquals to GroundMemberPlugin { t: Value, args: List<Value> ->
+            (t as EqualityValue).evalEquals(args.first())
+        },
+        EqualityMembers.mutableListNotEquals to GroundMemberPlugin { t: Value, args: List<Value> ->
+            (t as EqualityValue).evalNotEquals(args.first())
         }
     )
 }
