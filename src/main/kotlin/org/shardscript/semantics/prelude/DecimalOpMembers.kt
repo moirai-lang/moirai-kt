@@ -27,9 +27,7 @@ object DecimalMathOpMembers {
             Lang.decimalType,
             Identifier(NotInSource, BinaryOperator.Add.idStr),
             DualFinPluginInstantiation
-        ) { t: Value, args: List<Value> ->
-            (t as MathValue).evalAdd(args.first())
-        }
+        )
         val inputTypeArg = ImmutableFinTypeParameter(res, Lang.decimalInputTypeId)
         res.define(inputTypeArg.identifier, inputTypeArg)
         res.typeParams = listOf(Lang.decimalTypeParam, inputTypeArg)
@@ -65,9 +63,7 @@ object DecimalMathOpMembers {
             Lang.decimalType,
             Identifier(NotInSource, BinaryOperator.Sub.idStr),
             DualFinPluginInstantiation
-        ) { t: Value, args: List<Value> ->
-            (t as MathValue).evalSub(args.first())
-        }
+        )
         val inputTypeArg = ImmutableFinTypeParameter(res, Lang.decimalInputTypeId)
         res.define(inputTypeArg.identifier, inputTypeArg)
         res.typeParams = listOf(Lang.decimalTypeParam, inputTypeArg)
@@ -103,9 +99,7 @@ object DecimalMathOpMembers {
             Lang.decimalType,
             Identifier(NotInSource, BinaryOperator.Mul.idStr),
             DualFinPluginInstantiation
-        ) { t: Value, args: List<Value> ->
-            (t as MathValue).evalMul(args.first())
-        }
+        )
         val inputTypeArg = ImmutableFinTypeParameter(res, Lang.decimalInputTypeId)
         res.define(inputTypeArg.identifier, inputTypeArg)
         res.typeParams = listOf(Lang.decimalTypeParam, inputTypeArg)
@@ -141,9 +135,7 @@ object DecimalMathOpMembers {
             Lang.decimalType,
             Identifier(NotInSource, BinaryOperator.Div.idStr),
             DualFinPluginInstantiation
-        ) { t: Value, args: List<Value> ->
-            (t as MathValue).evalDiv(args.first())
-        }
+        )
         val inputTypeArg = ImmutableFinTypeParameter(res, Lang.decimalInputTypeId)
         res.define(inputTypeArg.identifier, inputTypeArg)
         res.typeParams = listOf(Lang.decimalTypeParam, inputTypeArg)
@@ -174,9 +166,7 @@ object DecimalMathOpMembers {
             Lang.decimalType,
             Identifier(NotInSource, BinaryOperator.Mod.idStr),
             DualFinPluginInstantiation
-        ) { t: Value, args: List<Value> ->
-            (t as MathValue).evalMod(args.first())
-        }
+        )
         val inputTypeArg = ImmutableFinTypeParameter(res, Lang.decimalInputTypeId)
         res.define(inputTypeArg.identifier, inputTypeArg)
         res.typeParams = listOf(Lang.decimalTypeParam, inputTypeArg)
@@ -207,9 +197,7 @@ object DecimalMathOpMembers {
             Lang.decimalType,
             Identifier(NotInSource, UnaryOperator.Negate.idStr),
             SingleParentArgInstantiation
-        ) { t: Value, _: List<Value> ->
-            (t as MathValue).evalNegate()
-        }
+        )
         res.typeParams = listOf(Lang.decimalTypeParam)
         res.formalParams = listOf()
 
@@ -239,9 +227,7 @@ object DecimalOrderOpMembers {
             Lang.decimalType,
             Identifier(NotInSource, BinaryOperator.GreaterThan.idStr),
             DualFinPluginInstantiation
-        ) { t: Value, args: List<Value> ->
-            (t as OrderValue).evalGreaterThan(args.first())
-        }
+        )
         val inputTypeArg = ImmutableFinTypeParameter(res, Lang.decimalInputTypeId)
         res.define(inputTypeArg.identifier, inputTypeArg)
         res.typeParams = listOf(Lang.decimalTypeParam, inputTypeArg)
@@ -275,9 +261,7 @@ object DecimalOrderOpMembers {
             Lang.decimalType,
             Identifier(NotInSource, BinaryOperator.GreaterThanEqual.idStr),
             DualFinPluginInstantiation
-        ) { t: Value, args: List<Value> ->
-            (t as OrderValue).evalGreaterThanOrEquals(args.first())
-        }
+        )
         val inputTypeArg = ImmutableFinTypeParameter(res, Lang.decimalInputTypeId)
         res.define(inputTypeArg.identifier, inputTypeArg)
         res.typeParams = listOf(Lang.decimalTypeParam, inputTypeArg)
@@ -311,9 +295,7 @@ object DecimalOrderOpMembers {
             Lang.decimalType,
             Identifier(NotInSource, BinaryOperator.LessThan.idStr),
             DualFinPluginInstantiation
-        ) { t: Value, args: List<Value> ->
-            (t as OrderValue).evalLessThan(args.first())
-        }
+        )
         val inputTypeArg = ImmutableFinTypeParameter(res, Lang.decimalInputTypeId)
         res.define(inputTypeArg.identifier, inputTypeArg)
         res.typeParams = listOf(Lang.decimalTypeParam, inputTypeArg)
@@ -347,9 +329,7 @@ object DecimalOrderOpMembers {
             Lang.decimalType,
             Identifier(NotInSource, BinaryOperator.LessThanEqual.idStr),
             DualFinPluginInstantiation
-        ) { t: Value, args: List<Value> ->
-            (t as OrderValue).evalLessThanOrEquals(args.first())
-        }
+        )
         val inputTypeArg = ImmutableFinTypeParameter(res, Lang.decimalInputTypeId)
         res.define(inputTypeArg.identifier, inputTypeArg)
         res.typeParams = listOf(Lang.decimalTypeParam, inputTypeArg)
@@ -393,9 +373,7 @@ object DecimalEqualityOpMembers {
             Lang.decimalType,
             Identifier(NotInSource, BinaryOperator.Equal.idStr),
             DualFinPluginInstantiation
-        ) { t: Value, args: List<Value> ->
-            (t as EqualityValue).evalEquals(args.first())
-        }
+        )
         val inputTypeArg = ImmutableFinTypeParameter(res, Lang.decimalInputTypeId)
         res.define(inputTypeArg.identifier, inputTypeArg)
         res.typeParams = listOf(Lang.decimalTypeParam, inputTypeArg)
@@ -429,9 +407,7 @@ object DecimalEqualityOpMembers {
             Lang.decimalType,
             Identifier(NotInSource, BinaryOperator.NotEqual.idStr),
             DualFinPluginInstantiation
-        ) { t: Value, args: List<Value> ->
-            (t as EqualityValue).evalNotEquals(args.first())
-        }
+        )
         val inputTypeArg = ImmutableFinTypeParameter(res, Lang.decimalInputTypeId)
         res.define(inputTypeArg.identifier, inputTypeArg)
         res.typeParams = listOf(Lang.decimalTypeParam, inputTypeArg)

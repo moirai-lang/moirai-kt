@@ -109,6 +109,42 @@ object Plugins {
         },
         StringOpMembers.notEquals to GroundMemberPlugin { t: Value, args: List<Value> ->
             (t as EqualityValue).evalNotEquals(args.first())
+        },
+        DecimalMathOpMembers.add to GroundMemberPlugin { t: Value, args: List<Value> ->
+            (t as MathValue).evalAdd(args.first())
+        },
+        DecimalMathOpMembers.sub to GroundMemberPlugin { t: Value, args: List<Value> ->
+            (t as MathValue).evalSub(args.first())
+        },
+        DecimalMathOpMembers.mul to GroundMemberPlugin { t: Value, args: List<Value> ->
+            (t as MathValue).evalMul(args.first())
+        },
+        DecimalMathOpMembers.div to GroundMemberPlugin { t: Value, args: List<Value> ->
+            (t as MathValue).evalDiv(args.first())
+        },
+        DecimalMathOpMembers.mod to GroundMemberPlugin { t: Value, args: List<Value> ->
+            (t as MathValue).evalMod(args.first())
+        },
+        DecimalMathOpMembers.negate to GroundMemberPlugin { t: Value, _: List<Value> ->
+            (t as MathValue).evalNegate()
+        },
+        DecimalOrderOpMembers.greaterThan to GroundMemberPlugin { t: Value, args: List<Value> ->
+            (t as OrderValue).evalGreaterThan(args.first())
+        },
+        DecimalOrderOpMembers.greaterThanOrEquals to GroundMemberPlugin { t: Value, args: List<Value> ->
+            (t as OrderValue).evalGreaterThanOrEquals(args.first())
+        },
+        DecimalOrderOpMembers.lessThan to GroundMemberPlugin { t: Value, args: List<Value> ->
+            (t as OrderValue).evalLessThan(args.first())
+        },
+        DecimalOrderOpMembers.lessThanOrEquals to GroundMemberPlugin { t: Value, args: List<Value> ->
+            (t as OrderValue).evalLessThanOrEquals(args.first())
+        },
+        DecimalEqualityOpMembers.equals to GroundMemberPlugin { t: Value, args: List<Value> ->
+            (t as EqualityValue).evalEquals(args.first())
+        },
+        DecimalEqualityOpMembers.notEquals to GroundMemberPlugin { t: Value, args: List<Value> ->
+            (t as EqualityValue).evalNotEquals(args.first())
         }
     )
 }
