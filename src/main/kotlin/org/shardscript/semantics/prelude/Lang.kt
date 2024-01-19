@@ -177,10 +177,6 @@ object Lang {
 
         stringType()
 
-        // ToString
-        ToStringMembers.insertDecimalToStringMember(decimalType, stringType)
-        ToStringMembers.insertStringToStringMember(stringType)
-
         // Pair
         val pairType = ParameterizedRecordTypeSymbol(
             prelude,

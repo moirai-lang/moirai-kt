@@ -97,6 +97,18 @@ object Plugins {
         },
         ToStringMembers.stringToStringMember to GroundMemberPlugin { t: Value, _: List<Value> ->
             (t as StringValue).evalToString()
+        },
+        StringOpMembers.toCharArray to GroundMemberPlugin { t: Value, _: List<Value> ->
+            (t as StringValue).evalToCharArray()
+        },
+        StringOpMembers.add to GroundMemberPlugin { t: Value, args: List<Value> ->
+            (t as StringValue).evalAdd(args.first())
+        },
+        StringOpMembers.equals to GroundMemberPlugin { t: Value, args: List<Value> ->
+            (t as EqualityValue).evalEquals(args.first())
+        },
+        StringOpMembers.notEquals to GroundMemberPlugin { t: Value, args: List<Value> ->
+            (t as EqualityValue).evalNotEquals(args.first())
         }
     )
 }
