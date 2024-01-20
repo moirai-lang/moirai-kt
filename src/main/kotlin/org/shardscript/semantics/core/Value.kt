@@ -157,6 +157,18 @@ object Plugins {
         },
         EqualityMembers.mutableListNotEquals to GroundMemberPlugin { t: Value, args: List<Value> ->
             (t as EqualityValue).evalNotEquals(args.first())
+        },
+        EqualityMembers.dictionaryEquals to GroundMemberPlugin { t: Value, args: List<Value> ->
+            (t as EqualityValue).evalEquals(args.first())
+        },
+        EqualityMembers.dictionaryNotEquals to GroundMemberPlugin { t: Value, args: List<Value> ->
+            (t as EqualityValue).evalNotEquals(args.first())
+        },
+        EqualityMembers.mutableDictionaryEquals to GroundMemberPlugin { t: Value, args: List<Value> ->
+            (t as EqualityValue).evalEquals(args.first())
+        },
+        EqualityMembers.mutableDictionaryNotEquals to GroundMemberPlugin { t: Value, args: List<Value> ->
+            (t as EqualityValue).evalNotEquals(args.first())
         }
     )
 }

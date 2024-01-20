@@ -140,98 +140,50 @@ fun createToImmutableDictionaryPlugin(
     mutableDictionaryType.define(plugin.identifier, plugin)
 }
 
-fun dictionaryCollectionType(
-    langNS: Scope<Symbol>,
-    booleanType: BasicTypeSymbol,
-    intType: BasicTypeSymbol,
-    pairType: ParameterizedRecordTypeSymbol
-): ParameterizedBasicTypeSymbol {
-    val dictionaryType = ParameterizedBasicTypeSymbol(
-        langNS,
-        Lang.dictionaryId,
-        DictionaryInstantiation(pairType),
-        immutableUnorderedFeatureSupport
-    )
-    val dictionaryKeyTypeParam = StandardTypeParameter(dictionaryType, Lang.dictionaryKeyTypeId)
-    dictionaryType.define(Lang.dictionaryKeyTypeId, dictionaryKeyTypeParam)
-    val dictionaryValueTypeParam = StandardTypeParameter(dictionaryType, Lang.dictionaryValueTypeId)
-    dictionaryType.define(Lang.dictionaryValueTypeId, dictionaryValueTypeParam)
-    val dictionaryFinTypeParam = ImmutableFinTypeParameter(dictionaryType, Lang.dictionaryFinTypeId)
-    dictionaryType.define(Lang.dictionaryFinTypeId, dictionaryFinTypeParam)
-    dictionaryType.typeParams = listOf(dictionaryKeyTypeParam, dictionaryValueTypeParam, dictionaryFinTypeParam)
-    dictionaryType.modeSelector = { _ ->
+fun dictionaryCollectionType() {
+    Lang.dictionaryType.define(Lang.dictionaryKeyTypeId, Lang.dictionaryKeyTypeParam)
+    Lang.dictionaryType.define(Lang.dictionaryValueTypeId, Lang.dictionaryValueTypeParam)
+    Lang.dictionaryType.define(Lang.dictionaryFinTypeId, Lang.dictionaryFinTypeParam)
+    Lang.dictionaryType.typeParams =
+        listOf(Lang.dictionaryKeyTypeParam, Lang.dictionaryValueTypeParam, Lang.dictionaryFinTypeParam)
+    Lang.dictionaryType.modeSelector = { _ ->
         ImmutableBasicTypeMode
     }
 
     createGetFunction(
         ConstantFinTypeSymbol,
-        dictionaryType,
-        dictionaryKeyTypeParam,
-        dictionaryValueTypeParam
+        Lang.dictionaryType,
+        Lang.dictionaryKeyTypeParam,
+        Lang.dictionaryValueTypeParam
     )
 
     createContainsFunction(
         ConstantFinTypeSymbol,
-        dictionaryType,
-        dictionaryKeyTypeParam,
-        booleanType
+        Lang.dictionaryType,
+        Lang.dictionaryKeyTypeParam,
+        Lang.booleanType
     )
 
     val sizeId = Identifier(NotInSource, CollectionFields.Size.idStr)
     val sizeFieldSymbol = PlatformFieldSymbol(
-        dictionaryType,
+        Lang.dictionaryType,
         sizeId,
-        intType
+        Lang.intType
     ) { value ->
         (value as DictionaryValue).fieldSize()
     }
 
-    dictionaryType.define(sizeId, sizeFieldSymbol)
-    dictionaryType.fields = listOf(sizeFieldSymbol)
-
-    createDictionaryEqualsMember(
-        dictionaryType,
-        dictionaryKeyTypeParam,
-        dictionaryValueTypeParam,
-        dictionaryFinTypeParam,
-        booleanType
-    )
-    createDictionaryNotEqualsMember(
-        dictionaryType,
-        dictionaryKeyTypeParam,
-        dictionaryValueTypeParam,
-        dictionaryFinTypeParam,
-        booleanType
-    )
-
-    return dictionaryType
+    Lang.dictionaryType.define(sizeId, sizeFieldSymbol)
+    Lang.dictionaryType.fields = listOf(sizeFieldSymbol)
 }
 
-fun mutableDictionaryCollectionType(
-    langNS: Scope<Symbol>,
-    booleanType: BasicTypeSymbol,
-    intType: BasicTypeSymbol,
-    unitType: PlatformObjectSymbol,
-    pairType: ParameterizedRecordTypeSymbol,
-    dictionaryType: ParameterizedBasicTypeSymbol
-): ParameterizedBasicTypeSymbol {
-    val mutableDictionaryType = ParameterizedBasicTypeSymbol(
-        langNS,
-        Lang.mutableDictionaryId,
-        MutableDictionaryInstantiation(pairType),
-        noFeatureSupport
-    )
-    val mutableDictionaryKeyTypeParam = StandardTypeParameter(mutableDictionaryType, Lang.mutableDictionaryKeyTypeId)
-    mutableDictionaryType.define(Lang.mutableDictionaryKeyTypeId, mutableDictionaryKeyTypeParam)
-    val mutableDictionaryValueTypeParam =
-        StandardTypeParameter(mutableDictionaryType, Lang.mutableDictionaryValueTypeId)
-    mutableDictionaryType.define(Lang.mutableDictionaryValueTypeId, mutableDictionaryValueTypeParam)
-    val mutableDictionaryFinTypeParam =
-        MutableFinTypeParameter(mutableDictionaryType, Lang.mutableDictionaryFinTypeId)
-    mutableDictionaryType.define(Lang.mutableDictionaryFinTypeId, mutableDictionaryFinTypeParam)
-    mutableDictionaryType.typeParams =
-        listOf(mutableDictionaryKeyTypeParam, mutableDictionaryValueTypeParam, mutableDictionaryFinTypeParam)
-    mutableDictionaryType.modeSelector = { args ->
+fun mutableDictionaryCollectionType() {
+    Lang.mutableDictionaryType.define(Lang.mutableDictionaryKeyTypeId, Lang.mutableDictionaryKeyTypeParam)
+    Lang.mutableDictionaryType.define(Lang.mutableDictionaryValueTypeId, Lang.mutableDictionaryValueTypeParam)
+    Lang.mutableDictionaryType.define(Lang.mutableDictionaryFinTypeId, Lang.mutableDictionaryFinTypeParam)
+    Lang.mutableDictionaryType.typeParams =
+        listOf(Lang.mutableDictionaryKeyTypeParam, Lang.mutableDictionaryValueTypeParam, Lang.mutableDictionaryFinTypeParam)
+    Lang.mutableDictionaryType.modeSelector = { args ->
         when (val fin = args[2]) {
             is FinTypeSymbol -> {
                 MutableBasicTypeMode(fin.magnitude)
@@ -245,67 +197,50 @@ fun mutableDictionaryCollectionType(
     val constantFin = ConstantFinTypeSymbol
     createGetFunction(
         constantFin,
-        mutableDictionaryType,
-        mutableDictionaryKeyTypeParam,
-        mutableDictionaryValueTypeParam
+        Lang.mutableDictionaryType,
+        Lang.mutableDictionaryKeyTypeParam,
+        Lang.mutableDictionaryValueTypeParam
     )
 
     createContainsFunction(
         ConstantFinTypeSymbol,
-        mutableDictionaryType,
-        mutableDictionaryKeyTypeParam,
-        booleanType
+        Lang.mutableDictionaryType,
+        Lang.mutableDictionaryKeyTypeParam,
+        Lang.booleanType
     )
 
     createRemoveFunction(
         constantFin,
-        mutableDictionaryType,
-        unitType,
-        mutableDictionaryKeyTypeParam
+        Lang.mutableDictionaryType,
+        Lang.unitObject,
+        Lang.mutableDictionaryKeyTypeParam
     )
 
     createSetFunction(
         constantFin,
-        mutableDictionaryType,
-        unitType,
-        mutableDictionaryKeyTypeParam,
-        mutableDictionaryValueTypeParam
+        Lang.mutableDictionaryType,
+        Lang.unitObject,
+        Lang.mutableDictionaryKeyTypeParam,
+        Lang.mutableDictionaryValueTypeParam
     )
 
     createToImmutableDictionaryPlugin(
-        mutableDictionaryType,
-        mutableDictionaryKeyTypeParam,
-        mutableDictionaryValueTypeParam,
-        mutableDictionaryFinTypeParam,
-        dictionaryType
+        Lang.mutableDictionaryType,
+        Lang.mutableDictionaryKeyTypeParam,
+        Lang.mutableDictionaryValueTypeParam,
+        Lang.mutableDictionaryFinTypeParam,
+        Lang.dictionaryType
     )
 
     val sizeId = Identifier(NotInSource, CollectionFields.Size.idStr)
     val sizeFieldSymbol = PlatformFieldSymbol(
-        mutableDictionaryType,
+        Lang.mutableDictionaryType,
         sizeId,
-        intType
+        Lang.intType
     ) { value ->
         (value as DictionaryValue).fieldSize()
     }
 
-    mutableDictionaryType.define(sizeId, sizeFieldSymbol)
-    mutableDictionaryType.fields = listOf(sizeFieldSymbol)
-
-    createMutableDictionaryEqualsMember(
-        mutableDictionaryType,
-        mutableDictionaryKeyTypeParam,
-        mutableDictionaryValueTypeParam,
-        mutableDictionaryFinTypeParam,
-        booleanType
-    )
-    createMutableDictionaryNotEqualsMember(
-        mutableDictionaryType,
-        mutableDictionaryKeyTypeParam,
-        mutableDictionaryValueTypeParam,
-        mutableDictionaryFinTypeParam,
-        booleanType
-    )
-
-    return mutableDictionaryType
+    Lang.mutableDictionaryType.define(sizeId, sizeFieldSymbol)
+    Lang.mutableDictionaryType.fields = listOf(sizeFieldSymbol)
 }

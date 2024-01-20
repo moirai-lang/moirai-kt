@@ -1,10 +1,7 @@
 package org.shardscript.semantics.prelude
 
 import org.shardscript.semantics.core.*
-import org.shardscript.semantics.infer.DecimalInstantiation
-import org.shardscript.semantics.infer.ListInstantiation
-import org.shardscript.semantics.infer.MutableListInstantiation
-import org.shardscript.semantics.infer.StringInstantiation
+import org.shardscript.semantics.infer.*
 
 object Lang {
     val prelude = SymbolTable(NullSymbolTable)
@@ -133,6 +130,35 @@ object Lang {
 
     val stringTypeParam = ImmutableFinTypeParameter(stringType, stringTypeId)
 
+    // Pair
+    val pairType = ParameterizedRecordTypeSymbol(
+        prelude,
+        pairId,
+        userTypeFeatureSupport
+    )
+    val pairFirstType = StandardTypeParameter(pairType, pairFirstTypeId)
+    val pairSecondType = StandardTypeParameter(pairType, pairSecondTypeId)
+
+    val dictionaryType = ParameterizedBasicTypeSymbol(
+        prelude,
+        dictionaryId,
+        DictionaryInstantiation(pairType),
+        immutableUnorderedFeatureSupport
+    )
+    val dictionaryKeyTypeParam = StandardTypeParameter(dictionaryType, dictionaryKeyTypeId)
+    val dictionaryValueTypeParam = StandardTypeParameter(dictionaryType, dictionaryValueTypeId)
+    val dictionaryFinTypeParam = ImmutableFinTypeParameter(dictionaryType, dictionaryFinTypeId)
+
+    val mutableDictionaryType = ParameterizedBasicTypeSymbol(
+        prelude,
+        mutableDictionaryId,
+        MutableDictionaryInstantiation(pairType),
+        noFeatureSupport
+    )
+    val mutableDictionaryKeyTypeParam = StandardTypeParameter(mutableDictionaryType, mutableDictionaryKeyTypeId)
+    val mutableDictionaryValueTypeParam = StandardTypeParameter(mutableDictionaryType, mutableDictionaryValueTypeId)
+    val mutableDictionaryFinTypeParam = MutableFinTypeParameter(mutableDictionaryType, mutableDictionaryFinTypeId)
+
     init {
         IntegerMathOpMembers.members().forEach { (name, plugin) ->
             intType.define(Identifier(NotInSource, name), plugin)
@@ -177,14 +203,6 @@ object Lang {
 
         stringType()
 
-        // Pair
-        val pairType = ParameterizedRecordTypeSymbol(
-            prelude,
-            pairId,
-            userTypeFeatureSupport
-        )
-        val pairFirstType = StandardTypeParameter(pairType, pairFirstTypeId)
-        val pairSecondType = StandardTypeParameter(pairType, pairSecondTypeId)
         pairType.typeParams = listOf(pairFirstType, pairSecondType)
         val pairFirstField = FieldSymbol(pairType, pairFirstId, pairFirstType, mutable = false)
         val pairSecondField = FieldSymbol(pairType, pairSecondId, pairSecondType, mutable = false)
@@ -193,18 +211,10 @@ object Lang {
         pairType.define(pairSecondId, pairSecondField)
 
         // Dictionary
-        val dictionaryType = dictionaryCollectionType(prelude, booleanType, intType, pairType)
+        dictionaryCollectionType()
 
         // MutableDictionary
-        val mutableDictionaryType =
-            mutableDictionaryCollectionType(
-                prelude,
-                booleanType,
-                intType,
-                unitObject,
-                pairType,
-                dictionaryType
-            )
+        mutableDictionaryCollectionType()
 
         // Set
         val setType = setCollectionType(prelude, booleanType, intType)
