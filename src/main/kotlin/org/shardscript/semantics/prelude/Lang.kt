@@ -159,6 +159,24 @@ object Lang {
     val mutableDictionaryValueTypeParam = StandardTypeParameter(mutableDictionaryType, mutableDictionaryValueTypeId)
     val mutableDictionaryFinTypeParam = MutableFinTypeParameter(mutableDictionaryType, mutableDictionaryFinTypeId)
 
+    val setType = ParameterizedBasicTypeSymbol(
+        prelude,
+        setId,
+        SetInstantiation(),
+        immutableUnorderedFeatureSupport
+    )
+    val setElementTypeParam = StandardTypeParameter(setType, setElementTypeId)
+    val setFinTypeParam = ImmutableFinTypeParameter(setType, setFinTypeId)
+
+    val mutableSetType = ParameterizedBasicTypeSymbol(
+        prelude,
+        mutableSetId,
+        MutableSetInstantiation(),
+        noFeatureSupport
+    )
+    val mutableSetElementTypeParam = StandardTypeParameter(mutableSetType, mutableSetElementTypeId)
+    val mutableSetFinTypeParam = MutableFinTypeParameter(mutableSetType, mutableSetFinTypeId)
+
     init {
         IntegerMathOpMembers.members().forEach { (name, plugin) ->
             intType.define(Identifier(NotInSource, name), plugin)
@@ -217,10 +235,10 @@ object Lang {
         mutableDictionaryCollectionType()
 
         // Set
-        val setType = setCollectionType(prelude, booleanType, intType)
+        setCollectionType()
 
         // MutableSet
-        val mutableSetType = mutableSetCollectionType(prelude, booleanType, intType, unitObject, setType)
+        mutableSetCollectionType()
 
         // Static
         val rangePlugin = createRangePlugin(prelude, intType, listType)

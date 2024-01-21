@@ -109,74 +109,44 @@ fun createToImmutableSetPlugin(
     mutableSetType.define(plugin.identifier, plugin)
 }
 
-fun setCollectionType(
-    langNS: Scope<Symbol>,
-    booleanType: BasicTypeSymbol,
-    intType: BasicTypeSymbol
-): ParameterizedBasicTypeSymbol {
-    val setType = ParameterizedBasicTypeSymbol(
-        langNS,
-        Lang.setId,
-        SetInstantiation(),
-        immutableUnorderedFeatureSupport
-    )
-    val setElementTypeParam = StandardTypeParameter(setType, Lang.setElementTypeId)
-    setType.define(Lang.setElementTypeId, setElementTypeParam)
-    val setFinTypeParam = ImmutableFinTypeParameter(setType, Lang.setFinTypeId)
-    setType.define(Lang.setFinTypeId, setFinTypeParam)
-    setType.typeParams = listOf(setElementTypeParam, setFinTypeParam)
-    setType.modeSelector = { _ ->
+fun setCollectionType() {
+    Lang.setType.define(Lang.setElementTypeId, Lang.setElementTypeParam)
+    Lang.setType.define(Lang.setFinTypeId, Lang.setFinTypeParam)
+    Lang.setType.typeParams = listOf(Lang.setElementTypeParam, Lang.setFinTypeParam)
+    Lang.setType.modeSelector = { _ ->
         ImmutableBasicTypeMode
     }
 
     createContainsFunction(
         ConstantFinTypeSymbol,
-        setType,
-        booleanType,
-        setElementTypeParam
+        Lang.setType,
+        Lang.booleanType,
+        Lang.setElementTypeParam
     )
 
     val sizeId = Identifier(NotInSource, CollectionFields.Size.idStr)
     val sizeFieldSymbol = PlatformFieldSymbol(
-        setType,
+        Lang.setType,
         sizeId,
-        intType
+        Lang.intType
     ) { value ->
         (value as SetValue).fieldSize()
     }
 
-    setType.define(sizeId, sizeFieldSymbol)
-    setType.fields = listOf(sizeFieldSymbol)
-
-    createSetEqualsMember(setType, setElementTypeParam, setFinTypeParam, booleanType)
-    createSetNotEqualsMember(setType, setElementTypeParam, setFinTypeParam, booleanType)
-
-    return setType
+    Lang.setType.define(sizeId, sizeFieldSymbol)
+    Lang.setType.fields = listOf(sizeFieldSymbol)
 }
 
-fun mutableSetCollectionType(
-    langNS: Scope<Symbol>,
-    booleanType: BasicTypeSymbol,
-    intType: BasicTypeSymbol,
-    unitType: PlatformObjectSymbol,
-    setType: ParameterizedBasicTypeSymbol
-): ParameterizedBasicTypeSymbol {
-    val mutableSetType = ParameterizedBasicTypeSymbol(
-        langNS,
-        Lang.mutableSetId,
-        MutableSetInstantiation(),
-        noFeatureSupport
-    )
-    val mutableSetElementTypeParam = StandardTypeParameter(mutableSetType, Lang.mutableSetElementTypeId)
-    mutableSetType.define(Lang.mutableSetElementTypeId, mutableSetElementTypeParam)
-    val mutableSetFinTypeParam = MutableFinTypeParameter(mutableSetType, Lang.mutableSetFinTypeId)
-    mutableSetType.define(Lang.mutableSetFinTypeId, mutableSetFinTypeParam)
-    mutableSetType.typeParams = listOf(mutableSetElementTypeParam, mutableSetFinTypeParam)
-    mutableSetType.modeSelector = { args ->
+fun mutableSetCollectionType() {
+    Lang.mutableSetType.define(Lang.mutableSetElementTypeId, Lang.mutableSetElementTypeParam)
+    Lang.mutableSetType.define(Lang.mutableSetFinTypeId, Lang.mutableSetFinTypeParam)
+    Lang.mutableSetType.typeParams = listOf(Lang.mutableSetElementTypeParam, Lang.mutableSetFinTypeParam)
+    Lang.mutableSetType.modeSelector = { args ->
         when (val fin = args[1]) {
             is FinTypeSymbol -> {
                 MutableBasicTypeMode(fin.magnitude)
             }
+
             else -> {
                 ImmutableBasicTypeMode
             }
@@ -187,46 +157,41 @@ fun mutableSetCollectionType(
 
     createContainsFunction(
         constantFin,
-        mutableSetType,
-        booleanType,
-        mutableSetElementTypeParam
+        Lang.mutableSetType,
+        Lang.booleanType,
+        Lang.mutableSetElementTypeParam
     )
 
     createAddFunction(
         constantFin,
-        mutableSetType,
-        unitType,
-        mutableSetElementTypeParam
+        Lang.mutableSetType,
+        Lang.unitObject,
+        Lang.mutableSetElementTypeParam
     )
 
     createRemoveFunction(
         constantFin,
-        mutableSetType,
-        unitType,
-        mutableSetElementTypeParam
+        Lang.mutableSetType,
+        Lang.unitObject,
+        Lang.mutableSetElementTypeParam
     )
 
     createToImmutableSetPlugin(
-        mutableSetType,
-        mutableSetElementTypeParam,
-        mutableSetFinTypeParam,
-        setType
+        Lang.mutableSetType,
+        Lang.mutableSetElementTypeParam,
+        Lang.mutableSetFinTypeParam,
+        Lang.setType
     )
 
     val sizeId = Identifier(NotInSource, CollectionFields.Size.idStr)
     val sizeFieldSymbol = PlatformFieldSymbol(
-        mutableSetType,
+        Lang.mutableSetType,
         sizeId,
-        intType
+        Lang.intType
     ) { value ->
         (value as SetValue).fieldSize()
     }
 
-    mutableSetType.define(sizeId, sizeFieldSymbol)
-    mutableSetType.fields = listOf(sizeFieldSymbol)
-
-    createMutableSetEqualsMember(mutableSetType, mutableSetElementTypeParam, mutableSetFinTypeParam, booleanType)
-    createMutableSetNotEqualsMember(mutableSetType, mutableSetElementTypeParam, mutableSetFinTypeParam, booleanType)
-
-    return mutableSetType
+    Lang.mutableSetType.define(sizeId, sizeFieldSymbol)
+    Lang.mutableSetType.fields = listOf(sizeFieldSymbol)
 }

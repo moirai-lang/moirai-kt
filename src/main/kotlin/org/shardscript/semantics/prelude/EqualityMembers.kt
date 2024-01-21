@@ -14,6 +14,10 @@ object EqualityMembers {
     val dictionaryNotEquals = createDictionaryNotEqualsMember()
     val mutableDictionaryEquals = createMutableDictionaryEqualsMember()
     val mutableDictionaryNotEquals = createMutableDictionaryNotEqualsMember()
+    val setEquals = createSetEqualsMember()
+    val setNotEquals = createSetNotEqualsMember()
+    val mutableSetEquals = createMutableSetEqualsMember()
+    val mutableSetNotEquals = createMutableSetNotEqualsMember()
 
     /**
      * List Equality
@@ -49,8 +53,7 @@ object EqualityMembers {
         return equalsMemberFunction
     }
 
-    fun createListNotEqualsMember(): ParameterizedMemberPluginSymbol
-    {
+    fun createListNotEqualsMember(): ParameterizedMemberPluginSymbol {
         val notEqualsMemberFunction = ParameterizedMemberPluginSymbol(
             Lang.listType,
             Identifier(NotInSource, BinaryOperator.NotEqual.idStr),
@@ -91,7 +94,8 @@ object EqualityMembers {
         equalsMemberFunction.define(Lang.mutableListElementTypeParam.identifier, Lang.mutableListElementTypeParam)
         equalsMemberFunction.define(Lang.mutableListFinTypeParam.identifier, Lang.mutableListFinTypeParam)
         equalsMemberFunction.define(inputFinTypeArg.identifier, inputFinTypeArg)
-        equalsMemberFunction.typeParams = listOf(Lang.mutableListElementTypeParam, Lang.mutableListFinTypeParam, inputFinTypeArg)
+        equalsMemberFunction.typeParams =
+            listOf(Lang.mutableListElementTypeParam, Lang.mutableListFinTypeParam, inputFinTypeArg)
 
         val inputSubstitution =
             Substitution(Lang.mutableListType.typeParams, listOf(Lang.mutableListElementTypeParam, inputFinTypeArg))
@@ -122,7 +126,8 @@ object EqualityMembers {
         notEqualsMemberFunction.define(Lang.mutableListElementTypeParam.identifier, Lang.mutableListElementTypeParam)
         notEqualsMemberFunction.define(Lang.mutableListFinTypeParam.identifier, Lang.mutableListFinTypeParam)
         notEqualsMemberFunction.define(inputFinTypeArg.identifier, inputFinTypeArg)
-        notEqualsMemberFunction.typeParams = listOf(Lang.mutableListElementTypeParam, Lang.mutableListFinTypeParam, inputFinTypeArg)
+        notEqualsMemberFunction.typeParams =
+            listOf(Lang.mutableListElementTypeParam, Lang.mutableListFinTypeParam, inputFinTypeArg)
 
         val inputSubstitution =
             Substitution(Lang.mutableListType.typeParams, listOf(Lang.mutableListElementTypeParam, inputFinTypeArg))
@@ -157,10 +162,18 @@ object EqualityMembers {
         equalsMemberFunction.define(Lang.dictionaryValueTypeParam.identifier, Lang.dictionaryValueTypeParam)
         equalsMemberFunction.define(inputFinTypeArg.identifier, inputFinTypeArg)
         equalsMemberFunction.typeParams =
-            listOf(Lang.dictionaryKeyTypeParam, Lang.dictionaryValueTypeParam, Lang.dictionaryFinTypeParam, inputFinTypeArg)
+            listOf(
+                Lang.dictionaryKeyTypeParam,
+                Lang.dictionaryValueTypeParam,
+                Lang.dictionaryFinTypeParam,
+                inputFinTypeArg
+            )
 
         val inputSubstitution =
-            Substitution(Lang.dictionaryType.typeParams, listOf(Lang.dictionaryKeyTypeParam, Lang.dictionaryValueTypeParam, inputFinTypeArg))
+            Substitution(
+                Lang.dictionaryType.typeParams,
+                listOf(Lang.dictionaryKeyTypeParam, Lang.dictionaryValueTypeParam, inputFinTypeArg)
+            )
         val inputType = inputSubstitution.apply(Lang.dictionaryType)
 
         val otherParam =
@@ -189,10 +202,18 @@ object EqualityMembers {
         notEqualsMemberFunction.define(Lang.dictionaryValueTypeParam.identifier, Lang.dictionaryValueTypeParam)
         notEqualsMemberFunction.define(inputFinTypeArg.identifier, inputFinTypeArg)
         notEqualsMemberFunction.typeParams =
-            listOf(Lang.dictionaryKeyTypeParam, Lang.dictionaryValueTypeParam, Lang.dictionaryFinTypeParam, inputFinTypeArg)
+            listOf(
+                Lang.dictionaryKeyTypeParam,
+                Lang.dictionaryValueTypeParam,
+                Lang.dictionaryFinTypeParam,
+                inputFinTypeArg
+            )
 
         val inputSubstitution =
-            Substitution(Lang.dictionaryType.typeParams, listOf(Lang.dictionaryKeyTypeParam, Lang.dictionaryValueTypeParam, inputFinTypeArg))
+            Substitution(
+                Lang.dictionaryType.typeParams,
+                listOf(Lang.dictionaryKeyTypeParam, Lang.dictionaryValueTypeParam, inputFinTypeArg)
+            )
         val inputType = inputSubstitution.apply(Lang.dictionaryType)
 
         val otherParam =
@@ -219,10 +240,18 @@ object EqualityMembers {
         val inputFinTypeArg =
             ImmutableFinTypeParameter(equalsMemberFunction, Lang.mutableDictionaryInputFinTypeId)
         equalsMemberFunction.define(Lang.mutableDictionaryKeyTypeParam.identifier, Lang.mutableDictionaryKeyTypeParam)
-        equalsMemberFunction.define(Lang.mutableDictionaryValueTypeParam.identifier, Lang.mutableDictionaryValueTypeParam)
+        equalsMemberFunction.define(
+            Lang.mutableDictionaryValueTypeParam.identifier,
+            Lang.mutableDictionaryValueTypeParam
+        )
         equalsMemberFunction.define(inputFinTypeArg.identifier, inputFinTypeArg)
         equalsMemberFunction.typeParams =
-            listOf(Lang.mutableDictionaryKeyTypeParam, Lang.mutableDictionaryValueTypeParam, Lang.mutableDictionaryFinTypeParam, inputFinTypeArg)
+            listOf(
+                Lang.mutableDictionaryKeyTypeParam,
+                Lang.mutableDictionaryValueTypeParam,
+                Lang.mutableDictionaryFinTypeParam,
+                inputFinTypeArg
+            )
 
         val inputSubstitution = Substitution(
             Lang.mutableDictionaryType.typeParams,
@@ -253,11 +282,22 @@ object EqualityMembers {
         )
         val inputFinTypeArg =
             ImmutableFinTypeParameter(notEqualsMemberFunction, Lang.mutableDictionaryInputFinTypeId)
-        notEqualsMemberFunction.define(Lang.mutableDictionaryKeyTypeParam.identifier, Lang.mutableDictionaryKeyTypeParam)
-        notEqualsMemberFunction.define(Lang.mutableDictionaryValueTypeParam.identifier, Lang.mutableDictionaryValueTypeParam)
+        notEqualsMemberFunction.define(
+            Lang.mutableDictionaryKeyTypeParam.identifier,
+            Lang.mutableDictionaryKeyTypeParam
+        )
+        notEqualsMemberFunction.define(
+            Lang.mutableDictionaryValueTypeParam.identifier,
+            Lang.mutableDictionaryValueTypeParam
+        )
         notEqualsMemberFunction.define(inputFinTypeArg.identifier, inputFinTypeArg)
         notEqualsMemberFunction.typeParams =
-            listOf(Lang.mutableDictionaryKeyTypeParam, Lang.mutableDictionaryValueTypeParam, Lang.mutableDictionaryFinTypeParam, inputFinTypeArg)
+            listOf(
+                Lang.mutableDictionaryKeyTypeParam,
+                Lang.mutableDictionaryValueTypeParam,
+                Lang.mutableDictionaryFinTypeParam,
+                inputFinTypeArg
+            )
 
         val inputSubstitution = Substitution(
             Lang.mutableDictionaryType.typeParams,
@@ -285,20 +325,18 @@ object EqualityMembers {
      */
     fun createSetEqualsMember(): ParameterizedMemberPluginSymbol {
         val equalsMemberFunction = ParameterizedMemberPluginSymbol(
-            setSymbol,
+            Lang.setType,
             Identifier(NotInSource, BinaryOperator.Equal.idStr),
             DoubleParentSingleFinPluginInstantiation
-        ) { t: Value, args: List<Value> ->
-            (t as EqualityValue).evalEquals(args.first())
-        }
+        )
         val inputFinTypeArg = ImmutableFinTypeParameter(equalsMemberFunction, Lang.setInputFinTypeId)
-        equalsMemberFunction.define(setElementType.identifier, setElementType)
-        equalsMemberFunction.define(setFin.identifier, setFin)
+        equalsMemberFunction.define(Lang.setElementTypeParam.identifier, Lang.setElementTypeParam)
+        equalsMemberFunction.define(Lang.setFinTypeParam.identifier, Lang.setFinTypeParam)
         equalsMemberFunction.define(inputFinTypeArg.identifier, inputFinTypeArg)
-        equalsMemberFunction.typeParams = listOf(setElementType, setFin, inputFinTypeArg)
+        equalsMemberFunction.typeParams = listOf(Lang.setElementTypeParam, Lang.setFinTypeParam, inputFinTypeArg)
 
-        val inputSubstitution = Substitution(setSymbol.typeParams, listOf(setElementType, inputFinTypeArg))
-        val inputType = inputSubstitution.apply(setSymbol)
+        val inputSubstitution = Substitution(Lang.setType.typeParams, listOf(Lang.setElementTypeParam, inputFinTypeArg))
+        val inputType = inputSubstitution.apply(Lang.setType)
 
         val otherParam =
             FunctionFormalParameterSymbol(equalsMemberFunction, Identifier(NotInSource, "other"), inputType)
@@ -306,31 +344,29 @@ object EqualityMembers {
         equalsMemberFunction.returnType = Lang.booleanType
         equalsMemberFunction.costExpression = SumCostExpression(
             listOf(
-                setFin,
+                Lang.setFinTypeParam,
                 inputFinTypeArg
             )
         )
 
-        setSymbol.define(equalsMemberFunction.identifier, equalsMemberFunction)
+        Lang.setType.define(equalsMemberFunction.identifier, equalsMemberFunction)
         return equalsMemberFunction
     }
 
     fun createSetNotEqualsMember(): ParameterizedMemberPluginSymbol {
         val notEqualsMemberFunction = ParameterizedMemberPluginSymbol(
-            setSymbol,
+            Lang.setType,
             Identifier(NotInSource, BinaryOperator.NotEqual.idStr),
             DoubleParentSingleFinPluginInstantiation
-        ) { t: Value, args: List<Value> ->
-            (t as EqualityValue).evalNotEquals(args.first())
-        }
+        )
         val inputFinTypeArg = ImmutableFinTypeParameter(notEqualsMemberFunction, Lang.setInputFinTypeId)
-        notEqualsMemberFunction.define(setElementType.identifier, setElementType)
-        notEqualsMemberFunction.define(setFin.identifier, setFin)
+        notEqualsMemberFunction.define(Lang.setElementTypeParam.identifier, Lang.setElementTypeParam)
+        notEqualsMemberFunction.define(Lang.setFinTypeParam.identifier, Lang.setFinTypeParam)
         notEqualsMemberFunction.define(inputFinTypeArg.identifier, inputFinTypeArg)
-        notEqualsMemberFunction.typeParams = listOf(setElementType, setFin, inputFinTypeArg)
+        notEqualsMemberFunction.typeParams = listOf(Lang.setElementTypeParam, Lang.setFinTypeParam, inputFinTypeArg)
 
-        val inputSubstitution = Substitution(setSymbol.typeParams, listOf(setElementType, inputFinTypeArg))
-        val inputType = inputSubstitution.apply(setSymbol)
+        val inputSubstitution = Substitution(Lang.setType.typeParams, listOf(Lang.setElementTypeParam, inputFinTypeArg))
+        val inputType = inputSubstitution.apply(Lang.setType)
 
         val otherParam =
             FunctionFormalParameterSymbol(notEqualsMemberFunction, Identifier(NotInSource, "other"), inputType)
@@ -338,32 +374,31 @@ object EqualityMembers {
         notEqualsMemberFunction.returnType = Lang.booleanType
         notEqualsMemberFunction.costExpression = SumCostExpression(
             listOf(
-                setFin,
+                Lang.setFinTypeParam,
                 inputFinTypeArg
             )
         )
 
-        setSymbol.define(notEqualsMemberFunction.identifier, notEqualsMemberFunction)
+        Lang.setType.define(notEqualsMemberFunction.identifier, notEqualsMemberFunction)
         return notEqualsMemberFunction
     }
 
     fun createMutableSetEqualsMember(): ParameterizedMemberPluginSymbol {
         val equalsMemberFunction = ParameterizedMemberPluginSymbol(
-            mutableSetSymbol,
+            Lang.mutableSetType,
             Identifier(NotInSource, BinaryOperator.Equal.idStr),
             DoubleParentSingleFinPluginInstantiation
-        ) { t: Value, args: List<Value> ->
-            (t as EqualityValue).evalEquals(args.first())
-        }
+        )
         val inputFinTypeArg = ImmutableFinTypeParameter(equalsMemberFunction, Lang.mutableSetInputFinTypeId)
-        equalsMemberFunction.define(mutableSetElementType.identifier, mutableSetElementType)
-        equalsMemberFunction.define(mutableSetFin.identifier, mutableSetFin)
+        equalsMemberFunction.define(Lang.mutableSetElementTypeParam.identifier, Lang.mutableSetElementTypeParam)
+        equalsMemberFunction.define(Lang.mutableSetFinTypeParam.identifier, Lang.mutableSetFinTypeParam)
         equalsMemberFunction.define(inputFinTypeArg.identifier, inputFinTypeArg)
-        equalsMemberFunction.typeParams = listOf(mutableSetElementType, mutableSetFin, inputFinTypeArg)
+        equalsMemberFunction.typeParams =
+            listOf(Lang.mutableSetElementTypeParam, Lang.mutableSetFinTypeParam, inputFinTypeArg)
 
         val inputSubstitution =
-            Substitution(mutableSetSymbol.typeParams, listOf(mutableSetElementType, inputFinTypeArg))
-        val inputType = inputSubstitution.apply(mutableSetSymbol)
+            Substitution(Lang.mutableSetType.typeParams, listOf(Lang.mutableSetElementTypeParam, inputFinTypeArg))
+        val inputType = inputSubstitution.apply(Lang.mutableSetType)
 
         val otherParam =
             FunctionFormalParameterSymbol(equalsMemberFunction, Identifier(NotInSource, "other"), inputType)
@@ -371,32 +406,31 @@ object EqualityMembers {
         equalsMemberFunction.returnType = Lang.booleanType
         equalsMemberFunction.costExpression = SumCostExpression(
             listOf(
-                mutableSetFin,
+                Lang.mutableSetFinTypeParam,
                 inputFinTypeArg
             )
         )
 
-        mutableSetSymbol.define(equalsMemberFunction.identifier, equalsMemberFunction)
+        Lang.mutableSetType.define(equalsMemberFunction.identifier, equalsMemberFunction)
         return equalsMemberFunction
     }
 
     fun createMutableSetNotEqualsMember(): ParameterizedMemberPluginSymbol {
         val notEqualsMemberFunction = ParameterizedMemberPluginSymbol(
-            mutableSetSymbol,
+            Lang.mutableSetType,
             Identifier(NotInSource, BinaryOperator.NotEqual.idStr),
             DoubleParentSingleFinPluginInstantiation
-        ) { t: Value, args: List<Value> ->
-            (t as EqualityValue).evalNotEquals(args.first())
-        }
+        )
         val inputFinTypeArg = ImmutableFinTypeParameter(notEqualsMemberFunction, Lang.mutableSetInputFinTypeId)
-        notEqualsMemberFunction.define(mutableSetElementType.identifier, mutableSetElementType)
-        notEqualsMemberFunction.define(mutableSetFin.identifier, mutableSetFin)
+        notEqualsMemberFunction.define(Lang.mutableSetElementTypeParam.identifier, Lang.mutableSetElementTypeParam)
+        notEqualsMemberFunction.define(Lang.mutableSetFinTypeParam.identifier, Lang.mutableSetFinTypeParam)
         notEqualsMemberFunction.define(inputFinTypeArg.identifier, inputFinTypeArg)
-        notEqualsMemberFunction.typeParams = listOf(mutableSetElementType, mutableSetFin, inputFinTypeArg)
+        notEqualsMemberFunction.typeParams =
+            listOf(Lang.mutableSetElementTypeParam, Lang.mutableSetFinTypeParam, inputFinTypeArg)
 
         val inputSubstitution =
-            Substitution(mutableSetSymbol.typeParams, listOf(mutableSetElementType, inputFinTypeArg))
-        val inputType = inputSubstitution.apply(mutableSetSymbol)
+            Substitution(Lang.mutableSetType.typeParams, listOf(Lang.mutableSetElementTypeParam, inputFinTypeArg))
+        val inputType = inputSubstitution.apply(Lang.mutableSetType)
 
         val otherParam =
             FunctionFormalParameterSymbol(notEqualsMemberFunction, Identifier(NotInSource, "other"), inputType)
@@ -404,12 +438,12 @@ object EqualityMembers {
         notEqualsMemberFunction.returnType = Lang.booleanType
         notEqualsMemberFunction.costExpression = SumCostExpression(
             listOf(
-                mutableSetFin,
+                Lang.mutableSetFinTypeParam,
                 inputFinTypeArg
             )
         )
 
-        mutableSetSymbol.define(notEqualsMemberFunction.identifier, notEqualsMemberFunction)
+        Lang.mutableSetType.define(notEqualsMemberFunction.identifier, notEqualsMemberFunction)
         return notEqualsMemberFunction
     }
 }
