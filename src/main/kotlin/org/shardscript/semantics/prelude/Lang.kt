@@ -235,10 +235,10 @@ object Lang {
         mutableDictionaryCollectionType()
 
         // Set
-        setCollectionType()
+        SetTypes.setCollectionType()
 
         // MutableSet
-        mutableSetCollectionType()
+        SetTypes.mutableSetCollectionType()
 
         // Static
         val rangePlugin = createRangePlugin(prelude, intType, listType)

@@ -181,6 +181,12 @@ object Plugins {
         },
         EqualityMembers.mutableSetNotEquals to GroundMemberPlugin { t: Value, args: List<Value> ->
             (t as EqualityValue).evalNotEquals(args.first())
+        },
+        SetTypes.setContains to GroundMemberPlugin { t: Value, args: List<Value> ->
+            (t as SetValue).evalContains(args.first())
+        },
+        SetTypes.mutableSetContains to GroundMemberPlugin { t: Value, args: List<Value> ->
+            (t as SetValue).evalContains(args.first())
         }
     )
 }
