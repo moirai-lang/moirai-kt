@@ -187,6 +187,15 @@ object Plugins {
         },
         SetTypes.mutableSetContains to GroundMemberPlugin { t: Value, args: List<Value> ->
             (t as SetValue).evalContains(args.first())
+        },
+        SetTypes.mutableSetAdd to GroundMemberPlugin { t: Value, args: List<Value> ->
+            (t as SetValue).evalAdd(args.first())
+        },
+        SetTypes.mutableSetRemove to GroundMemberPlugin { t: Value, args: List<Value> ->
+            (t as SetValue).evalRemove(args.first())
+        },
+        SetTypes.mutableSetToSet to GroundMemberPlugin { t: Value, _: List<Value> ->
+            (t as SetValue).evalToSet()
         }
     )
 }

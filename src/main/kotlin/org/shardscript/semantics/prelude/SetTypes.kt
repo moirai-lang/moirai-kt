@@ -6,6 +6,9 @@ import org.shardscript.semantics.infer.*
 object SetTypes {
     val setContains = createSetContainsFunction()
     val mutableSetContains = createMutableSetContainsFunction()
+    val mutableSetAdd = createMutableSetAddFunction()
+    val mutableSetRemove = createMutableSetRemoveFunction()
+    val mutableSetToSet = createMutableSetToImmutableSetPlugin()
 
     private fun createSetContainsFunction(): ParameterizedMemberPluginSymbol {
         val containsId = Identifier(NotInSource, CollectionMethods.Contains.idStr)
@@ -50,43 +53,39 @@ object SetTypes {
     private fun createMutableSetAddFunction(): ParameterizedMemberPluginSymbol {
         val addId = Identifier(NotInSource, CollectionMethods.InsertElement.idStr)
         val addMemberFunction = ParameterizedMemberPluginSymbol(
-            setType,
+            Lang.mutableSetType,
             addId,
             SingleParentArgInstantiation
-        ) { t: Value, args: List<Value> ->
-            (t as SetValue).evalAdd(args.first())
-        }
-        addMemberFunction.typeParams = listOf(setElementTypeParam)
+        )
+        addMemberFunction.typeParams = listOf(Lang.mutableSetElementTypeParam)
         addMemberFunction.costExpression = ConstantFinTypeSymbol
         val addFormalParamId = Identifier(NotInSource, "element")
-        val addFormalParam = FunctionFormalParameterSymbol(addMemberFunction, addFormalParamId, setElementTypeParam)
+        val addFormalParam = FunctionFormalParameterSymbol(addMemberFunction, addFormalParamId, Lang.mutableSetElementTypeParam)
         addMemberFunction.define(addFormalParamId, addFormalParam)
 
         addMemberFunction.formalParams = listOf(addFormalParam)
-        addMemberFunction.returnType = unitType
-        setType.define(addId, addMemberFunction)
+        addMemberFunction.returnType = Lang.unitObject
+        Lang.mutableSetType.define(addId, addMemberFunction)
         return addMemberFunction
     }
 
     private fun createMutableSetRemoveFunction(): ParameterizedMemberPluginSymbol {
         val removeId = Identifier(NotInSource, CollectionMethods.Remove.idStr)
         val removeMemberFunction = ParameterizedMemberPluginSymbol(
-            setType,
+            Lang.mutableSetType,
             removeId,
             SingleParentArgInstantiation
-        ) { t: Value, args: List<Value> ->
-            (t as SetValue).evalRemove(args.first())
-        }
-        removeMemberFunction.typeParams = listOf(setElementTypeParam)
+        )
+        removeMemberFunction.typeParams = listOf(Lang.mutableSetElementTypeParam)
         removeMemberFunction.costExpression = ConstantFinTypeSymbol
         val removeFormalParamId = Identifier(NotInSource, "element")
         val removeFormalParam =
-            FunctionFormalParameterSymbol(removeMemberFunction, removeFormalParamId, setElementTypeParam)
+            FunctionFormalParameterSymbol(removeMemberFunction, removeFormalParamId, Lang.mutableSetElementTypeParam)
         removeMemberFunction.define(removeFormalParamId, removeFormalParam)
 
         removeMemberFunction.formalParams = listOf(removeFormalParam)
-        removeMemberFunction.returnType = unitType
-        setType.define(removeId, removeMemberFunction)
+        removeMemberFunction.returnType = Lang.unitObject
+        Lang.mutableSetType.define(removeId, removeMemberFunction)
         return removeMemberFunction
     }
 
@@ -95,23 +94,22 @@ object SetTypes {
             Lang.mutableSetType,
             Identifier(NotInSource, CollectionMethods.ToImmutableSet.idStr),
             DoubleParentArgInstantiation
-        ) { t: Value, _: List<Value> ->
-            (t as SetValue).evalToSet()
-        }
-        plugin.typeParams = listOf(elementType, fin)
+        )
+        plugin.typeParams = listOf(Lang.mutableSetElementTypeParam, Lang.mutableSetFinTypeParam)
         plugin.formalParams = listOf()
-        val outputSubstitution = Substitution(setType.typeParams, listOf(elementType, fin))
-        val outputType = outputSubstitution.apply(setType)
+        val outputSubstitution =
+            Substitution(Lang.setType.typeParams, listOf(Lang.mutableSetElementTypeParam, Lang.mutableSetFinTypeParam))
+        val outputType = outputSubstitution.apply(Lang.setType)
         plugin.returnType = outputType
 
         plugin.costExpression =
             ProductCostExpression(
                 listOf(
                     CommonCostExpressions.twoPass,
-                    fin
+                    Lang.mutableSetFinTypeParam
                 )
             )
-        mutableSetType.define(plugin.identifier, plugin)
+        Lang.mutableSetType.define(plugin.identifier, plugin)
         return plugin
     }
 
