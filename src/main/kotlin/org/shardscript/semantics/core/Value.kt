@@ -196,6 +196,21 @@ object Plugins {
         },
         SetTypes.mutableSetToSet to GroundMemberPlugin { t: Value, _: List<Value> ->
             (t as SetValue).evalToSet()
+        },
+        ListTypes.listGet to GroundMemberPlugin { t: Value, args: List<Value> ->
+            (t as ListValue).evalGet(args.first())
+        },
+        ListTypes.mutableListGet to GroundMemberPlugin { t: Value, args: List<Value> ->
+            (t as ListValue).evalGet(args.first())
+        },
+        ListTypes.mutableListAdd to GroundMemberPlugin { t: Value, args: List<Value> ->
+            (t as ListValue).evalAdd(args.first())
+        },
+        ListTypes.mutableListSet to GroundMemberPlugin { t: Value, args: List<Value> ->
+            (t as ListValue).evalSet(args.first(), args[1])
+        },
+        ListTypes.mutableListToList to GroundMemberPlugin { t: Value, _: List<Value> ->
+            (t as ListValue).evalToList()
         }
     )
 }

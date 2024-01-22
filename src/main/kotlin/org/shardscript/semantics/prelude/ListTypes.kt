@@ -4,93 +4,98 @@ import org.shardscript.semantics.core.*
 import org.shardscript.semantics.infer.*
 
 object ListTypes {
-    fun createGetFunction(
-        costExpression: CostExpression,
-        listType: ParameterizedBasicTypeSymbol,
-        intType: BasicTypeSymbol,
-        listElementTypeParam: StandardTypeParameter
-    ) {
+    val listGet = createGetFunction()
+    val mutableListGet = createMutableListGetFunction()
+    val mutableListAdd = createAddFunction()
+    val mutableListSet = createSetFunction()
+    val removeAtFunction = createRemoveAtFunction()
+    val mutableListToList = createToImmutableListPlugin()
+
+    private fun createGetFunction(): ParameterizedMemberPluginSymbol {
         val getId = Identifier(NotInSource, CollectionMethods.IndexLookup.idStr)
         val getMemberFunction = ParameterizedMemberPluginSymbol(
-            listType,
+            Lang.listType,
             getId,
             SingleParentArgInstantiation
-        ) { t: Value, args: List<Value> ->
-            (t as ListValue).evalGet(args.first())
-        }
-        getMemberFunction.typeParams = listOf(listElementTypeParam)
-        getMemberFunction.costExpression = costExpression
+        )
+        getMemberFunction.typeParams = listOf(Lang.listElementTypeParam)
+        getMemberFunction.costExpression = ConstantFinTypeSymbol
         val getFormalParamId = Identifier(NotInSource, "index")
-        val getFormalParam = FunctionFormalParameterSymbol(getMemberFunction, getFormalParamId, intType)
+        val getFormalParam = FunctionFormalParameterSymbol(getMemberFunction, getFormalParamId, Lang.intType)
         getMemberFunction.define(getFormalParamId, getFormalParam)
 
         getMemberFunction.formalParams = listOf(getFormalParam)
-        getMemberFunction.returnType = listElementTypeParam
-        listType.define(getId, getMemberFunction)
+        getMemberFunction.returnType = Lang.listElementTypeParam
+        Lang.listType.define(getId, getMemberFunction)
+        return getMemberFunction
     }
 
-    fun createAddFunction(
-        costExpression: CostExpression,
-        listType: ParameterizedBasicTypeSymbol,
-        unitType: PlatformObjectSymbol,
-        listElementTypeParam: StandardTypeParameter
-    ) {
+    private fun createMutableListGetFunction(): ParameterizedMemberPluginSymbol {
+        val getId = Identifier(NotInSource, CollectionMethods.IndexLookup.idStr)
+        val getMemberFunction = ParameterizedMemberPluginSymbol(
+            Lang.mutableListType,
+            getId,
+            SingleParentArgInstantiation
+        )
+        getMemberFunction.typeParams = listOf(Lang.mutableListElementTypeParam)
+        getMemberFunction.costExpression = ConstantFinTypeSymbol
+        val getFormalParamId = Identifier(NotInSource, "index")
+        val getFormalParam = FunctionFormalParameterSymbol(getMemberFunction, getFormalParamId, Lang.intType)
+        getMemberFunction.define(getFormalParamId, getFormalParam)
+
+        getMemberFunction.formalParams = listOf(getFormalParam)
+        getMemberFunction.returnType = Lang.mutableListElementTypeParam
+        Lang.mutableListType.define(getId, getMemberFunction)
+        return getMemberFunction
+    }
+
+    private fun createAddFunction(): ParameterizedMemberPluginSymbol {
         val addId = Identifier(NotInSource, CollectionMethods.InsertElement.idStr)
         val addMemberFunction = ParameterizedMemberPluginSymbol(
-            listType,
+            Lang.mutableListType,
             addId,
             SingleParentArgInstantiation
-        ) { t: Value, args: List<Value> ->
-            (t as ListValue).evalAdd(args.first())
-        }
-        addMemberFunction.typeParams = listOf(listElementTypeParam)
-        addMemberFunction.costExpression = costExpression
+        )
+        addMemberFunction.typeParams = listOf(Lang.mutableListElementTypeParam)
+        addMemberFunction.costExpression = ConstantFinTypeSymbol
         val addFormalParamId = Identifier(NotInSource, "element")
-        val addFormalParam = FunctionFormalParameterSymbol(addMemberFunction, addFormalParamId, listElementTypeParam)
+        val addFormalParam = FunctionFormalParameterSymbol(addMemberFunction, addFormalParamId, Lang.mutableListElementTypeParam)
         addMemberFunction.define(addFormalParamId, addFormalParam)
 
         addMemberFunction.formalParams = listOf(addFormalParam)
-        addMemberFunction.returnType = unitType
-        listType.define(addId, addMemberFunction)
+        addMemberFunction.returnType = Lang.unitObject
+        Lang.mutableListType.define(addId, addMemberFunction)
+        return addMemberFunction
     }
 
-    fun createSetFunction(
-        costExpression: CostExpression,
-        listType: ParameterizedBasicTypeSymbol,
-        unitType: PlatformObjectSymbol,
-        intType: BasicTypeSymbol,
-        listElementTypeParam: StandardTypeParameter
-    ) {
+    private fun createSetFunction(): ParameterizedMemberPluginSymbol {
         val setId = Identifier(NotInSource, CollectionMethods.IndexAssign.idStr)
         val setMemberFunction = ParameterizedMemberPluginSymbol(
-            listType,
+            Lang.mutableListType,
             setId,
             SingleParentArgInstantiation
-        ) { t: Value, args: List<Value> ->
-            (t as ListValue).evalSet(args.first(), args[1])
-        }
-        setMemberFunction.typeParams = listOf(listElementTypeParam)
-        setMemberFunction.costExpression = costExpression
+        )
+        setMemberFunction.typeParams = listOf(Lang.mutableListElementTypeParam)
+        setMemberFunction.costExpression = ConstantFinTypeSymbol
         val indexFormalParamId = Identifier(NotInSource, "index")
-        val indexFormalParam = FunctionFormalParameterSymbol(setMemberFunction, indexFormalParamId, intType)
+        val indexFormalParam = FunctionFormalParameterSymbol(setMemberFunction, indexFormalParamId, Lang.intType)
         setMemberFunction.define(indexFormalParamId, indexFormalParam)
 
         val valueFormalParamId = Identifier(NotInSource, "value")
         val valueFormalParam =
-            FunctionFormalParameterSymbol(setMemberFunction, valueFormalParamId, listElementTypeParam)
+            FunctionFormalParameterSymbol(setMemberFunction, valueFormalParamId, Lang.mutableListElementTypeParam)
         setMemberFunction.define(valueFormalParamId, valueFormalParam)
 
         setMemberFunction.formalParams = listOf(indexFormalParam, valueFormalParam)
-        setMemberFunction.returnType = unitType
-        listType.define(setId, setMemberFunction)
+        setMemberFunction.returnType = Lang.unitObject
+        Lang.mutableListType.define(setId, setMemberFunction)
+        return setMemberFunction
     }
-
-    val removeAtFunction = createRemoveAtFunction()
 
     private fun createRemoveAtFunction(): GroundMemberPluginSymbol {
         val removeAtId = Identifier(NotInSource, CollectionMethods.RemoveAtIndex.idStr)
         val removeAtMemberFunction = GroundMemberPluginSymbol(
-            Lang.listType,
+            Lang.mutableListType,
             removeAtId
         )
         removeAtMemberFunction.costExpression = ConstantFinTypeSymbol
@@ -100,37 +105,31 @@ object ListTypes {
 
         removeAtMemberFunction.formalParams = listOf(removeAtFormalParam)
         removeAtMemberFunction.returnType = Lang.unitObject
-        Lang.listType.define(removeAtId, removeAtMemberFunction)
+        Lang.mutableListType.define(removeAtId, removeAtMemberFunction)
         return removeAtMemberFunction
     }
 
-    fun createToImmutableListPlugin(
-        mutableListType: ParameterizedBasicTypeSymbol,
-        elementType: StandardTypeParameter,
-        fin: MutableFinTypeParameter,
-        listType: ParameterizedBasicTypeSymbol
-    ) {
+    private fun createToImmutableListPlugin(): ParameterizedMemberPluginSymbol {
         val plugin = ParameterizedMemberPluginSymbol(
-            mutableListType,
+            Lang.mutableListType,
             Identifier(NotInSource, CollectionMethods.ToImmutableList.idStr),
             DoubleParentArgInstantiation
-        ) { t: Value, _: List<Value> ->
-            (t as ListValue).evalToList()
-        }
-        plugin.typeParams = listOf(elementType, fin)
+        )
+        plugin.typeParams = listOf(Lang.mutableListElementTypeParam, Lang.mutableSetFinTypeParam)
         plugin.formalParams = listOf()
-        val outputSubstitution = Substitution(listType.typeParams, listOf(elementType, fin))
-        val outputType = outputSubstitution.apply(listType)
+        val outputSubstitution = Substitution(Lang.listType.typeParams, listOf(Lang.mutableListElementTypeParam, Lang.mutableSetFinTypeParam))
+        val outputType = outputSubstitution.apply(Lang.listType)
         plugin.returnType = outputType
 
         plugin.costExpression =
             ProductCostExpression(
                 listOf(
                     CommonCostExpressions.twoPass,
-                    fin
+                    Lang.mutableSetFinTypeParam
                 )
             )
-        mutableListType.define(plugin.identifier, plugin)
+        Lang.mutableListType.define(plugin.identifier, plugin)
+        return plugin
     }
 
     fun listCollectionType() {
@@ -140,12 +139,6 @@ object ListTypes {
         Lang.listType.modeSelector = { _ ->
             ImmutableBasicTypeMode
         }
-        createGetFunction(
-            ConstantFinTypeSymbol,
-            Lang.listType,
-            Lang.intType,
-            Lang.listElementTypeParam
-        )
 
         val sizeId = Identifier(NotInSource, CollectionFields.Size.idStr)
         val sizeFieldSymbol = PlatformFieldSymbol(
@@ -158,9 +151,6 @@ object ListTypes {
 
         Lang.listType.define(sizeId, sizeFieldSymbol)
         Lang.listType.fields = listOf(sizeFieldSymbol)
-
-        createListEqualsMember(Lang.listType, Lang.listElementTypeParam, Lang.listFinTypeParam, Lang.booleanType)
-        createListNotEqualsMember(Lang.listType, Lang.listElementTypeParam, Lang.listFinTypeParam, Lang.booleanType)
     }
 
     fun mutableListCollectionType() {
@@ -179,35 +169,6 @@ object ListTypes {
             }
         }
 
-        createGetFunction(
-            ConstantFinTypeSymbol,
-            Lang.mutableListType,
-            Lang.intType,
-            Lang.mutableListElementTypeParam
-        )
-
-        createAddFunction(
-            ConstantFinTypeSymbol,
-            Lang.mutableListType,
-            Lang.unitObject,
-            Lang.mutableListElementTypeParam
-        )
-
-        createSetFunction(
-            ConstantFinTypeSymbol,
-            Lang.mutableListType,
-            Lang.unitObject,
-            Lang.intType,
-            Lang.mutableListElementTypeParam
-        )
-
-        createToImmutableListPlugin(
-            Lang.mutableListType,
-            Lang.mutableListElementTypeParam,
-            Lang.mutableListFinTypeParam,
-            Lang.listType
-        )
-
         val sizeId = Identifier(NotInSource, CollectionFields.Size.idStr)
         val sizeFieldSymbol = PlatformFieldSymbol(
             Lang.mutableListType,
@@ -219,18 +180,5 @@ object ListTypes {
 
         Lang.mutableListType.define(sizeId, sizeFieldSymbol)
         Lang.mutableListType.fields = listOf(sizeFieldSymbol)
-
-        createMutableListEqualsMember(
-            Lang.mutableListType,
-            Lang.mutableListElementTypeParam,
-            Lang.mutableListFinTypeParam,
-            Lang.booleanType
-        )
-        createMutableListNotEqualsMember(
-            Lang.mutableListType,
-            Lang.mutableListElementTypeParam,
-            Lang.mutableListFinTypeParam,
-            Lang.booleanType
-        )
     }
 }
