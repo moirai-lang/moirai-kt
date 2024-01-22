@@ -219,7 +219,7 @@ object Lang {
         ListTypes.listCollectionType()
         ListTypes.mutableListCollectionType()
 
-        stringType()
+        StringTypes.stringType()
 
         pairType.typeParams = listOf(pairFirstType, pairSecondType)
         val pairFirstField = FieldSymbol(pairType, pairFirstId, pairFirstType, mutable = false)
