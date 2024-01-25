@@ -229,10 +229,10 @@ object Lang {
         pairType.define(pairSecondId, pairSecondField)
 
         // Dictionary
-        dictionaryCollectionType()
+        DictionaryTypes.dictionaryCollectionType()
 
         // MutableDictionary
-        mutableDictionaryCollectionType()
+        DictionaryTypes.mutableDictionaryCollectionType()
 
         // Set
         SetTypes.setCollectionType()
