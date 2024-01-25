@@ -211,6 +211,27 @@ object Plugins {
         },
         ListTypes.mutableListToList to GroundMemberPlugin { t: Value, _: List<Value> ->
             (t as ListValue).evalToList()
+        },
+        DictionaryTypes.getFunction to GroundMemberPlugin { t: Value, args: List<Value> ->
+            (t as DictionaryValue).evalGet(args.first())
+        },
+        DictionaryTypes.mutableGetFunction to GroundMemberPlugin { t: Value, args: List<Value> ->
+            (t as DictionaryValue).evalGet(args.first())
+        },
+        DictionaryTypes.containsFunction to GroundMemberPlugin { t: Value, args: List<Value> ->
+            (t as DictionaryValue).evalContains(args.first())
+        },
+        DictionaryTypes.mutableContainsFunction to GroundMemberPlugin { t: Value, args: List<Value> ->
+            (t as DictionaryValue).evalContains(args.first())
+        },
+        DictionaryTypes.setFunction to GroundMemberPlugin { t: Value, args: List<Value> ->
+            (t as DictionaryValue).evalSet(args.first(), args[1])
+        },
+        DictionaryTypes.removeFunction to GroundMemberPlugin { t: Value, args: List<Value> ->
+            (t as DictionaryValue).evalRemove(args.first())
+        },
+        DictionaryTypes.mutableDictionaryToDictionary to GroundMemberPlugin { t: Value, _: List<Value> ->
+            (t as DictionaryValue).evalToDictionary()
         }
     )
 }
