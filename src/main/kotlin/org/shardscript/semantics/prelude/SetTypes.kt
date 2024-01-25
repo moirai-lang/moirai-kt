@@ -114,13 +114,6 @@ object SetTypes {
     }
 
     fun setCollectionType() {
-        Lang.setType.define(Lang.setElementTypeId, Lang.setElementTypeParam)
-        Lang.setType.define(Lang.setFinTypeId, Lang.setFinTypeParam)
-        Lang.setType.typeParams = listOf(Lang.setElementTypeParam, Lang.setFinTypeParam)
-        Lang.setType.modeSelector = { _ ->
-            ImmutableBasicTypeMode
-        }
-
         val sizeId = Identifier(NotInSource, CollectionFields.Size.idStr)
         val sizeFieldSymbol = PlatformFieldSymbol(
             Lang.setType,
@@ -135,21 +128,6 @@ object SetTypes {
     }
 
     fun mutableSetCollectionType() {
-        Lang.mutableSetType.define(Lang.mutableSetElementTypeId, Lang.mutableSetElementTypeParam)
-        Lang.mutableSetType.define(Lang.mutableSetFinTypeId, Lang.mutableSetFinTypeParam)
-        Lang.mutableSetType.typeParams = listOf(Lang.mutableSetElementTypeParam, Lang.mutableSetFinTypeParam)
-        Lang.mutableSetType.modeSelector = { args ->
-            when (val fin = args[1]) {
-                is FinTypeSymbol -> {
-                    MutableBasicTypeMode(fin.magnitude)
-                }
-
-                else -> {
-                    ImmutableBasicTypeMode
-                }
-            }
-        }
-
         val sizeId = Identifier(NotInSource, CollectionFields.Size.idStr)
         val sizeFieldSymbol = PlatformFieldSymbol(
             Lang.mutableSetType,

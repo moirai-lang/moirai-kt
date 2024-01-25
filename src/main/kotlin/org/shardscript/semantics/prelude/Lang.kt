@@ -216,8 +216,97 @@ object Lang {
             decimalType.define(Identifier(NotInSource, name), plugin)
         }
 
+        // List
+        listType.define(listElementTypeId, listElementTypeParam)
+        listType.define(listFinTypeId, listFinTypeParam)
+        listType.typeParams = listOf(listElementTypeParam, listFinTypeParam)
+        listType.modeSelector = { _ ->
+            ImmutableBasicTypeMode
+        }
+        
         ListTypes.listCollectionType()
+        
+        // MutableList
+        mutableListType.define(mutableListElementTypeId, mutableListElementTypeParam)
+        mutableListType.define(mutableListFinTypeId, mutableListFinTypeParam)
+        mutableListType.typeParams = listOf(mutableListElementTypeParam, mutableListFinTypeParam)
+        mutableListType.modeSelector = { args ->
+            when (val fin = args[1]) {
+                is FinTypeSymbol -> {
+                    MutableBasicTypeMode(fin.magnitude)
+                }
+
+                else -> {
+                    ImmutableBasicTypeMode
+                }
+            }
+        }
+        
         ListTypes.mutableListCollectionType()
+
+        // Dictionary
+        dictionaryType.define(dictionaryKeyTypeId, dictionaryKeyTypeParam)
+        dictionaryType.define(dictionaryValueTypeId, dictionaryValueTypeParam)
+        dictionaryType.define(dictionaryFinTypeId, dictionaryFinTypeParam)
+        dictionaryType.typeParams =
+            listOf(dictionaryKeyTypeParam, dictionaryValueTypeParam, dictionaryFinTypeParam)
+        dictionaryType.modeSelector = { _ ->
+            ImmutableBasicTypeMode
+        }
+
+        DictionaryTypes.dictionaryCollectionType()
+
+        // MutableDictionary
+        mutableDictionaryType.define(mutableDictionaryKeyTypeId, mutableDictionaryKeyTypeParam)
+        mutableDictionaryType.define(mutableDictionaryValueTypeId, mutableDictionaryValueTypeParam)
+        mutableDictionaryType.define(mutableDictionaryFinTypeId, mutableDictionaryFinTypeParam)
+        mutableDictionaryType.typeParams =
+            listOf(
+                mutableDictionaryKeyTypeParam,
+                mutableDictionaryValueTypeParam,
+                mutableDictionaryFinTypeParam
+            )
+        mutableDictionaryType.modeSelector = { args ->
+            when (val fin = args[2]) {
+                is FinTypeSymbol -> {
+                    MutableBasicTypeMode(fin.magnitude)
+                }
+
+                else -> {
+                    ImmutableBasicTypeMode
+                }
+            }
+        }
+
+        DictionaryTypes.mutableDictionaryCollectionType()
+
+        // Set
+        setType.define(setElementTypeId, setElementTypeParam)
+        setType.define(setFinTypeId, setFinTypeParam)
+        setType.typeParams = listOf(setElementTypeParam, setFinTypeParam)
+        setType.modeSelector = { _ ->
+            ImmutableBasicTypeMode
+        }
+        
+        SetTypes.setCollectionType()
+
+        // MutableSet
+        mutableSetType.define(mutableSetElementTypeId, mutableSetElementTypeParam)
+        mutableSetType.define(mutableSetFinTypeId, mutableSetFinTypeParam)
+        mutableSetType.typeParams = listOf(mutableSetElementTypeParam, mutableSetFinTypeParam)
+        mutableSetType.modeSelector = { args ->
+            when (val fin = args[1]) {
+                is FinTypeSymbol -> {
+                    MutableBasicTypeMode(fin.magnitude)
+                }
+
+                else -> {
+                    ImmutableBasicTypeMode
+                }
+            }
+        }
+        
+        SetTypes.mutableSetCollectionType()
 
         StringTypes.stringType()
 
@@ -227,18 +316,6 @@ object Lang {
         pairType.fields = listOf(pairFirstField, pairSecondField)
         pairType.define(pairFirstId, pairFirstField)
         pairType.define(pairSecondId, pairSecondField)
-
-        // Dictionary
-        DictionaryTypes.dictionaryCollectionType()
-
-        // MutableDictionary
-        DictionaryTypes.mutableDictionaryCollectionType()
-
-        // Set
-        SetTypes.setCollectionType()
-
-        // MutableSet
-        SetTypes.mutableSetCollectionType()
 
         // Static
         val rangePlugin = createRangePlugin(prelude, intType, listType)

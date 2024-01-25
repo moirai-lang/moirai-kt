@@ -133,13 +133,6 @@ object ListTypes {
     }
 
     fun listCollectionType() {
-        Lang.listType.define(Lang.listElementTypeId, Lang.listElementTypeParam)
-        Lang.listType.define(Lang.listFinTypeId, Lang.listFinTypeParam)
-        Lang.listType.typeParams = listOf(Lang.listElementTypeParam, Lang.listFinTypeParam)
-        Lang.listType.modeSelector = { _ ->
-            ImmutableBasicTypeMode
-        }
-
         val sizeId = Identifier(NotInSource, CollectionFields.Size.idStr)
         val sizeFieldSymbol = PlatformFieldSymbol(
             Lang.listType,
@@ -154,21 +147,6 @@ object ListTypes {
     }
 
     fun mutableListCollectionType() {
-        Lang.mutableListType.define(Lang.mutableListElementTypeId, Lang.mutableListElementTypeParam)
-        Lang.mutableListType.define(Lang.mutableListFinTypeId, Lang.mutableListFinTypeParam)
-        Lang.mutableListType.typeParams = listOf(Lang.mutableListElementTypeParam, Lang.mutableListFinTypeParam)
-        Lang.mutableListType.modeSelector = { args ->
-            when (val fin = args[1]) {
-                is FinTypeSymbol -> {
-                    MutableBasicTypeMode(fin.magnitude)
-                }
-
-                else -> {
-                    ImmutableBasicTypeMode
-                }
-            }
-        }
-
         val sizeId = Identifier(NotInSource, CollectionFields.Size.idStr)
         val sizeFieldSymbol = PlatformFieldSymbol(
             Lang.mutableListType,

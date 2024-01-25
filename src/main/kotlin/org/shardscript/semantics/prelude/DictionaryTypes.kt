@@ -168,15 +168,6 @@ object DictionaryTypes {
     }
 
     fun dictionaryCollectionType() {
-        Lang.dictionaryType.define(Lang.dictionaryKeyTypeId, Lang.dictionaryKeyTypeParam)
-        Lang.dictionaryType.define(Lang.dictionaryValueTypeId, Lang.dictionaryValueTypeParam)
-        Lang.dictionaryType.define(Lang.dictionaryFinTypeId, Lang.dictionaryFinTypeParam)
-        Lang.dictionaryType.typeParams =
-            listOf(Lang.dictionaryKeyTypeParam, Lang.dictionaryValueTypeParam, Lang.dictionaryFinTypeParam)
-        Lang.dictionaryType.modeSelector = { _ ->
-            ImmutableBasicTypeMode
-        }
-
         val sizeId = Identifier(NotInSource, CollectionFields.Size.idStr)
         val sizeFieldSymbol = PlatformFieldSymbol(
             Lang.dictionaryType,
@@ -191,27 +182,6 @@ object DictionaryTypes {
     }
 
     fun mutableDictionaryCollectionType() {
-        Lang.mutableDictionaryType.define(Lang.mutableDictionaryKeyTypeId, Lang.mutableDictionaryKeyTypeParam)
-        Lang.mutableDictionaryType.define(Lang.mutableDictionaryValueTypeId, Lang.mutableDictionaryValueTypeParam)
-        Lang.mutableDictionaryType.define(Lang.mutableDictionaryFinTypeId, Lang.mutableDictionaryFinTypeParam)
-        Lang.mutableDictionaryType.typeParams =
-            listOf(
-                Lang.mutableDictionaryKeyTypeParam,
-                Lang.mutableDictionaryValueTypeParam,
-                Lang.mutableDictionaryFinTypeParam
-            )
-        Lang.mutableDictionaryType.modeSelector = { args ->
-            when (val fin = args[2]) {
-                is FinTypeSymbol -> {
-                    MutableBasicTypeMode(fin.magnitude)
-                }
-
-                else -> {
-                    ImmutableBasicTypeMode
-                }
-            }
-        }
-
         val sizeId = Identifier(NotInSource, CollectionFields.Size.idStr)
         val sizeFieldSymbol = PlatformFieldSymbol(
             Lang.mutableDictionaryType,
