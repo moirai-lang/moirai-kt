@@ -266,9 +266,7 @@ data class ParameterizedStaticPluginSymbol(
     override val parent: Scope<Symbol>,
     override val identifier: Identifier,
     val instantiation: SingleTypeInstantiation,
-    val plugin: (List<Value>) -> Value
 ) : ParameterizedSymbol(parent) {
-    fun invoke(args: List<Value>): Value = plugin(args)
     override lateinit var typeParams: List<TypeParameter>
     lateinit var formalParams: List<FunctionFormalParameterSymbol>
     lateinit var returnType: Type

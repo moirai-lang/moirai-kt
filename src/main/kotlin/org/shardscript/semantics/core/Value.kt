@@ -2,6 +2,7 @@ package org.shardscript.semantics.core
 
 import org.shardscript.semantics.prelude.*
 import java.math.BigDecimal
+import kotlin.random.Random
 
 sealed class Value
 
@@ -232,6 +233,69 @@ object Plugins {
         },
         DictionaryTypes.mutableDictionaryToDictionary to GroundMemberPlugin { t: Value, _: List<Value> ->
             (t as DictionaryValue).evalToDictionary()
+        }
+    )
+
+    val staticPlugins: Map<ParameterizedStaticPluginSymbol, PluginValue> = mapOf(
+        StaticPlugins.rangePlugin to PluginValue { args ->
+            val originalLowerBound = args[0] as IntValue
+            val originalUpperBound = args[1] as IntValue
+            if (originalLowerBound.canonicalForm < originalUpperBound.canonicalForm) {
+                val lowerBound = originalLowerBound.canonicalForm
+                val upperBound = originalUpperBound.canonicalForm - 1
+                val list: MutableList<Value> = (lowerBound..upperBound).toList().map {
+                    IntValue(it)
+                }.toMutableList()
+                ListValue(ImmutableBasicTypeMode, list)
+            } else {
+                val lowerBound = originalUpperBound.canonicalForm + 1
+                val upperBound = originalLowerBound.canonicalForm
+                val list: MutableList<Value> = (lowerBound..upperBound).toList().map {
+                    IntValue(it)
+                }.toMutableList()
+                list.reverse()
+                ListValue(ImmutableBasicTypeMode, list)
+            }
+        },
+        StaticPlugins.randomPlugin to PluginValue { args ->
+            when (val first = args.first()) {
+                is IntValue -> {
+                    var lowerBound = first.canonicalForm
+                    var upperBound = (args[1] as IntValue).canonicalForm
+                    var lowerBoundInclusive = true
+                    var upperBoundInclusive = false
+
+                    if (lowerBound > upperBound) {
+                        val temp = lowerBound
+                        lowerBound = upperBound
+                        upperBound = temp
+                        lowerBoundInclusive = false
+                        upperBoundInclusive = true
+                    }
+
+                    var offset = 0
+                    if (lowerBound < 0) {
+                        offset = lowerBound
+                        lowerBound += -offset
+                        upperBound += -offset
+                    }
+
+                    if (!lowerBoundInclusive) {
+                        lowerBound += 1
+                    }
+                    if (upperBoundInclusive) {
+                        upperBound += 1
+                    }
+
+                    var res = Random.nextInt(lowerBound, upperBound)
+                    res += offset
+                    IntValue(res)
+                }
+
+                else -> {
+                    langThrow(NotInSource, TypeSystemBug)
+                }
+            }
         }
     )
 }
@@ -736,7 +800,7 @@ class SymbolRouterValueTable(private val prelude: Scope<Symbol>, private val sym
                 fv
             }
 
-            is ParameterizedStaticPluginSymbol -> PluginValue(res.plugin)
+            is ParameterizedStaticPluginSymbol -> Plugins.staticPlugins[res]!!
             is GroundRecordTypeSymbol -> RecordConstructorValue(prelude, res)
             is ParameterizedRecordTypeSymbol -> RecordConstructorValue(prelude, res)
             is ParameterizedBasicTypeSymbol -> when (res.identifier) {
@@ -766,7 +830,7 @@ class SymbolRouterValueTable(private val prelude: Scope<Symbol>, private val sym
                 val fv = FunctionValue(res.formalParams, res.body)
                 fv
             }
-            is ParameterizedStaticPluginSymbol -> PluginValue(res.plugin)
+            is ParameterizedStaticPluginSymbol -> Plugins.staticPlugins[res]!!
             is GroundRecordTypeSymbol -> RecordConstructorValue(prelude, res)
             is ParameterizedRecordTypeSymbol -> RecordConstructorValue(prelude, res)
             is ParameterizedBasicTypeSymbol -> when (res.identifier) {

@@ -317,10 +317,6 @@ object Lang {
         pairType.define(pairFirstId, pairFirstField)
         pairType.define(pairSecondId, pairSecondField)
 
-        // Static
-        val rangePlugin = createRangePlugin(prelude, intType, listType)
-        val randomPlugin = createRandomPlugin(prelude, ConstantFinTypeSymbol)
-
         // Compose output
         prelude.define(unitId, unitObject)
         prelude.define(booleanId, booleanType)
@@ -335,7 +331,7 @@ object Lang {
         prelude.define(mutableSetId, mutableSetType)
         prelude.define(charId, charType)
         prelude.define(stringId, stringType)
-        prelude.define(rangeId, rangePlugin)
-        prelude.define(randomId, randomPlugin)
+        prelude.define(rangeId, StaticPlugins.rangePlugin)
+        prelude.define(randomId, StaticPlugins.randomPlugin)
     }
 }
