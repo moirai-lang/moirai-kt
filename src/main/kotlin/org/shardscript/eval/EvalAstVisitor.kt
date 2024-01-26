@@ -76,16 +76,16 @@ class EvalAstVisitor(private val globalScope: ValueTable) : ParameterizedAstVisi
                 lhs.fields.fetch(ast.identifier)
             }
             is ListValue -> {
-                (ast.symbolRef as PlatformFieldSymbol).accessor(lhs)
+                Plugins.fields[ast.symbolRef as PlatformFieldSymbol]!!.invoke(lhs)
             }
             is DictionaryValue -> {
-                (ast.symbolRef as PlatformFieldSymbol).accessor(lhs)
+                Plugins.fields[ast.symbolRef as PlatformFieldSymbol]!!.invoke(lhs)
             }
             is SetValue -> {
-                (ast.symbolRef as PlatformFieldSymbol).accessor(lhs)
+                Plugins.fields[ast.symbolRef as PlatformFieldSymbol]!!.invoke(lhs)
             }
             is StringValue -> {
-                (ast.symbolRef as PlatformFieldSymbol).accessor(lhs)
+                Plugins.fields[ast.symbolRef as PlatformFieldSymbol]!!.invoke(lhs)
             }
             else -> {
                 langThrow(ast.ctx, TypeSystemBug)
@@ -131,7 +131,7 @@ class EvalAstVisitor(private val globalScope: ValueTable) : ParameterizedAstVisi
             val lhs = ast.lhs.accept(this, param)
             when (val toApply = ast.symbolRef) {
                 is GroundMemberPluginSymbol -> {
-                    return toApply.invoke(lhs, args)
+                    return Plugins.groundMemberPlugins[toApply]!!.invoke(lhs, args)
                 }
                 is SymbolInstantiation -> {
                     when (val parameterizedType = toApply.substitutionChain.originalSymbol) {
@@ -151,7 +151,7 @@ class EvalAstVisitor(private val globalScope: ValueTable) : ParameterizedAstVisi
                             }
                         }
                         is ParameterizedMemberPluginSymbol -> {
-                            return parameterizedType.invoke(lhs, args)
+                            return Plugins.parameterizedMemberPlugins[parameterizedType]!!.invoke(lhs, args)
                         }
                         else -> langThrow(ast.ctx, TypeSystemBug)
                     }
@@ -237,6 +237,10 @@ class EvalAstVisitor(private val globalScope: ValueTable) : ParameterizedAstVisi
 
     override fun visit(ast: IsAst, param: ValueTable): Value {
         ast.lhs.accept(this, param)
-        return ast.result
+        return if (ast.testErrors.toSet().isEmpty()) {
+            BooleanValue(true)
+        } else {
+            BooleanValue(false)
+        }
     }
 }

@@ -263,6 +263,7 @@ class PropagateTypesAstVisitor(
                 is BasicTypeSymbol -> ast.assignType(errors, symbol)
                 is LocalVariableSymbol -> ast.assignType(errors, symbol.ofTypeSymbol)
                 is ObjectSymbol -> ast.assignType(errors, symbol)
+                is PlatformObjectSymbol -> ast.assignType(errors, symbol)
                 is FunctionFormalParameterSymbol -> {
                     ast.assignType(errors, symbol.ofTypeSymbol)
                     if (ast.readType() is FunctionTypeSymbol) {
@@ -318,7 +319,7 @@ class PropagateTypesAstVisitor(
             ast.assignType(errors, preludeTable.fetch(Lang.unitId) as Type)
             if (ast.typeParams.isEmpty()) {
                 val groundFunctionSymbol = ast.scope as GroundFunctionSymbol
-                if (Lang.isUnitExactly(groundFunctionSymbol.returnType) && !Lang.isUnitExactly(ast.body.readType())) {
+                if (groundFunctionSymbol.returnType == Lang.unitObject && ast.body.readType() != Lang.unitObject) {
                     val refAst = RefAst(NotInSource, Lang.unitId)
                     refAst.scope = ast.body.scope
                     refAst.accept(this)
@@ -327,7 +328,7 @@ class PropagateTypesAstVisitor(
                 }
             } else {
                 val parameterizedFunctionSymbol = ast.scope as ParameterizedFunctionSymbol
-                if (Lang.isUnitExactly(parameterizedFunctionSymbol.returnType) && !Lang.isUnitExactly(ast.body.readType())) {
+                if (parameterizedFunctionSymbol.returnType == Lang.unitObject && ast.body.readType() != Lang.unitObject) {
                     val refAst = RefAst(NotInSource, Lang.unitId)
                     refAst.scope = ast.body.scope
                     refAst.accept(this)
@@ -524,6 +525,23 @@ class PropagateTypesAstVisitor(
                     }
                 }
                 is ObjectSymbol -> {
+                    val member = lhsType.fetchHere(ast.tti)
+                    filterValidDotApply(ast.ctx, errors, member, ast.signifier)
+                    ast.symbolRef = member
+                    when (member) {
+                        is GroundMemberPluginSymbol -> {
+                            if (ast.signifier is ParameterizedSignifier) {
+                                errors.add(ast.signifier.ctx, SymbolHasNoParameters(ast.signifier))
+                            }
+                            ast.assignType(errors, member.returnType)
+                        }
+                        else -> {
+                            errors.add(ast.ctx, SymbolCouldNotBeApplied(ast.signifier))
+                            ast.assignType(errors, ErrorSymbol)
+                        }
+                    }
+                }
+                is PlatformObjectSymbol -> {
                     val member = lhsType.fetchHere(ast.tti)
                     filterValidDotApply(ast.ctx, errors, member, ast.signifier)
                     ast.symbolRef = member

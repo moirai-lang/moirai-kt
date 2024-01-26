@@ -3,316 +3,353 @@ package org.shardscript.semantics.prelude
 import org.shardscript.semantics.core.*
 
 object IntegerMathOpMembers {
-    fun members(valueType: BasicTypeSymbol, costExpression: CostExpression): Map<String, GroundMemberPluginSymbol> = mapOf(
-        BinaryOperator.Add.idStr to pluginAdd(valueType, costExpression),
-        BinaryOperator.Sub.idStr to pluginSub(valueType, costExpression),
-        BinaryOperator.Mul.idStr to pluginMul(valueType, costExpression),
-        BinaryOperator.Div.idStr to pluginDiv(valueType, costExpression),
-        BinaryOperator.Mod.idStr to pluginMod(valueType, costExpression),
-        UnaryOperator.Negate.idStr to pluginNegate(valueType, costExpression)
+    val add = pluginAdd()
+    val sub = pluginSub()
+    val mul = pluginMul()
+    val div = pluginDiv()
+    val mod = pluginMod()
+    val negate = pluginNegate()
+
+    fun members(): Map<String, GroundMemberPluginSymbol> = mapOf(
+        BinaryOperator.Add.idStr to add,
+        BinaryOperator.Sub.idStr to sub,
+        BinaryOperator.Mul.idStr to mul,
+        BinaryOperator.Div.idStr to div,
+        BinaryOperator.Mod.idStr to mod,
+        UnaryOperator.Negate.idStr to negate
     )
 
-    private fun pluginAdd(valueType: BasicTypeSymbol, costExpression: CostExpression): GroundMemberPluginSymbol {
+    private fun pluginAdd(): GroundMemberPluginSymbol {
         val res = GroundMemberPluginSymbol(
-            valueType,
+            Lang.intType,
             Identifier(NotInSource, BinaryOperator.Add.idStr)
-        ) { t: Value, args: List<Value> ->
-            (t as MathValue).evalAdd(args.first())
-        }
-        res.costExpression = costExpression
+        )
+        res.costExpression = ConstantFinTypeSymbol
         val formalParamId = Identifier(NotInSource, "other")
-        val formalParam = FunctionFormalParameterSymbol(res, formalParamId, valueType)
+        val formalParam = FunctionFormalParameterSymbol(res, formalParamId, Lang.intType)
         res.define(formalParamId, formalParam)
 
         res.formalParams = listOf(formalParam)
-        res.returnType = valueType
+        res.returnType = Lang.intType
         return res
     }
 
-    private fun pluginSub(valueType: BasicTypeSymbol, costExpression: CostExpression): GroundMemberPluginSymbol {
+    private fun pluginSub(): GroundMemberPluginSymbol {
         val res = GroundMemberPluginSymbol(
-            valueType,
+            Lang.intType,
             Identifier(NotInSource, BinaryOperator.Sub.idStr)
-        ) { t: Value, args: List<Value> ->
-            (t as MathValue).evalSub(args.first())
-        }
-        res.costExpression = costExpression
+        )
+        res.costExpression = ConstantFinTypeSymbol
         val formalParamId = Identifier(NotInSource, "other")
-        val formalParam = FunctionFormalParameterSymbol(res, formalParamId, valueType)
+        val formalParam = FunctionFormalParameterSymbol(res, formalParamId, Lang.intType)
         res.define(formalParamId, formalParam)
 
         res.formalParams = listOf(formalParam)
-        res.returnType = valueType
+        res.returnType = Lang.intType
         return res
     }
 
-    private fun pluginMul(valueType: BasicTypeSymbol, costExpression: CostExpression): GroundMemberPluginSymbol {
+    private fun pluginMul(): GroundMemberPluginSymbol {
         val res = GroundMemberPluginSymbol(
-            valueType,
+            Lang.intType,
             Identifier(NotInSource, BinaryOperator.Mul.idStr)
-        ) { t: Value, args: List<Value> ->
-            (t as MathValue).evalMul(args.first())
-        }
-        res.costExpression = costExpression
+        )
+        res.costExpression = ConstantFinTypeSymbol
         val formalParamId = Identifier(NotInSource, "other")
-        val formalParam = FunctionFormalParameterSymbol(res, formalParamId, valueType)
+        val formalParam = FunctionFormalParameterSymbol(res, formalParamId, Lang.intType)
         res.define(formalParamId, formalParam)
 
         res.formalParams = listOf(formalParam)
-        res.returnType = valueType
+        res.returnType = Lang.intType
         return res
     }
 
-    private fun pluginDiv(valueType: BasicTypeSymbol, costExpression: CostExpression): GroundMemberPluginSymbol {
+    private fun pluginDiv(): GroundMemberPluginSymbol {
         val res = GroundMemberPluginSymbol(
-            valueType,
+            Lang.intType,
             Identifier(NotInSource, BinaryOperator.Div.idStr)
-        ) { t: Value, args: List<Value> ->
-            (t as MathValue).evalDiv(args.first())
-        }
-        res.costExpression = costExpression
+        )
+        res.costExpression = ConstantFinTypeSymbol
         val formalParamId = Identifier(NotInSource, "other")
-        val formalParam = FunctionFormalParameterSymbol(res, formalParamId, valueType)
+        val formalParam = FunctionFormalParameterSymbol(res, formalParamId, Lang.intType)
         res.define(formalParamId, formalParam)
 
         res.formalParams = listOf(formalParam)
-        res.returnType = valueType
+        res.returnType = Lang.intType
         return res
     }
 
-    private fun pluginMod(valueType: BasicTypeSymbol, costExpression: CostExpression): GroundMemberPluginSymbol {
+    private fun pluginMod(): GroundMemberPluginSymbol {
         val res = GroundMemberPluginSymbol(
-            valueType,
+            Lang.intType,
             Identifier(NotInSource, BinaryOperator.Mod.idStr)
-        ) { t: Value, args: List<Value> ->
-            (t as MathValue).evalMod(args.first())
-        }
-        res.costExpression = costExpression
+        )
+        res.costExpression = ConstantFinTypeSymbol
         val formalParamId = Identifier(NotInSource, "other")
-        val formalParam = FunctionFormalParameterSymbol(res, formalParamId, valueType)
+        val formalParam = FunctionFormalParameterSymbol(res, formalParamId, Lang.intType)
         res.define(formalParamId, formalParam)
 
         res.formalParams = listOf(formalParam)
-        res.returnType = valueType
+        res.returnType = Lang.intType
         return res
     }
 
-    private fun pluginNegate(valueType: BasicTypeSymbol, costExpression: CostExpression): GroundMemberPluginSymbol {
+    private fun pluginNegate(): GroundMemberPluginSymbol {
         val res = GroundMemberPluginSymbol(
-            valueType,
+            Lang.intType,
             Identifier(NotInSource, UnaryOperator.Negate.idStr)
-        ) { t: Value, _: List<Value> ->
-            (t as MathValue).evalNegate()
-        }
-        res.costExpression = costExpression
+        )
+        res.costExpression = ConstantFinTypeSymbol
         res.formalParams = listOf()
-        res.returnType = valueType
+        res.returnType = Lang.intType
         return res
     }
 }
 
 object IntegerOrderOpMembers {
-    fun members(
-        valueType: BasicTypeSymbol,
-        costExpression: CostExpression,
-        booleanType: BasicTypeSymbol
-    ): Map<String, GroundMemberPluginSymbol> = mapOf(
-        BinaryOperator.GreaterThan.idStr to pluginGreaterThan(valueType, costExpression, booleanType),
-        BinaryOperator.GreaterThanEqual.idStr to pluginGreaterThanOrEquals(valueType, costExpression, booleanType),
-        BinaryOperator.LessThan.idStr to pluginLessThan(valueType, costExpression, booleanType),
-        BinaryOperator.LessThanEqual.idStr to pluginLessThanOrEquals(valueType, costExpression, booleanType)
+    val greaterThan = pluginGreaterThan()
+    val greaterThanOrEquals = pluginGreaterThanOrEquals()
+    val lessThan = pluginLessThan()
+    val lessThanOrEquals = pluginLessThanOrEquals()
+
+    fun members(): Map<String, GroundMemberPluginSymbol> = mapOf(
+        BinaryOperator.GreaterThan.idStr to greaterThan,
+        BinaryOperator.GreaterThanEqual.idStr to greaterThanOrEquals,
+        BinaryOperator.LessThan.idStr to lessThan,
+        BinaryOperator.LessThanEqual.idStr to lessThanOrEquals
     )
 
-    private fun pluginGreaterThan(
-        valueType: BasicTypeSymbol,
-        costExpression: CostExpression,
-        booleanType: BasicTypeSymbol
-    ): GroundMemberPluginSymbol {
+    private fun pluginGreaterThan(): GroundMemberPluginSymbol {
         val res = GroundMemberPluginSymbol(
-            valueType,
+            Lang.intType,
             Identifier(NotInSource, BinaryOperator.GreaterThan.idStr)
-        ) { t: Value, args: List<Value> ->
-            (t as OrderValue).evalGreaterThan(args.first())
-        }
-        res.costExpression = costExpression
+        )
+        res.costExpression = ConstantFinTypeSymbol
         val formalParamId = Identifier(NotInSource, "other")
-        val formalParam = FunctionFormalParameterSymbol(res, formalParamId, valueType)
+        val formalParam = FunctionFormalParameterSymbol(res, formalParamId, Lang.intType)
         res.define(formalParamId, formalParam)
 
         res.formalParams = listOf(formalParam)
-        res.returnType = booleanType
+        res.returnType = Lang.booleanType
         return res
     }
 
-    private fun pluginGreaterThanOrEquals(
-        valueType: BasicTypeSymbol,
-        costExpression: CostExpression,
-        booleanType: BasicTypeSymbol
-    ): GroundMemberPluginSymbol {
+    private fun pluginGreaterThanOrEquals(): GroundMemberPluginSymbol {
         val res = GroundMemberPluginSymbol(
-            valueType,
+            Lang.intType,
             Identifier(NotInSource, BinaryOperator.GreaterThanEqual.idStr)
-        ) { t: Value, args: List<Value> ->
-            (t as OrderValue).evalGreaterThanOrEquals(args.first())
-        }
-        res.costExpression = costExpression
+        )
+        res.costExpression = ConstantFinTypeSymbol
         val formalParamId = Identifier(NotInSource, "other")
-        val formalParam = FunctionFormalParameterSymbol(res, formalParamId, valueType)
+        val formalParam = FunctionFormalParameterSymbol(res, formalParamId, Lang.intType)
         res.define(formalParamId, formalParam)
 
         res.formalParams = listOf(formalParam)
-        res.returnType = booleanType
+        res.returnType = Lang.booleanType
         return res
     }
 
-    private fun pluginLessThan(
-        valueType: BasicTypeSymbol,
-        costExpression: CostExpression,
-        booleanType: BasicTypeSymbol
-    ): GroundMemberPluginSymbol {
+    private fun pluginLessThan(): GroundMemberPluginSymbol {
         val res = GroundMemberPluginSymbol(
-            valueType,
+            Lang.intType,
             Identifier(NotInSource, BinaryOperator.LessThan.idStr)
-        ) { t: Value, args: List<Value> ->
-            (t as OrderValue).evalLessThan(args.first())
-        }
-        res.costExpression = costExpression
+        )
+        res.costExpression = ConstantFinTypeSymbol
         val formalParamId = Identifier(NotInSource, "other")
-        val formalParam = FunctionFormalParameterSymbol(res, formalParamId, valueType)
+        val formalParam = FunctionFormalParameterSymbol(res, formalParamId, Lang.intType)
         res.define(formalParamId, formalParam)
 
         res.formalParams = listOf(formalParam)
-        res.returnType = booleanType
+        res.returnType = Lang.booleanType
         return res
     }
 
-    private fun pluginLessThanOrEquals(
-        valueType: BasicTypeSymbol,
-        costExpression: CostExpression,
-        booleanType: BasicTypeSymbol
-    ): GroundMemberPluginSymbol {
+    private fun pluginLessThanOrEquals(): GroundMemberPluginSymbol {
         val res = GroundMemberPluginSymbol(
-            valueType,
+            Lang.intType,
             Identifier(NotInSource, BinaryOperator.LessThanEqual.idStr)
-        ) { t: Value, args: List<Value> ->
-            (t as OrderValue).evalLessThanOrEquals(args.first())
-        }
-        res.costExpression = costExpression
+        )
+        res.costExpression = ConstantFinTypeSymbol
         val formalParamId = Identifier(NotInSource, "other")
-        val formalParam = FunctionFormalParameterSymbol(res, formalParamId, valueType)
+        val formalParam = FunctionFormalParameterSymbol(res, formalParamId, Lang.intType)
         res.define(formalParamId, formalParam)
 
         res.formalParams = listOf(formalParam)
-        res.returnType = booleanType
+        res.returnType = Lang.booleanType
         return res
     }
 }
 
-object ValueEqualityOpMembers {
-    fun members(
-        valueType: BasicTypeSymbol,
-        costExpression: CostExpression,
-        booleanType: BasicTypeSymbol
-    ): Map<String, GroundMemberPluginSymbol> = mapOf(
-        BinaryOperator.Equal.idStr to pluginEquals(valueType, costExpression, booleanType),
-        BinaryOperator.NotEqual.idStr to pluginNotEquals(valueType, costExpression, booleanType)
+object IntegerEqualityOpMembers {
+    val equals = pluginEquals()
+    val notEquals = pluginNotEquals()
+
+    fun members(): Map<String, GroundMemberPluginSymbol> = mapOf(
+        BinaryOperator.Equal.idStr to equals,
+        BinaryOperator.NotEqual.idStr to notEquals
     )
 
-    private fun pluginEquals(
-        valueType: BasicTypeSymbol,
-        costExpression: CostExpression,
-        booleanType: BasicTypeSymbol
-    ): GroundMemberPluginSymbol {
+    private fun pluginEquals(): GroundMemberPluginSymbol {
         val res = GroundMemberPluginSymbol(
-            valueType,
+            Lang.intType,
             Identifier(NotInSource, BinaryOperator.Equal.idStr)
-        ) { t: Value, args: List<Value> ->
-            (t as EqualityValue).evalEquals(args.first())
-        }
-        res.costExpression = costExpression
+        )
+        res.costExpression = ConstantFinTypeSymbol
         val formalParamId = Identifier(NotInSource, "other")
-        val formalParam = FunctionFormalParameterSymbol(res, formalParamId, valueType)
+        val formalParam = FunctionFormalParameterSymbol(res, formalParamId, Lang.intType)
         res.define(formalParamId, formalParam)
 
         res.formalParams = listOf(formalParam)
-        res.returnType = booleanType
+        res.returnType = Lang.booleanType
         return res
     }
 
-    private fun pluginNotEquals(
-        valueType: BasicTypeSymbol,
-        costExpression: CostExpression,
-        booleanType: BasicTypeSymbol
-    ): GroundMemberPluginSymbol {
+    private fun pluginNotEquals(): GroundMemberPluginSymbol {
         val res = GroundMemberPluginSymbol(
-            valueType,
+            Lang.intType,
             Identifier(NotInSource, BinaryOperator.NotEqual.idStr)
-        ) { t: Value, args: List<Value> ->
-            (t as EqualityValue).evalNotEquals(args.first())
-        }
-        res.costExpression = costExpression
+        )
+        res.costExpression = ConstantFinTypeSymbol
         val formalParamId = Identifier(NotInSource, "other")
-        val formalParam = FunctionFormalParameterSymbol(res, formalParamId, valueType)
+        val formalParam = FunctionFormalParameterSymbol(res, formalParamId, Lang.intType)
         res.define(formalParamId, formalParam)
 
         res.formalParams = listOf(formalParam)
-        res.returnType = booleanType
+        res.returnType = Lang.booleanType
+        return res
+    }
+}
+
+object BooleanEqualityOpMembers {
+    val equals = pluginEquals()
+    val notEquals = pluginNotEquals()
+
+    fun members(): Map<String, GroundMemberPluginSymbol> = mapOf(
+        BinaryOperator.Equal.idStr to equals,
+        BinaryOperator.NotEqual.idStr to notEquals
+    )
+
+    private fun pluginEquals(): GroundMemberPluginSymbol {
+        val res = GroundMemberPluginSymbol(
+            Lang.booleanType,
+            Identifier(NotInSource, BinaryOperator.Equal.idStr)
+        )
+        res.costExpression = ConstantFinTypeSymbol
+        val formalParamId = Identifier(NotInSource, "other")
+        val formalParam = FunctionFormalParameterSymbol(res, formalParamId, Lang.booleanType)
+        res.define(formalParamId, formalParam)
+
+        res.formalParams = listOf(formalParam)
+        res.returnType = Lang.booleanType
+        return res
+    }
+
+    private fun pluginNotEquals(): GroundMemberPluginSymbol {
+        val res = GroundMemberPluginSymbol(
+            Lang.booleanType,
+            Identifier(NotInSource, BinaryOperator.NotEqual.idStr)
+        )
+        res.costExpression = ConstantFinTypeSymbol
+        val formalParamId = Identifier(NotInSource, "other")
+        val formalParam = FunctionFormalParameterSymbol(res, formalParamId, Lang.booleanType)
+        res.define(formalParamId, formalParam)
+
+        res.formalParams = listOf(formalParam)
+        res.returnType = Lang.booleanType
+        return res
+    }
+}
+
+object CharEqualityOpMembers {
+    val equals = pluginEquals()
+    val notEquals = pluginNotEquals()
+
+    fun members(): Map<String, GroundMemberPluginSymbol> = mapOf(
+        BinaryOperator.Equal.idStr to equals,
+        BinaryOperator.NotEqual.idStr to notEquals
+    )
+
+    private fun pluginEquals(): GroundMemberPluginSymbol {
+        val res = GroundMemberPluginSymbol(
+            Lang.charType,
+            Identifier(NotInSource, BinaryOperator.Equal.idStr)
+        )
+        res.costExpression = ConstantFinTypeSymbol
+        val formalParamId = Identifier(NotInSource, "other")
+        val formalParam = FunctionFormalParameterSymbol(res, formalParamId, Lang.charType)
+        res.define(formalParamId, formalParam)
+
+        res.formalParams = listOf(formalParam)
+        res.returnType = Lang.booleanType
+        return res
+    }
+
+    private fun pluginNotEquals(): GroundMemberPluginSymbol {
+        val res = GroundMemberPluginSymbol(
+            Lang.charType,
+            Identifier(NotInSource, BinaryOperator.NotEqual.idStr)
+        )
+        res.costExpression = ConstantFinTypeSymbol
+        val formalParamId = Identifier(NotInSource, "other")
+        val formalParam = FunctionFormalParameterSymbol(res, formalParamId, Lang.charType)
+        res.define(formalParamId, formalParam)
+
+        res.formalParams = listOf(formalParam)
+        res.returnType = Lang.booleanType
         return res
     }
 }
 
 object ValueLogicalOpMembers {
-    fun members(logicalType: BasicTypeSymbol, costExpression: CostExpression): Map<String, GroundMemberPluginSymbol> =
+    val and = pluginAnd()
+    val or = pluginOr()
+    val not = pluginNot()
+
+    fun members(): Map<String, GroundMemberPluginSymbol> =
         mapOf(
-            BinaryOperator.And.idStr to pluginAnd(logicalType, costExpression),
-            BinaryOperator.Or.idStr to pluginOr(logicalType, costExpression),
-            UnaryOperator.Not.idStr to pluginNot(logicalType, costExpression)
+            BinaryOperator.And.idStr to and,
+            BinaryOperator.Or.idStr to or,
+            UnaryOperator.Not.idStr to not
         )
 
-    private fun pluginAnd(logicalType: BasicTypeSymbol, costExpression: CostExpression): GroundMemberPluginSymbol {
+    private fun pluginAnd(): GroundMemberPluginSymbol {
         val res = GroundMemberPluginSymbol(
-            logicalType,
+            Lang.booleanType,
             Identifier(NotInSource, BinaryOperator.And.idStr)
-        ) { t: Value, args: List<Value> ->
-            (t as LogicalValue).evalAnd(args.first())
-        }
-        res.costExpression = costExpression
+        )
+        res.costExpression = ConstantFinTypeSymbol
         val formalParamId = Identifier(NotInSource, "other")
-        val formalParam = FunctionFormalParameterSymbol(res, formalParamId, logicalType)
+        val formalParam = FunctionFormalParameterSymbol(res, formalParamId, Lang.booleanType)
         res.define(formalParamId, formalParam)
 
         res.formalParams = listOf(formalParam)
-        res.returnType = logicalType
+        res.returnType = Lang.booleanType
         return res
     }
 
-    private fun pluginOr(logicalType: BasicTypeSymbol, costExpression: CostExpression): GroundMemberPluginSymbol {
+    private fun pluginOr(): GroundMemberPluginSymbol {
         val res = GroundMemberPluginSymbol(
-            logicalType,
+            Lang.booleanType,
             Identifier(NotInSource, BinaryOperator.Or.idStr)
-        ) { t: Value, args: List<Value> ->
-            (t as LogicalValue).evalOr(args.first())
-        }
-        res.costExpression = costExpression
+        )
+        res.costExpression = ConstantFinTypeSymbol
         val formalParamId = Identifier(NotInSource, "other")
-        val formalParam = FunctionFormalParameterSymbol(res, formalParamId, logicalType)
+        val formalParam = FunctionFormalParameterSymbol(res, formalParamId, Lang.booleanType)
         res.define(formalParamId, formalParam)
 
         res.formalParams = listOf(formalParam)
-        res.returnType = logicalType
+        res.returnType = Lang.booleanType
         return res
     }
 
-    private fun pluginNot(logicalType: BasicTypeSymbol, costExpression: CostExpression): GroundMemberPluginSymbol {
+    private fun pluginNot(): GroundMemberPluginSymbol {
         val res = GroundMemberPluginSymbol(
-            logicalType,
+            Lang.booleanType,
             Identifier(NotInSource, UnaryOperator.Not.idStr)
-        ) { t: Value, _: List<Value> ->
-            (t as LogicalValue).evalNot()
-        }
-        res.costExpression = costExpression
+        )
+        res.costExpression = ConstantFinTypeSymbol
         res.formalParams = listOf()
-        res.returnType = logicalType
+        res.returnType = Lang.booleanType
         return res
     }
 }

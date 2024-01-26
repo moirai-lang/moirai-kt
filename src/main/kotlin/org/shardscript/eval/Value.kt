@@ -1,7 +1,9 @@
-package org.shardscript.semantics.core
+package org.shardscript.eval
 
-import org.shardscript.semantics.prelude.Lang
+import org.shardscript.semantics.core.*
+import org.shardscript.semantics.prelude.*
 import java.math.BigDecimal
+import kotlin.random.Random
 
 sealed class Value
 
@@ -9,6 +11,322 @@ data object UnitValue : Value() {
     fun evalToString(): Value {
         return StringValue(Lang.unitId.name)
     }
+}
+
+data class GroundMemberPlugin(private val plugin: (Value, List<Value>) -> Value) {
+    fun invoke(t: Value, args: List<Value>): Value = plugin(t, args)
+}
+
+data class PlatformField(private val accessor: (Value) -> Value) {
+    fun invoke(t: Value): Value = accessor(t)
+}
+
+object Plugins {
+    val groundMemberPlugins: Map<GroundMemberPluginSymbol, GroundMemberPlugin> = mapOf(
+        IntegerMathOpMembers.add to GroundMemberPlugin { t: Value, args: List<Value> ->
+            (t as MathValue).evalAdd(args.first())
+        },
+        IntegerMathOpMembers.sub to GroundMemberPlugin { t: Value, args: List<Value> ->
+            (t as MathValue).evalSub(args.first())
+        },
+        IntegerMathOpMembers.mul to GroundMemberPlugin { t: Value, args: List<Value> ->
+            (t as MathValue).evalMul(args.first())
+        },
+        IntegerMathOpMembers.div to GroundMemberPlugin { t: Value, args: List<Value> ->
+            (t as MathValue).evalDiv(args.first())
+        },
+        IntegerMathOpMembers.mod to GroundMemberPlugin { t: Value, args: List<Value> ->
+            (t as MathValue).evalMod(args.first())
+        },
+        IntegerMathOpMembers.negate to GroundMemberPlugin { t: Value, _: List<Value> ->
+            (t as MathValue).evalNegate()
+        },
+        IntegerOrderOpMembers.greaterThan to GroundMemberPlugin { t: Value, args: List<Value> ->
+            (t as OrderValue).evalGreaterThan(args.first())
+        },
+        IntegerOrderOpMembers.greaterThanOrEquals to GroundMemberPlugin { t: Value, args: List<Value> ->
+            (t as OrderValue).evalGreaterThanOrEquals(args.first())
+        },
+        IntegerOrderOpMembers.lessThan to GroundMemberPlugin { t: Value, args: List<Value> ->
+            (t as OrderValue).evalLessThan(args.first())
+        },
+        IntegerOrderOpMembers.lessThanOrEquals to GroundMemberPlugin { t: Value, args: List<Value> ->
+            (t as OrderValue).evalLessThanOrEquals(args.first())
+        },
+        IntegerEqualityOpMembers.equals to GroundMemberPlugin { t: Value, args: List<Value> ->
+            (t as EqualityValue).evalEquals(args.first())
+        },
+        IntegerEqualityOpMembers.notEquals to GroundMemberPlugin { t: Value, args: List<Value> ->
+            (t as EqualityValue).evalNotEquals(args.first())
+        },
+        BooleanEqualityOpMembers.equals to GroundMemberPlugin { t: Value, args: List<Value> ->
+            (t as EqualityValue).evalEquals(args.first())
+        },
+        BooleanEqualityOpMembers.notEquals to GroundMemberPlugin { t: Value, args: List<Value> ->
+            (t as EqualityValue).evalNotEquals(args.first())
+        },
+        CharEqualityOpMembers.equals to GroundMemberPlugin { t: Value, args: List<Value> ->
+            (t as EqualityValue).evalEquals(args.first())
+        },
+        CharEqualityOpMembers.notEquals to GroundMemberPlugin { t: Value, args: List<Value> ->
+            (t as EqualityValue).evalNotEquals(args.first())
+        },
+        ValueLogicalOpMembers.and to GroundMemberPlugin { t: Value, args: List<Value> ->
+            (t as LogicalValue).evalAnd(args.first())
+        },
+        ValueLogicalOpMembers.or to GroundMemberPlugin { t: Value, args: List<Value> ->
+            (t as LogicalValue).evalOr(args.first())
+        },
+        ValueLogicalOpMembers.not to GroundMemberPlugin { t: Value, _: List<Value> ->
+            (t as LogicalValue).evalNot()
+        },
+        ListTypes.removeAtFunction to GroundMemberPlugin { t: Value, args: List<Value> ->
+            (t as ListValue).evalRemoveAt(args.first())
+        },
+        ToStringMembers.integerToStringMember to GroundMemberPlugin { t: Value, _: List<Value> ->
+            (t as IntValue).evalToString()
+        },
+        ToStringMembers.unitToStringMember to GroundMemberPlugin { t: Value, _: List<Value> ->
+            UnitValue.evalToString()
+        },
+        ToStringMembers.booleanToStringMember to GroundMemberPlugin { t: Value, _: List<Value> ->
+            (t as BooleanValue).evalToString()
+        },
+        ToStringMembers.charToStringMember to GroundMemberPlugin { t: Value, _: List<Value> ->
+            (t as CharValue).evalToString()
+        }
+    )
+
+    val parameterizedMemberPlugins: Map<ParameterizedMemberPluginSymbol, GroundMemberPlugin> = mapOf(
+        ToStringMembers.decimalToStringMember to GroundMemberPlugin { t: Value, _: List<Value> ->
+            (t as DecimalValue).evalToString()
+        },
+        ToStringMembers.stringToStringMember to GroundMemberPlugin { t: Value, _: List<Value> ->
+            (t as StringValue).evalToString()
+        },
+        StringOpMembers.toCharArray to GroundMemberPlugin { t: Value, _: List<Value> ->
+            (t as StringValue).evalToCharArray()
+        },
+        StringOpMembers.add to GroundMemberPlugin { t: Value, args: List<Value> ->
+            (t as StringValue).evalAdd(args.first())
+        },
+        StringOpMembers.equals to GroundMemberPlugin { t: Value, args: List<Value> ->
+            (t as EqualityValue).evalEquals(args.first())
+        },
+        StringOpMembers.notEquals to GroundMemberPlugin { t: Value, args: List<Value> ->
+            (t as EqualityValue).evalNotEquals(args.first())
+        },
+        DecimalMathOpMembers.add to GroundMemberPlugin { t: Value, args: List<Value> ->
+            (t as MathValue).evalAdd(args.first())
+        },
+        DecimalMathOpMembers.sub to GroundMemberPlugin { t: Value, args: List<Value> ->
+            (t as MathValue).evalSub(args.first())
+        },
+        DecimalMathOpMembers.mul to GroundMemberPlugin { t: Value, args: List<Value> ->
+            (t as MathValue).evalMul(args.first())
+        },
+        DecimalMathOpMembers.div to GroundMemberPlugin { t: Value, args: List<Value> ->
+            (t as MathValue).evalDiv(args.first())
+        },
+        DecimalMathOpMembers.mod to GroundMemberPlugin { t: Value, args: List<Value> ->
+            (t as MathValue).evalMod(args.first())
+        },
+        DecimalMathOpMembers.negate to GroundMemberPlugin { t: Value, _: List<Value> ->
+            (t as MathValue).evalNegate()
+        },
+        DecimalOrderOpMembers.greaterThan to GroundMemberPlugin { t: Value, args: List<Value> ->
+            (t as OrderValue).evalGreaterThan(args.first())
+        },
+        DecimalOrderOpMembers.greaterThanOrEquals to GroundMemberPlugin { t: Value, args: List<Value> ->
+            (t as OrderValue).evalGreaterThanOrEquals(args.first())
+        },
+        DecimalOrderOpMembers.lessThan to GroundMemberPlugin { t: Value, args: List<Value> ->
+            (t as OrderValue).evalLessThan(args.first())
+        },
+        DecimalOrderOpMembers.lessThanOrEquals to GroundMemberPlugin { t: Value, args: List<Value> ->
+            (t as OrderValue).evalLessThanOrEquals(args.first())
+        },
+        DecimalEqualityOpMembers.equals to GroundMemberPlugin { t: Value, args: List<Value> ->
+            (t as EqualityValue).evalEquals(args.first())
+        },
+        DecimalEqualityOpMembers.notEquals to GroundMemberPlugin { t: Value, args: List<Value> ->
+            (t as EqualityValue).evalNotEquals(args.first())
+        },
+        EqualityMembers.listEquals to GroundMemberPlugin { t: Value, args: List<Value> ->
+            (t as EqualityValue).evalEquals(args.first())
+        },
+        EqualityMembers.listNotEquals to GroundMemberPlugin { t: Value, args: List<Value> ->
+            (t as EqualityValue).evalNotEquals(args.first())
+        },
+        EqualityMembers.mutableListEquals to GroundMemberPlugin { t: Value, args: List<Value> ->
+            (t as EqualityValue).evalEquals(args.first())
+        },
+        EqualityMembers.mutableListNotEquals to GroundMemberPlugin { t: Value, args: List<Value> ->
+            (t as EqualityValue).evalNotEquals(args.first())
+        },
+        EqualityMembers.dictionaryEquals to GroundMemberPlugin { t: Value, args: List<Value> ->
+            (t as EqualityValue).evalEquals(args.first())
+        },
+        EqualityMembers.dictionaryNotEquals to GroundMemberPlugin { t: Value, args: List<Value> ->
+            (t as EqualityValue).evalNotEquals(args.first())
+        },
+        EqualityMembers.mutableDictionaryEquals to GroundMemberPlugin { t: Value, args: List<Value> ->
+            (t as EqualityValue).evalEquals(args.first())
+        },
+        EqualityMembers.mutableDictionaryNotEquals to GroundMemberPlugin { t: Value, args: List<Value> ->
+            (t as EqualityValue).evalNotEquals(args.first())
+        },
+        EqualityMembers.setEquals to GroundMemberPlugin { t: Value, args: List<Value> ->
+            (t as EqualityValue).evalEquals(args.first())
+        },
+        EqualityMembers.setNotEquals to GroundMemberPlugin { t: Value, args: List<Value> ->
+            (t as EqualityValue).evalNotEquals(args.first())
+        },
+        EqualityMembers.mutableSetEquals to GroundMemberPlugin { t: Value, args: List<Value> ->
+            (t as EqualityValue).evalEquals(args.first())
+        },
+        EqualityMembers.mutableSetNotEquals to GroundMemberPlugin { t: Value, args: List<Value> ->
+            (t as EqualityValue).evalNotEquals(args.first())
+        },
+        SetTypes.setContains to GroundMemberPlugin { t: Value, args: List<Value> ->
+            (t as SetValue).evalContains(args.first())
+        },
+        SetTypes.mutableSetContains to GroundMemberPlugin { t: Value, args: List<Value> ->
+            (t as SetValue).evalContains(args.first())
+        },
+        SetTypes.mutableSetAdd to GroundMemberPlugin { t: Value, args: List<Value> ->
+            (t as SetValue).evalAdd(args.first())
+        },
+        SetTypes.mutableSetRemove to GroundMemberPlugin { t: Value, args: List<Value> ->
+            (t as SetValue).evalRemove(args.first())
+        },
+        SetTypes.mutableSetToSet to GroundMemberPlugin { t: Value, _: List<Value> ->
+            (t as SetValue).evalToSet()
+        },
+        ListTypes.listGet to GroundMemberPlugin { t: Value, args: List<Value> ->
+            (t as ListValue).evalGet(args.first())
+        },
+        ListTypes.mutableListGet to GroundMemberPlugin { t: Value, args: List<Value> ->
+            (t as ListValue).evalGet(args.first())
+        },
+        ListTypes.mutableListAdd to GroundMemberPlugin { t: Value, args: List<Value> ->
+            (t as ListValue).evalAdd(args.first())
+        },
+        ListTypes.mutableListSet to GroundMemberPlugin { t: Value, args: List<Value> ->
+            (t as ListValue).evalSet(args.first(), args[1])
+        },
+        ListTypes.mutableListToList to GroundMemberPlugin { t: Value, _: List<Value> ->
+            (t as ListValue).evalToList()
+        },
+        DictionaryTypes.getFunction to GroundMemberPlugin { t: Value, args: List<Value> ->
+            (t as DictionaryValue).evalGet(args.first())
+        },
+        DictionaryTypes.mutableGetFunction to GroundMemberPlugin { t: Value, args: List<Value> ->
+            (t as DictionaryValue).evalGet(args.first())
+        },
+        DictionaryTypes.containsFunction to GroundMemberPlugin { t: Value, args: List<Value> ->
+            (t as DictionaryValue).evalContains(args.first())
+        },
+        DictionaryTypes.mutableContainsFunction to GroundMemberPlugin { t: Value, args: List<Value> ->
+            (t as DictionaryValue).evalContains(args.first())
+        },
+        DictionaryTypes.setFunction to GroundMemberPlugin { t: Value, args: List<Value> ->
+            (t as DictionaryValue).evalSet(args.first(), args[1])
+        },
+        DictionaryTypes.removeFunction to GroundMemberPlugin { t: Value, args: List<Value> ->
+            (t as DictionaryValue).evalRemove(args.first())
+        },
+        DictionaryTypes.mutableDictionaryToDictionary to GroundMemberPlugin { t: Value, _: List<Value> ->
+            (t as DictionaryValue).evalToDictionary()
+        }
+    )
+
+    val staticPlugins: Map<ParameterizedStaticPluginSymbol, PluginValue> = mapOf(
+        StaticPlugins.rangePlugin to PluginValue { args ->
+            val originalLowerBound = args[0] as IntValue
+            val originalUpperBound = args[1] as IntValue
+            if (originalLowerBound.canonicalForm < originalUpperBound.canonicalForm) {
+                val lowerBound = originalLowerBound.canonicalForm
+                val upperBound = originalUpperBound.canonicalForm - 1
+                val list: MutableList<Value> = (lowerBound..upperBound).toList().map {
+                    IntValue(it)
+                }.toMutableList()
+                ListValue(ImmutableBasicTypeMode, list)
+            } else {
+                val lowerBound = originalUpperBound.canonicalForm + 1
+                val upperBound = originalLowerBound.canonicalForm
+                val list: MutableList<Value> = (lowerBound..upperBound).toList().map {
+                    IntValue(it)
+                }.toMutableList()
+                list.reverse()
+                ListValue(ImmutableBasicTypeMode, list)
+            }
+        },
+        StaticPlugins.randomPlugin to PluginValue { args ->
+            when (val first = args.first()) {
+                is IntValue -> {
+                    var lowerBound = first.canonicalForm
+                    var upperBound = (args[1] as IntValue).canonicalForm
+                    var lowerBoundInclusive = true
+                    var upperBoundInclusive = false
+
+                    if (lowerBound > upperBound) {
+                        val temp = lowerBound
+                        lowerBound = upperBound
+                        upperBound = temp
+                        lowerBoundInclusive = false
+                        upperBoundInclusive = true
+                    }
+
+                    var offset = 0
+                    if (lowerBound < 0) {
+                        offset = lowerBound
+                        lowerBound += -offset
+                        upperBound += -offset
+                    }
+
+                    if (!lowerBoundInclusive) {
+                        lowerBound += 1
+                    }
+                    if (upperBoundInclusive) {
+                        upperBound += 1
+                    }
+
+                    var res = Random.nextInt(lowerBound, upperBound)
+                    res += offset
+                    IntValue(res)
+                }
+
+                else -> {
+                    langThrow(NotInSource, TypeSystemBug)
+                }
+            }
+        }
+    )
+
+    val fields: Map<PlatformFieldSymbol, PlatformField> = mapOf(
+        StringTypes.sizeFieldSymbol to PlatformField { value ->
+            (value as StringValue).fieldSize()
+        },
+        SetTypes.setSizeFieldSymbol to PlatformField { value ->
+            (value as SetValue).fieldSize()
+        },
+        SetTypes.mutableSizeFieldSymbol to PlatformField { value ->
+            (value as SetValue).fieldSize()
+        },
+        ListTypes.listSizeFieldSymbol to PlatformField { value ->
+            (value as ListValue).fieldSize()
+        },
+        ListTypes.mutableSizeFieldSymbol to PlatformField { value ->
+            (value as ListValue).fieldSize()
+        },
+        DictionaryTypes.dictionarySizeFieldSymbol to PlatformField { value ->
+            (value as DictionaryValue).fieldSize()
+        },
+        DictionaryTypes.mutableSizeFieldSymbol to PlatformField { value ->
+            (value as DictionaryValue).fieldSize()
+        }
+    )
 }
 
 class ObjectValue(
@@ -505,11 +823,13 @@ class SymbolRouterValueTable(private val prelude: Scope<Symbol>, private val sym
                 val fv = FunctionValue(res.formalParams, res.body)
                 fv
             }
+
             is ParameterizedFunctionSymbol -> {
                 val fv = FunctionValue(res.formalParams, res.body)
                 fv
             }
-            is ParameterizedStaticPluginSymbol -> PluginValue(res.plugin)
+
+            is ParameterizedStaticPluginSymbol -> Plugins.staticPlugins[res]!!
             is GroundRecordTypeSymbol -> RecordConstructorValue(prelude, res)
             is ParameterizedRecordTypeSymbol -> RecordConstructorValue(prelude, res)
             is ParameterizedBasicTypeSymbol -> when (res.identifier) {
@@ -518,12 +838,14 @@ class SymbolRouterValueTable(private val prelude: Scope<Symbol>, private val sym
                 Lang.setId, Lang.mutableSetId -> SetConstructorValue(res.modeSelector)
                 else -> langThrow(signifier.ctx, IdentifierNotFound(signifier))
             }
-            is ObjectSymbol -> {
-                when (generatePath(res)) {
-                    listOf(Lang.unitId.name) -> UnitValue
-                    else -> ObjectValue(res)
-                }
+
+            is PlatformObjectSymbol -> if (res.identifier == Lang.unitId) {
+                UnitValue
+            } else {
+                langThrow(signifier.ctx, TypeSystemBug)
             }
+
+            is ObjectSymbol -> ObjectValue(res)
             else -> langThrow(signifier.ctx, IdentifierNotFound(signifier))
         }
 
@@ -537,7 +859,7 @@ class SymbolRouterValueTable(private val prelude: Scope<Symbol>, private val sym
                 val fv = FunctionValue(res.formalParams, res.body)
                 fv
             }
-            is ParameterizedStaticPluginSymbol -> PluginValue(res.plugin)
+            is ParameterizedStaticPluginSymbol -> Plugins.staticPlugins[res]!!
             is GroundRecordTypeSymbol -> RecordConstructorValue(prelude, res)
             is ParameterizedRecordTypeSymbol -> RecordConstructorValue(prelude, res)
             is ParameterizedBasicTypeSymbol -> when (res.identifier) {

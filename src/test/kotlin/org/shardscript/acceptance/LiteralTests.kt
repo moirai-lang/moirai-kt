@@ -1,9 +1,12 @@
 package org.shardscript.acceptance
 
-import org.shardscript.semantics.core.*
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.fail
 import org.junit.jupiter.api.Test
+import org.shardscript.eval.BooleanValue
+import org.shardscript.eval.CharValue
+import org.shardscript.eval.IntValue
+import org.shardscript.eval.StringValue
 
 class LiteralTests {
     @Test

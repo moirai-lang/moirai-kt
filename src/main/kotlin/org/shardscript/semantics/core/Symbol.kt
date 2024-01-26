@@ -179,13 +179,18 @@ data class FieldSymbol(
 data class PlatformFieldSymbol(
     override val parent: Scope<Symbol>,
     override val identifier: Identifier,
-    val ofTypeSymbol: BasicTypeSymbol,
-    val accessor: (Value) -> Value
+    val ofTypeSymbol: BasicTypeSymbol
 ) : NamedSymbolTableElement()
 
 /**
  * Data Types
  */
+data class PlatformObjectSymbol(
+    override val parent: Scope<Symbol>,
+    override val identifier: Identifier,
+    val featureSupport: FeatureSupport
+) : NamedSymbolWithMembers(parent), Type
+
 data class ObjectSymbol(
     override val parent: Scope<Symbol>,
     override val identifier: Identifier,
@@ -233,11 +238,8 @@ data class ParameterizedBasicTypeSymbol(
  */
 data class GroundMemberPluginSymbol(
     override val parent: Scope<Symbol>,
-    override val identifier: Identifier,
-    val plugin: (Value, List<Value>) -> Value
+    override val identifier: Identifier
 ) : NamedSymbolWithMembers(parent) {
-    fun invoke(t: Value, args: List<Value>): Value = plugin(t, args)
-
     lateinit var formalParams: List<FunctionFormalParameterSymbol>
     lateinit var returnType: Type
     lateinit var costExpression: CostExpression
@@ -248,10 +250,8 @@ data class GroundMemberPluginSymbol(
 data class ParameterizedMemberPluginSymbol(
     override val parent: Scope<Symbol>,
     override val identifier: Identifier,
-    val instantiation: TwoTypeInstantiation,
-    val plugin: (Value, List<Value>) -> Value
+    val instantiation: TwoTypeInstantiation
 ) : ParameterizedSymbol(parent) {
-    fun invoke(t: Value, args: List<Value>): Value = plugin(t, args)
     override lateinit var typeParams: List<TypeParameter>
 
     lateinit var formalParams: List<FunctionFormalParameterSymbol>
@@ -265,9 +265,7 @@ data class ParameterizedStaticPluginSymbol(
     override val parent: Scope<Symbol>,
     override val identifier: Identifier,
     val instantiation: SingleTypeInstantiation,
-    val plugin: (List<Value>) -> Value
 ) : ParameterizedSymbol(parent) {
-    fun invoke(args: List<Value>): Value = plugin(args)
     override lateinit var typeParams: List<TypeParameter>
     lateinit var formalParams: List<FunctionFormalParameterSymbol>
     lateinit var returnType: Type

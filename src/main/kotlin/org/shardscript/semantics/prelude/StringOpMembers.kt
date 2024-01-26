@@ -5,57 +5,46 @@ import org.shardscript.semantics.infer.DualFinPluginInstantiation
 import org.shardscript.semantics.infer.SingleParentArgInstantiation
 import org.shardscript.semantics.infer.Substitution
 
-fun pluginToCharArray(
-    stringType: ParameterizedBasicTypeSymbol,
-    stringTypeParam: ImmutableFinTypeParameter,
-    charType: BasicTypeSymbol,
-    listType: ParameterizedBasicTypeSymbol
-): ParameterizedMemberPluginSymbol {
-    val res = ParameterizedMemberPluginSymbol(
-        stringType,
-        Identifier(NotInSource, StringMethods.ToCharArray.idStr),
-        SingleParentArgInstantiation
-    ) { t: Value, _: List<Value> ->
-        (t as StringValue).evalToCharArray()
+object StringOpMembers {
+    val toCharArray = pluginToCharArray()
+    val add = pluginAdd()
+    val equals = pluginEquals()
+    val notEquals = pluginNotEquals()
+
+    fun pluginToCharArray(): ParameterizedMemberPluginSymbol {
+        val res = ParameterizedMemberPluginSymbol(
+            Lang.stringType,
+            Identifier(NotInSource, StringMethods.ToCharArray.idStr),
+            SingleParentArgInstantiation
+        )
+        res.typeParams = listOf(Lang.stringTypeParam)
+        res.formalParams = listOf()
+        val outputSubstitution = Substitution(Lang.listType.typeParams, listOf(Lang.charType, Lang.stringTypeParam))
+        val outputType = outputSubstitution.apply(Lang.listType)
+        res.returnType = outputType
+
+        res.costExpression = Lang.stringTypeParam
+        return res
     }
-    res.typeParams = listOf(stringTypeParam)
-    res.formalParams = listOf()
-    val outputSubstitution = Substitution(listType.typeParams, listOf(charType, stringTypeParam))
-    val outputType = outputSubstitution.apply(listType)
-    res.returnType = outputType
 
-    res.costExpression = stringTypeParam
-    return res
-}
-
-object StringEqualityOpMembers {
-    fun members(
-        stringType: ParameterizedBasicTypeSymbol,
-        stringTypeParam: ImmutableFinTypeParameter,
-        booleanType: BasicTypeSymbol
-    ): Map<String, ParameterizedMemberPluginSymbol> = mapOf(
-        BinaryOperator.Equal.idStr to pluginEquals(stringType, stringTypeParam, booleanType),
-        BinaryOperator.NotEqual.idStr to pluginNotEquals(stringType, stringTypeParam, booleanType),
-        BinaryOperator.Add.idStr to pluginAdd(stringType, stringTypeParam)
+    fun members(): Map<String, ParameterizedMemberPluginSymbol> = mapOf(
+        BinaryOperator.Equal.idStr to pluginEquals(),
+        BinaryOperator.NotEqual.idStr to pluginNotEquals(),
+        BinaryOperator.Add.idStr to pluginAdd()
     )
 
-    private fun pluginAdd(
-        stringType: ParameterizedBasicTypeSymbol,
-        stringTypeParam: ImmutableFinTypeParameter
-    ): ParameterizedMemberPluginSymbol {
+    private fun pluginAdd(): ParameterizedMemberPluginSymbol {
         val res = ParameterizedMemberPluginSymbol(
-            stringType,
+            Lang.stringType,
             Identifier(NotInSource, BinaryOperator.Add.idStr),
             DualFinPluginInstantiation
-        ) { t: Value, args: List<Value> ->
-            (t as StringValue).evalAdd(args.first())
-        }
+        )
         val inputTypeArg = ImmutableFinTypeParameter(res, Lang.stringInputTypeId)
         res.define(inputTypeArg.identifier, inputTypeArg)
-        res.typeParams = listOf(stringTypeParam, inputTypeArg)
+        res.typeParams = listOf(Lang.stringTypeParam, inputTypeArg)
 
-        val inputSubstitution = Substitution(stringType.typeParams, listOf(inputTypeArg))
-        val inputType = inputSubstitution.apply(stringType)
+        val inputSubstitution = Substitution(Lang.stringType.typeParams, listOf(inputTypeArg))
+        val inputType = inputSubstitution.apply(Lang.stringType)
         val formalParamId = Identifier(NotInSource, "other")
         val formalParam = FunctionFormalParameterSymbol(res, formalParamId, inputType)
         res.define(formalParamId, formalParam)
@@ -64,36 +53,30 @@ object StringEqualityOpMembers {
         val outputTypeArg =
             SumCostExpression(
                 listOf(
-                    stringTypeParam,
+                    Lang.stringTypeParam,
                     inputTypeArg
                 )
             )
-        val outputSubstitution = Substitution(listOf(stringTypeParam), listOf(outputTypeArg))
-        val outputType = outputSubstitution.apply(stringType)
+        val outputSubstitution = Substitution(listOf(Lang.stringTypeParam), listOf(outputTypeArg))
+        val outputType = outputSubstitution.apply(Lang.stringType)
         res.returnType = outputType
 
         res.costExpression = outputTypeArg
         return res
     }
 
-    private fun pluginEquals(
-        stringType: ParameterizedBasicTypeSymbol,
-        stringTypeParam: ImmutableFinTypeParameter,
-        booleanType: BasicTypeSymbol
-    ): ParameterizedMemberPluginSymbol {
+    private fun pluginEquals(): ParameterizedMemberPluginSymbol {
         val res = ParameterizedMemberPluginSymbol(
-            stringType,
+            Lang.stringType,
             Identifier(NotInSource, BinaryOperator.Equal.idStr),
             DualFinPluginInstantiation
-        ) { t: Value, args: List<Value> ->
-            (t as EqualityValue).evalEquals(args.first())
-        }
+        )
         val inputTypeArg = ImmutableFinTypeParameter(res, Lang.stringInputTypeId)
         res.define(inputTypeArg.identifier, inputTypeArg)
-        res.typeParams = listOf(stringTypeParam, inputTypeArg)
+        res.typeParams = listOf(Lang.stringTypeParam, inputTypeArg)
 
-        val inputSubstitution = Substitution(stringType.typeParams, listOf(inputTypeArg))
-        val inputType = inputSubstitution.apply(stringType)
+        val inputSubstitution = Substitution(Lang.stringType.typeParams, listOf(inputTypeArg))
+        val inputType = inputSubstitution.apply(Lang.stringType)
         val formalParamId = Identifier(NotInSource, "other")
         val formalParam = FunctionFormalParameterSymbol(res, formalParamId, inputType)
         res.define(formalParamId, formalParam)
@@ -105,36 +88,30 @@ object StringEqualityOpMembers {
                     CommonCostExpressions.twoPass,
                     MaxCostExpression(
                         listOf(
-                            stringTypeParam,
+                            Lang.stringTypeParam,
                             inputTypeArg
                         )
                     )
                 )
             )
-        res.returnType = booleanType
+        res.returnType = Lang.booleanType
 
         res.costExpression = outputTypeArg
         return res
     }
 
-    private fun pluginNotEquals(
-        stringType: ParameterizedBasicTypeSymbol,
-        stringTypeParam: ImmutableFinTypeParameter,
-        booleanType: BasicTypeSymbol
-    ): ParameterizedMemberPluginSymbol {
+    private fun pluginNotEquals(): ParameterizedMemberPluginSymbol {
         val res = ParameterizedMemberPluginSymbol(
-            stringType,
+            Lang.stringType,
             Identifier(NotInSource, BinaryOperator.NotEqual.idStr),
             DualFinPluginInstantiation
-        ) { t: Value, args: List<Value> ->
-            (t as EqualityValue).evalNotEquals(args.first())
-        }
+        )
         val inputTypeArg = ImmutableFinTypeParameter(res, Lang.stringInputTypeId)
         res.define(inputTypeArg.identifier, inputTypeArg)
-        res.typeParams = listOf(stringTypeParam, inputTypeArg)
+        res.typeParams = listOf(Lang.stringTypeParam, inputTypeArg)
 
-        val inputSubstitution = Substitution(stringType.typeParams, listOf(inputTypeArg))
-        val inputType = inputSubstitution.apply(stringType)
+        val inputSubstitution = Substitution(Lang.stringType.typeParams, listOf(inputTypeArg))
+        val inputType = inputSubstitution.apply(Lang.stringType)
         val formalParamId = Identifier(NotInSource, "other")
         val formalParam = FunctionFormalParameterSymbol(res, formalParamId, inputType)
         res.define(formalParamId, formalParam)
@@ -146,13 +123,13 @@ object StringEqualityOpMembers {
                     CommonCostExpressions.twoPass,
                     MaxCostExpression(
                         listOf(
-                            stringTypeParam,
+                            Lang.stringTypeParam,
                             inputTypeArg
                         )
                     )
                 )
             )
-        res.returnType = booleanType
+        res.returnType = Lang.booleanType
 
         res.costExpression = outputTypeArg
         return res

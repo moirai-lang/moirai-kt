@@ -9,6 +9,7 @@ fun filterValidTypes(ctx: SourceContext, errors: LanguageErrors, type: Type): Ty
         is GroundRecordTypeSymbol,
         is BasicTypeSymbol,
         is ObjectSymbol,
+        is PlatformObjectSymbol,
         is StandardTypeParameter,
         is FunctionTypeSymbol -> type
 
@@ -93,6 +94,7 @@ fun filterValidGroundApply(
         is GroundMemberPluginSymbol,
         is BasicTypeSymbol,
         is ObjectSymbol,
+        is PlatformObjectSymbol,
         is StandardTypeParameter,
         is Block,
         is SumCostExpression,
@@ -144,6 +146,7 @@ fun filterValidDotApply(
         is MutableFinTypeParameter,
         is BasicTypeSymbol,
         is ObjectSymbol,
+        is PlatformObjectSymbol,
         is StandardTypeParameter,
         is Block,
         is SumCostExpression,
@@ -230,6 +233,12 @@ fun inlineGeneratePath(symbol: Symbol, path: MutableList<String>) {
             path.add(symbol.identifier.name)
         }
         is ObjectSymbol -> {
+            if (symbol.parent is Symbol) {
+                inlineGeneratePath(symbol.parent, path)
+            }
+            path.add(symbol.identifier.name)
+        }
+        is PlatformObjectSymbol -> {
             if (symbol.parent is Symbol) {
                 inlineGeneratePath(symbol.parent, path)
             }
@@ -493,6 +502,17 @@ fun findBestType(ctx: SourceContext, errors: LanguageErrors, types: List<Type>):
         is ObjectSymbol -> {
             when {
                 types.all { it is ObjectSymbol && firstPath == generatePath(it) } -> {
+                    first
+                }
+                else -> {
+                    errors.add(ctx, CannotFindBestType(types))
+                    ErrorSymbol
+                }
+            }
+        }
+        is PlatformObjectSymbol -> {
+            when {
+                types.all { it is PlatformObjectSymbol && firstPath == generatePath(it) } -> {
                     first
                 }
                 else -> {

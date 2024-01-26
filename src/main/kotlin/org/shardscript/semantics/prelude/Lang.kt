@@ -1,6 +1,7 @@
 package org.shardscript.semantics.prelude
 
 import org.shardscript.semantics.core.*
+import org.shardscript.semantics.infer.*
 
 object Lang {
     val prelude = SymbolTable(NullSymbolTable)
@@ -65,105 +66,256 @@ object Lang {
     const val BOOL_FIN: Long = false.toString().length.toLong()
     const val CHAR_FIN: Long = 1L
 
-    fun isUnitExactly(type: Type): Boolean =
-        when (generatePath(type as Symbol)) {
-            listOf(unitId.name) -> true
-            else -> false
-        }
+    // Unit
+    val unitObject = PlatformObjectSymbol(
+        prelude,
+        unitId,
+        userTypeFeatureSupport
+    )
+
+    // Boolean
+    val booleanType = BasicTypeSymbol(
+        prelude,
+        booleanId
+    )
+
+    // Integer
+    val intType = BasicTypeSymbol(
+        prelude,
+        intId
+    )
+
+    // Char
+    val charType = BasicTypeSymbol(
+        prelude,
+        charId
+    )
+
+    // Decimal
+    val decimalType = ParameterizedBasicTypeSymbol(
+        prelude,
+        decimalId,
+        DecimalInstantiation(),
+        userTypeFeatureSupport
+    )
+    val decimalTypeParam = ImmutableFinTypeParameter(decimalType, decimalTypeId)
+
+    // List
+    val listType = ParameterizedBasicTypeSymbol(
+        prelude,
+        listId,
+        ListInstantiation(),
+        immutableOrderedFeatureSupport
+    )
+    val listElementTypeParam = StandardTypeParameter(listType, listElementTypeId)
+    val listFinTypeParam = ImmutableFinTypeParameter(listType, listFinTypeId)
+
+    // MutableList
+    val mutableListType = ParameterizedBasicTypeSymbol(
+        prelude,
+        mutableListId,
+        MutableListInstantiation(),
+        noFeatureSupport
+    )
+    val mutableListElementTypeParam = StandardTypeParameter(mutableListType, mutableListElementTypeId)
+    val mutableListFinTypeParam = MutableFinTypeParameter(mutableListType, mutableListFinTypeId)
+
+    // String
+    val stringType = ParameterizedBasicTypeSymbol(
+        prelude,
+        stringId,
+        StringInstantiation(),
+        userTypeFeatureSupport
+    )
+
+    val stringTypeParam = ImmutableFinTypeParameter(stringType, stringTypeId)
+
+    // Pair
+    val pairType = ParameterizedRecordTypeSymbol(
+        prelude,
+        pairId,
+        userTypeFeatureSupport
+    )
+    val pairFirstType = StandardTypeParameter(pairType, pairFirstTypeId)
+    val pairSecondType = StandardTypeParameter(pairType, pairSecondTypeId)
+
+    val dictionaryType = ParameterizedBasicTypeSymbol(
+        prelude,
+        dictionaryId,
+        DictionaryInstantiation(pairType),
+        immutableUnorderedFeatureSupport
+    )
+    val dictionaryKeyTypeParam = StandardTypeParameter(dictionaryType, dictionaryKeyTypeId)
+    val dictionaryValueTypeParam = StandardTypeParameter(dictionaryType, dictionaryValueTypeId)
+    val dictionaryFinTypeParam = ImmutableFinTypeParameter(dictionaryType, dictionaryFinTypeId)
+
+    val mutableDictionaryType = ParameterizedBasicTypeSymbol(
+        prelude,
+        mutableDictionaryId,
+        MutableDictionaryInstantiation(pairType),
+        noFeatureSupport
+    )
+    val mutableDictionaryKeyTypeParam = StandardTypeParameter(mutableDictionaryType, mutableDictionaryKeyTypeId)
+    val mutableDictionaryValueTypeParam = StandardTypeParameter(mutableDictionaryType, mutableDictionaryValueTypeId)
+    val mutableDictionaryFinTypeParam = MutableFinTypeParameter(mutableDictionaryType, mutableDictionaryFinTypeId)
+
+    val setType = ParameterizedBasicTypeSymbol(
+        prelude,
+        setId,
+        SetInstantiation(),
+        immutableUnorderedFeatureSupport
+    )
+    val setElementTypeParam = StandardTypeParameter(setType, setElementTypeId)
+    val setFinTypeParam = ImmutableFinTypeParameter(setType, setFinTypeId)
+
+    val mutableSetType = ParameterizedBasicTypeSymbol(
+        prelude,
+        mutableSetId,
+        MutableSetInstantiation(),
+        noFeatureSupport
+    )
+    val mutableSetElementTypeParam = StandardTypeParameter(mutableSetType, mutableSetElementTypeId)
+    val mutableSetFinTypeParam = MutableFinTypeParameter(mutableSetType, mutableSetFinTypeId)
 
     init {
-        // Unit
-        val unitObject = ObjectSymbol(
-            prelude,
-            unitId,
-            userTypeFeatureSupport
-        )
+        IntegerMathOpMembers.members().forEach { (name, plugin) ->
+            intType.define(Identifier(NotInSource, name), plugin)
+        }
+        IntegerOrderOpMembers.members().forEach { (name, plugin) ->
+            intType.define(Identifier(NotInSource, name), plugin)
+        }
+        IntegerEqualityOpMembers.members().forEach { (name, plugin) ->
+            intType.define(Identifier(NotInSource, name), plugin)
+        }
 
-        // Boolean
-        val booleanType = BasicTypeSymbol(
-            prelude,
-            booleanId
-        )
-        val constantFin = ConstantFinTypeSymbol
-        ValueEqualityOpMembers.members(booleanType, constantFin, booleanType).forEach { (name, plugin) ->
+        BooleanEqualityOpMembers.members().forEach { (name, plugin) ->
+            booleanType.define(Identifier(NotInSource, name), plugin)
+        }
+        ValueLogicalOpMembers.members().forEach { (name, plugin) ->
             booleanType.define(Identifier(NotInSource, name), plugin)
         }
 
-        ValueLogicalOpMembers.members(booleanType, constantFin).forEach { (name, plugin) ->
-            booleanType.define(Identifier(NotInSource, name), plugin)
-        }
-
-        // Integer
-        val intType = intType(intId, booleanType, prelude, setOf())
-
-        // Decimal
-        val decimalType = decimalType(decimalId, booleanType, prelude)
-
-        // Char
-        val charType = BasicTypeSymbol(
-            prelude,
-            charId
-        )
-        ValueEqualityOpMembers.members(charType, constantFin, charType).forEach { (name, plugin) ->
+        CharEqualityOpMembers.members().forEach { (name, plugin) ->
             charType.define(Identifier(NotInSource, name), plugin)
         }
 
+        decimalType.define(decimalTypeId, decimalTypeParam)
+        decimalType.typeParams = listOf(decimalTypeParam)
+        decimalType.modeSelector = { _ ->
+            ImmutableBasicTypeMode
+        }
+        decimalType.fields = listOf()
+
+        DecimalMathOpMembers.members().forEach { (name, plugin) ->
+            decimalType.define(Identifier(NotInSource, name), plugin)
+        }
+        DecimalOrderOpMembers.members().forEach { (name, plugin) ->
+            decimalType.define(Identifier(NotInSource, name), plugin)
+        }
+        DecimalEqualityOpMembers.members().forEach { (name, plugin) ->
+            decimalType.define(Identifier(NotInSource, name), plugin)
+        }
+
         // List
-        val listType = listCollectionType(prelude, intType, booleanType)
-
+        listType.define(listElementTypeId, listElementTypeParam)
+        listType.define(listFinTypeId, listFinTypeParam)
+        listType.typeParams = listOf(listElementTypeParam, listFinTypeParam)
+        listType.modeSelector = { _ ->
+            ImmutableBasicTypeMode
+        }
+        
+        ListTypes.listCollectionType()
+        
         // MutableList
-        val mutableListType =
-            mutableListCollectionType(prelude, intType, unitObject, booleanType, listType)
+        mutableListType.define(mutableListElementTypeId, mutableListElementTypeParam)
+        mutableListType.define(mutableListFinTypeId, mutableListFinTypeParam)
+        mutableListType.typeParams = listOf(mutableListElementTypeParam, mutableListFinTypeParam)
+        mutableListType.modeSelector = { args ->
+            when (val fin = args[1]) {
+                is FinTypeSymbol -> {
+                    MutableBasicTypeMode(fin.magnitude)
+                }
 
-        // String
-        val stringType = stringType(booleanType, intType, charType, listType, prelude)
+                else -> {
+                    ImmutableBasicTypeMode
+                }
+            }
+        }
+        
+        ListTypes.mutableListCollectionType()
 
-        // ToString
-        insertIntegerToStringMember(intType, stringType)
-        insertUnitToStringMember(unitObject, stringType)
-        insertBooleanToStringMember(booleanType, stringType)
-        insertDecimalToStringMember(decimalType, stringType)
-        insertCharToStringMember(charType, stringType)
-        insertStringToStringMember(stringType)
+        // Dictionary
+        dictionaryType.define(dictionaryKeyTypeId, dictionaryKeyTypeParam)
+        dictionaryType.define(dictionaryValueTypeId, dictionaryValueTypeParam)
+        dictionaryType.define(dictionaryFinTypeId, dictionaryFinTypeParam)
+        dictionaryType.typeParams =
+            listOf(dictionaryKeyTypeParam, dictionaryValueTypeParam, dictionaryFinTypeParam)
+        dictionaryType.modeSelector = { _ ->
+            ImmutableBasicTypeMode
+        }
 
-        // Pair
-        val pairType = ParameterizedRecordTypeSymbol(
-            prelude,
-            pairId,
-            userTypeFeatureSupport
-        )
-        val pairFirstType = StandardTypeParameter(pairType, pairFirstTypeId)
-        val pairSecondType = StandardTypeParameter(pairType, pairSecondTypeId)
+        DictionaryTypes.dictionaryCollectionType()
+
+        // MutableDictionary
+        mutableDictionaryType.define(mutableDictionaryKeyTypeId, mutableDictionaryKeyTypeParam)
+        mutableDictionaryType.define(mutableDictionaryValueTypeId, mutableDictionaryValueTypeParam)
+        mutableDictionaryType.define(mutableDictionaryFinTypeId, mutableDictionaryFinTypeParam)
+        mutableDictionaryType.typeParams =
+            listOf(
+                mutableDictionaryKeyTypeParam,
+                mutableDictionaryValueTypeParam,
+                mutableDictionaryFinTypeParam
+            )
+        mutableDictionaryType.modeSelector = { args ->
+            when (val fin = args[2]) {
+                is FinTypeSymbol -> {
+                    MutableBasicTypeMode(fin.magnitude)
+                }
+
+                else -> {
+                    ImmutableBasicTypeMode
+                }
+            }
+        }
+
+        DictionaryTypes.mutableDictionaryCollectionType()
+
+        // Set
+        setType.define(setElementTypeId, setElementTypeParam)
+        setType.define(setFinTypeId, setFinTypeParam)
+        setType.typeParams = listOf(setElementTypeParam, setFinTypeParam)
+        setType.modeSelector = { _ ->
+            ImmutableBasicTypeMode
+        }
+        
+        SetTypes.setCollectionType()
+
+        // MutableSet
+        mutableSetType.define(mutableSetElementTypeId, mutableSetElementTypeParam)
+        mutableSetType.define(mutableSetFinTypeId, mutableSetFinTypeParam)
+        mutableSetType.typeParams = listOf(mutableSetElementTypeParam, mutableSetFinTypeParam)
+        mutableSetType.modeSelector = { args ->
+            when (val fin = args[1]) {
+                is FinTypeSymbol -> {
+                    MutableBasicTypeMode(fin.magnitude)
+                }
+
+                else -> {
+                    ImmutableBasicTypeMode
+                }
+            }
+        }
+        
+        SetTypes.mutableSetCollectionType()
+
+        StringTypes.stringType()
+
         pairType.typeParams = listOf(pairFirstType, pairSecondType)
         val pairFirstField = FieldSymbol(pairType, pairFirstId, pairFirstType, mutable = false)
         val pairSecondField = FieldSymbol(pairType, pairSecondId, pairSecondType, mutable = false)
         pairType.fields = listOf(pairFirstField, pairSecondField)
         pairType.define(pairFirstId, pairFirstField)
         pairType.define(pairSecondId, pairSecondField)
-
-        // Dictionary
-        val dictionaryType = dictionaryCollectionType(prelude, booleanType, intType, pairType)
-
-        // MutableDictionary
-        val mutableDictionaryType =
-            mutableDictionaryCollectionType(
-                prelude,
-                booleanType,
-                intType,
-                unitObject,
-                pairType,
-                dictionaryType
-            )
-
-        // Set
-        val setType = setCollectionType(prelude, booleanType, intType)
-
-        // MutableSet
-        val mutableSetType = mutableSetCollectionType(prelude, booleanType, intType, unitObject, setType)
-
-        // Static
-        val rangePlugin = createRangePlugin(prelude, intType, listType)
-        val randomPlugin = createRandomPlugin(prelude, constantFin)
 
         // Compose output
         prelude.define(unitId, unitObject)
@@ -179,7 +331,7 @@ object Lang {
         prelude.define(mutableSetId, mutableSetType)
         prelude.define(charId, charType)
         prelude.define(stringId, stringType)
-        prelude.define(rangeId, rangePlugin)
-        prelude.define(randomId, randomPlugin)
+        prelude.define(rangeId, StaticPlugins.rangePlugin)
+        prelude.define(randomId, StaticPlugins.randomPlugin)
     }
 }

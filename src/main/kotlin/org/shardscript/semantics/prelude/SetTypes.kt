@@ -3,230 +3,137 @@ package org.shardscript.semantics.prelude
 import org.shardscript.semantics.core.*
 import org.shardscript.semantics.infer.*
 
-private fun createContainsFunction(
-    costExpression: CostExpression,
-    setType: ParameterizedBasicTypeSymbol,
-    booleanType: BasicTypeSymbol,
-    setElementTypeParam: StandardTypeParameter
-) {
-    val containsId = Identifier(NotInSource, CollectionMethods.Contains.idStr)
-    val containsMemberFunction = ParameterizedMemberPluginSymbol(
-        setType,
-        containsId,
-        SingleParentArgInstantiation
-    ) { t: Value, args: List<Value> ->
-        (t as SetValue).evalContains(args.first())
-    }
-    containsMemberFunction.typeParams = listOf(setElementTypeParam)
-    containsMemberFunction.costExpression = costExpression
-    val containsFormalParamId = Identifier(NotInSource, "element")
-    val containsFormalParam =
-        FunctionFormalParameterSymbol(containsMemberFunction, containsFormalParamId, setElementTypeParam)
-    containsMemberFunction.define(containsFormalParamId, containsFormalParam)
+object SetTypes {
+    val setContains = createSetContainsFunction()
+    val mutableSetContains = createMutableSetContainsFunction()
+    val mutableSetAdd = createMutableSetAddFunction()
+    val mutableSetRemove = createMutableSetRemoveFunction()
+    val mutableSetToSet = createMutableSetToImmutableSetPlugin()
 
-    containsMemberFunction.formalParams = listOf(containsFormalParam)
-    containsMemberFunction.returnType = booleanType
-    setType.define(containsId, containsMemberFunction)
-}
-
-private fun createAddFunction(
-    costExpression: CostExpression,
-    setType: ParameterizedBasicTypeSymbol,
-    unitType: ObjectSymbol,
-    setElementTypeParam: StandardTypeParameter
-) {
-    val addId = Identifier(NotInSource, CollectionMethods.InsertElement.idStr)
-    val addMemberFunction = ParameterizedMemberPluginSymbol(
-        setType,
-        addId,
-        SingleParentArgInstantiation
-    ) { t: Value, args: List<Value> ->
-        (t as SetValue).evalAdd(args.first())
-    }
-    addMemberFunction.typeParams = listOf(setElementTypeParam)
-    addMemberFunction.costExpression = costExpression
-    val addFormalParamId = Identifier(NotInSource, "element")
-    val addFormalParam = FunctionFormalParameterSymbol(addMemberFunction, addFormalParamId, setElementTypeParam)
-    addMemberFunction.define(addFormalParamId, addFormalParam)
-
-    addMemberFunction.formalParams = listOf(addFormalParam)
-    addMemberFunction.returnType = unitType
-    setType.define(addId, addMemberFunction)
-}
-
-private fun createRemoveFunction(
-    costExpression: CostExpression,
-    setType: ParameterizedBasicTypeSymbol,
-    unitType: ObjectSymbol,
-    setElementTypeParam: StandardTypeParameter
-) {
-    val removeId = Identifier(NotInSource, CollectionMethods.Remove.idStr)
-    val removeMemberFunction = ParameterizedMemberPluginSymbol(
-        setType,
-        removeId,
-        SingleParentArgInstantiation
-    ) { t: Value, args: List<Value> ->
-        (t as SetValue).evalRemove(args.first())
-    }
-    removeMemberFunction.typeParams = listOf(setElementTypeParam)
-    removeMemberFunction.costExpression = costExpression
-    val removeFormalParamId = Identifier(NotInSource, "element")
-    val removeFormalParam =
-        FunctionFormalParameterSymbol(removeMemberFunction, removeFormalParamId, setElementTypeParam)
-    removeMemberFunction.define(removeFormalParamId, removeFormalParam)
-
-    removeMemberFunction.formalParams = listOf(removeFormalParam)
-    removeMemberFunction.returnType = unitType
-    setType.define(removeId, removeMemberFunction)
-}
-
-fun createToImmutableSetPlugin(
-    mutableSetType: ParameterizedBasicTypeSymbol,
-    elementType: StandardTypeParameter,
-    fin: MutableFinTypeParameter,
-    setType: ParameterizedBasicTypeSymbol
-) {
-    val plugin = ParameterizedMemberPluginSymbol(
-        mutableSetType,
-        Identifier(NotInSource, CollectionMethods.ToImmutableSet.idStr),
-        DoubleParentArgInstantiation
-    ) { t: Value, _: List<Value> ->
-        (t as SetValue).evalToSet()
-    }
-    plugin.typeParams = listOf(elementType, fin)
-    plugin.formalParams = listOf()
-    val outputSubstitution = Substitution(setType.typeParams, listOf(elementType, fin))
-    val outputType = outputSubstitution.apply(setType)
-    plugin.returnType = outputType
-
-    plugin.costExpression =
-        ProductCostExpression(
-            listOf(
-                CommonCostExpressions.twoPass,
-                fin
-            )
+    private fun createSetContainsFunction(): ParameterizedMemberPluginSymbol {
+        val containsId = Identifier(NotInSource, CollectionMethods.Contains.idStr)
+        val containsMemberFunction = ParameterizedMemberPluginSymbol(
+            Lang.setType,
+            containsId,
+            SingleParentArgInstantiation
         )
-    mutableSetType.define(plugin.identifier, plugin)
-}
+        containsMemberFunction.typeParams = listOf(Lang.setElementTypeParam)
+        containsMemberFunction.costExpression = ConstantFinTypeSymbol
+        val containsFormalParamId = Identifier(NotInSource, "element")
+        val containsFormalParam =
+            FunctionFormalParameterSymbol(containsMemberFunction, containsFormalParamId, Lang.setElementTypeParam)
+        containsMemberFunction.define(containsFormalParamId, containsFormalParam)
 
-fun setCollectionType(
-    langNS: Scope<Symbol>,
-    booleanType: BasicTypeSymbol,
-    intType: BasicTypeSymbol
-): ParameterizedBasicTypeSymbol {
-    val setType = ParameterizedBasicTypeSymbol(
-        langNS,
-        Lang.setId,
-        SetInstantiation(),
-        immutableUnorderedFeatureSupport
-    )
-    val setElementTypeParam = StandardTypeParameter(setType, Lang.setElementTypeId)
-    setType.define(Lang.setElementTypeId, setElementTypeParam)
-    val setFinTypeParam = ImmutableFinTypeParameter(setType, Lang.setFinTypeId)
-    setType.define(Lang.setFinTypeId, setFinTypeParam)
-    setType.typeParams = listOf(setElementTypeParam, setFinTypeParam)
-    setType.modeSelector = { _ ->
-        ImmutableBasicTypeMode
+        containsMemberFunction.formalParams = listOf(containsFormalParam)
+        containsMemberFunction.returnType = Lang.booleanType
+        Lang.setType.define(containsId, containsMemberFunction)
+        return containsMemberFunction
     }
 
-    createContainsFunction(
-        ConstantFinTypeSymbol,
-        setType,
-        booleanType,
-        setElementTypeParam
-    )
+    private fun createMutableSetContainsFunction(): ParameterizedMemberPluginSymbol {
+        val containsId = Identifier(NotInSource, CollectionMethods.Contains.idStr)
+        val containsMemberFunction = ParameterizedMemberPluginSymbol(
+            Lang.mutableSetType,
+            containsId,
+            SingleParentArgInstantiation
+        )
+        containsMemberFunction.typeParams = listOf(Lang.mutableSetElementTypeParam)
+        containsMemberFunction.costExpression = ConstantFinTypeSymbol
+        val containsFormalParamId = Identifier(NotInSource, "element")
+        val containsFormalParam =
+            FunctionFormalParameterSymbol(containsMemberFunction, containsFormalParamId, Lang.mutableSetElementTypeParam)
+        containsMemberFunction.define(containsFormalParamId, containsFormalParam)
 
-    val sizeId = Identifier(NotInSource, CollectionFields.Size.idStr)
-    val sizeFieldSymbol = PlatformFieldSymbol(
-        setType,
-        sizeId,
-        intType
-    ) { value ->
-        (value as SetValue).fieldSize()
+        containsMemberFunction.formalParams = listOf(containsFormalParam)
+        containsMemberFunction.returnType = Lang.booleanType
+        Lang.mutableSetType.define(containsId, containsMemberFunction)
+        return containsMemberFunction
     }
 
-    setType.define(sizeId, sizeFieldSymbol)
-    setType.fields = listOf(sizeFieldSymbol)
+    private fun createMutableSetAddFunction(): ParameterizedMemberPluginSymbol {
+        val addId = Identifier(NotInSource, CollectionMethods.InsertElement.idStr)
+        val addMemberFunction = ParameterizedMemberPluginSymbol(
+            Lang.mutableSetType,
+            addId,
+            SingleParentArgInstantiation
+        )
+        addMemberFunction.typeParams = listOf(Lang.mutableSetElementTypeParam)
+        addMemberFunction.costExpression = ConstantFinTypeSymbol
+        val addFormalParamId = Identifier(NotInSource, "element")
+        val addFormalParam = FunctionFormalParameterSymbol(addMemberFunction, addFormalParamId, Lang.mutableSetElementTypeParam)
+        addMemberFunction.define(addFormalParamId, addFormalParam)
 
-    createSetEqualsMember(setType, setElementTypeParam, setFinTypeParam, booleanType)
-    createSetNotEqualsMember(setType, setElementTypeParam, setFinTypeParam, booleanType)
-
-    return setType
-}
-
-fun mutableSetCollectionType(
-    langNS: Scope<Symbol>,
-    booleanType: BasicTypeSymbol,
-    intType: BasicTypeSymbol,
-    unitType: ObjectSymbol,
-    setType: ParameterizedBasicTypeSymbol
-): ParameterizedBasicTypeSymbol {
-    val mutableSetType = ParameterizedBasicTypeSymbol(
-        langNS,
-        Lang.mutableSetId,
-        MutableSetInstantiation(),
-        noFeatureSupport
-    )
-    val mutableSetElementTypeParam = StandardTypeParameter(mutableSetType, Lang.mutableSetElementTypeId)
-    mutableSetType.define(Lang.mutableSetElementTypeId, mutableSetElementTypeParam)
-    val mutableSetFinTypeParam = MutableFinTypeParameter(mutableSetType, Lang.mutableSetFinTypeId)
-    mutableSetType.define(Lang.mutableSetFinTypeId, mutableSetFinTypeParam)
-    mutableSetType.typeParams = listOf(mutableSetElementTypeParam, mutableSetFinTypeParam)
-    mutableSetType.modeSelector = { args ->
-        when (val fin = args[1]) {
-            is FinTypeSymbol -> {
-                MutableBasicTypeMode(fin.magnitude)
-            }
-            else -> {
-                ImmutableBasicTypeMode
-            }
-        }
+        addMemberFunction.formalParams = listOf(addFormalParam)
+        addMemberFunction.returnType = Lang.unitObject
+        Lang.mutableSetType.define(addId, addMemberFunction)
+        return addMemberFunction
     }
 
-    val constantFin = ConstantFinTypeSymbol
+    private fun createMutableSetRemoveFunction(): ParameterizedMemberPluginSymbol {
+        val removeId = Identifier(NotInSource, CollectionMethods.Remove.idStr)
+        val removeMemberFunction = ParameterizedMemberPluginSymbol(
+            Lang.mutableSetType,
+            removeId,
+            SingleParentArgInstantiation
+        )
+        removeMemberFunction.typeParams = listOf(Lang.mutableSetElementTypeParam)
+        removeMemberFunction.costExpression = ConstantFinTypeSymbol
+        val removeFormalParamId = Identifier(NotInSource, "element")
+        val removeFormalParam =
+            FunctionFormalParameterSymbol(removeMemberFunction, removeFormalParamId, Lang.mutableSetElementTypeParam)
+        removeMemberFunction.define(removeFormalParamId, removeFormalParam)
 
-    createContainsFunction(
-        constantFin,
-        mutableSetType,
-        booleanType,
-        mutableSetElementTypeParam
-    )
-
-    createAddFunction(
-        constantFin,
-        mutableSetType,
-        unitType,
-        mutableSetElementTypeParam
-    )
-
-    createRemoveFunction(
-        constantFin,
-        mutableSetType,
-        unitType,
-        mutableSetElementTypeParam
-    )
-
-    createToImmutableSetPlugin(
-        mutableSetType,
-        mutableSetElementTypeParam,
-        mutableSetFinTypeParam,
-        setType
-    )
-
-    val sizeId = Identifier(NotInSource, CollectionFields.Size.idStr)
-    val sizeFieldSymbol = PlatformFieldSymbol(
-        mutableSetType,
-        sizeId,
-        intType
-    ) { value ->
-        (value as SetValue).fieldSize()
+        removeMemberFunction.formalParams = listOf(removeFormalParam)
+        removeMemberFunction.returnType = Lang.unitObject
+        Lang.mutableSetType.define(removeId, removeMemberFunction)
+        return removeMemberFunction
     }
 
-    mutableSetType.define(sizeId, sizeFieldSymbol)
-    mutableSetType.fields = listOf(sizeFieldSymbol)
+    fun createMutableSetToImmutableSetPlugin(): ParameterizedMemberPluginSymbol {
+        val plugin = ParameterizedMemberPluginSymbol(
+            Lang.mutableSetType,
+            Identifier(NotInSource, CollectionMethods.ToImmutableSet.idStr),
+            DoubleParentArgInstantiation
+        )
+        plugin.typeParams = listOf(Lang.mutableSetElementTypeParam, Lang.mutableSetFinTypeParam)
+        plugin.formalParams = listOf()
+        val outputSubstitution =
+            Substitution(Lang.setType.typeParams, listOf(Lang.mutableSetElementTypeParam, Lang.mutableSetFinTypeParam))
+        val outputType = outputSubstitution.apply(Lang.setType)
+        plugin.returnType = outputType
 
-    createMutableSetEqualsMember(mutableSetType, mutableSetElementTypeParam, mutableSetFinTypeParam, booleanType)
-    createMutableSetNotEqualsMember(mutableSetType, mutableSetElementTypeParam, mutableSetFinTypeParam, booleanType)
+        plugin.costExpression =
+            ProductCostExpression(
+                listOf(
+                    CommonCostExpressions.twoPass,
+                    Lang.mutableSetFinTypeParam
+                )
+            )
+        Lang.mutableSetType.define(plugin.identifier, plugin)
+        return plugin
+    }
 
-    return mutableSetType
+    private val setSizeId = Identifier(NotInSource, CollectionFields.Size.idStr)
+    val setSizeFieldSymbol = PlatformFieldSymbol(
+        Lang.setType,
+        setSizeId,
+        Lang.intType
+    )
+
+    private val mutableSizeId = Identifier(NotInSource, CollectionFields.Size.idStr)
+    val mutableSizeFieldSymbol = PlatformFieldSymbol(
+        Lang.mutableSetType,
+        mutableSizeId,
+        Lang.intType
+    )
+
+    fun setCollectionType() {
+        Lang.setType.define(setSizeId, setSizeFieldSymbol)
+        Lang.setType.fields = listOf(setSizeFieldSymbol)
+    }
+
+    fun mutableSetCollectionType() {
+        Lang.mutableSetType.define(mutableSizeId, mutableSizeFieldSymbol)
+        Lang.mutableSetType.fields = listOf(mutableSizeFieldSymbol)
+    }
 }

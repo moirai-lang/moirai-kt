@@ -3,309 +3,191 @@ package org.shardscript.semantics.prelude
 import org.shardscript.semantics.core.*
 import org.shardscript.semantics.infer.*
 
-private fun createGetFunction(
-    costExpression: CostExpression,
-    dictionaryType: ParameterizedBasicTypeSymbol,
-    dictionaryKeyTypeParam: StandardTypeParameter,
-    dictionaryValueTypeParam: StandardTypeParameter
-) {
-    val getId = Identifier(NotInSource, CollectionMethods.KeyLookup.idStr)
-    val getMemberFunction = ParameterizedMemberPluginSymbol(
-        dictionaryType,
-        getId,
-        DoubleParentArgInstantiation
-    ) { t: Value, args: List<Value> ->
-        (t as DictionaryValue).evalGet(args.first())
-    }
-    getMemberFunction.typeParams = listOf(dictionaryKeyTypeParam, dictionaryValueTypeParam)
-    getMemberFunction.costExpression = costExpression
-    val getFormalParamId = Identifier(NotInSource, "key")
-    val getFormalParam = FunctionFormalParameterSymbol(getMemberFunction, getFormalParamId, dictionaryKeyTypeParam)
-    getMemberFunction.define(getFormalParamId, getFormalParam)
+object DictionaryTypes {
+    val getFunction = createGetFunction()
+    val mutableGetFunction = createMutableGetFunction()
+    val containsFunction = createContainsFunction()
+    val mutableContainsFunction = createMutableContainsFunction()
+    val setFunction = createSetFunction()
+    val removeFunction = createRemoveFunction()
+    val mutableDictionaryToDictionary = createToImmutableDictionaryPlugin()
 
-    getMemberFunction.formalParams = listOf(getFormalParam)
-    getMemberFunction.returnType = dictionaryValueTypeParam
-    dictionaryType.define(getId, getMemberFunction)
-}
-
-private fun createContainsFunction(
-    costExpression: CostExpression,
-    dictionaryType: ParameterizedBasicTypeSymbol,
-    dictionaryKeyTypeParam: StandardTypeParameter,
-    booleanType: BasicTypeSymbol
-) {
-    val containsId = Identifier(NotInSource, CollectionMethods.Contains.idStr)
-    val containsMemberFunction = ParameterizedMemberPluginSymbol(
-        dictionaryType,
-        containsId,
-        SingleParentArgInstantiation
-    ) { t: Value, args: List<Value> ->
-        (t as DictionaryValue).evalContains(args.first())
-    }
-    containsMemberFunction.typeParams = listOf(dictionaryKeyTypeParam)
-    containsMemberFunction.costExpression = costExpression
-    val containsFormalParamId = Identifier(NotInSource, "key")
-    val containsFormalParam =
-        FunctionFormalParameterSymbol(containsMemberFunction, containsFormalParamId, dictionaryKeyTypeParam)
-    containsMemberFunction.define(containsFormalParamId, containsFormalParam)
-
-    containsMemberFunction.formalParams = listOf(containsFormalParam)
-    containsMemberFunction.returnType = booleanType
-    dictionaryType.define(containsId, containsMemberFunction)
-}
-
-private fun createSetFunction(
-    costExpression: CostExpression,
-    dictionaryType: ParameterizedBasicTypeSymbol,
-    unitType: ObjectSymbol,
-    dictionaryKeyTypeParam: StandardTypeParameter,
-    dictionaryValueTypeParam: StandardTypeParameter
-) {
-    val setId = Identifier(NotInSource, CollectionMethods.KeyAssign.idStr)
-    val setMemberFunction = ParameterizedMemberPluginSymbol(
-        dictionaryType,
-        setId,
-        DoubleParentArgInstantiation
-    ) { t: Value, args: List<Value> ->
-        (t as DictionaryValue).evalSet(args.first(), args[1])
-    }
-    setMemberFunction.typeParams = listOf(dictionaryKeyTypeParam, dictionaryValueTypeParam)
-    setMemberFunction.costExpression = costExpression
-    val keyFormalParamId = Identifier(NotInSource, "key")
-    val keyFormalParam = FunctionFormalParameterSymbol(setMemberFunction, keyFormalParamId, dictionaryKeyTypeParam)
-    setMemberFunction.define(keyFormalParamId, keyFormalParam)
-
-    val valueFormalParamId = Identifier(NotInSource, "value")
-    val valueFormalParam =
-        FunctionFormalParameterSymbol(setMemberFunction, valueFormalParamId, dictionaryValueTypeParam)
-    setMemberFunction.define(valueFormalParamId, valueFormalParam)
-
-    setMemberFunction.formalParams = listOf(keyFormalParam, valueFormalParam)
-    setMemberFunction.returnType = unitType
-    dictionaryType.define(setId, setMemberFunction)
-}
-
-private fun createRemoveFunction(
-    costExpression: CostExpression,
-    dictionaryType: ParameterizedBasicTypeSymbol,
-    unitType: ObjectSymbol,
-    dictionaryKeyTypeParam: StandardTypeParameter
-) {
-    val removeId = Identifier(NotInSource, CollectionMethods.Remove.idStr)
-    val removeMemberFunction = ParameterizedMemberPluginSymbol(
-        dictionaryType,
-        removeId,
-        SingleParentArgInstantiation
-    ) { t: Value, args: List<Value> ->
-        (t as DictionaryValue).evalRemove(args.first())
-    }
-    removeMemberFunction.typeParams = listOf(dictionaryKeyTypeParam)
-    removeMemberFunction.costExpression = costExpression
-    val removeFormalParamId = Identifier(NotInSource, "key")
-    val removeFormalParam =
-        FunctionFormalParameterSymbol(removeMemberFunction, removeFormalParamId, dictionaryKeyTypeParam)
-    removeMemberFunction.define(removeFormalParamId, removeFormalParam)
-
-    removeMemberFunction.formalParams = listOf(removeFormalParam)
-    removeMemberFunction.returnType = unitType
-    dictionaryType.define(removeId, removeMemberFunction)
-}
-
-fun createToImmutableDictionaryPlugin(
-    mutableDictionaryType: ParameterizedBasicTypeSymbol,
-    keyType: StandardTypeParameter,
-    valueType: StandardTypeParameter,
-    fin: MutableFinTypeParameter,
-    dictionaryType: ParameterizedBasicTypeSymbol
-) {
-    val plugin = ParameterizedMemberPluginSymbol(
-        mutableDictionaryType,
-        Identifier(NotInSource, CollectionMethods.ToImmutableDictionary.idStr),
-        TripleParentArgInstantiation
-    ) { t: Value, _: List<Value> ->
-        (t as DictionaryValue).evalToDictionary()
-    }
-    plugin.typeParams = listOf(keyType, valueType, fin)
-    plugin.formalParams = listOf()
-    val outputSubstitution = Substitution(dictionaryType.typeParams, listOf(keyType, valueType, fin))
-    val outputType = outputSubstitution.apply(dictionaryType)
-    plugin.returnType = outputType
-
-    plugin.costExpression = ProductCostExpression(
-        listOf(
-            CommonCostExpressions.twoPass,
-            fin
+    private fun createGetFunction(): ParameterizedMemberPluginSymbol {
+        val getId = Identifier(NotInSource, CollectionMethods.KeyLookup.idStr)
+        val getMemberFunction = ParameterizedMemberPluginSymbol(
+            Lang.dictionaryType,
+            getId,
+            DoubleParentArgInstantiation
         )
-    )
-    mutableDictionaryType.define(plugin.identifier, plugin)
-}
+        getMemberFunction.typeParams = listOf(Lang.dictionaryKeyTypeParam, Lang.dictionaryValueTypeParam)
+        getMemberFunction.costExpression = ConstantFinTypeSymbol
+        val getFormalParamId = Identifier(NotInSource, "key")
+        val getFormalParam = FunctionFormalParameterSymbol(getMemberFunction, getFormalParamId, Lang.dictionaryKeyTypeParam)
+        getMemberFunction.define(getFormalParamId, getFormalParam)
 
-fun dictionaryCollectionType(
-    langNS: Scope<Symbol>,
-    booleanType: BasicTypeSymbol,
-    intType: BasicTypeSymbol,
-    pairType: ParameterizedRecordTypeSymbol
-): ParameterizedBasicTypeSymbol {
-    val dictionaryType = ParameterizedBasicTypeSymbol(
-        langNS,
-        Lang.dictionaryId,
-        DictionaryInstantiation(pairType),
-        immutableUnorderedFeatureSupport
-    )
-    val dictionaryKeyTypeParam = StandardTypeParameter(dictionaryType, Lang.dictionaryKeyTypeId)
-    dictionaryType.define(Lang.dictionaryKeyTypeId, dictionaryKeyTypeParam)
-    val dictionaryValueTypeParam = StandardTypeParameter(dictionaryType, Lang.dictionaryValueTypeId)
-    dictionaryType.define(Lang.dictionaryValueTypeId, dictionaryValueTypeParam)
-    val dictionaryFinTypeParam = ImmutableFinTypeParameter(dictionaryType, Lang.dictionaryFinTypeId)
-    dictionaryType.define(Lang.dictionaryFinTypeId, dictionaryFinTypeParam)
-    dictionaryType.typeParams = listOf(dictionaryKeyTypeParam, dictionaryValueTypeParam, dictionaryFinTypeParam)
-    dictionaryType.modeSelector = { _ ->
-        ImmutableBasicTypeMode
+        getMemberFunction.formalParams = listOf(getFormalParam)
+        getMemberFunction.returnType = Lang.dictionaryValueTypeParam
+        Lang.dictionaryType.define(getId, getMemberFunction)
+        return getMemberFunction
     }
 
-    createGetFunction(
-        ConstantFinTypeSymbol,
-        dictionaryType,
-        dictionaryKeyTypeParam,
-        dictionaryValueTypeParam
-    )
+    private fun createMutableGetFunction(): ParameterizedMemberPluginSymbol {
+        val getId = Identifier(NotInSource, CollectionMethods.KeyLookup.idStr)
+        val getMemberFunction = ParameterizedMemberPluginSymbol(
+            Lang.mutableDictionaryType,
+            getId,
+            DoubleParentArgInstantiation
+        )
+        getMemberFunction.typeParams = listOf(Lang.mutableDictionaryKeyTypeParam, Lang.mutableDictionaryValueTypeParam)
+        getMemberFunction.costExpression = ConstantFinTypeSymbol
+        val getFormalParamId = Identifier(NotInSource, "key")
+        val getFormalParam = FunctionFormalParameterSymbol(getMemberFunction, getFormalParamId, Lang.mutableDictionaryKeyTypeParam)
+        getMemberFunction.define(getFormalParamId, getFormalParam)
 
-    createContainsFunction(
-        ConstantFinTypeSymbol,
-        dictionaryType,
-        dictionaryKeyTypeParam,
-        booleanType
-    )
-
-    val sizeId = Identifier(NotInSource, CollectionFields.Size.idStr)
-    val sizeFieldSymbol = PlatformFieldSymbol(
-        dictionaryType,
-        sizeId,
-        intType
-    ) { value ->
-        (value as DictionaryValue).fieldSize()
+        getMemberFunction.formalParams = listOf(getFormalParam)
+        getMemberFunction.returnType = Lang.mutableDictionaryValueTypeParam
+        Lang.mutableDictionaryType.define(getId, getMemberFunction)
+        return getMemberFunction
     }
 
-    dictionaryType.define(sizeId, sizeFieldSymbol)
-    dictionaryType.fields = listOf(sizeFieldSymbol)
+    private fun createContainsFunction(): ParameterizedMemberPluginSymbol {
+        val containsId = Identifier(NotInSource, CollectionMethods.Contains.idStr)
+        val containsMemberFunction = ParameterizedMemberPluginSymbol(
+            Lang.dictionaryType,
+            containsId,
+            SingleParentArgInstantiation
+        )
+        containsMemberFunction.typeParams = listOf(Lang.dictionaryKeyTypeParam)
+        containsMemberFunction.costExpression = ConstantFinTypeSymbol
+        val containsFormalParamId = Identifier(NotInSource, "key")
+        val containsFormalParam =
+            FunctionFormalParameterSymbol(containsMemberFunction, containsFormalParamId, Lang.dictionaryKeyTypeParam)
+        containsMemberFunction.define(containsFormalParamId, containsFormalParam)
 
-    createDictionaryEqualsMember(
-        dictionaryType,
-        dictionaryKeyTypeParam,
-        dictionaryValueTypeParam,
-        dictionaryFinTypeParam,
-        booleanType
-    )
-    createDictionaryNotEqualsMember(
-        dictionaryType,
-        dictionaryKeyTypeParam,
-        dictionaryValueTypeParam,
-        dictionaryFinTypeParam,
-        booleanType
-    )
-
-    return dictionaryType
-}
-
-fun mutableDictionaryCollectionType(
-    langNS: Scope<Symbol>,
-    booleanType: BasicTypeSymbol,
-    intType: BasicTypeSymbol,
-    unitType: ObjectSymbol,
-    pairType: ParameterizedRecordTypeSymbol,
-    dictionaryType: ParameterizedBasicTypeSymbol
-): ParameterizedBasicTypeSymbol {
-    val mutableDictionaryType = ParameterizedBasicTypeSymbol(
-        langNS,
-        Lang.mutableDictionaryId,
-        MutableDictionaryInstantiation(pairType),
-        noFeatureSupport
-    )
-    val mutableDictionaryKeyTypeParam = StandardTypeParameter(mutableDictionaryType, Lang.mutableDictionaryKeyTypeId)
-    mutableDictionaryType.define(Lang.mutableDictionaryKeyTypeId, mutableDictionaryKeyTypeParam)
-    val mutableDictionaryValueTypeParam =
-        StandardTypeParameter(mutableDictionaryType, Lang.mutableDictionaryValueTypeId)
-    mutableDictionaryType.define(Lang.mutableDictionaryValueTypeId, mutableDictionaryValueTypeParam)
-    val mutableDictionaryFinTypeParam =
-        MutableFinTypeParameter(mutableDictionaryType, Lang.mutableDictionaryFinTypeId)
-    mutableDictionaryType.define(Lang.mutableDictionaryFinTypeId, mutableDictionaryFinTypeParam)
-    mutableDictionaryType.typeParams =
-        listOf(mutableDictionaryKeyTypeParam, mutableDictionaryValueTypeParam, mutableDictionaryFinTypeParam)
-    mutableDictionaryType.modeSelector = { args ->
-        when (val fin = args[2]) {
-            is FinTypeSymbol -> {
-                MutableBasicTypeMode(fin.magnitude)
-            }
-            else -> {
-                ImmutableBasicTypeMode
-            }
-        }
+        containsMemberFunction.formalParams = listOf(containsFormalParam)
+        containsMemberFunction.returnType = Lang.booleanType
+        Lang.dictionaryType.define(containsId, containsMemberFunction)
+        return containsMemberFunction
     }
 
-    val constantFin = ConstantFinTypeSymbol
-    createGetFunction(
-        constantFin,
-        mutableDictionaryType,
-        mutableDictionaryKeyTypeParam,
-        mutableDictionaryValueTypeParam
-    )
+    private fun createMutableContainsFunction(): ParameterizedMemberPluginSymbol {
+        val containsId = Identifier(NotInSource, CollectionMethods.Contains.idStr)
+        val containsMemberFunction = ParameterizedMemberPluginSymbol(
+            Lang.mutableDictionaryType,
+            containsId,
+            SingleParentArgInstantiation
+        )
+        containsMemberFunction.typeParams = listOf(Lang.mutableDictionaryKeyTypeParam)
+        containsMemberFunction.costExpression = ConstantFinTypeSymbol
+        val containsFormalParamId = Identifier(NotInSource, "key")
+        val containsFormalParam =
+            FunctionFormalParameterSymbol(containsMemberFunction, containsFormalParamId, Lang.mutableDictionaryKeyTypeParam)
+        containsMemberFunction.define(containsFormalParamId, containsFormalParam)
 
-    createContainsFunction(
-        ConstantFinTypeSymbol,
-        mutableDictionaryType,
-        mutableDictionaryKeyTypeParam,
-        booleanType
-    )
-
-    createRemoveFunction(
-        constantFin,
-        mutableDictionaryType,
-        unitType,
-        mutableDictionaryKeyTypeParam
-    )
-
-    createSetFunction(
-        constantFin,
-        mutableDictionaryType,
-        unitType,
-        mutableDictionaryKeyTypeParam,
-        mutableDictionaryValueTypeParam
-    )
-
-    createToImmutableDictionaryPlugin(
-        mutableDictionaryType,
-        mutableDictionaryKeyTypeParam,
-        mutableDictionaryValueTypeParam,
-        mutableDictionaryFinTypeParam,
-        dictionaryType
-    )
-
-    val sizeId = Identifier(NotInSource, CollectionFields.Size.idStr)
-    val sizeFieldSymbol = PlatformFieldSymbol(
-        mutableDictionaryType,
-        sizeId,
-        intType
-    ) { value ->
-        (value as DictionaryValue).fieldSize()
+        containsMemberFunction.formalParams = listOf(containsFormalParam)
+        containsMemberFunction.returnType = Lang.booleanType
+        Lang.mutableDictionaryType.define(containsId, containsMemberFunction)
+        return containsMemberFunction
     }
 
-    mutableDictionaryType.define(sizeId, sizeFieldSymbol)
-    mutableDictionaryType.fields = listOf(sizeFieldSymbol)
+    private fun createSetFunction(): ParameterizedMemberPluginSymbol {
+        val setId = Identifier(NotInSource, CollectionMethods.KeyAssign.idStr)
+        val setMemberFunction = ParameterizedMemberPluginSymbol(
+            Lang.mutableDictionaryType,
+            setId,
+            DoubleParentArgInstantiation
+        )
+        setMemberFunction.typeParams = listOf(Lang.mutableDictionaryKeyTypeParam, Lang.mutableDictionaryValueTypeParam)
+        setMemberFunction.costExpression = ConstantFinTypeSymbol
+        val keyFormalParamId = Identifier(NotInSource, "key")
+        val keyFormalParam = FunctionFormalParameterSymbol(setMemberFunction, keyFormalParamId, Lang.mutableDictionaryKeyTypeParam)
+        setMemberFunction.define(keyFormalParamId, keyFormalParam)
 
-    createMutableDictionaryEqualsMember(
-        mutableDictionaryType,
-        mutableDictionaryKeyTypeParam,
-        mutableDictionaryValueTypeParam,
-        mutableDictionaryFinTypeParam,
-        booleanType
-    )
-    createMutableDictionaryNotEqualsMember(
-        mutableDictionaryType,
-        mutableDictionaryKeyTypeParam,
-        mutableDictionaryValueTypeParam,
-        mutableDictionaryFinTypeParam,
-        booleanType
+        val valueFormalParamId = Identifier(NotInSource, "value")
+        val valueFormalParam =
+            FunctionFormalParameterSymbol(setMemberFunction, valueFormalParamId, Lang.mutableDictionaryValueTypeParam)
+        setMemberFunction.define(valueFormalParamId, valueFormalParam)
+
+        setMemberFunction.formalParams = listOf(keyFormalParam, valueFormalParam)
+        setMemberFunction.returnType = Lang.unitObject
+        Lang.mutableDictionaryType.define(setId, setMemberFunction)
+        return setMemberFunction
+    }
+
+    private fun createRemoveFunction(): ParameterizedMemberPluginSymbol {
+        val removeId = Identifier(NotInSource, CollectionMethods.Remove.idStr)
+        val removeMemberFunction = ParameterizedMemberPluginSymbol(
+            Lang.mutableDictionaryType,
+            removeId,
+            SingleParentArgInstantiation
+        )
+        removeMemberFunction.typeParams = listOf(Lang.mutableDictionaryKeyTypeParam)
+        removeMemberFunction.costExpression = ConstantFinTypeSymbol
+        val removeFormalParamId = Identifier(NotInSource, "key")
+        val removeFormalParam =
+            FunctionFormalParameterSymbol(removeMemberFunction, removeFormalParamId, Lang.mutableDictionaryKeyTypeParam)
+        removeMemberFunction.define(removeFormalParamId, removeFormalParam)
+
+        removeMemberFunction.formalParams = listOf(removeFormalParam)
+        removeMemberFunction.returnType = Lang.unitObject
+        Lang.mutableDictionaryType.define(removeId, removeMemberFunction)
+        return removeMemberFunction
+    }
+
+    fun createToImmutableDictionaryPlugin(): ParameterizedMemberPluginSymbol {
+        val plugin = ParameterizedMemberPluginSymbol(
+            Lang.mutableDictionaryType,
+            Identifier(NotInSource, CollectionMethods.ToImmutableDictionary.idStr),
+            TripleParentArgInstantiation
+        )
+        plugin.typeParams = listOf(
+            Lang.mutableDictionaryKeyTypeParam,
+            Lang.mutableDictionaryValueTypeParam,
+            Lang.mutableDictionaryFinTypeParam
+        )
+        plugin.formalParams = listOf()
+        val outputSubstitution = Substitution(
+            Lang.dictionaryType.typeParams,
+            listOf(
+                Lang.mutableDictionaryKeyTypeParam,
+                Lang.mutableDictionaryValueTypeParam,
+                Lang.mutableDictionaryFinTypeParam
+            )
+        )
+        val outputType = outputSubstitution.apply(Lang.dictionaryType)
+        plugin.returnType = outputType
+
+        plugin.costExpression = ProductCostExpression(
+            listOf(
+                CommonCostExpressions.twoPass,
+                Lang.mutableDictionaryFinTypeParam
+            )
+        )
+        Lang.mutableDictionaryType.define(plugin.identifier, plugin)
+        return plugin
+    }
+
+    private val dictionarySizeId = Identifier(NotInSource, CollectionFields.Size.idStr)
+    val dictionarySizeFieldSymbol = PlatformFieldSymbol(
+        Lang.dictionaryType,
+        dictionarySizeId,
+        Lang.intType
     )
 
-    return mutableDictionaryType
+    private val mutableSizeId = Identifier(NotInSource, CollectionFields.Size.idStr)
+    val mutableSizeFieldSymbol = PlatformFieldSymbol(
+        Lang.mutableDictionaryType,
+        mutableSizeId,
+        Lang.intType
+    )
+
+    fun dictionaryCollectionType() {
+        Lang.dictionaryType.define(dictionarySizeId, dictionarySizeFieldSymbol)
+        Lang.dictionaryType.fields = listOf(dictionarySizeFieldSymbol)
+    }
+
+    fun mutableDictionaryCollectionType() {
+        Lang.mutableDictionaryType.define(mutableSizeId, mutableSizeFieldSymbol)
+        Lang.mutableDictionaryType.fields = listOf(mutableSizeFieldSymbol)
+    }
 }

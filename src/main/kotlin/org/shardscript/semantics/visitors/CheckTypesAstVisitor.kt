@@ -147,11 +147,7 @@ class CheckTypesAstVisitor(private val prelude: Scope<Symbol>) : UnitAstVisitor(
             super.visit(ast)
             val testErrors = LanguageErrors()
             checkTypes(ast.ctx, prelude, testErrors, ast.identifierSymbol, ast.lhs.readType())
-            if (testErrors.toSet().isEmpty()) {
-                ast.result = BooleanValue(true)
-            } else {
-                ast.result = BooleanValue(false)
-            }
+            ast.testErrors = testErrors
         } catch (ex: LanguageException) {
             errors.addAll(ast.ctx, ex.errors)
         }
