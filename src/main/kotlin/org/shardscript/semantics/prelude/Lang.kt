@@ -98,7 +98,7 @@ object Lang {
         DecimalInstantiation(),
         userTypeFeatureSupport
     )
-    val decimalTypeParam = ImmutableFinTypeParameter(decimalType, decimalTypeId)
+    val decimalTypeParam = ImmutableFinTypeParameter("${decimalId.name}.${decimalTypeId.name}", decimalTypeId)
 
     // List
     val listType = ParameterizedBasicTypeSymbol(
@@ -107,8 +107,8 @@ object Lang {
         ListInstantiation(),
         immutableOrderedFeatureSupport
     )
-    val listElementTypeParam = StandardTypeParameter(listType, listElementTypeId)
-    val listFinTypeParam = ImmutableFinTypeParameter(listType, listFinTypeId)
+    val listElementTypeParam = StandardTypeParameter("${listId.name}.${listElementTypeId.name}", listElementTypeId)
+    val listFinTypeParam = ImmutableFinTypeParameter("${listId.name}.${listFinTypeId.name}", listFinTypeId)
 
     // MutableList
     val mutableListType = ParameterizedBasicTypeSymbol(
@@ -117,8 +117,8 @@ object Lang {
         MutableListInstantiation(),
         noFeatureSupport
     )
-    val mutableListElementTypeParam = StandardTypeParameter(mutableListType, mutableListElementTypeId)
-    val mutableListFinTypeParam = MutableFinTypeParameter(mutableListType, mutableListFinTypeId)
+    val mutableListElementTypeParam = StandardTypeParameter("${mutableListId.name}.${mutableListElementTypeId.name}", mutableListElementTypeId)
+    val mutableListFinTypeParam = MutableFinTypeParameter("${mutableListId.name}.${mutableListFinTypeId.name}", mutableListFinTypeId)
 
     // String
     val stringType = ParameterizedBasicTypeSymbol(
@@ -128,7 +128,7 @@ object Lang {
         userTypeFeatureSupport
     )
 
-    val stringTypeParam = ImmutableFinTypeParameter(stringType, stringTypeId)
+    val stringTypeParam = ImmutableFinTypeParameter("${stringId.name}.${stringTypeId.name}", stringTypeId)
 
     // Pair
     val pairType = ParameterizedRecordTypeSymbol(
@@ -136,8 +136,8 @@ object Lang {
         pairId,
         userTypeFeatureSupport
     )
-    val pairFirstType = StandardTypeParameter(pairType, pairFirstTypeId)
-    val pairSecondType = StandardTypeParameter(pairType, pairSecondTypeId)
+    val pairFirstType = StandardTypeParameter("${pairId.name}.${pairFirstTypeId.name}", pairFirstTypeId)
+    val pairSecondType = StandardTypeParameter("${pairId.name}.${pairSecondTypeId.name}", pairSecondTypeId)
 
     val dictionaryType = ParameterizedBasicTypeSymbol(
         prelude,
@@ -145,9 +145,9 @@ object Lang {
         DictionaryInstantiation(pairType),
         immutableUnorderedFeatureSupport
     )
-    val dictionaryKeyTypeParam = StandardTypeParameter(dictionaryType, dictionaryKeyTypeId)
-    val dictionaryValueTypeParam = StandardTypeParameter(dictionaryType, dictionaryValueTypeId)
-    val dictionaryFinTypeParam = ImmutableFinTypeParameter(dictionaryType, dictionaryFinTypeId)
+    val dictionaryKeyTypeParam = StandardTypeParameter("${dictionaryId.name}.${dictionaryKeyTypeId.name}", dictionaryKeyTypeId)
+    val dictionaryValueTypeParam = StandardTypeParameter("${dictionaryId.name}.${dictionaryValueTypeId.name}", dictionaryValueTypeId)
+    val dictionaryFinTypeParam = ImmutableFinTypeParameter("${dictionaryId.name}.${dictionaryFinTypeId.name}", dictionaryFinTypeId)
 
     val mutableDictionaryType = ParameterizedBasicTypeSymbol(
         prelude,
@@ -155,9 +155,9 @@ object Lang {
         MutableDictionaryInstantiation(pairType),
         noFeatureSupport
     )
-    val mutableDictionaryKeyTypeParam = StandardTypeParameter(mutableDictionaryType, mutableDictionaryKeyTypeId)
-    val mutableDictionaryValueTypeParam = StandardTypeParameter(mutableDictionaryType, mutableDictionaryValueTypeId)
-    val mutableDictionaryFinTypeParam = MutableFinTypeParameter(mutableDictionaryType, mutableDictionaryFinTypeId)
+    val mutableDictionaryKeyTypeParam = StandardTypeParameter("${mutableDictionaryId.name}.${mutableDictionaryKeyTypeId.name}", mutableDictionaryKeyTypeId)
+    val mutableDictionaryValueTypeParam = StandardTypeParameter("${mutableDictionaryId.name}.${mutableDictionaryValueTypeId.name}", mutableDictionaryValueTypeId)
+    val mutableDictionaryFinTypeParam = MutableFinTypeParameter("${mutableDictionaryId.name}.${mutableDictionaryFinTypeId.name}", mutableDictionaryFinTypeId)
 
     val setType = ParameterizedBasicTypeSymbol(
         prelude,
@@ -165,8 +165,8 @@ object Lang {
         SetInstantiation(),
         immutableUnorderedFeatureSupport
     )
-    val setElementTypeParam = StandardTypeParameter(setType, setElementTypeId)
-    val setFinTypeParam = ImmutableFinTypeParameter(setType, setFinTypeId)
+    val setElementTypeParam = StandardTypeParameter("${setId.name}.${setElementTypeId.name}", setElementTypeId)
+    val setFinTypeParam = ImmutableFinTypeParameter("${setId.name}.${setFinTypeId.name}", setFinTypeId)
 
     val mutableSetType = ParameterizedBasicTypeSymbol(
         prelude,
@@ -174,8 +174,8 @@ object Lang {
         MutableSetInstantiation(),
         noFeatureSupport
     )
-    val mutableSetElementTypeParam = StandardTypeParameter(mutableSetType, mutableSetElementTypeId)
-    val mutableSetFinTypeParam = MutableFinTypeParameter(mutableSetType, mutableSetFinTypeId)
+    val mutableSetElementTypeParam = StandardTypeParameter("${mutableSetId.name}.${mutableSetElementTypeId.name}", mutableSetElementTypeId)
+    val mutableSetFinTypeParam = MutableFinTypeParameter("${mutableSetId.name}.${mutableSetFinTypeId.name}", mutableSetFinTypeId)
 
     init {
         IntegerMathOpMembers.members().forEach { (name, plugin) ->
@@ -333,9 +333,5 @@ object Lang {
         prelude.define(stringId, stringType)
         prelude.define(rangeId, StaticPlugins.rangePlugin)
         prelude.define(randomId, StaticPlugins.randomPlugin)
-    }
-
-    fun qualifyTypeParameter(): String {
-
     }
 }

@@ -59,7 +59,7 @@ sealed class TypeParameter : Symbol(), Type
 
 data class StandardTypeParameter(
     val qualifiedName: String,
-    val key: Identifier
+    val identifier: Identifier
 ) : TypeParameter(), Type
 
 data class ImmutableFinTypeParameter(
@@ -73,7 +73,7 @@ data class ImmutableFinTypeParameter(
 
 data class MutableFinTypeParameter(
     val qualifiedName: String,
-    val key: Identifier
+    val identifier: Identifier
 ) : TypeParameter(), CostExpression, Type {
     override fun <R> accept(visitor: CostExpressionVisitor<R>): R {
         return visitor.visit(this)
