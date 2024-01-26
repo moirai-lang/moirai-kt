@@ -113,31 +113,27 @@ object SetTypes {
         return plugin
     }
 
-    fun setCollectionType() {
-        val sizeId = Identifier(NotInSource, CollectionFields.Size.idStr)
-        val sizeFieldSymbol = PlatformFieldSymbol(
-            Lang.setType,
-            sizeId,
-            Lang.intType
-        ) { value ->
-            (value as SetValue).fieldSize()
-        }
+    private val setSizeId = Identifier(NotInSource, CollectionFields.Size.idStr)
+    val setSizeFieldSymbol = PlatformFieldSymbol(
+        Lang.setType,
+        setSizeId,
+        Lang.intType
+    )
 
-        Lang.setType.define(sizeId, sizeFieldSymbol)
-        Lang.setType.fields = listOf(sizeFieldSymbol)
+    private val mutableSizeId = Identifier(NotInSource, CollectionFields.Size.idStr)
+    val mutableSizeFieldSymbol = PlatformFieldSymbol(
+        Lang.mutableSetType,
+        mutableSizeId,
+        Lang.intType
+    )
+
+    fun setCollectionType() {
+        Lang.setType.define(setSizeId, setSizeFieldSymbol)
+        Lang.setType.fields = listOf(setSizeFieldSymbol)
     }
 
     fun mutableSetCollectionType() {
-        val sizeId = Identifier(NotInSource, CollectionFields.Size.idStr)
-        val sizeFieldSymbol = PlatformFieldSymbol(
-            Lang.mutableSetType,
-            sizeId,
-            Lang.intType
-        ) { value ->
-            (value as SetValue).fieldSize()
-        }
-
-        Lang.mutableSetType.define(sizeId, sizeFieldSymbol)
-        Lang.mutableSetType.fields = listOf(sizeFieldSymbol)
+        Lang.mutableSetType.define(mutableSizeId, mutableSizeFieldSymbol)
+        Lang.mutableSetType.fields = listOf(mutableSizeFieldSymbol)
     }
 }

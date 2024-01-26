@@ -179,8 +179,7 @@ data class FieldSymbol(
 data class PlatformFieldSymbol(
     override val parent: Scope<Symbol>,
     override val identifier: Identifier,
-    val ofTypeSymbol: BasicTypeSymbol,
-    val accessor: (Value) -> Value
+    val ofTypeSymbol: BasicTypeSymbol
 ) : NamedSymbolTableElement()
 
 /**

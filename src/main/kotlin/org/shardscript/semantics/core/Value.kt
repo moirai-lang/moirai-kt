@@ -16,6 +16,10 @@ data class GroundMemberPlugin(private val plugin: (Value, List<Value>) -> Value)
     fun invoke(t: Value, args: List<Value>): Value = plugin(t, args)
 }
 
+data class PlatformField(private val accessor: (Value) -> Value) {
+    fun invoke(t: Value): Value = accessor(t)
+}
+
 object Plugins {
     val groundMemberPlugins: Map<GroundMemberPluginSymbol, GroundMemberPlugin> = mapOf(
         IntegerMathOpMembers.add to GroundMemberPlugin { t: Value, args: List<Value> ->
@@ -296,6 +300,30 @@ object Plugins {
                     langThrow(NotInSource, TypeSystemBug)
                 }
             }
+        }
+    )
+
+    val fields: Map<PlatformFieldSymbol, PlatformField> = mapOf(
+        StringTypes.sizeFieldSymbol to PlatformField { value ->
+            (value as StringValue).fieldSize()
+        },
+        SetTypes.setSizeFieldSymbol to PlatformField { value ->
+            (value as SetValue).fieldSize()
+        },
+        SetTypes.mutableSizeFieldSymbol to PlatformField { value ->
+            (value as SetValue).fieldSize()
+        },
+        ListTypes.listSizeFieldSymbol to PlatformField { value ->
+            (value as ListValue).fieldSize()
+        },
+        ListTypes.mutableSizeFieldSymbol to PlatformField { value ->
+            (value as ListValue).fieldSize()
+        },
+        DictionaryTypes.dictionarySizeFieldSymbol to PlatformField { value ->
+            (value as DictionaryValue).fieldSize()
+        },
+        DictionaryTypes.mutableSizeFieldSymbol to PlatformField { value ->
+            (value as DictionaryValue).fieldSize()
         }
     )
 }

@@ -167,31 +167,27 @@ object DictionaryTypes {
         return plugin
     }
 
-    fun dictionaryCollectionType() {
-        val sizeId = Identifier(NotInSource, CollectionFields.Size.idStr)
-        val sizeFieldSymbol = PlatformFieldSymbol(
-            Lang.dictionaryType,
-            sizeId,
-            Lang.intType
-        ) { value ->
-            (value as DictionaryValue).fieldSize()
-        }
+    private val dictionarySizeId = Identifier(NotInSource, CollectionFields.Size.idStr)
+    val dictionarySizeFieldSymbol = PlatformFieldSymbol(
+        Lang.dictionaryType,
+        dictionarySizeId,
+        Lang.intType
+    )
 
-        Lang.dictionaryType.define(sizeId, sizeFieldSymbol)
-        Lang.dictionaryType.fields = listOf(sizeFieldSymbol)
+    private val mutableSizeId = Identifier(NotInSource, CollectionFields.Size.idStr)
+    val mutableSizeFieldSymbol = PlatformFieldSymbol(
+        Lang.mutableDictionaryType,
+        mutableSizeId,
+        Lang.intType
+    )
+
+    fun dictionaryCollectionType() {
+        Lang.dictionaryType.define(dictionarySizeId, dictionarySizeFieldSymbol)
+        Lang.dictionaryType.fields = listOf(dictionarySizeFieldSymbol)
     }
 
     fun mutableDictionaryCollectionType() {
-        val sizeId = Identifier(NotInSource, CollectionFields.Size.idStr)
-        val sizeFieldSymbol = PlatformFieldSymbol(
-            Lang.mutableDictionaryType,
-            sizeId,
-            Lang.intType
-        ) { value ->
-            (value as DictionaryValue).fieldSize()
-        }
-
-        Lang.mutableDictionaryType.define(sizeId, sizeFieldSymbol)
-        Lang.mutableDictionaryType.fields = listOf(sizeFieldSymbol)
+        Lang.mutableDictionaryType.define(mutableSizeId, mutableSizeFieldSymbol)
+        Lang.mutableDictionaryType.fields = listOf(mutableSizeFieldSymbol)
     }
 }

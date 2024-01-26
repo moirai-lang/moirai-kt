@@ -76,16 +76,16 @@ class EvalAstVisitor(private val globalScope: ValueTable) : ParameterizedAstVisi
                 lhs.fields.fetch(ast.identifier)
             }
             is ListValue -> {
-                (ast.symbolRef as PlatformFieldSymbol).accessor(lhs)
+                Plugins.fields[ast.symbolRef as PlatformFieldSymbol]!!.invoke(lhs)
             }
             is DictionaryValue -> {
-                (ast.symbolRef as PlatformFieldSymbol).accessor(lhs)
+                Plugins.fields[ast.symbolRef as PlatformFieldSymbol]!!.invoke(lhs)
             }
             is SetValue -> {
-                (ast.symbolRef as PlatformFieldSymbol).accessor(lhs)
+                Plugins.fields[ast.symbolRef as PlatformFieldSymbol]!!.invoke(lhs)
             }
             is StringValue -> {
-                (ast.symbolRef as PlatformFieldSymbol).accessor(lhs)
+                Plugins.fields[ast.symbolRef as PlatformFieldSymbol]!!.invoke(lhs)
             }
             else -> {
                 langThrow(ast.ctx, TypeSystemBug)

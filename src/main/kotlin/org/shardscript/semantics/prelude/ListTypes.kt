@@ -132,31 +132,27 @@ object ListTypes {
         return plugin
     }
 
-    fun listCollectionType() {
-        val sizeId = Identifier(NotInSource, CollectionFields.Size.idStr)
-        val sizeFieldSymbol = PlatformFieldSymbol(
-            Lang.listType,
-            sizeId,
-            Lang.intType
-        ) { value ->
-            (value as ListValue).fieldSize()
-        }
+    private val listSizeId = Identifier(NotInSource, CollectionFields.Size.idStr)
+    val listSizeFieldSymbol = PlatformFieldSymbol(
+        Lang.listType,
+        listSizeId,
+        Lang.intType
+    )
 
-        Lang.listType.define(sizeId, sizeFieldSymbol)
-        Lang.listType.fields = listOf(sizeFieldSymbol)
+    private val mutableSizeId = Identifier(NotInSource, CollectionFields.Size.idStr)
+    val mutableSizeFieldSymbol = PlatformFieldSymbol(
+        Lang.mutableListType,
+        mutableSizeId,
+        Lang.intType
+    )
+
+    fun listCollectionType() {
+        Lang.listType.define(listSizeId, listSizeFieldSymbol)
+        Lang.listType.fields = listOf(listSizeFieldSymbol)
     }
 
     fun mutableListCollectionType() {
-        val sizeId = Identifier(NotInSource, CollectionFields.Size.idStr)
-        val sizeFieldSymbol = PlatformFieldSymbol(
-            Lang.mutableListType,
-            sizeId,
-            Lang.intType
-        ) { value ->
-            (value as ListValue).fieldSize()
-        }
-
-        Lang.mutableListType.define(sizeId, sizeFieldSymbol)
-        Lang.mutableListType.fields = listOf(sizeFieldSymbol)
+        Lang.mutableListType.define(mutableSizeId, mutableSizeFieldSymbol)
+        Lang.mutableListType.fields = listOf(mutableSizeFieldSymbol)
     }
 }
