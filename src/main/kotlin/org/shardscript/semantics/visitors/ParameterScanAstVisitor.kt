@@ -7,7 +7,10 @@ sealed class RecordMode
 data class EnumRecord(val enumGid: Identifier) : RecordMode()
 data object RecordDef : RecordMode()
 
-class ParameterScanAstVisitor : UnitAstVisitor() {
+class ParameterScanAstVisitor(private val fileName: String) : UnitAstVisitor() {
+    private fun qualifiedName(parentId: Identifier, id: Identifier): String =
+        "${fileName}.${parentId.name}.${id.name}"
+
     private fun scanRecord(ast: RecordDefinitionAst, recordMode: RecordMode) {
         if (ast.typeParams.isNotEmpty()) {
             val parameterizedRecordSymbol = ast.scope as ParameterizedRecordTypeSymbol
@@ -22,7 +25,7 @@ class ParameterScanAstVisitor : UnitAstVisitor() {
                     val seenTypeParameters: MutableSet<String> = HashSet()
                     parameterizedRecordSymbol.typeParams = ast.typeParams.map {
                         if (it.type == TypeParameterKind.Fin) {
-                            val typeParam = ImmutableFinTypeParameter(parameterizedRecordSymbol, it.identifier)
+                            val typeParam = ImmutableFinTypeParameter(qualifiedName(ast.identifier, it.identifier), it.identifier)
                             val postFix = it.identifier.name
                             if (seenTypeParameters.contains(postFix)) {
                                 errors.add(it.identifier.ctx, DuplicateTypeParameter(it.identifier))
@@ -32,7 +35,7 @@ class ParameterScanAstVisitor : UnitAstVisitor() {
                             }
                             typeParam
                         } else {
-                            val typeParam = StandardTypeParameter(parameterizedRecordSymbol, it.identifier)
+                            val typeParam = StandardTypeParameter(qualifiedName(ast.identifier, it.identifier), it.identifier)
                             if (seenTypeParameters.contains(it.identifier.name)) {
                                 errors.add(it.identifier.ctx, DuplicateTypeParameter(it.identifier))
                             } else {
@@ -54,7 +57,7 @@ class ParameterScanAstVisitor : UnitAstVisitor() {
                 val seenTypeParameters: MutableSet<String> = HashSet()
                 parameterizedFunctionSymbol.typeParams = ast.typeParams.map {
                     if (it.type == TypeParameterKind.Fin) {
-                        val typeParam = ImmutableFinTypeParameter(parameterizedFunctionSymbol, it.identifier)
+                        val typeParam = ImmutableFinTypeParameter(qualifiedName(ast.identifier, it.identifier), it.identifier)
                         val postFix = it.identifier.name
                         if (seenTypeParameters.contains(postFix)) {
                             errors.add(it.identifier.ctx, DuplicateTypeParameter(it.identifier))
@@ -64,7 +67,7 @@ class ParameterScanAstVisitor : UnitAstVisitor() {
                         }
                         typeParam
                     } else {
-                        val typeParam = StandardTypeParameter(parameterizedFunctionSymbol, it.identifier)
+                        val typeParam = StandardTypeParameter(qualifiedName(ast.identifier, it.identifier), it.identifier)
                         if (seenTypeParameters.contains(it.identifier.name)) {
                             errors.add(it.identifier.ctx, DuplicateTypeParameter(it.identifier))
                         } else {

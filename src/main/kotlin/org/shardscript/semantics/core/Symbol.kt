@@ -55,16 +55,16 @@ data class FunctionFormalParameterSymbol(
 /**
  * Type/Fin Primitives
  */
-sealed class TypeParameter : NamedSymbolTableElement(), Type
+sealed class TypeParameter : Symbol(), Type
 
 data class StandardTypeParameter(
-    override val parent: Scope<Symbol>,
-    override val identifier: Identifier
+    val qualifiedName: String,
+    val key: Identifier
 ) : TypeParameter(), Type
 
 data class ImmutableFinTypeParameter(
-    override val parent: Scope<Symbol>,
-    override val identifier: Identifier
+    val qualifiedName: String,
+    val identifier: Identifier
 ) : TypeParameter(), CostExpression, Type {
     override fun <R> accept(visitor: CostExpressionVisitor<R>): R {
         return visitor.visit(this)
@@ -72,8 +72,8 @@ data class ImmutableFinTypeParameter(
 }
 
 data class MutableFinTypeParameter(
-    override val parent: Scope<Symbol>,
-    override val identifier: Identifier
+    val qualifiedName: String,
+    val key: Identifier
 ) : TypeParameter(), CostExpression, Type {
     override fun <R> accept(visitor: CostExpressionVisitor<R>): R {
         return visitor.visit(this)

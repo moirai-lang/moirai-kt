@@ -70,6 +70,7 @@ fun topologicallySortAllArtifacts(
 
 fun processAstAllPhases(
     ast: FileAst,
+    fileName: String,
     architecture: Architecture,
     existingArtifacts: List<SemanticArtifacts>
 ): SemanticArtifacts {
@@ -83,7 +84,7 @@ fun processAstAllPhases(
     val fileScope = SymbolTable(userScopes.imports)
 
     bindScopes(ast, fileScope, architecture)
-    parameterScan(ast)
+    parameterScan(ast, fileName)
     val sortedRecords = simpleRecursiveRecordDetection(ast)
     recordScan(ast)
     functionScan(ast)

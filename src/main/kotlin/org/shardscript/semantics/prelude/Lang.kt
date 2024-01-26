@@ -334,4 +334,8 @@ object Lang {
         prelude.define(rangeId, StaticPlugins.rangePlugin)
         prelude.define(randomId, StaticPlugins.randomPlugin)
     }
+
+    fun qualifyTypeParameter(): String {
+
+    }
 }

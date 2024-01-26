@@ -13,8 +13,8 @@ fun bindScopes(
     ast.accept(bindScopeVisitor, fileScope)
 }
 
-fun parameterScan(ast: FileAst) {
-    val parameterScanAstVisitor = ParameterScanAstVisitor()
+fun parameterScan(ast: FileAst, fileName: String) {
+    val parameterScanAstVisitor = ParameterScanAstVisitor(fileName)
     ast.accept(parameterScanAstVisitor)
     val errors = parameterScanAstVisitor.errors.toSet()
     if (errors.isNotEmpty()) {

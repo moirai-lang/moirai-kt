@@ -245,22 +245,13 @@ fun inlineGeneratePath(symbol: Symbol, path: MutableList<String>) {
             path.add(symbol.identifier.name)
         }
         is StandardTypeParameter -> {
-            if (symbol.parent is Symbol) {
-                inlineGeneratePath(symbol.parent, path)
-            }
-            path.add(symbol.identifier.name)
+            path.add(symbol.qualifiedName)
         }
         is ImmutableFinTypeParameter -> {
-            if (symbol.parent is Symbol) {
-                inlineGeneratePath(symbol.parent, path)
-            }
-            path.add(symbol.identifier.name)
+            path.add(symbol.qualifiedName)
         }
         is MutableFinTypeParameter -> {
-            if (symbol.parent is Symbol) {
-                inlineGeneratePath(symbol.parent, path)
-            }
-            path.add(symbol.identifier.name)
+            path.add(symbol.qualifiedName)
         }
         else -> Unit
     }
