@@ -68,7 +68,6 @@ object Lang {
 
     // Unit
     val unitObject = PlatformObjectSymbol(
-        prelude,
         unitId,
         userTypeFeatureSupport
     )

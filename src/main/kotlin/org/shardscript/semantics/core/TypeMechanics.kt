@@ -239,9 +239,6 @@ fun inlineGeneratePath(symbol: Symbol, path: MutableList<String>) {
             path.add(symbol.identifier.name)
         }
         is PlatformObjectSymbol -> {
-            if (symbol.parent is Symbol) {
-                inlineGeneratePath(symbol.parent, path)
-            }
             path.add(symbol.identifier.name)
         }
         is StandardTypeParameter -> {
