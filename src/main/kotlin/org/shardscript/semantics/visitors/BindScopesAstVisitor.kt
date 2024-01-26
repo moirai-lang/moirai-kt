@@ -170,7 +170,7 @@ class BindScopesAstVisitor(
     override fun visit(ast: ObjectDefinitionAst, param: Scope<Symbol>) {
         try {
             val symbol = ObjectSymbol(
-                param,
+                "${fileName}.${ast.identifier.name}",
                 ast.identifier,
                 userTypeFeatureSupport
             )
@@ -183,8 +183,8 @@ class BindScopesAstVisitor(
                     symbol
                 )
             }
-            ast.scope = symbol
-            super.visit(ast, symbol)
+            ast.scope = param
+            super.visit(ast, param)
         } catch (ex: LanguageException) {
             errors.addAll(ast.ctx, ex.errors)
         }

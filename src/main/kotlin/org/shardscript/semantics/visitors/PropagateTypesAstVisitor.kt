@@ -524,23 +524,6 @@ class PropagateTypesAstVisitor(
                         }
                     }
                 }
-                is ObjectSymbol -> {
-                    val member = lhsType.fetchHere(ast.tti)
-                    filterValidDotApply(ast.ctx, errors, member, ast.signifier)
-                    ast.symbolRef = member
-                    when (member) {
-                        is GroundMemberPluginSymbol -> {
-                            if (ast.signifier is ParameterizedSignifier) {
-                                errors.add(ast.signifier.ctx, SymbolHasNoParameters(ast.signifier))
-                            }
-                            ast.assignType(errors, member.returnType)
-                        }
-                        else -> {
-                            errors.add(ast.ctx, SymbolCouldNotBeApplied(ast.signifier))
-                            ast.assignType(errors, ErrorSymbol)
-                        }
-                    }
-                }
                 is PlatformObjectSymbol -> {
                     val member = lhsType.fetchHere(ast.tti)
                     filterValidDotApply(ast.ctx, errors, member, ast.signifier)

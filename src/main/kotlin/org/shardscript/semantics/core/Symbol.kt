@@ -190,10 +190,10 @@ data class PlatformObjectSymbol(
 ) : Symbol(), Type, Scope<Symbol> by symbolTable
 
 data class ObjectSymbol(
-    override val parent: Scope<Symbol>,
-    override val identifier: Identifier,
+    val qualifiedName: String,
+    val identifier: Identifier,
     val featureSupport: FeatureSupport
-) : NamedSymbolWithMembers(parent), Type
+) : Symbol(), Type
 
 data class GroundRecordTypeSymbol(
     override val parent: Scope<Symbol>,
