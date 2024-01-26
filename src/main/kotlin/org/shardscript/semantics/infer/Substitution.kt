@@ -18,12 +18,12 @@ class Substitution(
     fun apply(parameterizedSymbol: ParameterizedSymbol): SymbolInstantiation {
         val original = TerminalChain(parameterizedSymbol)
         val chain = SubstitutionChain(this, original)
-        return SymbolInstantiation(parameterizedSymbol.parent, chain)
+        return SymbolInstantiation(chain)
     }
 
     fun apply(symbolInstantiation: SymbolInstantiation): SymbolInstantiation {
         val chain = SubstitutionChain(this, symbolInstantiation.substitutionChain)
-        return SymbolInstantiation(symbolInstantiation.parent, chain)
+        return SymbolInstantiation(chain)
     }
 
     fun applyFunctionType(typeSymbol: FunctionTypeSymbol): FunctionTypeSymbol {

@@ -118,9 +118,8 @@ sealed class ParameterizedSymbol(override val parent: Scope<Symbol>) : NamedSymb
 }
 
 data class SymbolInstantiation(
-    override val parent: Scope<Symbol>,
     val substitutionChain: SubstitutionChain
-) : SymbolTableElement(), Type
+) : Symbol(), Type
 
 /**
  * Function Types

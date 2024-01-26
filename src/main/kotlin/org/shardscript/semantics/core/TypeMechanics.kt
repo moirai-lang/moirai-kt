@@ -194,20 +194,20 @@ fun inlineGeneratePath(symbol: Symbol, path: MutableList<String>) {
         is SymbolInstantiation -> {
             when (val parameterizedType = symbol.substitutionChain.originalSymbol) {
                 is ParameterizedBasicTypeSymbol -> {
-                    if (symbol.parent is Symbol) {
-                        inlineGeneratePath(symbol.parent, path)
+                    if (parameterizedType.parent is Symbol) {
+                        inlineGeneratePath(parameterizedType.parent as Symbol, path)
                     }
                     path.add(parameterizedType.identifier.name)
                 }
                 is ParameterizedRecordTypeSymbol -> {
-                    if (symbol.parent is Symbol) {
-                        inlineGeneratePath(symbol.parent, path)
+                    if (parameterizedType.parent is Symbol) {
+                        inlineGeneratePath(parameterizedType.parent as Symbol, path)
                     }
                     path.add(parameterizedType.identifier.name)
                 }
                 is ParameterizedStaticPluginSymbol -> {
-                    if (symbol.parent is Symbol) {
-                        inlineGeneratePath(symbol.parent, path)
+                    if (parameterizedType.parent is Symbol) {
+                        inlineGeneratePath(parameterizedType.parent as Symbol, path)
                     }
                     path.add(parameterizedType.identifier.name)
                 }
