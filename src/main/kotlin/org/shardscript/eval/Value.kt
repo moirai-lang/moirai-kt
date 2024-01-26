@@ -86,7 +86,7 @@ object Plugins {
         ToStringMembers.integerToStringMember to GroundMemberPlugin { t: Value, _: List<Value> ->
             (t as IntValue).evalToString()
         },
-        ToStringMembers.unitToStringMember to GroundMemberPlugin { t: Value, _: List<Value> ->
+        ToStringMembers.unitToStringMember to GroundMemberPlugin { _: Value, _: List<Value> ->
             UnitValue.evalToString()
         },
         ToStringMembers.booleanToStringMember to GroundMemberPlugin { t: Value, _: List<Value> ->
