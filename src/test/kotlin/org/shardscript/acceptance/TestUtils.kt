@@ -3,10 +3,10 @@ package org.shardscript.acceptance
 import org.shardscript.composition.CompilerFrontend
 import org.shardscript.composition.LocalSourceStore
 import org.shardscript.composition.SourceStore
-import org.shardscript.eval.EvalAstVisitor
 import org.shardscript.semantics.core.*
 import java.math.BigDecimal
 import org.junit.jupiter.api.Assertions
+import org.shardscript.eval.*
 
 object TestArchitecture : Architecture {
     override val defaultNodeCost: Long = (1).toLong()

@@ -284,7 +284,7 @@ data class IsAst(
     val lhs: Ast,
     val signifier: Signifier
 ) : Ast() {
-    lateinit var result: BooleanValue
+    lateinit var testErrors: LanguageErrors
     lateinit var identifierSymbol: Type
 
     override fun <R> accept(visitor: AstVisitor<R>): R =

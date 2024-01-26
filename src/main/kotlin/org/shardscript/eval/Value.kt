@@ -1,5 +1,6 @@
-package org.shardscript.semantics.core
+package org.shardscript.eval
 
+import org.shardscript.semantics.core.*
 import org.shardscript.semantics.prelude.*
 import java.math.BigDecimal
 import kotlin.random.Random
@@ -86,7 +87,7 @@ object Plugins {
             (t as IntValue).evalToString()
         },
         ToStringMembers.unitToStringMember to GroundMemberPlugin { t: Value, _: List<Value> ->
-            (t as UnitValue).evalToString()
+            UnitValue.evalToString()
         },
         ToStringMembers.booleanToStringMember to GroundMemberPlugin { t: Value, _: List<Value> ->
             (t as BooleanValue).evalToString()

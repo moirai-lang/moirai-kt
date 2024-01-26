@@ -237,6 +237,10 @@ class EvalAstVisitor(private val globalScope: ValueTable) : ParameterizedAstVisi
 
     override fun visit(ast: IsAst, param: ValueTable): Value {
         ast.lhs.accept(this, param)
-        return ast.result
+        return if (ast.testErrors.toSet().isEmpty()) {
+            BooleanValue(true)
+        } else {
+            BooleanValue(false)
+        }
     }
 }
