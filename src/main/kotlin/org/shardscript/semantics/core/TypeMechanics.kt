@@ -180,10 +180,7 @@ fun generatePath(symbol: Symbol): List<String> {
 fun inlineGeneratePath(symbol: Symbol, path: MutableList<String>) {
     when (symbol) {
         is GroundRecordTypeSymbol -> {
-            if (symbol.parent is Symbol) {
-                inlineGeneratePath(symbol.parent, path)
-            }
-            path.add(symbol.identifier.name)
+            path.add(symbol.qualifiedName)
         }
         is ParameterizedRecordTypeSymbol -> {
             if (symbol.parent is Symbol) {

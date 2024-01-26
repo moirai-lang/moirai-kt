@@ -4,7 +4,8 @@ import org.shardscript.semantics.core.*
 
 // Omit FileAst, root scope created in earlier phases
 class BindScopesAstVisitor(
-    val architecture: Architecture
+    val architecture: Architecture,
+    val fileName: String
 ) :
     ParameterizedUnitAstVisitor<Scope<Symbol>>() {
     override fun visit(ast: IntLiteralAst, param: Scope<Symbol>) {
@@ -129,9 +130,10 @@ class BindScopesAstVisitor(
 
     override fun visit(ast: RecordDefinitionAst, param: Scope<Symbol>) {
         try {
-            val symbol: NamedSymbolWithMembers = if (ast.typeParams.isEmpty()) {
+            val symbol = if (ast.typeParams.isEmpty()) {
                 val res = GroundRecordTypeSymbol(
                     param,
+                    "${fileName}.${ast.identifier.name}",
                     ast.identifier,
                     userTypeFeatureSupport
                 )

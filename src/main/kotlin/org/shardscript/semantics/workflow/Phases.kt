@@ -5,11 +5,12 @@ import org.shardscript.semantics.visitors.*
 
 fun bindScopes(
     ast: FileAst,
+    fileName: String,
     fileScope: Scope<Symbol>,
     architecture: Architecture
 ) {
     ast.scope = fileScope
-    val bindScopeVisitor = BindScopesAstVisitor(architecture)
+    val bindScopeVisitor = BindScopesAstVisitor(architecture, fileName)
     ast.accept(bindScopeVisitor, fileScope)
 }
 

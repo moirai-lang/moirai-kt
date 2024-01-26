@@ -197,6 +197,7 @@ data class ObjectSymbol(
 
 data class GroundRecordTypeSymbol(
     override val parent: Scope<Symbol>,
+    val qualifiedName: String,
     override val identifier: Identifier,
     val featureSupport: FeatureSupport
 ) : NamedSymbolWithMembers(parent), Type {

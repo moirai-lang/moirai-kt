@@ -83,7 +83,7 @@ fun processAstAllPhases(
 
     val fileScope = SymbolTable(userScopes.imports)
 
-    bindScopes(ast, fileScope, architecture)
+    bindScopes(ast, fileName, fileScope, architecture)
     parameterScan(ast, fileName)
     val sortedRecords = simpleRecursiveRecordDetection(ast)
     recordScan(ast)
