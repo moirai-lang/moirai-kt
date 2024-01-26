@@ -216,9 +216,9 @@ data class ParameterizedRecordTypeSymbol(
  * Basic Types
  */
 data class BasicTypeSymbol(
-    override val parent: Scope<Symbol>,
-    override val identifier: Identifier
-) : NamedSymbolWithMembers(parent), Type
+    val identifier: Identifier,
+    private val symbolTable: SymbolTable = SymbolTable(NullSymbolTable)
+) : Symbol(), Type, Scope<Symbol> by symbolTable
 
 data class ParameterizedBasicTypeSymbol(
     override val parent: Scope<Symbol>,

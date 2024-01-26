@@ -74,19 +74,16 @@ object Lang {
 
     // Boolean
     val booleanType = BasicTypeSymbol(
-        prelude,
         booleanId
     )
 
     // Integer
     val intType = BasicTypeSymbol(
-        prelude,
         intId
     )
 
     // Char
     val charType = BasicTypeSymbol(
-        prelude,
         charId
     )
 
