@@ -15,8 +15,8 @@ class Substitution(
         solutions = inOrderParameters.zip(inOrderTypeArgs).toMap()
     }
 
-    fun apply(rawSymbol: RawSymbol): SymbolInstantiation {
-        val original = TerminalChain(rawSymbol)
+    fun apply(rawTerminus: RawTerminus): SymbolInstantiation {
+        val original = TerminalChain(rawTerminus)
         val chain = SubstitutionChain(this, original)
         return SymbolInstantiation(chain)
     }

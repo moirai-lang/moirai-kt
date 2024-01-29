@@ -7,13 +7,13 @@ object DualFinPluginInstantiation : TwoTypeInstantiation {
         ctx: SourceContext,
         errors: LanguageErrors,
         args: List<Ast>,
-        rawSymbol: RawSymbol,
+        rawTerminus: RawTerminus,
         identifier: Identifier,
         existingInstantiation: SymbolInstantiation,
         explicitTypeArgs: List<Type>
     ): SymbolInstantiation {
-        val parameterizedMemberPluginSymbol = rawSymbol as ParameterizedMemberPluginSymbol
-        val inOrderParameters = rawSymbol.typeParams
+        val parameterizedMemberPluginSymbol = rawTerminus as ParameterizedMemberPluginSymbol
+        val inOrderParameters = rawTerminus.typeParams
         if (parameterizedMemberPluginSymbol.formalParams.size == args.size) {
             val firstFin = (existingInstantiation.substitutionChain).replayArgs().first()
             val secondFin = when (val argType = args.first().readType()) {
@@ -29,11 +29,11 @@ object DualFinPluginInstantiation : TwoTypeInstantiation {
                 inOrderParameters,
                 listOf(firstFin, secondFin)
             )
-            return substitution.apply(rawSymbol)
+            return substitution.apply(rawTerminus)
         } else {
             errors.add(
                 ctx,
-                IncorrectNumberOfArgs(rawSymbol.formalParams.size, args.size)
+                IncorrectNumberOfArgs(rawTerminus.formalParams.size, args.size)
             )
             throw LanguageException(errors.toSet())
         }
@@ -45,13 +45,13 @@ object DoubleParentSingleFinPluginInstantiation : TwoTypeInstantiation {
         ctx: SourceContext,
         errors: LanguageErrors,
         args: List<Ast>,
-        rawSymbol: RawSymbol,
+        rawTerminus: RawTerminus,
         identifier: Identifier,
         existingInstantiation: SymbolInstantiation,
         explicitTypeArgs: List<Type>
     ): SymbolInstantiation {
-        val parameterizedMemberPluginSymbol = rawSymbol as ParameterizedMemberPluginSymbol
-        val inOrderParameters = rawSymbol.typeParams
+        val parameterizedMemberPluginSymbol = rawTerminus as ParameterizedMemberPluginSymbol
+        val inOrderParameters = rawTerminus.typeParams
         if (parameterizedMemberPluginSymbol.formalParams.size == args.size) {
             val firstElementType = (existingInstantiation.substitutionChain).replayArgs().first()
             val firstFin = (existingInstantiation.substitutionChain).replayArgs()[1]
@@ -68,11 +68,11 @@ object DoubleParentSingleFinPluginInstantiation : TwoTypeInstantiation {
                 inOrderParameters,
                 listOf(firstElementType, firstFin, secondFin)
             )
-            return substitution.apply(rawSymbol)
+            return substitution.apply(rawTerminus)
         } else {
             errors.add(
                 ctx,
-                IncorrectNumberOfArgs(rawSymbol.formalParams.size, args.size)
+                IncorrectNumberOfArgs(rawTerminus.formalParams.size, args.size)
             )
             throw LanguageException(errors.toSet())
         }
@@ -84,13 +84,13 @@ object TripleParentSingleFinPluginInstantiation : TwoTypeInstantiation {
         ctx: SourceContext,
         errors: LanguageErrors,
         args: List<Ast>,
-        rawSymbol: RawSymbol,
+        rawTerminus: RawTerminus,
         identifier: Identifier,
         existingInstantiation: SymbolInstantiation,
         explicitTypeArgs: List<Type>
     ): SymbolInstantiation {
-        val parameterizedMemberPluginSymbol = rawSymbol as ParameterizedMemberPluginSymbol
-        val inOrderParameters = rawSymbol.typeParams
+        val parameterizedMemberPluginSymbol = rawTerminus as ParameterizedMemberPluginSymbol
+        val inOrderParameters = rawTerminus.typeParams
         if (parameterizedMemberPluginSymbol.formalParams.size == args.size) {
             val firstKeyType = (existingInstantiation.substitutionChain).replayArgs().first()
             val firstValueType = (existingInstantiation.substitutionChain).replayArgs()[1]
@@ -108,11 +108,11 @@ object TripleParentSingleFinPluginInstantiation : TwoTypeInstantiation {
                 inOrderParameters,
                 listOf(firstKeyType, firstValueType, firstFin, secondFin)
             )
-            return substitution.apply(rawSymbol)
+            return substitution.apply(rawTerminus)
         } else {
             errors.add(
                 ctx,
-                IncorrectNumberOfArgs(rawSymbol.formalParams.size, args.size)
+                IncorrectNumberOfArgs(rawTerminus.formalParams.size, args.size)
             )
             throw LanguageException(errors.toSet())
         }
@@ -124,24 +124,24 @@ object SingleParentArgInstantiation : TwoTypeInstantiation {
         ctx: SourceContext,
         errors: LanguageErrors,
         args: List<Ast>,
-        rawSymbol: RawSymbol,
+        rawTerminus: RawTerminus,
         identifier: Identifier,
         existingInstantiation: SymbolInstantiation,
         explicitTypeArgs: List<Type>
     ): SymbolInstantiation {
-        val parameterizedMemberPluginSymbol = rawSymbol as ParameterizedMemberPluginSymbol
-        val inOrderParameters = rawSymbol.typeParams
+        val parameterizedMemberPluginSymbol = rawTerminus as ParameterizedMemberPluginSymbol
+        val inOrderParameters = rawTerminus.typeParams
         if (parameterizedMemberPluginSymbol.formalParams.size == args.size) {
             val firstFin = (existingInstantiation.substitutionChain).replayArgs().first()
             val substitution = Substitution(
                 inOrderParameters,
                 listOf(firstFin)
             )
-            return substitution.apply(rawSymbol)
+            return substitution.apply(rawTerminus)
         } else {
             errors.add(
                 ctx,
-                IncorrectNumberOfArgs(rawSymbol.formalParams.size, args.size)
+                IncorrectNumberOfArgs(rawTerminus.formalParams.size, args.size)
             )
             throw LanguageException(errors.toSet())
         }
@@ -153,13 +153,13 @@ object DoubleParentArgInstantiation : TwoTypeInstantiation {
         ctx: SourceContext,
         errors: LanguageErrors,
         args: List<Ast>,
-        rawSymbol: RawSymbol,
+        rawTerminus: RawTerminus,
         identifier: Identifier,
         existingInstantiation: SymbolInstantiation,
         explicitTypeArgs: List<Type>
     ): SymbolInstantiation {
-        val parameterizedMemberPluginSymbol = rawSymbol as ParameterizedMemberPluginSymbol
-        val inOrderParameters = rawSymbol.typeParams
+        val parameterizedMemberPluginSymbol = rawTerminus as ParameterizedMemberPluginSymbol
+        val inOrderParameters = rawTerminus.typeParams
         if (parameterizedMemberPluginSymbol.formalParams.size == args.size) {
             val firstType = (existingInstantiation.substitutionChain).replayArgs().first()
             val secondType = (existingInstantiation.substitutionChain).replayArgs()[1]
@@ -167,11 +167,11 @@ object DoubleParentArgInstantiation : TwoTypeInstantiation {
                 inOrderParameters,
                 listOf(firstType, secondType)
             )
-            return substitution.apply(rawSymbol)
+            return substitution.apply(rawTerminus)
         } else {
             errors.add(
                 ctx,
-                IncorrectNumberOfArgs(rawSymbol.formalParams.size, args.size)
+                IncorrectNumberOfArgs(rawTerminus.formalParams.size, args.size)
             )
             throw LanguageException(errors.toSet())
         }
@@ -183,13 +183,13 @@ object TripleParentArgInstantiation : TwoTypeInstantiation {
         ctx: SourceContext,
         errors: LanguageErrors,
         args: List<Ast>,
-        rawSymbol: RawSymbol,
+        rawTerminus: RawTerminus,
         identifier: Identifier,
         existingInstantiation: SymbolInstantiation,
         explicitTypeArgs: List<Type>
     ): SymbolInstantiation {
-        val parameterizedMemberPluginSymbol = rawSymbol as ParameterizedMemberPluginSymbol
-        val inOrderParameters = rawSymbol.typeParams
+        val parameterizedMemberPluginSymbol = rawTerminus as ParameterizedMemberPluginSymbol
+        val inOrderParameters = rawTerminus.typeParams
         if (parameterizedMemberPluginSymbol.formalParams.size == args.size) {
             val firstType = (existingInstantiation.substitutionChain).replayArgs().first()
             val secondType = (existingInstantiation.substitutionChain).replayArgs()[1]
@@ -198,11 +198,11 @@ object TripleParentArgInstantiation : TwoTypeInstantiation {
                 inOrderParameters,
                 listOf(firstType, secondType, thirdType)
             )
-            return substitution.apply(rawSymbol)
+            return substitution.apply(rawTerminus)
         } else {
             errors.add(
                 ctx,
-                IncorrectNumberOfArgs(rawSymbol.formalParams.size, args.size)
+                IncorrectNumberOfArgs(rawTerminus.formalParams.size, args.size)
             )
             throw LanguageException(errors.toSet())
         }

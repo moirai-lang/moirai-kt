@@ -113,7 +113,7 @@ data class MaxCostExpression(val children: List<CostExpression>) : Symbol(), Cos
 /**
  * Generic Primitives
  */
-sealed interface RawSymbol {
+sealed interface RawTerminus {
     val typeParams: List<TypeParameter>
 }
 
@@ -153,7 +153,7 @@ data class ParameterizedFunctionSymbol(
     override val identifier: Identifier,
     val originalCtx: SourceContext,
     val body: Ast
-) : NamedSymbolWithMembers(parent), RawSymbol {
+) : NamedSymbolWithMembers(parent), RawTerminus {
     override lateinit var typeParams: List<TypeParameter>
 
     lateinit var formalParams: List<FunctionFormalParameterSymbol>
@@ -208,7 +208,7 @@ data class ParameterizedRecordTypeSymbol(
     override val parent: Scope<Symbol>,
     override val identifier: Identifier,
     val featureSupport: FeatureSupport
-) : NamedSymbolWithMembers(parent), RawSymbol, Type {
+) : NamedSymbolWithMembers(parent), RawTerminus, Type {
     override lateinit var typeParams: List<TypeParameter>
     lateinit var fields: List<FieldSymbol>
 }
@@ -226,7 +226,7 @@ data class ParameterizedBasicTypeSymbol(
     val instantiation: SingleTypeInstantiation,
     val featureSupport: FeatureSupport,
     private val symbolTable: SymbolTable = SymbolTable(NullSymbolTable)
-) : Symbol(), RawSymbol, Type, Scope<Symbol> by symbolTable {
+) : Symbol(), RawTerminus, Type, Scope<Symbol> by symbolTable {
     override lateinit var typeParams: List<TypeParameter>
     lateinit var modeSelector: (List<Type>) -> BasicTypeMode
     lateinit var fields: List<PlatformFieldSymbol>
@@ -250,7 +250,7 @@ data class ParameterizedMemberPluginSymbol(
     override val parent: Scope<Symbol>,
     override val identifier: Identifier,
     val instantiation: TwoTypeInstantiation
-) : NamedSymbolWithMembers(parent), RawSymbol {
+) : NamedSymbolWithMembers(parent), RawTerminus {
     override lateinit var typeParams: List<TypeParameter>
 
     lateinit var formalParams: List<FunctionFormalParameterSymbol>
@@ -264,7 +264,7 @@ data class ParameterizedStaticPluginSymbol(
     override val parent: Scope<Symbol>,
     override val identifier: Identifier,
     val instantiation: SingleTypeInstantiation,
-) : NamedSymbolWithMembers(parent), RawSymbol {
+) : NamedSymbolWithMembers(parent), RawTerminus {
     override lateinit var typeParams: List<TypeParameter>
     lateinit var formalParams: List<FunctionFormalParameterSymbol>
     lateinit var returnType: Type
