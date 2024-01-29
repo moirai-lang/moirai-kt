@@ -20,19 +20,19 @@ sealed class NamedSymbolWithMembers(
     private val symbolTable: SymbolTable = SymbolTable(parent)
 ): NamedSymbolTableElement(), Scope<Symbol> by symbolTable
 
-data class Block(
+class Block(
     override val parent: Scope<Symbol>,
     private val symbolTable: SymbolTable = SymbolTable(parent)
 ) : SymbolTableElement(), Scope<Symbol> by symbolTable
 
-data class LocalVariableSymbol(
+class LocalVariableSymbol(
     override val parent: Scope<Symbol>,
     override val identifier: Identifier,
     val ofTypeSymbol: Type,
     val mutable: Boolean
 ) : NamedSymbolTableElement()
 
-data class FunctionFormalParameterSymbol(
+class FunctionFormalParameterSymbol(
     override val parent: Scope<Symbol>,
     override val identifier: Identifier,
     val ofTypeSymbol: Type
@@ -40,7 +40,7 @@ data class FunctionFormalParameterSymbol(
     var costMultiplier: CostExpression = CommonCostExpressions.defaultMultiplier
 }
 
-data class GroundFunctionSymbol(
+class GroundFunctionSymbol(
     override val parent: Scope<Symbol>,
     override val identifier: Identifier,
     val originalCtx: SourceContext,
@@ -53,7 +53,7 @@ data class GroundFunctionSymbol(
     fun type() = FunctionTypeSymbol(formalParams.map { it.ofTypeSymbol }, returnType)
 }
 
-data class LambdaSymbol(
+class LambdaSymbol(
     override val parent: Scope<Symbol>,
     private val symbolTable: SymbolTable = SymbolTable(parent)
 ): SymbolTableElement(), Scope<Symbol> by symbolTable {
@@ -64,7 +64,7 @@ data class LambdaSymbol(
     fun type() = FunctionTypeSymbol(formalParams.map { it.ofTypeSymbol }, returnType)
 }
 
-data class ParameterizedFunctionSymbol(
+class ParameterizedFunctionSymbol(
     override val parent: Scope<Symbol>,
     override val identifier: Identifier,
     val originalCtx: SourceContext,
@@ -79,7 +79,7 @@ data class ParameterizedFunctionSymbol(
     fun type() = FunctionTypeSymbol(formalParams.map { it.ofTypeSymbol }, returnType)
 }
 
-data class FieldSymbol(
+class FieldSymbol(
     override val parent: Scope<Symbol>,
     override val identifier: Identifier,
     val ofTypeSymbol: Type,
