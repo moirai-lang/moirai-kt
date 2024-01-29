@@ -113,10 +113,6 @@ data class MaxCostExpression(val children: List<CostExpression>) : Symbol(), Cos
 /**
  * Generic Primitives
  */
-sealed interface RawTerminus {
-    val typeParams: List<TypeParameter>
-}
-
 data class SymbolInstantiation(
     val substitutionChain: SubstitutionChain
 ) : Symbol(), Type
