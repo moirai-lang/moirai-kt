@@ -222,11 +222,11 @@ data class BasicTypeSymbol(
 ) : Symbol(), Type, Scope<Symbol> by symbolTable
 
 data class ParameterizedBasicTypeSymbol(
-    override val parent: Scope<Symbol>,
-    override val identifier: Identifier,
+    val identifier: Identifier,
     val instantiation: SingleTypeInstantiation,
-    val featureSupport: FeatureSupport
-) : NamedSymbolWithMembers(parent), RawSymbol, Type {
+    val featureSupport: FeatureSupport,
+    private val symbolTable: SymbolTable = SymbolTable(NullSymbolTable)
+) : Symbol(), RawSymbol, Type, Scope<Symbol> by symbolTable {
     override lateinit var typeParams: List<TypeParameter>
     lateinit var modeSelector: (List<Type>) -> BasicTypeMode
     lateinit var fields: List<PlatformFieldSymbol>

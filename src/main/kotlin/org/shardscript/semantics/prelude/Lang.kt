@@ -89,7 +89,6 @@ object Lang {
 
     // Decimal
     val decimalType = ParameterizedBasicTypeSymbol(
-        prelude,
         decimalId,
         DecimalInstantiation(),
         userTypeFeatureSupport
@@ -98,7 +97,6 @@ object Lang {
 
     // List
     val listType = ParameterizedBasicTypeSymbol(
-        prelude,
         listId,
         ListInstantiation(),
         immutableOrderedFeatureSupport
@@ -108,7 +106,6 @@ object Lang {
 
     // MutableList
     val mutableListType = ParameterizedBasicTypeSymbol(
-        prelude,
         mutableListId,
         MutableListInstantiation(),
         noFeatureSupport
@@ -118,7 +115,6 @@ object Lang {
 
     // String
     val stringType = ParameterizedBasicTypeSymbol(
-        prelude,
         stringId,
         StringInstantiation(),
         userTypeFeatureSupport
@@ -136,7 +132,6 @@ object Lang {
     val pairSecondType = StandardTypeParameter("${pairId.name}.${pairSecondTypeId.name}", pairSecondTypeId)
 
     val dictionaryType = ParameterizedBasicTypeSymbol(
-        prelude,
         dictionaryId,
         DictionaryInstantiation(pairType),
         immutableUnorderedFeatureSupport
@@ -146,7 +141,6 @@ object Lang {
     val dictionaryFinTypeParam = ImmutableFinTypeParameter("${dictionaryId.name}.${dictionaryFinTypeId.name}", dictionaryFinTypeId)
 
     val mutableDictionaryType = ParameterizedBasicTypeSymbol(
-        prelude,
         mutableDictionaryId,
         MutableDictionaryInstantiation(pairType),
         noFeatureSupport
@@ -156,7 +150,6 @@ object Lang {
     val mutableDictionaryFinTypeParam = MutableFinTypeParameter("${mutableDictionaryId.name}.${mutableDictionaryFinTypeId.name}", mutableDictionaryFinTypeId)
 
     val setType = ParameterizedBasicTypeSymbol(
-        prelude,
         setId,
         SetInstantiation(),
         immutableUnorderedFeatureSupport
@@ -165,7 +158,6 @@ object Lang {
     val setFinTypeParam = ImmutableFinTypeParameter("${setId.name}.${setFinTypeId.name}", setFinTypeId)
 
     val mutableSetType = ParameterizedBasicTypeSymbol(
-        prelude,
         mutableSetId,
         MutableSetInstantiation(),
         noFeatureSupport
