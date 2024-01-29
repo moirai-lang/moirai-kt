@@ -76,7 +76,7 @@ fun processAstAllPhases(
 ): SemanticArtifacts {
     val userScopes = createUserScopes()
     existingArtifacts.forEach { artifact ->
-        artifact.userScopes.exports.toMap().forEach { entry ->
+        artifact.userScopes.exports.symbolsToMap().forEach { entry ->
             userScopes.imports.define(Identifier(NotInSource, entry.key), entry.value)
         }
     }
@@ -94,7 +94,7 @@ fun processAstAllPhases(
     calculateCostMultipliers(ast, architecture)
 
     // By default, records, objects, and functions are exported
-    fileScope.toMap().forEach { kvp ->
+    fileScope.symbolsToMap().forEach { kvp ->
         when (kvp.value) {
             is ObjectSymbol,
             is GroundFunctionSymbol,

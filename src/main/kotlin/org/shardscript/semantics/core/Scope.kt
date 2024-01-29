@@ -50,9 +50,10 @@ object NullSymbolTable : Scope {
 }
 
 class SymbolTable(private val parent: Scope) : Scope {
-    private val identifierTable: MutableMap<String, Symbol> = HashMap()
+    private val symbolTable: MutableMap<String, Symbol> = HashMap()
+    private val typeTable: MutableMap<String, Type> = HashMap()
 
-    fun toMap(): Map<String, Symbol> = identifierTable.toMap()
+    fun symbolsToMap(): Map<String, Symbol> = symbolTable.toMap()
 
     private fun toType(signifier: Signifier, symbol: Symbol): Type {
         if (symbol is Type) {
@@ -63,16 +64,16 @@ class SymbolTable(private val parent: Scope) : Scope {
     }
 
     override fun define(identifier: Identifier, definition: Symbol) {
-        if (identifierTable.containsKey(identifier.name)) {
+        if (symbolTable.containsKey(identifier.name)) {
             langThrow(identifier.ctx, IdentifierAlreadyExists(identifier))
         } else {
-            identifierTable[identifier.name] = definition
+            symbolTable[identifier.name] = definition
         }
     }
 
     override fun exists(signifier: Signifier): Boolean =
         when (signifier) {
-            is Identifier -> identifierTable.containsKey(signifier.name) || parent.exists(signifier)
+            is Identifier -> symbolTable.containsKey(signifier.name) || parent.exists(signifier)
             is FunctionTypeLiteral -> signifier.formalParamTypes.all { exists(it) } && exists(signifier.returnType)
             is ParameterizedSignifier -> exists(signifier.tti) && signifier.args.all { exists(it) }
             is ImplicitTypeLiteral -> false
@@ -81,7 +82,7 @@ class SymbolTable(private val parent: Scope) : Scope {
 
     override fun existsHere(signifier: Signifier): Boolean =
         when (signifier) {
-            is Identifier -> identifierTable.containsKey(signifier.name)
+            is Identifier -> symbolTable.containsKey(signifier.name)
             is FunctionTypeLiteral -> signifier.formalParamTypes.all { exists(it) } && exists(signifier.returnType)
             is ParameterizedSignifier -> existsHere(signifier.tti) && signifier.args.all { exists(it) }
             is ImplicitTypeLiteral -> false
@@ -91,16 +92,18 @@ class SymbolTable(private val parent: Scope) : Scope {
     override fun fetch(signifier: Signifier): Symbol =
         when (signifier) {
             is Identifier -> {
-                if (identifierTable.containsKey(signifier.name)) {
-                    identifierTable[signifier.name]!!
+                if (symbolTable.containsKey(signifier.name)) {
+                    symbolTable[signifier.name]!!
                 } else {
                     parent.fetch(signifier)
                 }
             }
+
             is FunctionTypeLiteral -> FunctionTypeSymbol(
                 signifier.formalParamTypes.map { toType(signifier, fetch(it)) },
                 toType(signifier, fetch(signifier.returnType))
             )
+
             is ParameterizedSignifier -> {
                 when (val symbol = fetch(signifier.tti)) {
                     is ParameterizedRecordTypeSymbol -> {
@@ -115,6 +118,7 @@ class SymbolTable(private val parent: Scope) : Scope {
                             substitution.apply(symbol)
                         }
                     }
+
                     is ParameterizedBasicTypeSymbol -> {
                         val typeArgs = signifier.args.map { toType(signifier, fetch(it)) }
                         if (typeArgs.size != symbol.typeParams.size) {
@@ -127,9 +131,11 @@ class SymbolTable(private val parent: Scope) : Scope {
                             substitution.apply(symbol)
                         }
                     }
+
                     else -> langThrow(signifier.ctx, SymbolHasNoParameters(signifier))
                 }
             }
+
             is ImplicitTypeLiteral -> langThrow(signifier.ctx, TypeSystemBug)
             is FinLiteral -> FinTypeSymbol(signifier.magnitude)
         }
@@ -137,16 +143,18 @@ class SymbolTable(private val parent: Scope) : Scope {
     override fun fetchHere(signifier: Signifier): Symbol =
         when (signifier) {
             is Identifier -> {
-                if (identifierTable.containsKey(signifier.name)) {
-                    identifierTable[signifier.name]!!
+                if (symbolTable.containsKey(signifier.name)) {
+                    symbolTable[signifier.name]!!
                 } else {
                     langThrow(signifier.ctx, IdentifierNotFound(signifier))
                 }
             }
+
             is FunctionTypeLiteral -> FunctionTypeSymbol(
                 signifier.formalParamTypes.map { toType(signifier, fetch(it)) },
                 toType(signifier, fetch(signifier.returnType))
             )
+
             is ParameterizedSignifier -> {
                 when (val symbol = fetchHere(signifier.tti)) {
                     is ParameterizedRecordTypeSymbol -> {
@@ -161,6 +169,7 @@ class SymbolTable(private val parent: Scope) : Scope {
                             substitution.apply(symbol)
                         }
                     }
+
                     is ParameterizedBasicTypeSymbol -> {
                         val typeArgs = signifier.args.map { toType(signifier, fetch(it)) }
                         if (typeArgs.size != symbol.typeParams.size) {
@@ -173,30 +182,140 @@ class SymbolTable(private val parent: Scope) : Scope {
                             substitution.apply(symbol)
                         }
                     }
+
                     else -> langThrow(signifier.ctx, SymbolHasNoParameters(signifier))
                 }
             }
+
             is ImplicitTypeLiteral -> langThrow(signifier.ctx, TypeSystemBug)
             is FinLiteral -> FinTypeSymbol(signifier.magnitude)
         }
 
     override fun defineType(identifier: Identifier, definition: Type) {
-        TODO("Not yet implemented")
+        if (typeTable.containsKey(identifier.name)) {
+            langThrow(identifier.ctx, IdentifierAlreadyExists(identifier))
+        } else {
+            typeTable[identifier.name] = definition
+        }
     }
 
-    override fun typeExists(signifier: Signifier): Boolean {
-        TODO("Not yet implemented")
-    }
+    override fun typeExists(signifier: Signifier): Boolean =
+        when (signifier) {
+            is Identifier -> typeTable.containsKey(signifier.name) || parent.typeExists(signifier)
+            is FunctionTypeLiteral -> signifier.formalParamTypes.all { typeExists(it) } && typeExists(signifier.returnType)
+            is ParameterizedSignifier -> typeExists(signifier.tti) && signifier.args.all { typeExists(it) }
+            is ImplicitTypeLiteral -> false
+            is FinLiteral -> false
+        }
 
-    override fun typeExistsHere(signifier: Signifier): Boolean {
-        TODO("Not yet implemented")
-    }
+    override fun typeExistsHere(signifier: Signifier): Boolean =
+        when (signifier) {
+            is Identifier -> typeTable.containsKey(signifier.name)
+            is FunctionTypeLiteral -> signifier.formalParamTypes.all { typeExists(it) } && typeExists(signifier.returnType)
+            is ParameterizedSignifier -> typeExistsHere(signifier.tti) && signifier.args.all { typeExists(it) }
+            is ImplicitTypeLiteral -> false
+            is FinLiteral -> false
+        }
 
-    override fun fetchType(signifier: Signifier): Type {
-        TODO("Not yet implemented")
-    }
+    override fun fetchType(signifier: Signifier): Type =
+        when (signifier) {
+            is Identifier -> {
+                if (typeTable.containsKey(signifier.name)) {
+                    typeTable[signifier.name]!!
+                } else {
+                    parent.fetchType(signifier)
+                }
+            }
 
-    override fun fetchTypeHere(signifier: Signifier): Type {
-        TODO("Not yet implemented")
-    }
+            is FunctionTypeLiteral -> FunctionTypeSymbol(
+                signifier.formalParamTypes.map { fetchType(it) },
+                fetchType(signifier.returnType)
+            )
+
+            is ParameterizedSignifier -> {
+                when (val symbol = fetchType(signifier.tti)) {
+                    is ParameterizedRecordTypeSymbol -> {
+                        val typeArgs = signifier.args.map { fetchType(it) }
+                        if (typeArgs.size != symbol.typeParams.size) {
+                            langThrow(
+                                signifier.ctx,
+                                IncorrectNumberOfTypeArgs(symbol.typeParams.size, typeArgs.size)
+                            )
+                        } else {
+                            val substitution = Substitution(symbol.typeParams, typeArgs)
+                            substitution.apply(symbol)
+                        }
+                    }
+
+                    is ParameterizedBasicTypeSymbol -> {
+                        val typeArgs = signifier.args.map { fetchType(it) }
+                        if (typeArgs.size != symbol.typeParams.size) {
+                            langThrow(
+                                signifier.ctx,
+                                IncorrectNumberOfTypeArgs(symbol.typeParams.size, typeArgs.size)
+                            )
+                        } else {
+                            val substitution = Substitution(symbol.typeParams, typeArgs)
+                            substitution.apply(symbol)
+                        }
+                    }
+
+                    else -> langThrow(signifier.ctx, SymbolHasNoParameters(signifier))
+                }
+            }
+
+            is ImplicitTypeLiteral -> langThrow(signifier.ctx, TypeSystemBug)
+            is FinLiteral -> FinTypeSymbol(signifier.magnitude)
+        }
+
+    override fun fetchTypeHere(signifier: Signifier): Type =
+        when (signifier) {
+            is Identifier -> {
+                if (typeTable.containsKey(signifier.name)) {
+                    typeTable[signifier.name]!!
+                } else {
+                    langThrow(signifier.ctx, IdentifierNotFound(signifier))
+                }
+            }
+
+            is FunctionTypeLiteral -> FunctionTypeSymbol(
+                signifier.formalParamTypes.map { fetchType(it) },
+                fetchType(signifier.returnType)
+            )
+
+            is ParameterizedSignifier -> {
+                when (val symbol = fetchTypeHere(signifier.tti)) {
+                    is ParameterizedRecordTypeSymbol -> {
+                        val typeArgs = signifier.args.map { fetchType(it) }
+                        if (typeArgs.size != symbol.typeParams.size) {
+                            langThrow(
+                                signifier.ctx,
+                                IncorrectNumberOfTypeArgs(symbol.typeParams.size, typeArgs.size)
+                            )
+                        } else {
+                            val substitution = Substitution(symbol.typeParams, typeArgs)
+                            substitution.apply(symbol)
+                        }
+                    }
+
+                    is ParameterizedBasicTypeSymbol -> {
+                        val typeArgs = signifier.args.map { fetchType(it) }
+                        if (typeArgs.size != symbol.typeParams.size) {
+                            langThrow(
+                                signifier.ctx,
+                                IncorrectNumberOfTypeArgs(symbol.typeParams.size, typeArgs.size)
+                            )
+                        } else {
+                            val substitution = Substitution(symbol.typeParams, typeArgs)
+                            substitution.apply(symbol)
+                        }
+                    }
+
+                    else -> langThrow(signifier.ctx, SymbolHasNoParameters(signifier))
+                }
+            }
+
+            is ImplicitTypeLiteral -> langThrow(signifier.ctx, TypeSystemBug)
+            is FinLiteral -> FinTypeSymbol(signifier.magnitude)
+        }
 }
