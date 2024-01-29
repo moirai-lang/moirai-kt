@@ -8,7 +8,7 @@ class DictionaryInstantiation(private val pairTypeSymbol: ParameterizedRecordTyp
         ctx: SourceContext,
         errors: LanguageErrors,
         args: List<Ast>,
-        rawSymbol: ParameterizedSymbol,
+        rawSymbol: RawSymbol,
         identifier: Identifier,
         explicitTypeArgs: List<Type>
     ): SymbolInstantiation {
@@ -96,7 +96,7 @@ class MutableDictionaryInstantiation(private val pairTypeSymbol: ParameterizedRe
         ctx: SourceContext,
         errors: LanguageErrors,
         args: List<Ast>,
-        rawSymbol: ParameterizedSymbol,
+        rawSymbol: RawSymbol,
         identifier: Identifier,
         explicitTypeArgs: List<Type>
     ): SymbolInstantiation {

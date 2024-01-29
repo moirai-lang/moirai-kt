@@ -7,7 +7,7 @@ object DualFinPluginInstantiation : TwoTypeInstantiation {
         ctx: SourceContext,
         errors: LanguageErrors,
         args: List<Ast>,
-        rawSymbol: ParameterizedSymbol,
+        rawSymbol: RawSymbol,
         identifier: Identifier,
         existingInstantiation: SymbolInstantiation,
         explicitTypeArgs: List<Type>
@@ -45,7 +45,7 @@ object DoubleParentSingleFinPluginInstantiation : TwoTypeInstantiation {
         ctx: SourceContext,
         errors: LanguageErrors,
         args: List<Ast>,
-        rawSymbol: ParameterizedSymbol,
+        rawSymbol: RawSymbol,
         identifier: Identifier,
         existingInstantiation: SymbolInstantiation,
         explicitTypeArgs: List<Type>
@@ -84,7 +84,7 @@ object TripleParentSingleFinPluginInstantiation : TwoTypeInstantiation {
         ctx: SourceContext,
         errors: LanguageErrors,
         args: List<Ast>,
-        rawSymbol: ParameterizedSymbol,
+        rawSymbol: RawSymbol,
         identifier: Identifier,
         existingInstantiation: SymbolInstantiation,
         explicitTypeArgs: List<Type>
@@ -124,7 +124,7 @@ object SingleParentArgInstantiation : TwoTypeInstantiation {
         ctx: SourceContext,
         errors: LanguageErrors,
         args: List<Ast>,
-        rawSymbol: ParameterizedSymbol,
+        rawSymbol: RawSymbol,
         identifier: Identifier,
         existingInstantiation: SymbolInstantiation,
         explicitTypeArgs: List<Type>
@@ -153,7 +153,7 @@ object DoubleParentArgInstantiation : TwoTypeInstantiation {
         ctx: SourceContext,
         errors: LanguageErrors,
         args: List<Ast>,
-        rawSymbol: ParameterizedSymbol,
+        rawSymbol: RawSymbol,
         identifier: Identifier,
         existingInstantiation: SymbolInstantiation,
         explicitTypeArgs: List<Type>
@@ -183,7 +183,7 @@ object TripleParentArgInstantiation : TwoTypeInstantiation {
         ctx: SourceContext,
         errors: LanguageErrors,
         args: List<Ast>,
-        rawSymbol: ParameterizedSymbol,
+        rawSymbol: RawSymbol,
         identifier: Identifier,
         existingInstantiation: SymbolInstantiation,
         explicitTypeArgs: List<Type>

@@ -2,20 +2,20 @@ package org.shardscript.semantics.infer
 
 import org.shardscript.semantics.core.CostExpression
 import org.shardscript.semantics.core.FunctionTypeSymbol
-import org.shardscript.semantics.core.ParameterizedSymbol
+import org.shardscript.semantics.core.RawSymbol
 import org.shardscript.semantics.core.Type
 
 sealed class InstantiationChain {
-    abstract val originalSymbol: ParameterizedSymbol
+    abstract val originalSymbol: RawSymbol
     abstract fun toList(): List<Substitution>
 }
 
-data class TerminalChain(override val originalSymbol: ParameterizedSymbol) : InstantiationChain() {
+data class TerminalChain(override val originalSymbol: RawSymbol) : InstantiationChain() {
     override fun toList(): List<Substitution> = listOf()
 }
 
 data class SubstitutionChain(val substitution: Substitution, val chain: InstantiationChain) : InstantiationChain() {
-    override val originalSymbol: ParameterizedSymbol = chain.originalSymbol
+    override val originalSymbol: RawSymbol = chain.originalSymbol
     override fun toList(): List<Substitution> {
         val res = chain.toList().toMutableList()
         res.add(substitution)

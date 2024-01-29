@@ -212,9 +212,6 @@ fun inlineGeneratePath(symbol: Symbol, path: MutableList<String>) {
             }
         }
         is ParameterizedBasicTypeSymbol -> {
-            if (symbol.parent is Symbol) {
-                inlineGeneratePath(symbol.parent, path)
-            }
             path.add(symbol.identifier.name)
         }
         is ParameterizedStaticPluginSymbol -> {

@@ -7,7 +7,7 @@ class StringInstantiation : SingleTypeInstantiation {
         ctx: SourceContext,
         errors: LanguageErrors,
         args: List<Ast>,
-        rawSymbol: ParameterizedSymbol,
+        rawSymbol: RawSymbol,
         identifier: Identifier,
         explicitTypeArgs: List<Type>
     ): SymbolInstantiation {
