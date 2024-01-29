@@ -247,7 +247,6 @@ class PropagateTypesAstVisitor(
             if (ast.ofType is ImplicitTypeLiteral) {
                 ast.ofTypeSymbol = ast.rhs.readType()
             } else {
-                validateExplicitSymbol(ast.ctx, errors, ast.ofType, ast.scope)
                 val ofType = symbolToType(errors, ast.ofType.ctx, ast.scope.fetch(ast.ofType), ast.ofType)
                 ast.ofTypeSymbol = ofType
             }
@@ -368,7 +367,6 @@ class PropagateTypesAstVisitor(
             super.visit(ast)
             ast.assignType(errors, preludeTable.fetch(Lang.unitId) as Type)
             ast.fields.forEach {
-                validateExplicitSymbol(ast.ctx, errors, it.ofType, ast.scope)
                 it.symbol = ast.scope.fetch(it.ofType)
             }
         } catch (ex: LanguageException) {
@@ -639,7 +637,6 @@ class PropagateTypesAstVisitor(
                                 if (ast.ofType is ImplicitTypeLiteral) {
                                     ast.ofTypeSymbol = sourceType.substitutionChain.replayArgs().first()
                                 } else {
-                                    validateExplicitSymbol(ast.ctx, errors, ast.ofType, ast.scope)
                                     val ofType = symbolToType(errors, ast.ofType.ctx, ast.scope.fetch(ast.ofType), ast.ofType)
                                     ast.ofTypeSymbol = ofType
                                 }

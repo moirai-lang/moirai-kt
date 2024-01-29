@@ -605,46 +605,6 @@ fun findBestType(ctx: SourceContext, errors: LanguageErrors, types: List<Type>):
     }
 }
 
-fun validateExplicitSymbol(
-    ctx: SourceContext,
-    errors: LanguageErrors,
-    signifier: Signifier,
-    scope: Scope<Symbol>
-) {
-    fun isValidTarget(candidate: Symbol): Boolean {
-        return when (candidate) {
-            is ParameterizedRecordTypeSymbol -> true
-            else -> false
-        }
-    }
-    if (scope is SymbolTableElement) {
-        val linearized = linearizeIdentifiers(listOf(signifier))
-        linearized.forEach { identifier ->
-            if (identifier is Identifier) {
-                when (scope.fetch(identifier)) {
-                    is StandardTypeParameter,
-                    is ImmutableFinTypeParameter,
-                    is MutableFinTypeParameter -> {
-                        var targetParent: SymbolTableElement = scope
-                        while (!isValidTarget(targetParent)) {
-                            targetParent = targetParent.parent as SymbolTableElement
-                        }
-                        when (targetParent) {
-                            is ParameterizedRecordTypeSymbol -> {
-                                if (!targetParent.existsHere(identifier)) {
-                                    errors.add(ctx, ForeignTypeParameter(identifier))
-                                }
-                            }
-                            else -> errors.add(ctx, TypeSystemBug)
-                        }
-                    }
-                    else -> Unit
-                }
-            }
-        }
-    }
-}
-
 fun validateSubstitution(
     ctx: SourceContext,
     errors: LanguageErrors,
