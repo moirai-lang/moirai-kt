@@ -180,87 +180,48 @@ fun generatePath(symbol: Symbol): List<String> {
 fun inlineGeneratePath(symbol: Symbol, path: MutableList<String>) {
     when (symbol) {
         is GroundRecordTypeSymbol -> {
-            if (symbol.parent is Symbol) {
-                inlineGeneratePath(symbol.parent, path)
-            }
-            path.add(symbol.identifier.name)
+            path.add(symbol.qualifiedName)
         }
         is ParameterizedRecordTypeSymbol -> {
-            if (symbol.parent is Symbol) {
-                inlineGeneratePath(symbol.parent, path)
-            }
-            path.add(symbol.identifier.name)
+            path.add(symbol.qualifiedName)
         }
         is SymbolInstantiation -> {
             when (val parameterizedType = symbol.substitutionChain.originalSymbol) {
                 is ParameterizedBasicTypeSymbol -> {
-                    if (symbol.parent is Symbol) {
-                        inlineGeneratePath(symbol.parent, path)
-                    }
                     path.add(parameterizedType.identifier.name)
                 }
                 is ParameterizedRecordTypeSymbol -> {
-                    if (symbol.parent is Symbol) {
-                        inlineGeneratePath(symbol.parent, path)
-                    }
-                    path.add(parameterizedType.identifier.name)
+                    path.add(parameterizedType.qualifiedName)
                 }
                 is ParameterizedStaticPluginSymbol -> {
-                    if (symbol.parent is Symbol) {
-                        inlineGeneratePath(symbol.parent, path)
-                    }
                     path.add(parameterizedType.identifier.name)
                 }
                 else -> Unit
             }
         }
         is ParameterizedBasicTypeSymbol -> {
-            if (symbol.parent is Symbol) {
-                inlineGeneratePath(symbol.parent, path)
-            }
             path.add(symbol.identifier.name)
         }
         is ParameterizedStaticPluginSymbol -> {
-            if (symbol.parent is Symbol) {
-                inlineGeneratePath(symbol.parent, path)
-            }
             path.add(symbol.identifier.name)
         }
         is BasicTypeSymbol -> {
-            if (symbol.parent is Symbol) {
-                inlineGeneratePath(symbol.parent, path)
-            }
             path.add(symbol.identifier.name)
         }
         is ObjectSymbol -> {
-            if (symbol.parent is Symbol) {
-                inlineGeneratePath(symbol.parent, path)
-            }
-            path.add(symbol.identifier.name)
+            path.add(symbol.qualifiedName)
         }
         is PlatformObjectSymbol -> {
-            if (symbol.parent is Symbol) {
-                inlineGeneratePath(symbol.parent, path)
-            }
             path.add(symbol.identifier.name)
         }
         is StandardTypeParameter -> {
-            if (symbol.parent is Symbol) {
-                inlineGeneratePath(symbol.parent, path)
-            }
-            path.add(symbol.identifier.name)
+            path.add(symbol.qualifiedName)
         }
         is ImmutableFinTypeParameter -> {
-            if (symbol.parent is Symbol) {
-                inlineGeneratePath(symbol.parent, path)
-            }
-            path.add(symbol.identifier.name)
+            path.add(symbol.qualifiedName)
         }
         is MutableFinTypeParameter -> {
-            if (symbol.parent is Symbol) {
-                inlineGeneratePath(symbol.parent, path)
-            }
-            path.add(symbol.identifier.name)
+            path.add(symbol.qualifiedName)
         }
         else -> Unit
     }
@@ -622,46 +583,6 @@ fun findBestType(ctx: SourceContext, errors: LanguageErrors, types: List<Type>):
         else -> {
             errors.add(ctx, CannotFindBestType(types))
             ErrorSymbol
-        }
-    }
-}
-
-fun validateExplicitSymbol(
-    ctx: SourceContext,
-    errors: LanguageErrors,
-    signifier: Signifier,
-    scope: Scope<Symbol>
-) {
-    fun isValidTarget(candidate: Symbol): Boolean {
-        return when (candidate) {
-            is ParameterizedRecordTypeSymbol -> true
-            else -> false
-        }
-    }
-    if (scope is SymbolTableElement) {
-        val linearized = linearizeIdentifiers(listOf(signifier))
-        linearized.forEach { identifier ->
-            if (identifier is Identifier) {
-                when (scope.fetch(identifier)) {
-                    is StandardTypeParameter,
-                    is ImmutableFinTypeParameter,
-                    is MutableFinTypeParameter -> {
-                        var targetParent: SymbolTableElement = scope
-                        while (!isValidTarget(targetParent)) {
-                            targetParent = targetParent.parent as SymbolTableElement
-                        }
-                        when (targetParent) {
-                            is ParameterizedRecordTypeSymbol -> {
-                                if (!targetParent.existsHere(identifier)) {
-                                    errors.add(ctx, ForeignTypeParameter(identifier))
-                                }
-                            }
-                            else -> errors.add(ctx, TypeSystemBug)
-                        }
-                    }
-                    else -> Unit
-                }
-            }
         }
     }
 }

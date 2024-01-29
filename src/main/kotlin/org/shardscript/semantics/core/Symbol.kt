@@ -7,8 +7,6 @@ import org.shardscript.semantics.infer.SubstitutionChain
  */
 sealed class Symbol
 
-sealed interface Type
-
 sealed class SymbolTableElement: Symbol() {
     abstract val parent: Scope<Symbol>
 }
@@ -22,8 +20,6 @@ sealed class NamedSymbolWithMembers(
     private val symbolTable: SymbolTable = SymbolTable(parent)
 ): NamedSymbolTableElement(), Scope<Symbol> by symbolTable
 
-data object ErrorSymbol : Symbol(), Type
-
 data class Block(
     override val parent: Scope<Symbol>,
     private val symbolTable: SymbolTable = SymbolTable(parent)
@@ -36,14 +32,6 @@ data class LocalVariableSymbol(
     val mutable: Boolean
 ) : NamedSymbolTableElement()
 
-/**
- * Function Primitives
- */
-data class FunctionTypeSymbol(
-    val formalParamTypes: List<Type>,
-    val returnType: Type
-) : Symbol(), Type
-
 data class FunctionFormalParameterSymbol(
     override val parent: Scope<Symbol>,
     override val identifier: Identifier,
@@ -52,80 +40,6 @@ data class FunctionFormalParameterSymbol(
     var costMultiplier: CostExpression = CommonCostExpressions.defaultMultiplier
 }
 
-/**
- * Type/Fin Primitives
- */
-sealed class TypeParameter : NamedSymbolTableElement(), Type
-
-data class StandardTypeParameter(
-    override val parent: Scope<Symbol>,
-    override val identifier: Identifier
-) : TypeParameter(), Type
-
-data class ImmutableFinTypeParameter(
-    override val parent: Scope<Symbol>,
-    override val identifier: Identifier
-) : TypeParameter(), CostExpression, Type {
-    override fun <R> accept(visitor: CostExpressionVisitor<R>): R {
-        return visitor.visit(this)
-    }
-}
-
-data class MutableFinTypeParameter(
-    override val parent: Scope<Symbol>,
-    override val identifier: Identifier
-) : TypeParameter(), CostExpression, Type {
-    override fun <R> accept(visitor: CostExpressionVisitor<R>): R {
-        return visitor.visit(this)
-    }
-}
-
-data class FinTypeSymbol(val magnitude: Long) : Symbol(), CostExpression, Type {
-    override fun <R> accept(visitor: CostExpressionVisitor<R>): R {
-        return visitor.visit(this)
-    }
-}
-
-data object ConstantFinTypeSymbol : Symbol(), CostExpression, Type {
-    override fun <R> accept(visitor: CostExpressionVisitor<R>): R {
-        return visitor.visit(this)
-    }
-}
-
-data class SumCostExpression(val children: List<CostExpression>) : Symbol(), CostExpression {
-    override fun <R> accept(visitor: CostExpressionVisitor<R>): R {
-        return visitor.visit(this)
-    }
-}
-
-data class ProductCostExpression(val children: List<CostExpression>) : Symbol(), CostExpression {
-    override fun <R> accept(visitor: CostExpressionVisitor<R>): R {
-        return visitor.visit(this)
-    }
-}
-
-data class MaxCostExpression(val children: List<CostExpression>) : Symbol(), CostExpression {
-    override fun <R> accept(visitor: CostExpressionVisitor<R>): R {
-        return visitor.visit(this)
-    }
-}
-
-/**
- * Generic Primitives
- */
-sealed class ParameterizedSymbol(override val parent: Scope<Symbol>) : NamedSymbolWithMembers(parent) {
-    abstract val typeParams: List<TypeParameter>
-}
-
-data class SymbolInstantiation(
-    override val parent: Scope<Symbol>,
-    val substitutionChain: SubstitutionChain,
-    private val symbolTable: SymbolTable = SymbolTable(parent)
-) : SymbolTableElement(), Scope<Symbol> by symbolTable, Type
-
-/**
- * Function Types
- */
 data class GroundFunctionSymbol(
     override val parent: Scope<Symbol>,
     override val identifier: Identifier,
@@ -155,7 +69,7 @@ data class ParameterizedFunctionSymbol(
     override val identifier: Identifier,
     val originalCtx: SourceContext,
     val body: Ast
-) : ParameterizedSymbol(parent) {
+) : NamedSymbolWithMembers(parent), RawTerminus {
     override lateinit var typeParams: List<TypeParameter>
 
     lateinit var formalParams: List<FunctionFormalParameterSymbol>
@@ -164,10 +78,6 @@ data class ParameterizedFunctionSymbol(
 
     fun type() = FunctionTypeSymbol(formalParams.map { it.ofTypeSymbol }, returnType)
 }
-
-/**
- * Data Type Primitives
- */
 
 data class FieldSymbol(
     override val parent: Scope<Symbol>,
@@ -181,57 +91,6 @@ data class PlatformFieldSymbol(
     override val identifier: Identifier,
     val ofTypeSymbol: BasicTypeSymbol
 ) : NamedSymbolTableElement()
-
-/**
- * Data Types
- */
-data class PlatformObjectSymbol(
-    override val parent: Scope<Symbol>,
-    override val identifier: Identifier,
-    val featureSupport: FeatureSupport
-) : NamedSymbolWithMembers(parent), Type
-
-data class ObjectSymbol(
-    override val parent: Scope<Symbol>,
-    override val identifier: Identifier,
-    val featureSupport: FeatureSupport
-) : NamedSymbolWithMembers(parent), Type
-
-data class GroundRecordTypeSymbol(
-    override val parent: Scope<Symbol>,
-    override val identifier: Identifier,
-    val featureSupport: FeatureSupport
-) : NamedSymbolWithMembers(parent), Type {
-    lateinit var fields: List<FieldSymbol>
-}
-
-data class ParameterizedRecordTypeSymbol(
-    override val parent: Scope<Symbol>,
-    override val identifier: Identifier,
-    val featureSupport: FeatureSupport
-) : ParameterizedSymbol(parent), Type {
-    override lateinit var typeParams: List<TypeParameter>
-    lateinit var fields: List<FieldSymbol>
-}
-
-/**
- * Basic Types
- */
-data class BasicTypeSymbol(
-    override val parent: Scope<Symbol>,
-    override val identifier: Identifier
-) : NamedSymbolWithMembers(parent), Type
-
-data class ParameterizedBasicTypeSymbol(
-    override val parent: Scope<Symbol>,
-    override val identifier: Identifier,
-    val instantiation: SingleTypeInstantiation,
-    val featureSupport: FeatureSupport
-) : ParameterizedSymbol(parent), Type {
-    override lateinit var typeParams: List<TypeParameter>
-    lateinit var modeSelector: (List<Type>) -> BasicTypeMode
-    lateinit var fields: List<PlatformFieldSymbol>
-}
 
 /**
  * Plugins
@@ -251,7 +110,7 @@ data class ParameterizedMemberPluginSymbol(
     override val parent: Scope<Symbol>,
     override val identifier: Identifier,
     val instantiation: TwoTypeInstantiation
-) : ParameterizedSymbol(parent) {
+) : NamedSymbolWithMembers(parent), RawTerminus {
     override lateinit var typeParams: List<TypeParameter>
 
     lateinit var formalParams: List<FunctionFormalParameterSymbol>
@@ -265,7 +124,7 @@ data class ParameterizedStaticPluginSymbol(
     override val parent: Scope<Symbol>,
     override val identifier: Identifier,
     val instantiation: SingleTypeInstantiation,
-) : ParameterizedSymbol(parent) {
+) : NamedSymbolWithMembers(parent), RawTerminus {
     override lateinit var typeParams: List<TypeParameter>
     lateinit var formalParams: List<FunctionFormalParameterSymbol>
     lateinit var returnType: Type

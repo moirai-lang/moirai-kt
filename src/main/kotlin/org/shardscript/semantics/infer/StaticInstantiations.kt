@@ -9,11 +9,13 @@ object RangeInstantiation : SingleTypeInstantiation {
         ctx: SourceContext,
         errors: LanguageErrors,
         args: List<Ast>,
-        parameterized: ParameterizedSymbol,
+        rawTerminus: RawTerminus,
+        identifier: Identifier,
         explicitTypeArgs: List<Type>
     ): SymbolInstantiation {
         if (explicitTypeArgs.isNotEmpty()) {
-            errors.add(ctx, CannotExplicitlyInstantiate(parameterized))
+            // TODO: Fix this use of the as keyword
+            errors.add(ctx, CannotExplicitlyInstantiate(rawTerminus as Symbol))
         }
         val allValid = args.all {
             val valid = it is IntLiteralAst
@@ -30,8 +32,8 @@ object RangeInstantiation : SingleTypeInstantiation {
                 val min = first.coerceAtMost(second)
                 val max = first.coerceAtLeast(second)
                 val fin = FinTypeSymbol(abs(max - min).toLong())
-                val substitution = Substitution(parameterized.typeParams, listOf(fin))
-                return substitution.apply(parameterized)
+                val substitution = Substitution(rawTerminus.typeParams, listOf(fin))
+                return substitution.apply(rawTerminus)
             } else {
                 errors.add(ctx, IncorrectNumberOfArgs(2, args.size))
             }
@@ -45,21 +47,22 @@ object RandomInstantiation : SingleTypeInstantiation {
         ctx: SourceContext,
         errors: LanguageErrors,
         args: List<Ast>,
-        parameterized: ParameterizedSymbol,
+        rawTerminus: RawTerminus,
+        identifier: Identifier,
         explicitTypeArgs: List<Type>
     ): SymbolInstantiation {
-        val parameterizedStaticPluginSymbol = parameterized as ParameterizedStaticPluginSymbol
+        val parameterizedStaticPluginSymbol = rawTerminus as ParameterizedStaticPluginSymbol
         val res = if (explicitTypeArgs.isNotEmpty()) {
             if (explicitTypeArgs.size != 1) {
                 errors.add(ctx, IncorrectNumberOfTypeArgs(1, explicitTypeArgs.size))
                 throw LanguageException(errors.toSet())
             } else {
-                validateSubstitution(ctx, errors, parameterized.typeParams.first(), explicitTypeArgs.first())
-                val substitution = Substitution(parameterized.typeParams, explicitTypeArgs)
-                substitution.apply(parameterized)
+                validateSubstitution(ctx, errors, rawTerminus.typeParams.first(), explicitTypeArgs.first())
+                val substitution = Substitution(rawTerminus.typeParams, explicitTypeArgs)
+                substitution.apply(rawTerminus)
             }
         } else {
-            val inOrderParameters = parameterized.typeParams
+            val inOrderParameters = rawTerminus.typeParams
             val parameterSet = inOrderParameters.toSet()
             if (parameterizedStaticPluginSymbol.formalParams.size == args.size) {
                 val constraints: MutableList<Constraint<TypeParameter, Type>> = ArrayList()
@@ -75,7 +78,7 @@ object RandomInstantiation : SingleTypeInstantiation {
                     )
                 }
                 val substitution = createSubstitution(ctx, constraints, parameterSet, inOrderParameters, errors)
-                substitution.apply(parameterized)
+                substitution.apply(rawTerminus)
             } else {
                 errors.add(
                     ctx,

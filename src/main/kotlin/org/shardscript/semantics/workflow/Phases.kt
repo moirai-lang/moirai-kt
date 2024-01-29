@@ -5,16 +5,17 @@ import org.shardscript.semantics.visitors.*
 
 fun bindScopes(
     ast: FileAst,
+    fileName: String,
     fileScope: Scope<Symbol>,
     architecture: Architecture
 ) {
     ast.scope = fileScope
-    val bindScopeVisitor = BindScopesAstVisitor(architecture)
+    val bindScopeVisitor = BindScopesAstVisitor(architecture, fileName)
     ast.accept(bindScopeVisitor, fileScope)
 }
 
-fun parameterScan(ast: FileAst) {
-    val parameterScanAstVisitor = ParameterScanAstVisitor()
+fun parameterScan(ast: FileAst, fileName: String) {
+    val parameterScanAstVisitor = ParameterScanAstVisitor(fileName)
     ast.accept(parameterScanAstVisitor)
     val errors = parameterScanAstVisitor.errors.toSet()
     if (errors.isNotEmpty()) {

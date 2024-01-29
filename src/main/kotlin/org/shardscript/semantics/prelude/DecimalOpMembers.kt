@@ -28,7 +28,10 @@ object DecimalMathOpMembers {
             Identifier(NotInSource, BinaryOperator.Add.idStr),
             DualFinPluginInstantiation
         )
-        val inputTypeArg = ImmutableFinTypeParameter(res, Lang.decimalInputTypeId)
+        val inputTypeArg = ImmutableFinTypeParameter(
+            "${Lang.decimalId.name}.${BinaryOperator.Add.idStr}.${Lang.decimalInputTypeId.name}",
+            Lang.decimalInputTypeId
+        )
         res.define(inputTypeArg.identifier, inputTypeArg)
         res.typeParams = listOf(Lang.decimalTypeParam, inputTypeArg)
 
@@ -64,7 +67,10 @@ object DecimalMathOpMembers {
             Identifier(NotInSource, BinaryOperator.Sub.idStr),
             DualFinPluginInstantiation
         )
-        val inputTypeArg = ImmutableFinTypeParameter(res, Lang.decimalInputTypeId)
+        val inputTypeArg = ImmutableFinTypeParameter(
+            "${Lang.decimalId.name}.${BinaryOperator.Sub.idStr}.${Lang.decimalInputTypeId.name}",
+            Lang.decimalInputTypeId
+        )
         res.define(inputTypeArg.identifier, inputTypeArg)
         res.typeParams = listOf(Lang.decimalTypeParam, inputTypeArg)
 
@@ -100,7 +106,10 @@ object DecimalMathOpMembers {
             Identifier(NotInSource, BinaryOperator.Mul.idStr),
             DualFinPluginInstantiation
         )
-        val inputTypeArg = ImmutableFinTypeParameter(res, Lang.decimalInputTypeId)
+        val inputTypeArg = ImmutableFinTypeParameter(
+            "${Lang.decimalId.name}.${BinaryOperator.Mul.idStr}.${Lang.decimalInputTypeId.name}",
+            Lang.decimalInputTypeId
+        )
         res.define(inputTypeArg.identifier, inputTypeArg)
         res.typeParams = listOf(Lang.decimalTypeParam, inputTypeArg)
 
@@ -136,7 +145,10 @@ object DecimalMathOpMembers {
             Identifier(NotInSource, BinaryOperator.Div.idStr),
             DualFinPluginInstantiation
         )
-        val inputTypeArg = ImmutableFinTypeParameter(res, Lang.decimalInputTypeId)
+        val inputTypeArg = ImmutableFinTypeParameter(
+            "${Lang.decimalId.name}.${BinaryOperator.Div.idStr}.${Lang.decimalInputTypeId.name}",
+            Lang.decimalInputTypeId
+        )
         res.define(inputTypeArg.identifier, inputTypeArg)
         res.typeParams = listOf(Lang.decimalTypeParam, inputTypeArg)
 
@@ -167,7 +179,10 @@ object DecimalMathOpMembers {
             Identifier(NotInSource, BinaryOperator.Mod.idStr),
             DualFinPluginInstantiation
         )
-        val inputTypeArg = ImmutableFinTypeParameter(res, Lang.decimalInputTypeId)
+        val inputTypeArg = ImmutableFinTypeParameter(
+            "${Lang.decimalId.name}.${BinaryOperator.Mod.idStr}.${Lang.decimalInputTypeId.name}",
+            Lang.decimalInputTypeId
+        )
         res.define(inputTypeArg.identifier, inputTypeArg)
         res.typeParams = listOf(Lang.decimalTypeParam, inputTypeArg)
 
@@ -228,7 +243,10 @@ object DecimalOrderOpMembers {
             Identifier(NotInSource, BinaryOperator.GreaterThan.idStr),
             DualFinPluginInstantiation
         )
-        val inputTypeArg = ImmutableFinTypeParameter(res, Lang.decimalInputTypeId)
+        val inputTypeArg = ImmutableFinTypeParameter(
+            "${Lang.decimalId.name}.${BinaryOperator.GreaterThan.idStr}.${Lang.decimalInputTypeId.name}",
+            Lang.decimalInputTypeId
+        )
         res.define(inputTypeArg.identifier, inputTypeArg)
         res.typeParams = listOf(Lang.decimalTypeParam, inputTypeArg)
 
@@ -262,7 +280,10 @@ object DecimalOrderOpMembers {
             Identifier(NotInSource, BinaryOperator.GreaterThanEqual.idStr),
             DualFinPluginInstantiation
         )
-        val inputTypeArg = ImmutableFinTypeParameter(res, Lang.decimalInputTypeId)
+        val inputTypeArg = ImmutableFinTypeParameter(
+            "${Lang.decimalId.name}.${BinaryOperator.GreaterThanEqual.idStr}.${Lang.decimalInputTypeId.name}",
+            Lang.decimalInputTypeId
+        )
         res.define(inputTypeArg.identifier, inputTypeArg)
         res.typeParams = listOf(Lang.decimalTypeParam, inputTypeArg)
 
@@ -296,7 +317,10 @@ object DecimalOrderOpMembers {
             Identifier(NotInSource, BinaryOperator.LessThan.idStr),
             DualFinPluginInstantiation
         )
-        val inputTypeArg = ImmutableFinTypeParameter(res, Lang.decimalInputTypeId)
+        val inputTypeArg = ImmutableFinTypeParameter(
+            "${Lang.decimalId.name}.${BinaryOperator.LessThan.idStr}.${Lang.decimalInputTypeId.name}",
+            Lang.decimalInputTypeId
+        )
         res.define(inputTypeArg.identifier, inputTypeArg)
         res.typeParams = listOf(Lang.decimalTypeParam, inputTypeArg)
 
@@ -330,7 +354,10 @@ object DecimalOrderOpMembers {
             Identifier(NotInSource, BinaryOperator.LessThanEqual.idStr),
             DualFinPluginInstantiation
         )
-        val inputTypeArg = ImmutableFinTypeParameter(res, Lang.decimalInputTypeId)
+        val inputTypeArg = ImmutableFinTypeParameter(
+            "${Lang.decimalId.name}.${BinaryOperator.LessThanEqual.idStr}.${Lang.decimalInputTypeId.name}",
+            Lang.decimalInputTypeId
+        )
         res.define(inputTypeArg.identifier, inputTypeArg)
         res.typeParams = listOf(Lang.decimalTypeParam, inputTypeArg)
 
@@ -374,7 +401,10 @@ object DecimalEqualityOpMembers {
             Identifier(NotInSource, BinaryOperator.Equal.idStr),
             DualFinPluginInstantiation
         )
-        val inputTypeArg = ImmutableFinTypeParameter(res, Lang.decimalInputTypeId)
+        val inputTypeArg = ImmutableFinTypeParameter(
+            "${Lang.decimalId.name}.${BinaryOperator.Equal.idStr}.${Lang.decimalInputTypeId.name}",
+            Lang.decimalInputTypeId
+        )
         res.define(inputTypeArg.identifier, inputTypeArg)
         res.typeParams = listOf(Lang.decimalTypeParam, inputTypeArg)
 
@@ -408,7 +438,10 @@ object DecimalEqualityOpMembers {
             Identifier(NotInSource, BinaryOperator.NotEqual.idStr),
             DualFinPluginInstantiation
         )
-        val inputTypeArg = ImmutableFinTypeParameter(res, Lang.decimalInputTypeId)
+        val inputTypeArg = ImmutableFinTypeParameter(
+            "${Lang.decimalId.name}.${BinaryOperator.NotEqual.idStr}.${Lang.decimalInputTypeId.name}",
+            Lang.decimalInputTypeId
+        )
         res.define(inputTypeArg.identifier, inputTypeArg)
         res.typeParams = listOf(Lang.decimalTypeParam, inputTypeArg)
 

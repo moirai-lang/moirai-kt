@@ -5,7 +5,7 @@ import org.shardscript.semantics.prelude.StringMethods
 fun isValidStringType(type: Type): Boolean =
     when (type) {
         is ObjectSymbol -> {
-            type.existsHere(Identifier(NotInSource, StringMethods.ToString.idStr))
+            false
         }
         is PlatformObjectSymbol -> {
             type.existsHere(Identifier(NotInSource, StringMethods.ToString.idStr))
@@ -26,9 +26,6 @@ fun isValidStringType(type: Type): Boolean =
 
 fun costExpressionFromValidStringType(type: Type): CostExpression {
     val member = when (type) {
-        is ObjectSymbol -> {
-            type.fetchHere(Identifier(NotInSource, StringMethods.ToString.idStr))
-        }
         is PlatformObjectSymbol -> {
             type.fetchHere(Identifier(NotInSource, StringMethods.ToString.idStr))
         }

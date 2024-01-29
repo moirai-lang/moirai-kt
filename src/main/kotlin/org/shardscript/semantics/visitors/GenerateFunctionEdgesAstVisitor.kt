@@ -121,7 +121,8 @@ class GenerateFunctionEdgesParameterizedAstVisitor(
             is SymbolInstantiation -> {
                 when (val parameterizedType = symbolRef.substitutionChain.originalSymbol) {
                     is ParameterizedMemberPluginSymbol -> Unit
-                    else -> addFunctionEdge(parameterizedType, param, edges, nodes)
+                    // TODO: Fix this use of the as keyword
+                    else -> addFunctionEdge(parameterizedType as Symbol, param, edges, nodes)
                 }
             }
             else -> addFunctionEdge(symbolRef, param, edges, nodes)

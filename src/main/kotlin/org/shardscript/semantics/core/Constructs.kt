@@ -38,7 +38,8 @@ interface SingleTypeInstantiation {
         ctx: SourceContext,
         errors: LanguageErrors,
         args: List<Ast>,
-        parameterized: ParameterizedSymbol,
+        rawTerminus: RawTerminus,
+        identifier: Identifier,
         explicitTypeArgs: List<Type>
     ): SymbolInstantiation
 }
@@ -48,7 +49,8 @@ interface TwoTypeInstantiation {
         ctx: SourceContext,
         errors: LanguageErrors,
         args: List<Ast>,
-        parameterized: ParameterizedSymbol,
+        rawTerminus: RawTerminus,
+        identifier: Identifier,
         existingInstantiation: SymbolInstantiation,
         explicitTypeArgs: List<Type>
     ): SymbolInstantiation

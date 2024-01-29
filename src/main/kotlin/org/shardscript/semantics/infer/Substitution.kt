@@ -15,15 +15,15 @@ class Substitution(
         solutions = inOrderParameters.zip(inOrderTypeArgs).toMap()
     }
 
-    fun apply(parameterizedSymbol: ParameterizedSymbol): SymbolInstantiation {
-        val original = TerminalChain(parameterizedSymbol)
+    fun apply(rawTerminus: RawTerminus): SymbolInstantiation {
+        val original = TerminalChain(rawTerminus)
         val chain = SubstitutionChain(this, original)
-        return SymbolInstantiation(parameterizedSymbol.parent, chain)
+        return SymbolInstantiation(chain)
     }
 
     fun apply(symbolInstantiation: SymbolInstantiation): SymbolInstantiation {
         val chain = SubstitutionChain(this, symbolInstantiation.substitutionChain)
-        return SymbolInstantiation(symbolInstantiation.parent, chain)
+        return SymbolInstantiation(chain)
     }
 
     fun applyFunctionType(typeSymbol: FunctionTypeSymbol): FunctionTypeSymbol {

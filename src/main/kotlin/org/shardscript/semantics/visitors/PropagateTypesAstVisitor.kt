@@ -87,6 +87,7 @@ class PropagateTypesAstVisitor(
                             errors,
                             args,
                             symbol,
+                            symbol.identifier,
                             idArgSymbols
                         )
                         ast.symbolRef = instantiation
@@ -101,6 +102,7 @@ class PropagateTypesAstVisitor(
                         errors,
                         args,
                         symbol,
+                        symbol.identifier,
                         listOf()
                     )
                     ast.symbolRef = instantiation
@@ -117,6 +119,7 @@ class PropagateTypesAstVisitor(
                             errors,
                             args,
                             symbol,
+                            symbol.identifier,
                             idArgSymbols
                         )
                         ast.symbolRef = instantiation
@@ -132,6 +135,7 @@ class PropagateTypesAstVisitor(
                         errors,
                         args,
                         symbol,
+                        symbol.identifier,
                         listOf()
                     )
                     ast.symbolRef = instantiation
@@ -166,6 +170,7 @@ class PropagateTypesAstVisitor(
                     errors,
                     listOf(ast),
                     parameterizedType,
+                    parameterizedType.identifier,
                     listOf()
                 )
             )
@@ -205,6 +210,7 @@ class PropagateTypesAstVisitor(
                     errors,
                     listOf(ast),
                     parameterizedType,
+                    parameterizedType.identifier,
                     listOf()
                 )
             )
@@ -224,6 +230,7 @@ class PropagateTypesAstVisitor(
                     errors,
                     ast.components,
                     parameterizedType,
+                    parameterizedType.identifier,
                     listOf()
                 )
             )
@@ -240,7 +247,6 @@ class PropagateTypesAstVisitor(
             if (ast.ofType is ImplicitTypeLiteral) {
                 ast.ofTypeSymbol = ast.rhs.readType()
             } else {
-                validateExplicitSymbol(ast.ctx, errors, ast.ofType, ast.scope)
                 val ofType = symbolToType(errors, ast.ofType.ctx, ast.scope.fetch(ast.ofType), ast.ofType)
                 ast.ofTypeSymbol = ofType
             }
@@ -361,7 +367,6 @@ class PropagateTypesAstVisitor(
             super.visit(ast)
             ast.assignType(errors, preludeTable.fetch(Lang.unitId) as Type)
             ast.fields.forEach {
-                validateExplicitSymbol(ast.ctx, errors, it.ofType, ast.scope)
                 it.symbol = ast.scope.fetch(it.ofType)
             }
         } catch (ex: LanguageException) {
@@ -524,23 +529,6 @@ class PropagateTypesAstVisitor(
                         }
                     }
                 }
-                is ObjectSymbol -> {
-                    val member = lhsType.fetchHere(ast.tti)
-                    filterValidDotApply(ast.ctx, errors, member, ast.signifier)
-                    ast.symbolRef = member
-                    when (member) {
-                        is GroundMemberPluginSymbol -> {
-                            if (ast.signifier is ParameterizedSignifier) {
-                                errors.add(ast.signifier.ctx, SymbolHasNoParameters(ast.signifier))
-                            }
-                            ast.assignType(errors, member.returnType)
-                        }
-                        else -> {
-                            errors.add(ast.ctx, SymbolCouldNotBeApplied(ast.signifier))
-                            ast.assignType(errors, ErrorSymbol)
-                        }
-                    }
-                }
                 is PlatformObjectSymbol -> {
                     val member = lhsType.fetchHere(ast.tti)
                     filterValidDotApply(ast.ctx, errors, member, ast.signifier)
@@ -580,6 +568,7 @@ class PropagateTypesAstVisitor(
                                         errors,
                                         ast.args,
                                         member,
+                                        member.identifier,
                                         lhsType,
                                         listOf()
                                     )
@@ -648,7 +637,6 @@ class PropagateTypesAstVisitor(
                                 if (ast.ofType is ImplicitTypeLiteral) {
                                     ast.ofTypeSymbol = sourceType.substitutionChain.replayArgs().first()
                                 } else {
-                                    validateExplicitSymbol(ast.ctx, errors, ast.ofType, ast.scope)
                                     val ofType = symbolToType(errors, ast.ofType.ctx, ast.scope.fetch(ast.ofType), ast.ofType)
                                     ast.ofTypeSymbol = ofType
                                 }
