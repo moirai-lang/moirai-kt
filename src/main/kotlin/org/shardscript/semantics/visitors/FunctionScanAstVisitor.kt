@@ -43,7 +43,7 @@ class FunctionScanAstVisitor : UnitAstVisitor() {
         }
     }
 
-    private fun bindFormals(ast: FunctionAst, scopeHere: Scope<Symbol>): List<FunctionFormalParameterSymbol> {
+    private fun bindFormals(ast: FunctionAst, scopeHere: Scope): List<FunctionFormalParameterSymbol> {
         val formalParams: MutableList<FunctionFormalParameterSymbol> = ArrayList()
         ast.formalParams.forEach {
             val ofTypeSymbol = scopeHere.fetch(it.ofType)

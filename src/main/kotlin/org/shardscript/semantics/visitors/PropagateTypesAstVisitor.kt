@@ -7,7 +7,7 @@ import org.shardscript.semantics.infer.instantiateRecord
 import org.shardscript.semantics.prelude.Lang
 
 class PropagateTypesAstVisitor(
-    private val preludeTable: Scope<Symbol>
+    private val preludeTable: Scope
 ) : UnitAstVisitor() {
     private fun groundApply(ast: SymbolRefAst, signifier: Signifier, args: List<Ast>, symbol: Symbol) {
         when (symbol) {

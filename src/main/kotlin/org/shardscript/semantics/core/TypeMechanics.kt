@@ -229,7 +229,7 @@ fun inlineGeneratePath(symbol: Symbol, path: MutableList<String>) {
 
 fun checkTypes(
     ctx: SourceContext,
-    prelude: Scope<Symbol>,
+    prelude: Scope,
     errors: LanguageErrors,
     expected: Type,
     actual: Type
@@ -288,7 +288,7 @@ fun checkTypes(
 
 fun checkTypes(
     ctx: SourceContext,
-    prelude: Scope<Symbol>,
+    prelude: Scope,
     errors: LanguageErrors,
     expectedTypeArgs: List<Type>,
     actualTypeArgs: List<Type>
@@ -302,7 +302,7 @@ fun checkTypes(
     }
 }
 
-fun checkApply(prelude: Scope<Symbol>, errors: LanguageErrors, ast: ApplyAst) {
+fun checkApply(prelude: Scope, errors: LanguageErrors, ast: ApplyAst) {
     when (val symbol = ast.symbolRef) {
         is GroundFunctionSymbol -> {
             checkArgs(prelude, errors, symbol.type(), ast)
@@ -357,7 +357,7 @@ fun checkApply(prelude: Scope<Symbol>, errors: LanguageErrors, ast: ApplyAst) {
     }
 }
 
-fun checkArgs(prelude: Scope<Symbol>, errors: LanguageErrors, type: FunctionTypeSymbol, ast: ApplyAst) {
+fun checkArgs(prelude: Scope, errors: LanguageErrors, type: FunctionTypeSymbol, ast: ApplyAst) {
     if (type.formalParamTypes.size != ast.args.size) {
         errors.add(ast.ctx, IncorrectNumberOfArgs(type.formalParamTypes.size, ast.args.size))
     } else {
@@ -368,7 +368,7 @@ fun checkArgs(prelude: Scope<Symbol>, errors: LanguageErrors, type: FunctionType
     }
 }
 
-fun checkArgs(prelude: Scope<Symbol>, errors: LanguageErrors, type: GroundRecordTypeSymbol, ast: ApplyAst) {
+fun checkArgs(prelude: Scope, errors: LanguageErrors, type: GroundRecordTypeSymbol, ast: ApplyAst) {
     if (type.fields.size != ast.args.size) {
         errors.add(ast.ctx, IncorrectNumberOfArgs(type.fields.size, ast.args.size))
     } else {
@@ -379,7 +379,7 @@ fun checkArgs(prelude: Scope<Symbol>, errors: LanguageErrors, type: GroundRecord
 }
 
 fun checkArgs(
-    prelude: Scope<Symbol>,
+    prelude: Scope,
     errors: LanguageErrors,
     instantiation: SymbolInstantiation,
     parameterizedType: ParameterizedRecordTypeSymbol,
@@ -396,7 +396,7 @@ fun checkArgs(
 }
 
 fun checkArgs(
-    prelude: Scope<Symbol>,
+    prelude: Scope,
     errors: LanguageErrors,
     instantiation: SymbolInstantiation,
     parameterizedType: ParameterizedBasicTypeSymbol,

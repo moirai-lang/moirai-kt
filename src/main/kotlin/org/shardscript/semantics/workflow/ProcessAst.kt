@@ -12,7 +12,7 @@ data class UserScopes(
 data class SemanticArtifacts(
     val processedAst: FileAst,
     val userScopes: UserScopes,
-    val file: Scope<Symbol>,
+    val file: Scope,
     val sortedRecords: SortResult<Symbol>,
     val sortedFunctions: SortResult<Symbol>
 )

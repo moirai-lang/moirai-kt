@@ -2,15 +2,20 @@ package org.shardscript.semantics.core
 
 import org.shardscript.semantics.infer.Substitution
 
-interface Scope<T> {
-    fun define(identifier: Identifier, definition: T)
+interface Scope {
+    fun define(identifier: Identifier, definition: Symbol)
     fun exists(signifier: Signifier): Boolean
     fun existsHere(signifier: Signifier): Boolean
-    fun fetch(signifier: Signifier): T
-    fun fetchHere(signifier: Signifier): T
+    fun fetch(signifier: Signifier): Symbol
+    fun fetchHere(signifier: Signifier): Symbol
+    fun defineType(identifier: Identifier, definition: Type)
+    fun typeExists(signifier: Signifier): Boolean
+    fun typeExistsHere(signifier: Signifier): Boolean
+    fun fetchType(signifier: Signifier): Type
+    fun fetchTypeHere(signifier: Signifier): Type
 }
 
-object NullSymbolTable : Scope<Symbol> {
+object NullSymbolTable : Scope {
     override fun define(identifier: Identifier, definition: Symbol) {
         langThrow(identifier.ctx, IdentifierCouldNotBeDefined(identifier))
     }
@@ -26,9 +31,25 @@ object NullSymbolTable : Scope<Symbol> {
     override fun fetchHere(signifier: Signifier): Symbol {
         langThrow(signifier.ctx, IdentifierNotFound(signifier))
     }
+
+    override fun defineType(identifier: Identifier, definition: Type) {
+        langThrow(identifier.ctx, IdentifierCouldNotBeDefined(identifier))
+    }
+
+    override fun typeExists(signifier: Signifier): Boolean = false
+
+    override fun typeExistsHere(signifier: Signifier): Boolean = false
+
+    override fun fetchType(signifier: Signifier): Type {
+        langThrow(signifier.ctx, IdentifierNotFound(signifier))
+    }
+
+    override fun fetchTypeHere(signifier: Signifier): Type {
+        langThrow(signifier.ctx, IdentifierNotFound(signifier))
+    }
 }
 
-class SymbolTable(private val parent: Scope<Symbol>) : Scope<Symbol> {
+class SymbolTable(private val parent: Scope) : Scope {
     private val identifierTable: MutableMap<String, Symbol> = HashMap()
 
     fun toMap(): Map<String, Symbol> = identifierTable.toMap()
@@ -158,4 +179,24 @@ class SymbolTable(private val parent: Scope<Symbol>) : Scope<Symbol> {
             is ImplicitTypeLiteral -> langThrow(signifier.ctx, TypeSystemBug)
             is FinLiteral -> FinTypeSymbol(signifier.magnitude)
         }
+
+    override fun defineType(identifier: Identifier, definition: Type) {
+        TODO("Not yet implemented")
+    }
+
+    override fun typeExists(signifier: Signifier): Boolean {
+        TODO("Not yet implemented")
+    }
+
+    override fun typeExistsHere(signifier: Signifier): Boolean {
+        TODO("Not yet implemented")
+    }
+
+    override fun fetchType(signifier: Signifier): Type {
+        TODO("Not yet implemented")
+    }
+
+    override fun fetchTypeHere(signifier: Signifier): Type {
+        TODO("Not yet implemented")
+    }
 }

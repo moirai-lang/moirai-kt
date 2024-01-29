@@ -72,9 +72,8 @@ class SymbolInstantiation(
 
 class PlatformObjectSymbol(
     val identifier: Identifier,
-    val featureSupport: FeatureSupport,
     private val symbolTable: SymbolTable = SymbolTable(NullSymbolTable)
-) : Symbol(), Type, Scope<Symbol> by symbolTable
+) : Symbol(), Type, Scope by symbolTable
 
 class ObjectSymbol(
     val qualifiedName: String,
@@ -83,20 +82,21 @@ class ObjectSymbol(
 ) : Symbol(), Type
 
 class GroundRecordTypeSymbol(
-    override val parent: Scope<Symbol>,
+    definitionScopeForTypeChecking: Scope,
     val qualifiedName: String,
-    override val identifier: Identifier,
-    val featureSupport: FeatureSupport
-) : NamedSymbolWithMembers(parent), Type {
+    val identifier: Identifier,
+    private val symbolTable: SymbolTable = SymbolTable(definitionScopeForTypeChecking)
+) : Symbol(), Type, Scope by symbolTable {
     lateinit var fields: List<FieldSymbol>
 }
 
 class ParameterizedRecordTypeSymbol(
-    override val parent: Scope<Symbol>,
+    definitionScopeForTypeChecking: Scope,
     val qualifiedName: String,
-    override val identifier: Identifier,
-    val featureSupport: FeatureSupport
-) : NamedSymbolWithMembers(parent), RawTerminus, Type {
+    val identifier: Identifier,
+    val featureSupport: FeatureSupport,
+    private val symbolTable: SymbolTable = SymbolTable(definitionScopeForTypeChecking)
+) : Symbol(), RawTerminus, Type, Scope by symbolTable {
     override lateinit var typeParams: List<TypeParameter>
     lateinit var fields: List<FieldSymbol>
 }
@@ -104,14 +104,14 @@ class ParameterizedRecordTypeSymbol(
 class BasicTypeSymbol(
     val identifier: Identifier,
     private val symbolTable: SymbolTable = SymbolTable(NullSymbolTable)
-) : Symbol(), Type, Scope<Symbol> by symbolTable
+) : Symbol(), Type, Scope by symbolTable
 
 class ParameterizedBasicTypeSymbol(
     val identifier: Identifier,
     val instantiation: SingleTypeInstantiation,
     val featureSupport: FeatureSupport,
     private val symbolTable: SymbolTable = SymbolTable(NullSymbolTable)
-) : Symbol(), RawTerminus, Type, Scope<Symbol> by symbolTable {
+) : Symbol(), RawTerminus, Type, Scope by symbolTable {
     override lateinit var typeParams: List<TypeParameter>
     lateinit var modeSelector: (List<Type>) -> BasicTypeMode
     lateinit var fields: List<PlatformFieldSymbol>

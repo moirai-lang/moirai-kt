@@ -68,8 +68,7 @@ object Lang {
 
     // Unit
     val unitObject = PlatformObjectSymbol(
-        unitId,
-        userTypeFeatureSupport
+        unitId
     )
 
     // Boolean

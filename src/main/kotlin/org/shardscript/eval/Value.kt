@@ -368,7 +368,7 @@ data class FunctionValue(
 }
 
 class RecordValue(val symbol: Symbol, val fields: ValueTable) : Value() {
-    lateinit var scope: Scope<Symbol>
+    lateinit var scope: Scope
     val path = generatePath(symbol)
 
     override fun equals(other: Any?): Boolean {
@@ -389,7 +389,7 @@ class RecordValue(val symbol: Symbol, val fields: ValueTable) : Value() {
     }
 }
 
-data class RecordConstructorValue(val prelude: Scope<Symbol>, val symbol: Symbol) : Value() {
+data class RecordConstructorValue(val prelude: Scope, val symbol: Symbol) : Value() {
     fun apply(args: List<Value>): RecordValue {
         return when (symbol) {
             is GroundRecordTypeSymbol -> {
@@ -806,7 +806,15 @@ data class DictionaryValue(
     }
 }
 
-class SymbolRouterValueTable(private val prelude: Scope<Symbol>, private val symbols: Scope<Symbol>) : Scope<Value> {
+interface ValueScope {
+    fun define(identifier: Identifier, definition: Value)
+    fun exists(signifier: Signifier): Boolean
+    fun existsHere(signifier: Signifier): Boolean
+    fun fetch(signifier: Signifier): Value
+    fun fetchHere(signifier: Signifier): Value
+}
+
+class SymbolRouterValueTable(private val prelude: Scope, private val symbols: Scope) : ValueScope {
     override fun define(identifier: Identifier, definition: Value) {
         langThrow(identifier.ctx, IdentifierCouldNotBeDefined(identifier))
     }
@@ -873,7 +881,7 @@ class SymbolRouterValueTable(private val prelude: Scope<Symbol>, private val sym
         }
 }
 
-class ValueTable(private val parent: Scope<Value>) : Scope<Value> {
+class ValueTable(private val parent: ValueScope) : ValueScope {
     data class ScopeSlot(var value: Value)
 
     private val slotTable: MutableMap<String, ScopeSlot> = HashMap()

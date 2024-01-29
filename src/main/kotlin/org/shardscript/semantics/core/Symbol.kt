@@ -8,7 +8,7 @@ import org.shardscript.semantics.infer.SubstitutionChain
 sealed class Symbol
 
 sealed class SymbolTableElement: Symbol() {
-    abstract val parent: Scope<Symbol>
+    abstract val parent: Scope
 }
 
 sealed class NamedSymbolTableElement: SymbolTableElement() {
@@ -16,24 +16,24 @@ sealed class NamedSymbolTableElement: SymbolTableElement() {
 }
 
 sealed class NamedSymbolWithMembers(
-    override val parent: Scope<Symbol>,
+    override val parent: Scope,
     private val symbolTable: SymbolTable = SymbolTable(parent)
-): NamedSymbolTableElement(), Scope<Symbol> by symbolTable
+): NamedSymbolTableElement(), Scope by symbolTable
 
 class Block(
-    override val parent: Scope<Symbol>,
+    override val parent: Scope,
     private val symbolTable: SymbolTable = SymbolTable(parent)
-) : SymbolTableElement(), Scope<Symbol> by symbolTable
+) : SymbolTableElement(), Scope by symbolTable
 
 class LocalVariableSymbol(
-    override val parent: Scope<Symbol>,
+    override val parent: Scope,
     override val identifier: Identifier,
     val ofTypeSymbol: Type,
     val mutable: Boolean
 ) : NamedSymbolTableElement()
 
 class FunctionFormalParameterSymbol(
-    override val parent: Scope<Symbol>,
+    override val parent: Scope,
     override val identifier: Identifier,
     val ofTypeSymbol: Type
 ) : NamedSymbolTableElement() {
@@ -41,7 +41,7 @@ class FunctionFormalParameterSymbol(
 }
 
 class GroundFunctionSymbol(
-    override val parent: Scope<Symbol>,
+    override val parent: Scope,
     override val identifier: Identifier,
     val originalCtx: SourceContext,
     val body: Ast
@@ -54,9 +54,9 @@ class GroundFunctionSymbol(
 }
 
 class LambdaSymbol(
-    override val parent: Scope<Symbol>,
+    override val parent: Scope,
     private val symbolTable: SymbolTable = SymbolTable(parent)
-): SymbolTableElement(), Scope<Symbol> by symbolTable {
+): SymbolTableElement(), Scope by symbolTable {
     lateinit var formalParams: List<FunctionFormalParameterSymbol>
     lateinit var returnType: Type
     lateinit var costExpression: CostExpression
@@ -65,7 +65,7 @@ class LambdaSymbol(
 }
 
 class ParameterizedFunctionSymbol(
-    override val parent: Scope<Symbol>,
+    override val parent: Scope,
     override val identifier: Identifier,
     val originalCtx: SourceContext,
     val body: Ast
@@ -80,14 +80,14 @@ class ParameterizedFunctionSymbol(
 }
 
 class FieldSymbol(
-    override val parent: Scope<Symbol>,
+    override val parent: Scope,
     override val identifier: Identifier,
     val ofTypeSymbol: Type,
     val mutable: Boolean
 ) : NamedSymbolTableElement()
 
 data class PlatformFieldSymbol(
-    override val parent: Scope<Symbol>,
+    override val parent: Scope,
     override val identifier: Identifier,
     val ofTypeSymbol: BasicTypeSymbol
 ) : NamedSymbolTableElement()
@@ -96,7 +96,7 @@ data class PlatformFieldSymbol(
  * Plugins
  */
 data class GroundMemberPluginSymbol(
-    override val parent: Scope<Symbol>,
+    override val parent: Scope,
     override val identifier: Identifier
 ) : NamedSymbolWithMembers(parent) {
     lateinit var formalParams: List<FunctionFormalParameterSymbol>
@@ -107,7 +107,7 @@ data class GroundMemberPluginSymbol(
 }
 
 data class ParameterizedMemberPluginSymbol(
-    override val parent: Scope<Symbol>,
+    override val parent: Scope,
     override val identifier: Identifier,
     val instantiation: TwoTypeInstantiation
 ) : NamedSymbolWithMembers(parent), RawTerminus {
@@ -121,7 +121,7 @@ data class ParameterizedMemberPluginSymbol(
 }
 
 data class ParameterizedStaticPluginSymbol(
-    override val parent: Scope<Symbol>,
+    override val parent: Scope,
     override val identifier: Identifier,
     val instantiation: SingleTypeInstantiation,
 ) : NamedSymbolWithMembers(parent), RawTerminus {
