@@ -183,10 +183,7 @@ fun inlineGeneratePath(symbol: Symbol, path: MutableList<String>) {
             path.add(symbol.qualifiedName)
         }
         is ParameterizedRecordTypeSymbol -> {
-            if (symbol.parent is Symbol) {
-                inlineGeneratePath(symbol.parent, path)
-            }
-            path.add(symbol.identifier.name)
+            path.add(symbol.qualifiedName)
         }
         is SymbolInstantiation -> {
             when (val parameterizedType = symbol.substitutionChain.originalSymbol) {
@@ -194,15 +191,9 @@ fun inlineGeneratePath(symbol: Symbol, path: MutableList<String>) {
                     path.add(parameterizedType.identifier.name)
                 }
                 is ParameterizedRecordTypeSymbol -> {
-                    if (parameterizedType.parent is Symbol) {
-                        inlineGeneratePath(parameterizedType.parent as Symbol, path)
-                    }
-                    path.add(parameterizedType.identifier.name)
+                    path.add(parameterizedType.qualifiedName)
                 }
                 is ParameterizedStaticPluginSymbol -> {
-                    if (parameterizedType.parent is Symbol) {
-                        inlineGeneratePath(parameterizedType.parent as Symbol, path)
-                    }
                     path.add(parameterizedType.identifier.name)
                 }
                 else -> Unit
@@ -212,9 +203,6 @@ fun inlineGeneratePath(symbol: Symbol, path: MutableList<String>) {
             path.add(symbol.identifier.name)
         }
         is ParameterizedStaticPluginSymbol -> {
-            if (symbol.parent is Symbol) {
-                inlineGeneratePath(symbol.parent, path)
-            }
             path.add(symbol.identifier.name)
         }
         is BasicTypeSymbol -> {

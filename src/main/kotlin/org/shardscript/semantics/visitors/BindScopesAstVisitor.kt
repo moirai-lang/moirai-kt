@@ -141,6 +141,7 @@ class BindScopesAstVisitor(
             } else {
                 val res = ParameterizedRecordTypeSymbol(
                     param,
+                    "${fileName}.${ast.identifier.name}",
                     ast.identifier,
                     userTypeFeatureSupport
                 )

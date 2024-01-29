@@ -125,6 +125,7 @@ object Lang {
     // Pair
     val pairType = ParameterizedRecordTypeSymbol(
         prelude,
+        pairId.name,
         pairId,
         userTypeFeatureSupport
     )
