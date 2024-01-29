@@ -125,7 +125,7 @@ class MutableDictionaryInstantiation(private val pairTypeSymbol: ParameterizedRe
                 return substitution.apply(rawSymbol)
             }
         } else {
-            langThrow(ctx, TypeRequiresExplicit(rawSymbol.identifier))
+            langThrow(ctx, TypeRequiresExplicit(identifier))
         }
     }
 }
