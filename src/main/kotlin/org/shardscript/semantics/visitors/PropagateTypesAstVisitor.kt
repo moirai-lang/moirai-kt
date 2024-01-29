@@ -87,6 +87,7 @@ class PropagateTypesAstVisitor(
                             errors,
                             args,
                             symbol,
+                            symbol.identifier,
                             idArgSymbols
                         )
                         ast.symbolRef = instantiation
@@ -101,6 +102,7 @@ class PropagateTypesAstVisitor(
                         errors,
                         args,
                         symbol,
+                        symbol.identifier,
                         listOf()
                     )
                     ast.symbolRef = instantiation
@@ -117,6 +119,7 @@ class PropagateTypesAstVisitor(
                             errors,
                             args,
                             symbol,
+                            symbol.identifier,
                             idArgSymbols
                         )
                         ast.symbolRef = instantiation
@@ -132,6 +135,7 @@ class PropagateTypesAstVisitor(
                         errors,
                         args,
                         symbol,
+                        symbol.identifier,
                         listOf()
                     )
                     ast.symbolRef = instantiation
@@ -166,6 +170,7 @@ class PropagateTypesAstVisitor(
                     errors,
                     listOf(ast),
                     parameterizedType,
+                    parameterizedType.identifier,
                     listOf()
                 )
             )
@@ -205,6 +210,7 @@ class PropagateTypesAstVisitor(
                     errors,
                     listOf(ast),
                     parameterizedType,
+                    parameterizedType.identifier,
                     listOf()
                 )
             )
@@ -224,6 +230,7 @@ class PropagateTypesAstVisitor(
                     errors,
                     ast.components,
                     parameterizedType,
+                    parameterizedType.identifier,
                     listOf()
                 )
             )
@@ -563,6 +570,7 @@ class PropagateTypesAstVisitor(
                                         errors,
                                         ast.args,
                                         member,
+                                        member.identifier,
                                         lhsType,
                                         listOf()
                                     )
