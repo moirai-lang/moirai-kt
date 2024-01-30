@@ -14,12 +14,12 @@ class CostExpressionAstVisitor(private val architecture: Architecture) : UnitAst
             is GroundMemberPluginSymbol -> {
                 symbolRef.costExpression
             }
-            is SymbolInstantiation -> replaySubstitutions(symbolRef)
+            is TypeInstantiation -> replaySubstitutions(symbolRef)
             else -> FinTypeSymbol(architecture.defaultNodeCost)
         }
 
-    private fun replaySubstitutions(instantiation: SymbolInstantiation): CostExpression =
-        when (val parameterizedSymbol = instantiation.substitutionChain.originalSymbol) {
+    private fun replaySubstitutions(instantiation: TypeInstantiation): CostExpression =
+        when (val parameterizedSymbol = instantiation.substitutionChain.terminus) {
             is ParameterizedFunctionSymbol -> {
                 val original = parameterizedSymbol.costExpression
                 instantiation.substitutionChain.replay(original)
@@ -128,8 +128,8 @@ class CostExpressionAstVisitor(private val architecture: Architecture) : UnitAst
         val argCosts: MutableList<CostExpression> = ArrayList()
         val multipliers = when (val symbolRef = ast.symbolRef) {
             is GroundFunctionSymbol -> symbolRef.formalParams.map { it.costMultiplier }
-            is SymbolInstantiation -> {
-                when (val parameterizedSymbol = symbolRef.substitutionChain.originalSymbol) {
+            is TypeInstantiation -> {
+                when (val parameterizedSymbol = symbolRef.substitutionChain.terminus) {
                     is ParameterizedFunctionSymbol -> {
                         parameterizedSymbol.formalParams.map { it.costMultiplier }
                     }
@@ -158,8 +158,8 @@ class CostExpressionAstVisitor(private val architecture: Architecture) : UnitAst
         val argCosts: MutableList<CostExpression> = ArrayList()
         val multipliers = when (val symbolRef = ast.symbolRef) {
             is GroundFunctionSymbol -> symbolRef.formalParams.map { it.costMultiplier }
-            is SymbolInstantiation -> {
-                when (val parameterizedSymbol = symbolRef.substitutionChain.originalSymbol) {
+            is TypeInstantiation -> {
+                when (val parameterizedSymbol = symbolRef.substitutionChain.terminus) {
                     is ParameterizedFunctionSymbol -> {
                         parameterizedSymbol.formalParams.map {
                             symbolRef.substitutionChain.replay(it.costMultiplier)

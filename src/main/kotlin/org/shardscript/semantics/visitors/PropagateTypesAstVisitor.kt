@@ -279,7 +279,7 @@ class PropagateTypesAstVisitor(
                 is FieldSymbol -> ast.assignType(errors, symbol.ofTypeSymbol)
                 is GroundRecordTypeSymbol -> ast.assignType(errors, symbol)
                 is StandardTypeParameter -> ast.assignType(errors, symbol)
-                is SymbolInstantiation -> ast.assignType(errors, symbol)
+                is TypeInstantiation -> ast.assignType(errors, symbol)
                 else -> {
                     errors.add(ast.ctx, InvalidRef(symbol))
                     ast.assignType(errors, ErrorSymbol)
@@ -401,8 +401,8 @@ class PropagateTypesAstVisitor(
                         }
                     }
                 }
-                is SymbolInstantiation -> {
-                    when (val parameterizedSymbol = lhsType.substitutionChain.originalSymbol) {
+                is TypeInstantiation -> {
+                    when (val parameterizedSymbol = lhsType.substitutionChain.terminus) {
                         is ParameterizedRecordTypeSymbol -> {
                             val member = parameterizedSymbol.fetchHere(ast.identifier)
                             ast.symbolRef = member
@@ -546,8 +546,8 @@ class PropagateTypesAstVisitor(
                         }
                     }
                 }
-                is SymbolInstantiation -> {
-                    when (val parameterizedSymbol = lhsType.substitutionChain.originalSymbol) {
+                is TypeInstantiation -> {
+                    when (val parameterizedSymbol = lhsType.substitutionChain.terminus) {
                         is ParameterizedBasicTypeSymbol -> {
                             val member = parameterizedSymbol.fetchHere(ast.tti)
                             if (ast.signifier is ParameterizedSignifier) {
@@ -628,8 +628,8 @@ class PropagateTypesAstVisitor(
             ast.assignType(errors, preludeTable.fetch(Lang.unitId) as Type)
             ast.source.accept(this)
             when (val sourceType = ast.source.readType()) {
-                is SymbolInstantiation -> {
-                    when (val parameterizedSymbol = sourceType.substitutionChain.originalSymbol) {
+                is TypeInstantiation -> {
+                    when (val parameterizedSymbol = sourceType.substitutionChain.terminus) {
                         is ParameterizedBasicTypeSymbol -> {
                             if (parameterizedSymbol.featureSupport.forEachBlock) {
                                 ast.sourceTypeSymbol = sourceType.substitutionChain.replayArgs().first()
@@ -695,8 +695,8 @@ class PropagateTypesAstVisitor(
                         }
                     }
                 }
-                is SymbolInstantiation -> {
-                    when (val parameterizedSymbol = lhsType.substitutionChain.originalSymbol) {
+                is TypeInstantiation -> {
+                    when (val parameterizedSymbol = lhsType.substitutionChain.terminus) {
                         is ParameterizedRecordTypeSymbol -> {
                             val substitution = lhsType.substitutionChain
                             when (val member = parameterizedSymbol.fetchHere(ast.identifier)) {

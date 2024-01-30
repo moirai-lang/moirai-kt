@@ -2,34 +2,34 @@ package org.shardscript.semantics.infer
 
 import org.shardscript.semantics.core.*
 
-class SetInstantiation : SingleTypeInstantiation {
+class SetInstantiation : SingleTypeInstantiation<TerminusType, TypeInstantiation> {
     override fun apply(
         ctx: SourceContext,
         errors: LanguageErrors,
         args: List<Ast>,
-        rawTerminus: RawTerminus,
+        terminus: TerminusType,
         identifier: Identifier,
         explicitTypeArgs: List<Type>
-    ): SymbolInstantiation {
+    ): TypeInstantiation {
         if (explicitTypeArgs.isNotEmpty()) {
             if (explicitTypeArgs.size != 2) {
                 errors.add(ctx, IncorrectNumberOfTypeArgs(2, explicitTypeArgs.size))
-                val substitution = Substitution(rawTerminus.typeParams, listOf())
-                return substitution.apply(rawTerminus)
+                val substitution = Substitution(terminus.typeParams, listOf())
+                return substitution.apply(terminus)
             } else {
-                validateSubstitution(ctx, errors, rawTerminus.typeParams.first(), explicitTypeArgs.first())
-                validateSubstitution(ctx, errors, rawTerminus.typeParams[1], explicitTypeArgs[1])
+                validateSubstitution(ctx, errors, terminus.typeParams.first(), explicitTypeArgs.first())
+                validateSubstitution(ctx, errors, terminus.typeParams[1], explicitTypeArgs[1])
                 if (explicitTypeArgs[1] is FinTypeSymbol) {
                     val fin = explicitTypeArgs[1] as FinTypeSymbol
                     if (args.size.toLong() > fin.magnitude) {
                         errors.add(ctx, TooManyElements(fin.magnitude, args.size.toLong()))
                     }
                 }
-                val substitution = Substitution(rawTerminus.typeParams, explicitTypeArgs)
-                return substitution.apply(rawTerminus)
+                val substitution = Substitution(terminus.typeParams, explicitTypeArgs)
+                return substitution.apply(terminus)
             }
         } else {
-            val inOrderParameters = rawTerminus.typeParams
+            val inOrderParameters = terminus.typeParams
             val parameterSet = inOrderParameters.toSet()
             if (args.isNotEmpty()) {
                 val constraints: MutableList<Constraint<TypeParameter, Type>> = ArrayList()
@@ -49,7 +49,7 @@ class SetInstantiation : SingleTypeInstantiation {
                     )
                 )
                 val substitution = createSubstitution(ctx, constraints, parameterSet, inOrderParameters, errors)
-                return substitution.apply(rawTerminus)
+                return substitution.apply(terminus)
             } else {
                 inOrderParameters.forEach {
                     errors.add(
@@ -63,36 +63,36 @@ class SetInstantiation : SingleTypeInstantiation {
     }
 }
 
-class MutableSetInstantiation : SingleTypeInstantiation {
+class MutableSetInstantiation : SingleTypeInstantiation<TerminusType, TypeInstantiation> {
     override fun apply(
         ctx: SourceContext,
         errors: LanguageErrors,
         args: List<Ast>,
-        rawTerminus: RawTerminus,
+        terminus: TerminusType,
         identifier: Identifier,
         explicitTypeArgs: List<Type>
-    ): SymbolInstantiation {
+    ): TypeInstantiation {
         if (explicitTypeArgs.isNotEmpty()) {
             if (explicitTypeArgs.size != 2) {
                 errors.add(ctx, IncorrectNumberOfTypeArgs(2, explicitTypeArgs.size))
-                val substitution = Substitution(rawTerminus.typeParams, listOf())
-                return substitution.apply(rawTerminus)
+                val substitution = Substitution(terminus.typeParams, listOf())
+                return substitution.apply(terminus)
             } else {
                 validateSubstitution(
                     ctx,
                     errors,
-                    rawTerminus.typeParams.first(),
+                    terminus.typeParams.first(),
                     explicitTypeArgs.first()
                 )
-                validateSubstitution(ctx, errors, rawTerminus.typeParams[1], explicitTypeArgs[1])
+                validateSubstitution(ctx, errors, terminus.typeParams[1], explicitTypeArgs[1])
                 if (explicitTypeArgs[1] is FinTypeSymbol) {
                     val fin = explicitTypeArgs[1] as FinTypeSymbol
                     if (args.size.toLong() > fin.magnitude) {
                         errors.add(ctx, TooManyElements(fin.magnitude, args.size.toLong()))
                     }
                 }
-                val substitution = Substitution(rawTerminus.typeParams, explicitTypeArgs)
-                return substitution.apply(rawTerminus)
+                val substitution = Substitution(terminus.typeParams, explicitTypeArgs)
+                return substitution.apply(terminus)
             }
         } else {
             langThrow(ctx, TypeRequiresExplicit(identifier))

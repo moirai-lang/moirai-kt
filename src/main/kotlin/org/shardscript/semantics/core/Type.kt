@@ -4,6 +4,8 @@ import org.shardscript.semantics.infer.SubstitutionChain
 
 sealed interface Type
 
+sealed interface TerminusType: Type, RawTerminus
+
 data object ErrorSymbol : Symbol(), Type
 
 class FunctionTypeSymbol(
@@ -66,8 +68,8 @@ class MaxCostExpression(val children: List<CostExpression>) : Symbol(), CostExpr
     }
 }
 
-class SymbolInstantiation(
-    val substitutionChain: SubstitutionChain
+class TypeInstantiation(
+    val substitutionChain: SubstitutionChain<TerminusType>
 ) : Symbol(), Type
 
 class PlatformObjectSymbol(
@@ -96,7 +98,7 @@ class ParameterizedRecordTypeSymbol(
     val identifier: Identifier,
     val featureSupport: FeatureSupport,
     private val symbolTable: SymbolTable = SymbolTable(definitionScopeForTypeChecking)
-) : Symbol(), RawTerminus, Type, Scope by symbolTable {
+) : Symbol(), TerminusType, Scope by symbolTable {
     override lateinit var typeParams: List<TypeParameter>
     lateinit var fields: List<FieldSymbol>
 }
@@ -111,7 +113,7 @@ class ParameterizedBasicTypeSymbol(
     val instantiation: SingleTypeInstantiation,
     val featureSupport: FeatureSupport,
     private val symbolTable: SymbolTable = SymbolTable(NullSymbolTable)
-) : Symbol(), RawTerminus, Type, Scope by symbolTable {
+) : Symbol(), TerminusType, Scope by symbolTable {
     override lateinit var typeParams: List<TypeParameter>
     lateinit var modeSelector: (List<Type>) -> BasicTypeMode
     lateinit var fields: List<PlatformFieldSymbol>

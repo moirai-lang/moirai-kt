@@ -14,8 +14,8 @@ class BanFeaturePositionsAstVisitor : UnitAstVisitor() {
                     errors.add(ast.ctx, ReturnTypeFeatureBan(returnType))
                 }
             }
-            is SymbolInstantiation -> {
-                val parameterizedReturnType = returnType.substitutionChain.originalSymbol
+            is TypeInstantiation -> {
+                val parameterizedReturnType = returnType.substitutionChain.terminus
                 if (parameterizedReturnType is ParameterizedBasicTypeSymbol) {
                     if (!parameterizedReturnType.featureSupport.returnType) {
                         errors.add(ast.ctx, ReturnTypeFeatureBan(returnType))
@@ -38,8 +38,8 @@ class BanFeaturePositionsAstVisitor : UnitAstVisitor() {
                         errors.add(ast.ctx, FormalParamFeatureBan(formalParamType))
                     }
                 }
-                is SymbolInstantiation -> {
-                    val parameterizedFormalParamType = formalParamType.substitutionChain.originalSymbol
+                is TypeInstantiation -> {
+                    val parameterizedFormalParamType = formalParamType.substitutionChain.terminus
                     if (parameterizedFormalParamType is ParameterizedBasicTypeSymbol) {
                         if (!parameterizedFormalParamType.featureSupport.paramType) {
                             errors.add(ast.ctx, FormalParamFeatureBan(formalParamType))
@@ -79,8 +79,8 @@ class BanFeaturePositionsAstVisitor : UnitAstVisitor() {
                         errors.add(ast.ctx, RecordFieldFeatureBan(fieldType))
                     }
                 }
-                is SymbolInstantiation -> {
-                    val parameterizedFieldType = fieldType.substitutionChain.originalSymbol
+                is TypeInstantiation -> {
+                    val parameterizedFieldType = fieldType.substitutionChain.terminus
                     if (parameterizedFieldType is ParameterizedBasicTypeSymbol) {
                         if (!parameterizedFieldType.featureSupport.recordField) {
                             errors.add(ast.ctx, RecordFieldFeatureBan(fieldType))

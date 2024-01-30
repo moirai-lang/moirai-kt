@@ -13,8 +13,8 @@ fun isValidStringType(type: Type): Boolean =
         is BasicTypeSymbol -> {
             type.existsHere(Identifier(NotInSource, StringMethods.ToString.idStr))
         }
-        is SymbolInstantiation -> {
-            when (val parameterizedType = type.substitutionChain.originalSymbol) {
+        is TypeInstantiation -> {
+            when (val parameterizedType = type.substitutionChain.terminus) {
                 is ParameterizedBasicTypeSymbol -> {
                     parameterizedType.existsHere(Identifier(NotInSource, StringMethods.ToString.idStr))
                 }
@@ -32,8 +32,8 @@ fun costExpressionFromValidStringType(type: Type): CostExpression {
         is BasicTypeSymbol -> {
             type.fetchHere(Identifier(NotInSource, StringMethods.ToString.idStr))
         }
-        is SymbolInstantiation -> {
-            when (val parameterizedType = type.substitutionChain.originalSymbol) {
+        is TypeInstantiation -> {
+            when (val parameterizedType = type.substitutionChain.terminus) {
                 is ParameterizedBasicTypeSymbol -> {
                     parameterizedType.fetchHere(Identifier(NotInSource, StringMethods.ToString.idStr))
                 }

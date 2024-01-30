@@ -20,6 +20,14 @@ sealed class NamedSymbolWithMembers(
     private val symbolTable: SymbolTable = SymbolTable(parent)
 ): NamedSymbolTableElement(), Scope by symbolTable
 
+sealed class RawTerminusSymbol(
+    override val parent: Scope
+): NamedSymbolWithMembers(parent), RawTerminus
+
+class SymbolInstantiation(
+    val substitutionChain: SubstitutionChain<RawTerminusSymbol>
+) : Symbol()
+
 class Block(
     override val parent: Scope,
     private val symbolTable: SymbolTable = SymbolTable(parent)
@@ -69,7 +77,7 @@ class ParameterizedFunctionSymbol(
     override val identifier: Identifier,
     val originalCtx: SourceContext,
     val body: Ast
-) : NamedSymbolWithMembers(parent), RawTerminus {
+) : RawTerminusSymbol(parent) {
     override lateinit var typeParams: List<TypeParameter>
 
     lateinit var formalParams: List<FunctionFormalParameterSymbol>
@@ -110,7 +118,7 @@ data class ParameterizedMemberPluginSymbol(
     override val parent: Scope,
     override val identifier: Identifier,
     val instantiation: TwoTypeInstantiation
-) : NamedSymbolWithMembers(parent), RawTerminus {
+) : RawTerminusSymbol(parent) {
     override lateinit var typeParams: List<TypeParameter>
 
     lateinit var formalParams: List<FunctionFormalParameterSymbol>
@@ -124,7 +132,7 @@ data class ParameterizedStaticPluginSymbol(
     override val parent: Scope,
     override val identifier: Identifier,
     val instantiation: SingleTypeInstantiation,
-) : NamedSymbolWithMembers(parent), RawTerminus {
+) : RawTerminusSymbol(parent) {
     override lateinit var typeParams: List<TypeParameter>
     lateinit var formalParams: List<FunctionFormalParameterSymbol>
     lateinit var returnType: Type
