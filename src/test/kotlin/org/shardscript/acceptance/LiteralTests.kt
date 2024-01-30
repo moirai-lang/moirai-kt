@@ -3,10 +3,7 @@ package org.shardscript.acceptance
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.fail
 import org.junit.jupiter.api.Test
-import org.shardscript.eval.BooleanValue
-import org.shardscript.eval.CharValue
-import org.shardscript.eval.IntValue
-import org.shardscript.eval.StringValue
+import org.shardscript.eval.*
 
 class LiteralTests {
     @Test
@@ -107,61 +104,61 @@ class LiteralTests {
 
     @Test
     fun intLiteralIsTest() {
-        splitTest("5 is Int^^^^^true", TestArchitecture)
+        typeTest("5") { it is IntValue }
     }
 
     @Test
     fun testTrueIsTest() {
-        splitTest("true is Boolean^^^^^true", TestArchitecture)
+        typeTest("true") { it is BooleanValue }
     }
 
     @Test
     fun testFalseIsTest() {
-        splitTest("false is Boolean^^^^^true", TestArchitecture)
+        typeTest("false") { it is BooleanValue }
     }
 
     @Test
     fun decLiteralIsTest() {
-        splitTest("5.0 is Decimal<3>^^^^^true", TestArchitecture)
+        typeTest("5.0") { it is DecimalValue }
     }
 
     @Test
     fun testUnaryNegates32IsTest() {
-        splitTest("-15 is Int^^^^^true", TestArchitecture)
+        typeTest("-15") { it is IntValue }
     }
 
     @Test
     fun testUnaryNegateDecimalIsTest() {
-        splitTest("-15.0 is Decimal<5>^^^^^true", TestArchitecture)
+        typeTest("-15.0") { it is DecimalValue }
     }
 
     @Test
     fun charLiteralIsTest() {
-        splitTest("'c' is Char^^^^^true", TestArchitecture)
+        typeTest("'c'") { it is CharValue }
     }
 
     @Test
     fun charLiteralEscapeIsTest() {
-        splitTest("'\\\'' is Char^^^^^true", TestArchitecture)
+        typeTest("'\\\''") { it is CharValue }
     }
 
     @Test
     fun stringLiteralIsTest() {
-        splitTest("\"hello world\" is String<20>^^^^^true", TestArchitecture)
+        typeTest("\"hello world\"") { it is StringValue }
     }
 
     @Test
     fun stringLiteralEscapeIsTest() {
-        splitTest("\"hello\\nworld\" is String<20>^^^^^true", TestArchitecture)
+        typeTest("\"hello\\nworld\"") { it is StringValue }
     }
 
     @Test
     fun stringInterpolationLiteralIsTest() {
-        splitTest("\"hello \${65} world\" is String<20>^^^^^true", TestArchitecture)
+        typeTest("\"hello \${65} world\"") { it is StringValue }
     }
 
     @Test
     fun stringLiteralInterpolationEscapeIsTest() {
-        splitTest("\"hello\\n \${65} world\" is String<20>^^^^^true", TestArchitecture)
+        typeTest("\"hello\\n \${65} world\"") { it is StringValue }
     }
 }

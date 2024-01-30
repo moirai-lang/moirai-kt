@@ -1,6 +1,7 @@
 package org.shardscript.acceptance
 
 import org.junit.jupiter.api.Test
+import org.shardscript.eval.DictionaryValue
 
 class DictionaryHappyTests {
     @Test
@@ -251,14 +252,11 @@ class DictionaryHappyTests {
 
     @Test
     fun mutableDictionaryToImmutableTest() {
-        splitTest(
+        typeTest(
             """
                 val x = MutableDictionary<Int, Int, 10>(1 to 2, 2 to 3, 3 to 4, 4 to 5, 5 to 6)
-                val y = x.toDictionary()
-                y is Dictionary<Int, Int, 10>
-                ^^^^^
-                true
+                x.toDictionary()
             """.trimIndent()
-        )
+        ) { it is DictionaryValue }
     }
 }

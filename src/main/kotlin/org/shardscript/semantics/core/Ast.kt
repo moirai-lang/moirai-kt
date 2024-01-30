@@ -267,30 +267,3 @@ data class IfAst(
     override fun <P, R> accept(visitor: ParameterizedAstVisitor<P, R>, param: P): R =
         visitor.visit(this, param)
 }
-
-data class AsAst(
-    override val ctx: SourceContext,
-    val lhs: Ast,
-    val signifier: Signifier
-) : Ast() {
-    override fun <R> accept(visitor: AstVisitor<R>): R =
-        visitor.visit(this)
-
-    override fun <P, R> accept(visitor: ParameterizedAstVisitor<P, R>, param: P): R =
-        visitor.visit(this, param)
-}
-
-data class IsAst(
-    override val ctx: SourceContext,
-    val lhs: Ast,
-    val signifier: Signifier
-) : Ast() {
-    lateinit var testErrors: LanguageErrors
-    lateinit var identifierSymbol: Type
-
-    override fun <R> accept(visitor: AstVisitor<R>): R =
-        visitor.visit(this)
-
-    override fun <P, R> accept(visitor: ParameterizedAstVisitor<P, R>, param: P): R =
-        visitor.visit(this, param)
-}

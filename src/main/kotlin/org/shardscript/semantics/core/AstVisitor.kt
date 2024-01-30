@@ -22,8 +22,6 @@ interface AstVisitor<R> {
     fun visit(ast: AssignAst): R
     fun visit(ast: DotAssignAst): R
     fun visit(ast: IfAst): R
-    fun visit(ast: AsAst): R
-    fun visit(ast: IsAst): R
 }
 
 interface ParameterizedAstVisitor<P, R> {
@@ -48,6 +46,4 @@ interface ParameterizedAstVisitor<P, R> {
     fun visit(ast: AssignAst, param: P): R
     fun visit(ast: DotAssignAst, param: P): R
     fun visit(ast: IfAst, param: P): R
-    fun visit(ast: AsAst, param: P): R
-    fun visit(ast: IsAst, param: P): R
 }

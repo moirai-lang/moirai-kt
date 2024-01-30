@@ -1,6 +1,7 @@
 package org.shardscript.acceptance
 
 import org.junit.jupiter.api.Test
+import org.shardscript.eval.SetValue
 
 class SetHappyTests {
     @Test
@@ -229,14 +230,11 @@ class SetHappyTests {
 
     @Test
     fun mutableSetToImmutableTest() {
-        splitTest(
+        typeTest(
             """
                 val x = MutableSet<Int, 10>(1, 2, 3, 4, 5)
-                val y = x.toSet()
-                y is Set<Int, 10>
-                ^^^^^
-                true
+                x.toSet()
             """.trimIndent()
-        )
+        ) { it is SetValue }
     }
 }

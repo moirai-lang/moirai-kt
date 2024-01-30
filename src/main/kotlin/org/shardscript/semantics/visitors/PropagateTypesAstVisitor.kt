@@ -879,27 +879,4 @@ class PropagateTypesAstVisitor(
             ast.assignType(errors, ErrorType)
         }
     }
-
-    override fun visit(ast: AsAst) {
-        try {
-            super.visit(ast)
-            val ofType = ast.scope.fetchType(ast.signifier)
-            ast.assignType(errors, ofType)
-        } catch (ex: LanguageException) {
-            errors.addAll(ast.ctx, ex.errors)
-            ast.assignType(errors, ErrorType)
-        }
-    }
-
-    override fun visit(ast: IsAst) {
-        try {
-            super.visit(ast)
-            val ofType = ast.scope.fetchType(ast.signifier)
-            ast.identifierSymbol = filterValidTypes(ast.ctx, errors, ofType)
-            ast.assignType(errors, preludeTable.fetchType(Lang.booleanId))
-        } catch (ex: LanguageException) {
-            errors.addAll(ast.ctx, ex.errors)
-            ast.assignType(errors, ErrorType)
-        }
-    }
 }

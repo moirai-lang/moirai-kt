@@ -80,12 +80,4 @@ class BanNestedDefinitionAstVisitor : ParameterizedUnitAstVisitor<NestedDefiniti
     override fun visit(ast: IfAst, param: NestedDefinitionIndicator) {
         super.visit(ast, OtherIndicator)
     }
-
-    override fun visit(ast: AsAst, param: NestedDefinitionIndicator) {
-        super.visit(ast, OtherIndicator)
-    }
-
-    override fun visit(ast: IsAst, param: NestedDefinitionIndicator) {
-        super.visit(ast, OtherIndicator)
-    }
 }

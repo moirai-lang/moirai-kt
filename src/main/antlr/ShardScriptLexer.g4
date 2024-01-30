@@ -27,14 +27,12 @@ BOOL_FALSE: 'false';
 
 FIN: 'Fin';
 
-AS: 'as';
 DEF: 'def';
 ELSE: 'else';
 FOR: 'for';
 IF: 'if';
 IMPORT: 'import';
 IN: 'in';
-IS: 'is';
 LAMBDA: 'lambda';
 MUTABLE: 'mutable';
 OBJECT: 'object';
