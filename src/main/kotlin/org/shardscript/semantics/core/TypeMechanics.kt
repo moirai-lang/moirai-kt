@@ -578,9 +578,9 @@ fun findBestType(ctx: SourceContext, errors: LanguageErrors, types: List<Type>):
         return ErrorType
     }
     val first = types.first()
-    val firstPath = getQualifiedName(first)
     return when (first) {
         is GroundRecordTypeSymbol -> {
+            val firstPath = getQualifiedName(first)
             when {
                 types.all { it is GroundRecordTypeSymbol && firstPath == getQualifiedName(it) } -> {
                     first
@@ -592,6 +592,7 @@ fun findBestType(ctx: SourceContext, errors: LanguageErrors, types: List<Type>):
             }
         }
         is ObjectSymbol -> {
+            val firstPath = getQualifiedName(first)
             when {
                 types.all { it is ObjectSymbol && firstPath == getQualifiedName(it) } -> {
                     first
@@ -603,6 +604,7 @@ fun findBestType(ctx: SourceContext, errors: LanguageErrors, types: List<Type>):
             }
         }
         is PlatformObjectSymbol -> {
+            val firstPath = getQualifiedName(first)
             when {
                 types.all { it is PlatformObjectSymbol && firstPath == getQualifiedName(it) } -> {
                     first
@@ -614,6 +616,7 @@ fun findBestType(ctx: SourceContext, errors: LanguageErrors, types: List<Type>):
             }
         }
         is TypeInstantiation -> {
+            val firstPath = getQualifiedName(first)
             when (val parameterizedType = first.substitutionChain.terminus) {
                 is ParameterizedRecordTypeSymbol -> {
                     if (types.all {
@@ -668,6 +671,7 @@ fun findBestType(ctx: SourceContext, errors: LanguageErrors, types: List<Type>):
             }
         }
         is BasicTypeSymbol -> {
+            val firstPath = getQualifiedName(first)
             if (types.all { it is BasicTypeSymbol && firstPath == getQualifiedName(it) }) {
                 first
             } else {
@@ -676,6 +680,7 @@ fun findBestType(ctx: SourceContext, errors: LanguageErrors, types: List<Type>):
             }
         }
         is StandardTypeParameter -> {
+            val firstPath = getQualifiedName(first)
             if (types.all { it is StandardTypeParameter && firstPath == getQualifiedName(it) }) {
                 first
             } else {
@@ -692,6 +697,7 @@ fun findBestType(ctx: SourceContext, errors: LanguageErrors, types: List<Type>):
             }
         }
         is ImmutableFinTypeParameter -> {
+            val firstPath = getQualifiedName(first)
             if (types.all { it is ImmutableFinTypeParameter && firstPath == getQualifiedName(it) }) {
                 first
             } else {
@@ -700,6 +706,7 @@ fun findBestType(ctx: SourceContext, errors: LanguageErrors, types: List<Type>):
             }
         }
         is MutableFinTypeParameter -> {
+            val firstPath = getQualifiedName(first)
             if (types.all { it is MutableFinTypeParameter && firstPath == getQualifiedName(it) }) {
                 first
             } else {
