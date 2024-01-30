@@ -5,17 +5,17 @@ import org.shardscript.semantics.core.FunctionTypeSymbol
 import org.shardscript.semantics.core.RawTerminus
 import org.shardscript.semantics.core.Type
 
-sealed class InstantiationChain {
-    abstract val originalSymbol: RawTerminus
+sealed class InstantiationChain<T: RawTerminus> {
+    abstract val terminus: T
     abstract fun toList(): List<Substitution>
 }
 
-data class TerminalChain(override val originalSymbol: RawTerminus) : InstantiationChain() {
+data class TerminalChain<T: RawTerminus>(override val terminus: T) : InstantiationChain<T>() {
     override fun toList(): List<Substitution> = listOf()
 }
 
-data class SubstitutionChain(val substitution: Substitution, val chain: InstantiationChain) : InstantiationChain() {
-    override val originalSymbol: RawTerminus = chain.originalSymbol
+data class SubstitutionChain<T: RawTerminus>(val substitution: Substitution, val chain: InstantiationChain<T>) : InstantiationChain<T>() {
+    override val terminus: T = chain.terminus
     override fun toList(): List<Substitution> {
         val res = chain.toList().toMutableList()
         res.add(substitution)
@@ -23,13 +23,14 @@ data class SubstitutionChain(val substitution: Substitution, val chain: Instanti
     }
 
     fun replayArgs(): List<Type> =
-        originalSymbol.typeParams.map { replay(it) }
+        terminus.typeParams.map { replay(it) }
 
     fun replay(type: Type): Type {
         return when (chain) {
             is SubstitutionChain -> {
                 substitution.applySymbol(chain.replay(type))
             }
+
             is TerminalChain -> {
                 substitution.applySymbol(type)
             }
@@ -41,6 +42,7 @@ data class SubstitutionChain(val substitution: Substitution, val chain: Instanti
             is SubstitutionChain -> {
                 substitution.applyFunctionType(chain.replay(functionTypeSymbol))
             }
+
             is TerminalChain -> {
                 substitution.applyFunctionType(functionTypeSymbol)
             }
@@ -52,6 +54,7 @@ data class SubstitutionChain(val substitution: Substitution, val chain: Instanti
             is SubstitutionChain -> {
                 substitution.applyCost(chain.replay(costExpression))
             }
+
             is TerminalChain -> {
                 substitution.applyCost(costExpression)
             }

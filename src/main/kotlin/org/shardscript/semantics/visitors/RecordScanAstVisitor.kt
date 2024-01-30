@@ -7,7 +7,7 @@ class RecordScanAstVisitor : UnitAstVisitor() {
         if (ast.typeParams.isEmpty()) {
             val groundRecordTypeSymbol = ast.scope as GroundRecordTypeSymbol
             groundRecordTypeSymbol.fields = ast.fields.map {
-                val ofTypeSymbol = symbolToType(errors, it.ofType.ctx, groundRecordTypeSymbol.fetch(it.ofType), it.ofType)
+                val ofTypeSymbol = groundRecordTypeSymbol.fetchType(it.ofType)
                 val fieldSymbol = FieldSymbol(groundRecordTypeSymbol, it.identifier, ofTypeSymbol, it.mutable)
                 groundRecordTypeSymbol.define(it.identifier, fieldSymbol)
                 fieldSymbol
@@ -15,7 +15,7 @@ class RecordScanAstVisitor : UnitAstVisitor() {
         } else {
             val parameterizedRecordSymbol = ast.scope as ParameterizedRecordTypeSymbol
             parameterizedRecordSymbol.fields = ast.fields.map {
-                val ofTypeSymbol = symbolToType(errors, it.ofType.ctx, parameterizedRecordSymbol.fetch(it.ofType), it.ofType)
+                val ofTypeSymbol = parameterizedRecordSymbol.fetchType(it.ofType)
                 val fieldSymbol = FieldSymbol(parameterizedRecordSymbol, it.identifier, ofTypeSymbol, it.mutable)
                 parameterizedRecordSymbol.define(it.identifier, fieldSymbol)
                 fieldSymbol

@@ -3,7 +3,7 @@ package org.shardscript.semantics.visitors
 import org.shardscript.semantics.core.*
 import org.shardscript.semantics.prelude.Lang
 
-class CheckTypesAstVisitor(private val prelude: Scope<Symbol>) : UnitAstVisitor() {
+class CheckTypesAstVisitor(private val prelude: Scope) : UnitAstVisitor() {
     override fun visit(ast: StringInterpolationAst) {
         try {
             super.visit(ast)
@@ -51,8 +51,7 @@ class CheckTypesAstVisitor(private val prelude: Scope<Symbol>) : UnitAstVisitor(
     override fun visit(ast: FunctionAst) {
         try {
             super.visit(ast)
-            val returnSymbol = ast.scope.fetch(ast.returnType)
-            val returnType = symbolToType(errors, ast.ctx, returnSymbol, ast.returnType)
+            val returnType = ast.scope.fetchType(ast.returnType)
             checkTypes(ast.ctx, prelude, errors, returnType, ast.body.readType())
         } catch (ex: LanguageException) {
             errors.addAll(ast.ctx, ex.errors)
@@ -127,7 +126,7 @@ class CheckTypesAstVisitor(private val prelude: Scope<Symbol>) : UnitAstVisitor(
     override fun visit(ast: IfAst) {
         try {
             super.visit(ast)
-            checkTypes(ast.condition.ctx, prelude, errors, prelude.fetch(Lang.booleanId) as Type, ast.condition.readType())
+            checkTypes(ast.condition.ctx, prelude, errors, prelude.fetchType(Lang.booleanId), ast.condition.readType())
         } catch (ex: LanguageException) {
             errors.addAll(ast.ctx, ex.errors)
         }

@@ -5,7 +5,7 @@ import org.shardscript.semantics.prelude.Lang
 
 fun filterValidTypes(ctx: SourceContext, errors: LanguageErrors, type: Type): Type =
     when (type) {
-        ErrorSymbol,
+        ErrorType,
         is GroundRecordTypeSymbol,
         is BasicTypeSymbol,
         is ObjectSymbol,
@@ -13,22 +13,11 @@ fun filterValidTypes(ctx: SourceContext, errors: LanguageErrors, type: Type): Ty
         is StandardTypeParameter,
         is FunctionTypeSymbol -> type
 
-        is SymbolInstantiation -> {
-            when (type.substitutionChain.originalSymbol) {
-                is ParameterizedFunctionSymbol,
-                is ParameterizedMemberPluginSymbol,
-                is ParameterizedStaticPluginSymbol -> {
-                    errors.add(ctx, TypeSystemBug)
-                    ErrorSymbol
-                }
-
-                else -> {
-                    type.substitutionChain.originalSymbol.typeParams.forEach {
-                        validateSubstitution(ctx, errors, it, type.substitutionChain.replay(it))
-                    }
-                    type
-                }
+        is TypeInstantiation -> {
+            type.substitutionChain.terminus.typeParams.forEach {
+                validateSubstitution(ctx, errors, it, type.substitutionChain.replay(it))
             }
+            type
         }
 
         is FinTypeSymbol,
@@ -36,20 +25,20 @@ fun filterValidTypes(ctx: SourceContext, errors: LanguageErrors, type: Type): Ty
         is ImmutableFinTypeParameter,
         is MutableFinTypeParameter -> {
             errors.add(ctx, ExpectOtherError)
-            ErrorSymbol
+            ErrorType
         }
 
         is ParameterizedBasicTypeSymbol,
         is ParameterizedRecordTypeSymbol -> {
             errors.add(ctx, CannotUseRawType(type))
-            ErrorSymbol
+            ErrorType
         }
 
         is MaxCostExpression,
         is ProductCostExpression,
         is SumCostExpression -> {
             errors.add(ctx, TypeSystemBug)
-            ErrorSymbol
+            ErrorType
         }
     }
 
@@ -60,46 +49,113 @@ fun filterValidGroundApply(
     signifier: Signifier
 ): Symbol =
     when (symbol) {
-        ErrorSymbol,
         is FunctionFormalParameterSymbol,
         is GroundFunctionSymbol,
-        is GroundRecordTypeSymbol,
         is ParameterizedStaticPluginSymbol,
-        is ParameterizedBasicTypeSymbol,
-        is ParameterizedFunctionSymbol,
-        is ParameterizedRecordTypeSymbol -> symbol
+        is ParameterizedFunctionSymbol -> symbol
+
         is SymbolInstantiation -> {
-            when (symbol.substitutionChain.originalSymbol) {
+            when (symbol.substitutionChain.terminus) {
                 is ParameterizedStaticPluginSymbol,
-                is ParameterizedFunctionSymbol,
-                is ParameterizedBasicTypeSymbol,
-                is ParameterizedRecordTypeSymbol -> {
-                    symbol.substitutionChain.originalSymbol.typeParams.forEach {
+                is ParameterizedFunctionSymbol -> {
+                    symbol.substitutionChain.terminus.typeParams.forEach {
                         validateSubstitution(ctx, errors, it, symbol.substitutionChain.replay(it))
                     }
                     symbol
                 }
+
                 else -> {
                     errors.add(ctx, SymbolCouldNotBeApplied(signifier))
                     ErrorSymbol
                 }
             }
         }
-        is FunctionTypeSymbol,
+
+        is ErrorSymbol,
+        is TypePlaceholder,
         is ParameterizedMemberPluginSymbol,
+        is GroundMemberPluginSymbol,
+        is Block,
+        is FieldSymbol,
+        is PlatformFieldSymbol,
+        is LambdaSymbol,
+        is LocalVariableSymbol -> {
+            errors.add(ctx, SymbolCouldNotBeApplied(signifier))
+            ErrorSymbol
+        }
+    }
+
+fun filterValidGroundApply(
+    ctx: SourceContext,
+    errors: LanguageErrors,
+    type: Type,
+    signifier: Signifier
+): Type =
+    when (type) {
+        ErrorType,
+        is GroundRecordTypeSymbol,
+        is ParameterizedBasicTypeSymbol,
+        is ParameterizedRecordTypeSymbol -> type
+
+        is TypeInstantiation -> {
+            when (type.substitutionChain.terminus) {
+                is ParameterizedBasicTypeSymbol,
+                is ParameterizedRecordTypeSymbol -> {
+                    type.substitutionChain.terminus.typeParams.forEach {
+                        validateSubstitution(ctx, errors, it, type.substitutionChain.replay(it))
+                    }
+                    type
+                }
+            }
+        }
+
+        is FunctionTypeSymbol,
         is FinTypeSymbol,
         is ConstantFinTypeSymbol,
         is ImmutableFinTypeParameter,
         is MutableFinTypeParameter,
-        is GroundMemberPluginSymbol,
         is BasicTypeSymbol,
         is ObjectSymbol,
         is PlatformObjectSymbol,
         is StandardTypeParameter,
-        is Block,
         is SumCostExpression,
         is ProductCostExpression,
-        is MaxCostExpression,
+        is MaxCostExpression -> {
+            errors.add(ctx, SymbolCouldNotBeApplied(signifier))
+            ErrorType
+        }
+    }
+
+fun filterValidDotApply(
+    ctx: SourceContext,
+    errors: LanguageErrors,
+    symbol: Symbol,
+    signifier: Signifier
+): Symbol =
+    when (symbol) {
+        is GroundFunctionSymbol,
+        is GroundMemberPluginSymbol,
+        is ParameterizedStaticPluginSymbol,
+        is ParameterizedFunctionSymbol -> symbol
+
+        is SymbolInstantiation -> {
+            when (symbol.substitutionChain.terminus) {
+                is ParameterizedStaticPluginSymbol,
+                is ParameterizedFunctionSymbol,
+                is ParameterizedMemberPluginSymbol -> {
+                    symbol.substitutionChain.terminus.typeParams.forEach {
+                        validateSubstitution(ctx, errors, it, symbol.substitutionChain.replay(it))
+                    }
+                    symbol
+                }
+            }
+        }
+
+        is ErrorSymbol,
+        is TypePlaceholder,
+        is ParameterizedMemberPluginSymbol,
+        is Block,
+        is FunctionFormalParameterSymbol,
         is FieldSymbol,
         is PlatformFieldSymbol,
         is LambdaSymbol,
@@ -112,34 +168,28 @@ fun filterValidGroundApply(
 fun filterValidDotApply(
     ctx: SourceContext,
     errors: LanguageErrors,
-    symbol: Symbol,
+    type: Type,
     signifier: Signifier
-): Symbol =
-    when (symbol) {
-        ErrorSymbol,
-        is GroundFunctionSymbol,
+): Type =
+    when (type) {
+        ErrorType,
         is GroundRecordTypeSymbol,
-        is GroundMemberPluginSymbol,
-        is ParameterizedStaticPluginSymbol,
         is ParameterizedBasicTypeSymbol,
-        is ParameterizedFunctionSymbol,
-        is ParameterizedRecordTypeSymbol -> symbol
-        is SymbolInstantiation -> {
-            when (symbol.substitutionChain.originalSymbol) {
-                is ParameterizedStaticPluginSymbol,
-                is ParameterizedFunctionSymbol,
+        is ParameterizedRecordTypeSymbol -> type
+
+        is TypeInstantiation -> {
+            when (type.substitutionChain.terminus) {
                 is ParameterizedBasicTypeSymbol,
-                is ParameterizedRecordTypeSymbol,
-                is ParameterizedMemberPluginSymbol -> {
-                    symbol.substitutionChain.originalSymbol.typeParams.forEach {
-                        validateSubstitution(ctx, errors, it, symbol.substitutionChain.replay(it))
+                is ParameterizedRecordTypeSymbol -> {
+                    type.substitutionChain.terminus.typeParams.forEach {
+                        validateSubstitution(ctx, errors, it, type.substitutionChain.replay(it))
                     }
-                    symbol
+                    type
                 }
             }
         }
+
         is FunctionTypeSymbol,
-        is ParameterizedMemberPluginSymbol,
         is FinTypeSymbol,
         is ConstantFinTypeSymbol,
         is ImmutableFinTypeParameter,
@@ -148,88 +198,116 @@ fun filterValidDotApply(
         is ObjectSymbol,
         is PlatformObjectSymbol,
         is StandardTypeParameter,
-        is Block,
         is SumCostExpression,
         is ProductCostExpression,
-        is MaxCostExpression,
-        is FunctionFormalParameterSymbol,
-        is FieldSymbol,
-        is PlatformFieldSymbol,
-        is LambdaSymbol,
-        is LocalVariableSymbol -> {
+        is MaxCostExpression -> {
             errors.add(ctx, SymbolCouldNotBeApplied(signifier))
-            ErrorSymbol
+            ErrorType
         }
     }
 
-fun symbolToType(errors: LanguageErrors, ctx: SourceContext, symbol: Symbol, signifier: Signifier): Type {
-    return if (symbol is Type) {
-        symbol
-    } else {
-        errors.add(ctx, SymbolIsNotAType(signifier))
-        ErrorSymbol
-    }
-}
-
-fun generatePath(symbol: Symbol): List<String> {
-    val inline: MutableList<String> = ArrayList()
-    inlineGeneratePath(symbol, inline)
-    return inline.toList()
-}
-
-fun inlineGeneratePath(symbol: Symbol, path: MutableList<String>) {
-    when (symbol) {
-        is GroundRecordTypeSymbol -> {
-            path.add(symbol.qualifiedName)
-        }
-        is ParameterizedRecordTypeSymbol -> {
-            path.add(symbol.qualifiedName)
-        }
+fun getQualifiedName(symbol: Symbol): String {
+    return when (symbol) {
         is SymbolInstantiation -> {
-            when (val parameterizedType = symbol.substitutionChain.originalSymbol) {
-                is ParameterizedBasicTypeSymbol -> {
-                    path.add(parameterizedType.identifier.name)
+            when (val parameterizedType = symbol.substitutionChain.terminus) {
+                is ParameterizedFunctionSymbol -> {
+                    parameterizedType.identifier.name
                 }
-                is ParameterizedRecordTypeSymbol -> {
-                    path.add(parameterizedType.qualifiedName)
+
+                is ParameterizedMemberPluginSymbol -> {
+                    parameterizedType.identifier.name
                 }
+
                 is ParameterizedStaticPluginSymbol -> {
-                    path.add(parameterizedType.identifier.name)
+                    parameterizedType.identifier.name
                 }
-                else -> Unit
             }
         }
-        is ParameterizedBasicTypeSymbol -> {
-            path.add(symbol.identifier.name)
-        }
+
         is ParameterizedStaticPluginSymbol -> {
-            path.add(symbol.identifier.name)
+            symbol.identifier.name
         }
+
+        ErrorSymbol,
+        is Block,
+        is LambdaSymbol,
+        is FieldSymbol,
+        is FunctionFormalParameterSymbol,
+        is LocalVariableSymbol,
+        is GroundFunctionSymbol,
+        is GroundMemberPluginSymbol,
+        is ParameterizedFunctionSymbol,
+        is ParameterizedMemberPluginSymbol,
+        is PlatformFieldSymbol,
+        TypePlaceholder -> langThrow(TypeSystemBug)
+    }
+}
+
+fun getQualifiedName(type: Type): String {
+    return when (type) {
+        is GroundRecordTypeSymbol -> {
+            type.qualifiedName
+        }
+
+        is ParameterizedRecordTypeSymbol -> {
+            type.qualifiedName
+        }
+
+        is TypeInstantiation -> {
+            when (val parameterizedType = type.substitutionChain.terminus) {
+                is ParameterizedBasicTypeSymbol -> {
+                    parameterizedType.identifier.name
+                }
+
+                is ParameterizedRecordTypeSymbol -> {
+                    parameterizedType.qualifiedName
+                }
+            }
+        }
+
+        is ParameterizedBasicTypeSymbol -> {
+            type.identifier.name
+        }
+
         is BasicTypeSymbol -> {
-            path.add(symbol.identifier.name)
+            type.identifier.name
         }
+
         is ObjectSymbol -> {
-            path.add(symbol.qualifiedName)
+            type.qualifiedName
         }
+
         is PlatformObjectSymbol -> {
-            path.add(symbol.identifier.name)
+            type.identifier.name
         }
+
         is StandardTypeParameter -> {
-            path.add(symbol.qualifiedName)
+            type.qualifiedName
         }
+
         is ImmutableFinTypeParameter -> {
-            path.add(symbol.qualifiedName)
+            type.qualifiedName
         }
+
         is MutableFinTypeParameter -> {
-            path.add(symbol.qualifiedName)
+            type.qualifiedName
         }
-        else -> Unit
+
+        ConstantFinTypeSymbol,
+        is FinTypeSymbol,
+        is MaxCostExpression,
+        is ProductCostExpression,
+        is SumCostExpression,
+        ErrorType,
+        is FunctionTypeSymbol -> {
+            langThrow(TypeSystemBug)
+        }
     }
 }
 
 fun checkTypes(
     ctx: SourceContext,
-    prelude: Scope<Symbol>,
+    prelude: Scope,
     errors: LanguageErrors,
     expected: Type,
     actual: Type
@@ -239,20 +317,24 @@ fun checkTypes(
             checkTypes(ctx, prelude, errors, expected.formalParamTypes, actual.formalParamTypes)
             checkTypes(ctx, prelude, errors, expected.returnType, actual.returnType)
         }
+
         expected is FunctionTypeSymbol && actual !is FunctionTypeSymbol -> {
             errors.add(ctx, TypeMismatch(expected, actual))
         }
+
         expected !is FunctionTypeSymbol && actual is FunctionTypeSymbol -> {
             errors.add(ctx, TypeMismatch(expected, actual))
         }
+
         expected is FinTypeSymbol && actual is FinTypeSymbol -> {
             if (actual.magnitude > expected.magnitude) {
                 errors.add(ctx, FinMismatch(expected.magnitude, actual.magnitude))
             }
         }
-        expected is SymbolInstantiation && actual is SymbolInstantiation -> {
-            val expectedParameterized = expected.substitutionChain.originalSymbol
-            val actualParameterized = actual.substitutionChain.originalSymbol
+
+        expected is TypeInstantiation && actual is TypeInstantiation -> {
+            val expectedParameterized = expected.substitutionChain.terminus
+            val actualParameterized = actual.substitutionChain.terminus
             when {
                 expectedParameterized is ParameterizedRecordTypeSymbol && actualParameterized is ParameterizedRecordTypeSymbol -> {
                     checkTypes(ctx, prelude, errors, expectedParameterized, actualParameterized)
@@ -264,6 +346,7 @@ fun checkTypes(
                         actual.substitutionChain.replayArgs()
                     )
                 }
+
                 expectedParameterized is ParameterizedBasicTypeSymbol && actualParameterized is ParameterizedBasicTypeSymbol -> {
                     checkTypes(ctx, prelude, errors, expectedParameterized, actualParameterized)
                     checkTypes(
@@ -276,9 +359,27 @@ fun checkTypes(
                 }
             }
         }
+
+        expected is ConstantFinTypeSymbol && actual is ConstantFinTypeSymbol -> Unit
+        expected is MaxCostExpression && actual is MaxCostExpression -> {
+            checkTypes(ctx, prelude, errors, expected.children, actual.children)
+        }
+
+        expected is ProductCostExpression && actual is ProductCostExpression -> {
+            checkTypes(ctx, prelude, errors, expected.children, actual.children)
+        }
+
+        expected is SumCostExpression && actual is SumCostExpression -> {
+            checkTypes(ctx, prelude, errors, expected.children, actual.children)
+        }
+
+        // We seem to hit this case during string interpolation, and the actual resolution happens during
+        // the CostExpressionAstVisitor phase
+        expected is CostExpression && actual is CostExpression -> Unit
+
         else -> {
-            val expectedPath = generatePath(expected as Symbol)
-            val actualPath = generatePath(actual as Symbol)
+            val expectedPath = getQualifiedName(expected)
+            val actualPath = getQualifiedName(actual)
             if (expectedPath != actualPath) {
                 errors.add(ctx, TypeMismatch(expected, actual))
             }
@@ -288,7 +389,7 @@ fun checkTypes(
 
 fun checkTypes(
     ctx: SourceContext,
-    prelude: Scope<Symbol>,
+    prelude: Scope,
     errors: LanguageErrors,
     expectedTypeArgs: List<Type>,
     actualTypeArgs: List<Type>
@@ -302,25 +403,62 @@ fun checkTypes(
     }
 }
 
-fun checkApply(prelude: Scope<Symbol>, errors: LanguageErrors, ast: ApplyAst) {
+fun checkApply(prelude: Scope, errors: LanguageErrors, ast: ApplyAst) {
     when (val symbol = ast.symbolRef) {
+        is TypePlaceholder -> {
+            when (val type = ast.typeRef) {
+                is GroundRecordTypeSymbol -> {
+                    checkArgs(prelude, errors, type, ast)
+                }
+
+                is TypeInstantiation -> {
+                    when (val parameterizedSymbol = type.substitutionChain.terminus) {
+                        is ParameterizedRecordTypeSymbol -> {
+                            checkArgs(prelude, errors, type, parameterizedSymbol, ast)
+                        }
+
+                        is ParameterizedBasicTypeSymbol -> {
+                            checkArgs(prelude, errors, type, parameterizedSymbol, ast)
+                        }
+                    }
+                }
+
+                is BasicTypeSymbol,
+                ConstantFinTypeSymbol,
+                is FinTypeSymbol,
+                is ImmutableFinTypeParameter,
+                is MaxCostExpression,
+                is MutableFinTypeParameter,
+                is ProductCostExpression,
+                is SumCostExpression,
+                ErrorType,
+                is FunctionTypeSymbol,
+                is ObjectSymbol,
+                is PlatformObjectSymbol,
+                is StandardTypeParameter,
+                is ParameterizedBasicTypeSymbol,
+                is ParameterizedRecordTypeSymbol -> errors.add(ast.ctx, TypeSystemBug)
+            }
+        }
+
         is GroundFunctionSymbol -> {
             checkArgs(prelude, errors, symbol.type(), ast)
         }
-        is GroundRecordTypeSymbol -> {
-            checkArgs(prelude, errors, symbol, ast)
-        }
+
         is FunctionFormalParameterSymbol -> when (val ofTypeSymbol = symbol.ofTypeSymbol) {
             is FunctionTypeSymbol -> {
                 checkArgs(prelude, errors, ofTypeSymbol, ast)
             }
+
             else -> errors.add(ast.ctx, TypeSystemBug)
         }
+
         is GroundMemberPluginSymbol -> {
             checkArgs(prelude, errors, symbol.type(), ast)
         }
+
         is SymbolInstantiation -> {
-            when (val parameterizedSymbol = symbol.substitutionChain.originalSymbol) {
+            when (val parameterizedSymbol = symbol.substitutionChain.terminus) {
                 is ParameterizedMemberPluginSymbol -> {
                     checkArgs(
                         prelude,
@@ -329,6 +467,7 @@ fun checkApply(prelude: Scope<Symbol>, errors: LanguageErrors, ast: ApplyAst) {
                         ast
                     )
                 }
+
                 is ParameterizedFunctionSymbol -> {
                     checkArgs(
                         prelude,
@@ -337,12 +476,7 @@ fun checkApply(prelude: Scope<Symbol>, errors: LanguageErrors, ast: ApplyAst) {
                         ast
                     )
                 }
-                is ParameterizedRecordTypeSymbol -> {
-                    checkArgs(prelude, errors, symbol, parameterizedSymbol, ast)
-                }
-                is ParameterizedBasicTypeSymbol -> {
-                    checkArgs(prelude, errors, symbol, parameterizedSymbol, ast)
-                }
+
                 is ParameterizedStaticPluginSymbol -> {
                     checkArgs(
                         prelude,
@@ -353,11 +487,12 @@ fun checkApply(prelude: Scope<Symbol>, errors: LanguageErrors, ast: ApplyAst) {
                 }
             }
         }
+
         else -> errors.add(ast.ctx, TypeSystemBug)
     }
 }
 
-fun checkArgs(prelude: Scope<Symbol>, errors: LanguageErrors, type: FunctionTypeSymbol, ast: ApplyAst) {
+fun checkArgs(prelude: Scope, errors: LanguageErrors, type: FunctionTypeSymbol, ast: ApplyAst) {
     if (type.formalParamTypes.size != ast.args.size) {
         errors.add(ast.ctx, IncorrectNumberOfArgs(type.formalParamTypes.size, ast.args.size))
     } else {
@@ -368,7 +503,7 @@ fun checkArgs(prelude: Scope<Symbol>, errors: LanguageErrors, type: FunctionType
     }
 }
 
-fun checkArgs(prelude: Scope<Symbol>, errors: LanguageErrors, type: GroundRecordTypeSymbol, ast: ApplyAst) {
+fun checkArgs(prelude: Scope, errors: LanguageErrors, type: GroundRecordTypeSymbol, ast: ApplyAst) {
     if (type.fields.size != ast.args.size) {
         errors.add(ast.ctx, IncorrectNumberOfArgs(type.fields.size, ast.args.size))
     } else {
@@ -379,9 +514,9 @@ fun checkArgs(prelude: Scope<Symbol>, errors: LanguageErrors, type: GroundRecord
 }
 
 fun checkArgs(
-    prelude: Scope<Symbol>,
+    prelude: Scope,
     errors: LanguageErrors,
-    instantiation: SymbolInstantiation,
+    instantiation: TypeInstantiation,
     parameterizedType: ParameterizedRecordTypeSymbol,
     ast: ApplyAst
 ) {
@@ -396,14 +531,14 @@ fun checkArgs(
 }
 
 fun checkArgs(
-    prelude: Scope<Symbol>,
+    prelude: Scope,
     errors: LanguageErrors,
-    instantiation: SymbolInstantiation,
+    instantiation: TypeInstantiation,
     parameterizedType: ParameterizedBasicTypeSymbol,
     ast: ApplyAst
 ) {
     if (parameterizedType.identifier == Lang.dictionaryId || parameterizedType.identifier == Lang.mutableDictionaryId) {
-        val pairType = prelude.fetch(Lang.pairId) as ParameterizedRecordTypeSymbol
+        val pairType = prelude.fetchType(Lang.pairId) as ParameterizedRecordTypeSymbol
         val pairSubstitution = Substitution(
             pairType.typeParams,
             listOf(
@@ -444,56 +579,59 @@ private fun <T> transpose(table: List<List<T>>): List<List<T>> {
 fun findBestType(ctx: SourceContext, errors: LanguageErrors, types: List<Type>): Type {
     if (types.isEmpty()) {
         errors.add(ctx, TypeSystemBug)
-        return ErrorSymbol
+        return ErrorType
     }
     val first = types.first()
-    val firstPath = generatePath(first as Symbol)
     return when (first) {
         is GroundRecordTypeSymbol -> {
+            val firstPath = getQualifiedName(first)
             when {
-                types.all { it is GroundRecordTypeSymbol && firstPath == generatePath(it) } -> {
+                types.all { it is GroundRecordTypeSymbol && firstPath == getQualifiedName(it) } -> {
                     first
                 }
                 else -> {
                     errors.add(ctx, CannotFindBestType(types))
-                    ErrorSymbol
+                    ErrorType
                 }
             }
         }
         is ObjectSymbol -> {
+            val firstPath = getQualifiedName(first)
             when {
-                types.all { it is ObjectSymbol && firstPath == generatePath(it) } -> {
+                types.all { it is ObjectSymbol && firstPath == getQualifiedName(it) } -> {
                     first
                 }
                 else -> {
                     errors.add(ctx, CannotFindBestType(types))
-                    ErrorSymbol
+                    ErrorType
                 }
             }
         }
         is PlatformObjectSymbol -> {
+            val firstPath = getQualifiedName(first)
             when {
-                types.all { it is PlatformObjectSymbol && firstPath == generatePath(it) } -> {
+                types.all { it is PlatformObjectSymbol && firstPath == getQualifiedName(it) } -> {
                     first
                 }
                 else -> {
                     errors.add(ctx, CannotFindBestType(types))
-                    ErrorSymbol
+                    ErrorType
                 }
             }
         }
-        is SymbolInstantiation -> {
-            when (val parameterizedType = first.substitutionChain.originalSymbol) {
+        is TypeInstantiation -> {
+            val firstPath = getQualifiedName(first)
+            when (val parameterizedType = first.substitutionChain.terminus) {
                 is ParameterizedRecordTypeSymbol -> {
                     if (types.all {
-                            it is SymbolInstantiation &&
-                                    it.substitutionChain.originalSymbol is ParameterizedRecordTypeSymbol &&
-                                    firstPath == generatePath(it.substitutionChain.originalSymbol) &&
+                            it is TypeInstantiation &&
+                                    it.substitutionChain.terminus is ParameterizedRecordTypeSymbol &&
+                                    firstPath == getQualifiedName(it.substitutionChain.terminus) &&
                                     first.substitutionChain.replayArgs().size ==
                                     it.substitutionChain.replayArgs().size
                         }) {
                         val typeArgs = transpose(types.map {
-                            (it as SymbolInstantiation).substitutionChain.replayArgs()
+                            (it as TypeInstantiation).substitutionChain.replayArgs()
                         }).map {
                             findBestType(ctx, errors, it)
                         }
@@ -501,19 +639,19 @@ fun findBestType(ctx: SourceContext, errors: LanguageErrors, types: List<Type>):
                         substitution.apply(parameterizedType)
                     } else {
                         errors.add(ctx, CannotFindBestType(types))
-                        ErrorSymbol
+                        ErrorType
                     }
                 }
                 is ParameterizedBasicTypeSymbol -> {
                     if (types.all {
-                            it is SymbolInstantiation &&
-                                    it.substitutionChain.originalSymbol is ParameterizedBasicTypeSymbol &&
-                                    firstPath == generatePath(it.substitutionChain.originalSymbol) &&
+                            it is TypeInstantiation &&
+                                    it.substitutionChain.terminus is ParameterizedBasicTypeSymbol &&
+                                    firstPath == getQualifiedName(it.substitutionChain.terminus) &&
                                     first.substitutionChain.replayArgs().size ==
                                     it.substitutionChain.replayArgs().size
                         }) {
                         val typeArgs = transpose(types.map {
-                            (it as SymbolInstantiation).substitutionChain.replayArgs()
+                            (it as TypeInstantiation).substitutionChain.replayArgs()
                         }).map {
                             findBestType(ctx, errors, it)
                         }
@@ -521,7 +659,7 @@ fun findBestType(ctx: SourceContext, errors: LanguageErrors, types: List<Type>):
                         substitution.apply(parameterizedType)
                     } else {
                         errors.add(ctx, CannotFindBestType(types))
-                        ErrorSymbol
+                        ErrorType
                     }
                 }
                 is CostExpression -> {
@@ -531,29 +669,27 @@ fun findBestType(ctx: SourceContext, errors: LanguageErrors, types: List<Type>):
                         )
                     } else {
                         errors.add(ctx, CannotFindBestType(types))
-                        ErrorSymbol
+                        ErrorType
                     }
-                }
-                else -> {
-                    errors.add(ctx, CannotFindBestType(types))
-                    ErrorSymbol
                 }
             }
         }
         is BasicTypeSymbol -> {
-            if (types.all { it is BasicTypeSymbol && firstPath == generatePath(it) }) {
+            val firstPath = getQualifiedName(first)
+            if (types.all { it is BasicTypeSymbol && firstPath == getQualifiedName(it) }) {
                 first
             } else {
                 errors.add(ctx, CannotFindBestType(types))
-                ErrorSymbol
+                ErrorType
             }
         }
         is StandardTypeParameter -> {
-            if (types.all { it is StandardTypeParameter && firstPath == generatePath(it) }) {
+            val firstPath = getQualifiedName(first)
+            if (types.all { it is StandardTypeParameter && firstPath == getQualifiedName(it) }) {
                 first
             } else {
                 errors.add(ctx, CannotFindBestType(types))
-                ErrorSymbol
+                ErrorType
             }
         }
         is FinTypeSymbol -> {
@@ -561,28 +697,30 @@ fun findBestType(ctx: SourceContext, errors: LanguageErrors, types: List<Type>):
                 FinTypeSymbol(types.maxOf { (it as FinTypeSymbol).magnitude })
             } else {
                 errors.add(ctx, CannotFindBestType(types))
-                ErrorSymbol
+                ErrorType
             }
         }
         is ImmutableFinTypeParameter -> {
-            if (types.all { it is ImmutableFinTypeParameter && firstPath == generatePath(it) }) {
+            val firstPath = getQualifiedName(first)
+            if (types.all { it is ImmutableFinTypeParameter && firstPath == getQualifiedName(it) }) {
                 first
             } else {
                 errors.add(ctx, CannotFindBestType(types))
-                ErrorSymbol
+                ErrorType
             }
         }
         is MutableFinTypeParameter -> {
-            if (types.all { it is MutableFinTypeParameter && firstPath == generatePath(it) }) {
+            val firstPath = getQualifiedName(first)
+            if (types.all { it is MutableFinTypeParameter && firstPath == getQualifiedName(it) }) {
                 first
             } else {
                 errors.add(ctx, CannotFindBestType(types))
-                ErrorSymbol
+                ErrorType
             }
         }
         else -> {
             errors.add(ctx, CannotFindBestType(types))
-            ErrorSymbol
+            ErrorType
         }
     }
 }
@@ -598,15 +736,14 @@ fun validateSubstitution(
             is GroundRecordTypeSymbol,
             is BasicTypeSymbol,
             is StandardTypeParameter -> Unit
-            is SymbolInstantiation -> {
-                when (val parameterizedType = substitutedType.substitutionChain.originalSymbol) {
+            is TypeInstantiation -> {
+                when (val parameterizedType = substitutedType.substitutionChain.terminus) {
                     is ParameterizedBasicTypeSymbol -> if (!parameterizedType.featureSupport.typeArg) {
                         errors.add(ctx, TypeArgFeatureBan(substitutedType))
                     }
                     is ParameterizedRecordTypeSymbol -> if (!parameterizedType.featureSupport.typeArg) {
                         errors.add(ctx, TypeArgFeatureBan(substitutedType))
                     }
-                    else -> Unit
                 }
             }
             is ObjectSymbol -> if (!substitutedType.featureSupport.typeArg) {

@@ -17,7 +17,7 @@ object StaticPlugins {
         )
 
         val rangeTypeParam = ImmutableFinTypeParameter("${Lang.rangeId.name}.${Lang.rangeTypeId.name}", Lang.rangeTypeId)
-        rangePlugin.define(Lang.rangeTypeId, rangeTypeParam)
+        rangePlugin.defineType(Lang.rangeTypeId, rangeTypeParam)
         rangePlugin.typeParams = listOf(rangeTypeParam)
 
         val beginFormalParamId = Identifier(NotInSource, "begin")
@@ -45,7 +45,7 @@ object StaticPlugins {
         )
 
         val randomTypeParam = StandardTypeParameter("${Lang.randomId.name}.${Lang.randomTypeId.name}", Lang.randomTypeId)
-        randomPlugin.define(Lang.randomTypeId, randomTypeParam)
+        randomPlugin.defineType(Lang.randomTypeId, randomTypeParam)
         randomPlugin.typeParams = listOf(randomTypeParam)
 
         val beginFormalParamId = Identifier(NotInSource, "offset")

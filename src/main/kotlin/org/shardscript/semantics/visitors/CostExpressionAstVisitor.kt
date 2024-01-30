@@ -18,8 +18,14 @@ class CostExpressionAstVisitor(private val architecture: Architecture) : UnitAst
             else -> FinTypeSymbol(architecture.defaultNodeCost)
         }
 
+    private fun convertCostExpression(typeRef: Type): CostExpression =
+        when (typeRef) {
+            is TypeInstantiation -> FinTypeSymbol(architecture.defaultNodeCost)
+            else -> FinTypeSymbol(architecture.defaultNodeCost)
+        }
+
     private fun replaySubstitutions(instantiation: SymbolInstantiation): CostExpression =
-        when (val parameterizedSymbol = instantiation.substitutionChain.originalSymbol) {
+        when (val parameterizedSymbol = instantiation.substitutionChain.terminus) {
             is ParameterizedFunctionSymbol -> {
                 val original = parameterizedSymbol.costExpression
                 instantiation.substitutionChain.replay(original)
@@ -32,7 +38,6 @@ class CostExpressionAstVisitor(private val architecture: Architecture) : UnitAst
                 val original = parameterizedSymbol.costExpression
                 instantiation.substitutionChain.replay(original)
             }
-            else -> FinTypeSymbol(architecture.defaultNodeCost)
         }
 
     override fun visit(ast: IntLiteralAst) {
@@ -129,7 +134,7 @@ class CostExpressionAstVisitor(private val architecture: Architecture) : UnitAst
         val multipliers = when (val symbolRef = ast.symbolRef) {
             is GroundFunctionSymbol -> symbolRef.formalParams.map { it.costMultiplier }
             is SymbolInstantiation -> {
-                when (val parameterizedSymbol = symbolRef.substitutionChain.originalSymbol) {
+                when (val parameterizedSymbol = symbolRef.substitutionChain.terminus) {
                     is ParameterizedFunctionSymbol -> {
                         parameterizedSymbol.formalParams.map { it.costMultiplier }
                     }
@@ -145,7 +150,10 @@ class CostExpressionAstVisitor(private val architecture: Architecture) : UnitAst
         multipliers.zip(ast.args).forEach {
             argCosts.add(ProductCostExpression(listOf(it.second.costExpression, it.first)))
         }
-        val bodyCost = convertCostExpression(ast.symbolRef)
+        val bodyCost = when (ast.symbolRef) {
+            is TypePlaceholder -> convertCostExpression(ast.typeRef)
+            else -> convertCostExpression(ast.symbolRef)
+        }
         if (argCosts.isEmpty()) {
             ast.costExpression = addDefault(bodyCost)
         } else {
@@ -159,7 +167,7 @@ class CostExpressionAstVisitor(private val architecture: Architecture) : UnitAst
         val multipliers = when (val symbolRef = ast.symbolRef) {
             is GroundFunctionSymbol -> symbolRef.formalParams.map { it.costMultiplier }
             is SymbolInstantiation -> {
-                when (val parameterizedSymbol = symbolRef.substitutionChain.originalSymbol) {
+                when (val parameterizedSymbol = symbolRef.substitutionChain.terminus) {
                     is ParameterizedFunctionSymbol -> {
                         parameterizedSymbol.formalParams.map {
                             symbolRef.substitutionChain.replay(it.costMultiplier)
@@ -177,7 +185,10 @@ class CostExpressionAstVisitor(private val architecture: Architecture) : UnitAst
         multipliers.zip(ast.args).forEach {
             argCosts.add(ProductCostExpression(listOf(it.second.costExpression, it.first)))
         }
-        val bodyCost = convertCostExpression(ast.symbolRef)
+        val bodyCost = when (ast.symbolRef) {
+            is TypePlaceholder -> convertCostExpression(ast.typeRef)
+            else -> convertCostExpression(ast.symbolRef)
+        }
         if (argCosts.isEmpty()) {
             ast.costExpression = addDefault(SumCostExpression(listOf(bodyCost, ast.lhs.costExpression)))
         } else {

@@ -7,8 +7,8 @@ class BindScopesAstVisitor(
     val architecture: Architecture,
     val fileName: String
 ) :
-    ParameterizedUnitAstVisitor<Scope<Symbol>>() {
-    override fun visit(ast: IntLiteralAst, param: Scope<Symbol>) {
+    ParameterizedUnitAstVisitor<Scope>() {
+    override fun visit(ast: IntLiteralAst, param: Scope) {
         try {
             ast.scope = param
             super.visit(ast, param)
@@ -17,7 +17,7 @@ class BindScopesAstVisitor(
         }
     }
 
-    override fun visit(ast: DecimalLiteralAst, param: Scope<Symbol>) {
+    override fun visit(ast: DecimalLiteralAst, param: Scope) {
         try {
             ast.scope = param
             super.visit(ast, param)
@@ -26,7 +26,7 @@ class BindScopesAstVisitor(
         }
     }
 
-    override fun visit(ast: BooleanLiteralAst, param: Scope<Symbol>) {
+    override fun visit(ast: BooleanLiteralAst, param: Scope) {
         try {
             ast.scope = param
             super.visit(ast, param)
@@ -35,7 +35,7 @@ class BindScopesAstVisitor(
         }
     }
 
-    override fun visit(ast: CharLiteralAst, param: Scope<Symbol>) {
+    override fun visit(ast: CharLiteralAst, param: Scope) {
         try {
             ast.scope = param
             super.visit(ast, param)
@@ -44,7 +44,7 @@ class BindScopesAstVisitor(
         }
     }
 
-    override fun visit(ast: StringLiteralAst, param: Scope<Symbol>) {
+    override fun visit(ast: StringLiteralAst, param: Scope) {
         try {
             ast.scope = param
             super.visit(ast, param)
@@ -53,7 +53,7 @@ class BindScopesAstVisitor(
         }
     }
 
-    override fun visit(ast: StringInterpolationAst, param: Scope<Symbol>) {
+    override fun visit(ast: StringInterpolationAst, param: Scope) {
         try {
             ast.scope = param
             super.visit(ast, param)
@@ -62,7 +62,7 @@ class BindScopesAstVisitor(
         }
     }
 
-    override fun visit(ast: LetAst, param: Scope<Symbol>) {
+    override fun visit(ast: LetAst, param: Scope) {
         try {
             ast.scope = param
             super.visit(ast, param)
@@ -71,7 +71,7 @@ class BindScopesAstVisitor(
         }
     }
 
-    override fun visit(ast: RefAst, param: Scope<Symbol>) {
+    override fun visit(ast: RefAst, param: Scope) {
         try {
             ast.scope = param
             super.visit(ast, param)
@@ -80,7 +80,7 @@ class BindScopesAstVisitor(
         }
     }
 
-    override fun visit(ast: BlockAst, param: Scope<Symbol>) {
+    override fun visit(ast: BlockAst, param: Scope) {
         try {
             val blockScope = Block(param)
             ast.scope = blockScope
@@ -90,7 +90,7 @@ class BindScopesAstVisitor(
         }
     }
 
-    override fun visit(ast: FunctionAst, param: Scope<Symbol>) {
+    override fun visit(ast: FunctionAst, param: Scope) {
         try {
             val symbol: NamedSymbolWithMembers = if (ast.typeParams.isEmpty()) {
                 GroundFunctionSymbol(param, ast.identifier, ast.ctx, ast.body)
@@ -118,9 +118,9 @@ class BindScopesAstVisitor(
         }
     }
 
-    override fun visit(ast: LambdaAst, param: Scope<Symbol>) {
+    override fun visit(ast: LambdaAst, param: Scope) {
         try {
-            val symbol: Scope<Symbol> = LambdaSymbol(param)
+            val symbol: Scope = LambdaSymbol(param)
             ast.scope = symbol
             super.visit(ast, symbol)
         } catch (ex: LanguageException) {
@@ -128,14 +128,13 @@ class BindScopesAstVisitor(
         }
     }
 
-    override fun visit(ast: RecordDefinitionAst, param: Scope<Symbol>) {
+    override fun visit(ast: RecordDefinitionAst, param: Scope) {
         try {
-            val symbol = if (ast.typeParams.isEmpty()) {
+            val type = if (ast.typeParams.isEmpty()) {
                 val res = GroundRecordTypeSymbol(
                     param,
                     "${fileName}.${ast.identifier.name}",
-                    ast.identifier,
-                    userTypeFeatureSupport
+                    ast.identifier
                 )
                 res
             } else {
@@ -156,21 +155,21 @@ class BindScopesAstVisitor(
             if (ast.definitionSpace.existsHere(ast.identifier)) {
                 errors.add(ast.ctx, IdentifierAlreadyExists(ast.identifier))
             } else {
-                ast.definitionSpace.define(
+                ast.definitionSpace.defineType(
                     ast.identifier,
-                    symbol
+                    type
                 )
             }
-            ast.scope = symbol
-            super.visit(ast, symbol)
+            ast.scope = type
+            super.visit(ast, type)
         } catch (ex: LanguageException) {
             errors.addAll(ast.ctx, ex.errors)
         }
     }
 
-    override fun visit(ast: ObjectDefinitionAst, param: Scope<Symbol>) {
+    override fun visit(ast: ObjectDefinitionAst, param: Scope) {
         try {
-            val symbol = ObjectSymbol(
+            val type = ObjectSymbol(
                 "${fileName}.${ast.identifier.name}",
                 ast.identifier,
                 userTypeFeatureSupport
@@ -179,9 +178,9 @@ class BindScopesAstVisitor(
             if (ast.definitionSpace.existsHere(ast.identifier)) {
                 errors.add(ast.ctx, IdentifierAlreadyExists(ast.identifier))
             } else {
-                ast.definitionSpace.define(
+                ast.definitionSpace.defineType(
                     ast.identifier,
-                    symbol
+                    type
                 )
             }
             ast.scope = param
@@ -191,7 +190,7 @@ class BindScopesAstVisitor(
         }
     }
 
-    override fun visit(ast: DotAst, param: Scope<Symbol>) {
+    override fun visit(ast: DotAst, param: Scope) {
         try {
             ast.scope = param
             super.visit(ast, param)
@@ -200,7 +199,7 @@ class BindScopesAstVisitor(
         }
     }
 
-    override fun visit(ast: GroundApplyAst, param: Scope<Symbol>) {
+    override fun visit(ast: GroundApplyAst, param: Scope) {
         try {
             ast.scope = param
             super.visit(ast, param)
@@ -209,7 +208,7 @@ class BindScopesAstVisitor(
         }
     }
 
-    override fun visit(ast: DotApplyAst, param: Scope<Symbol>) {
+    override fun visit(ast: DotApplyAst, param: Scope) {
         try {
             ast.scope = param
             super.visit(ast, param)
@@ -219,7 +218,7 @@ class BindScopesAstVisitor(
     }
 
     // Do not call super for collection iterators
-    override fun visit(ast: ForEachAst, param: Scope<Symbol>) {
+    override fun visit(ast: ForEachAst, param: Scope) {
         try {
             ast.scope = param
             ast.source.accept(this, param)
@@ -230,7 +229,7 @@ class BindScopesAstVisitor(
         }
     }
 
-    override fun visit(ast: AssignAst, param: Scope<Symbol>) {
+    override fun visit(ast: AssignAst, param: Scope) {
         try {
             ast.scope = param
             super.visit(ast, param)
@@ -239,7 +238,7 @@ class BindScopesAstVisitor(
         }
     }
 
-    override fun visit(ast: DotAssignAst, param: Scope<Symbol>) {
+    override fun visit(ast: DotAssignAst, param: Scope) {
         try {
             ast.scope = param
             super.visit(ast, param)
@@ -248,7 +247,7 @@ class BindScopesAstVisitor(
         }
     }
 
-    override fun visit(ast: IfAst, param: Scope<Symbol>) {
+    override fun visit(ast: IfAst, param: Scope) {
         try {
             ast.scope = param
             super.visit(ast, param)
@@ -257,7 +256,7 @@ class BindScopesAstVisitor(
         }
     }
 
-    override fun visit(ast: AsAst, param: Scope<Symbol>) {
+    override fun visit(ast: AsAst, param: Scope) {
         try {
             ast.scope = param
             super.visit(ast, param)
@@ -266,7 +265,7 @@ class BindScopesAstVisitor(
         }
     }
 
-    override fun visit(ast: IsAst, param: Scope<Symbol>) {
+    override fun visit(ast: IsAst, param: Scope) {
         try {
             ast.scope = param
             super.visit(ast, param)

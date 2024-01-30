@@ -6,7 +6,7 @@ class Substitution(
     inOrderParameters: List<TypeParameter>,
     inOrderTypeArgs: List<Type>
 ) {
-    private val solutions: Map<Symbol, Type>
+    private val solutions: Map<Type, Type>
 
     init {
         if (inOrderParameters.size != inOrderTypeArgs.size) {
@@ -15,15 +15,21 @@ class Substitution(
         solutions = inOrderParameters.zip(inOrderTypeArgs).toMap()
     }
 
-    fun apply(rawTerminus: RawTerminus): SymbolInstantiation {
-        val original = TerminalChain(rawTerminus)
+    fun apply(terminusType: TerminusType): TypeInstantiation {
+        val original = TerminalChain(terminusType)
+        val chain = SubstitutionChain(this, original)
+        return TypeInstantiation(chain)
+    }
+
+    fun apply(terminusSymbol: RawTerminusSymbol): SymbolInstantiation {
+        val original = TerminalChain(terminusSymbol)
         val chain = SubstitutionChain(this, original)
         return SymbolInstantiation(chain)
     }
 
-    fun apply(symbolInstantiation: SymbolInstantiation): SymbolInstantiation {
-        val chain = SubstitutionChain(this, symbolInstantiation.substitutionChain)
-        return SymbolInstantiation(chain)
+    fun apply(typeInstantiation: TypeInstantiation): TypeInstantiation {
+        val chain = SubstitutionChain(this, typeInstantiation.substitutionChain)
+        return TypeInstantiation(chain)
     }
 
     fun applyFunctionType(typeSymbol: FunctionTypeSymbol): FunctionTypeSymbol {
@@ -40,7 +46,7 @@ class Substitution(
             is FunctionTypeSymbol -> applyFunctionType(type)
             is ParameterizedRecordTypeSymbol -> apply(type)
             is ParameterizedBasicTypeSymbol -> apply(type)
-            is SymbolInstantiation -> apply(type)
+            is TypeInstantiation -> apply(type)
             is StandardTypeParameter -> {
                 val res = if (solutions.containsKey(type)) {
                     solutions[type]!!

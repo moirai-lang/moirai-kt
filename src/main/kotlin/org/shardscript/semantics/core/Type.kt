@@ -4,21 +4,23 @@ import org.shardscript.semantics.infer.SubstitutionChain
 
 sealed interface Type
 
-data object ErrorSymbol : Symbol(), Type
+sealed interface TerminusType: Type, RawTerminus
 
-data class FunctionTypeSymbol(
+data object ErrorType : Type
+
+class FunctionTypeSymbol(
     val formalParamTypes: List<Type>,
     val returnType: Type
-) : Symbol(), Type
+) : Type
 
-sealed class TypeParameter : Symbol(), Type
+sealed class TypeParameter : Type
 
-data class StandardTypeParameter(
+class StandardTypeParameter(
     val qualifiedName: String,
     val identifier: Identifier
 ) : TypeParameter(), Type
 
-data class ImmutableFinTypeParameter(
+class ImmutableFinTypeParameter(
     val qualifiedName: String,
     val identifier: Identifier
 ) : TypeParameter(), CostExpression, Type {
@@ -27,7 +29,7 @@ data class ImmutableFinTypeParameter(
     }
 }
 
-data class MutableFinTypeParameter(
+class MutableFinTypeParameter(
     val qualifiedName: String,
     val identifier: Identifier
 ) : TypeParameter(), CostExpression, Type {
@@ -36,82 +38,82 @@ data class MutableFinTypeParameter(
     }
 }
 
-data class FinTypeSymbol(val magnitude: Long) : Symbol(), CostExpression, Type {
+class FinTypeSymbol(val magnitude: Long) : CostExpression, Type {
     override fun <R> accept(visitor: CostExpressionVisitor<R>): R {
         return visitor.visit(this)
     }
 }
 
-data object ConstantFinTypeSymbol : Symbol(), CostExpression, Type {
+data object ConstantFinTypeSymbol : CostExpression, Type {
     override fun <R> accept(visitor: CostExpressionVisitor<R>): R {
         return visitor.visit(this)
     }
 }
 
-data class SumCostExpression(val children: List<CostExpression>) : Symbol(), CostExpression {
+class SumCostExpression(val children: List<CostExpression>) : CostExpression {
     override fun <R> accept(visitor: CostExpressionVisitor<R>): R {
         return visitor.visit(this)
     }
 }
 
-data class ProductCostExpression(val children: List<CostExpression>) : Symbol(), CostExpression {
+class ProductCostExpression(val children: List<CostExpression>) : CostExpression {
     override fun <R> accept(visitor: CostExpressionVisitor<R>): R {
         return visitor.visit(this)
     }
 }
 
-data class MaxCostExpression(val children: List<CostExpression>) : Symbol(), CostExpression {
+class MaxCostExpression(val children: List<CostExpression>) : CostExpression {
     override fun <R> accept(visitor: CostExpressionVisitor<R>): R {
         return visitor.visit(this)
     }
 }
 
-data class SymbolInstantiation(
-    val substitutionChain: SubstitutionChain
-) : Symbol(), Type
+class TypeInstantiation(
+    val substitutionChain: SubstitutionChain<TerminusType>
+) : Type
 
-data class PlatformObjectSymbol(
+class PlatformObjectSymbol(
     val identifier: Identifier,
-    val featureSupport: FeatureSupport,
     private val symbolTable: SymbolTable = SymbolTable(NullSymbolTable)
-) : Symbol(), Type, Scope<Symbol> by symbolTable
+) : Type, Scope by symbolTable
 
-data class ObjectSymbol(
+class ObjectSymbol(
     val qualifiedName: String,
     val identifier: Identifier,
     val featureSupport: FeatureSupport
-) : Symbol(), Type
+) : Type
 
-data class GroundRecordTypeSymbol(
-    override val parent: Scope<Symbol>,
+class GroundRecordTypeSymbol(
+    definitionScopeForTypeChecking: Scope,
     val qualifiedName: String,
-    override val identifier: Identifier,
-    val featureSupport: FeatureSupport
-) : NamedSymbolWithMembers(parent), Type {
+    val identifier: Identifier,
+    private val symbolTable: SymbolTable = SymbolTable(definitionScopeForTypeChecking)
+) : Type, Scope by symbolTable {
     lateinit var fields: List<FieldSymbol>
 }
 
-data class ParameterizedRecordTypeSymbol(
-    override val parent: Scope<Symbol>,
+class ParameterizedRecordTypeSymbol(
+    definitionScopeForTypeChecking: Scope,
     val qualifiedName: String,
-    override val identifier: Identifier,
-    val featureSupport: FeatureSupport
-) : NamedSymbolWithMembers(parent), RawTerminus, Type {
+    val identifier: Identifier,
+    val featureSupport: FeatureSupport,
+    private val symbolTable: SymbolTable = SymbolTable(definitionScopeForTypeChecking)
+) : TerminusType, Scope by symbolTable {
     override lateinit var typeParams: List<TypeParameter>
     lateinit var fields: List<FieldSymbol>
 }
 
-data class BasicTypeSymbol(
+class BasicTypeSymbol(
     val identifier: Identifier,
     private val symbolTable: SymbolTable = SymbolTable(NullSymbolTable)
-) : Symbol(), Type, Scope<Symbol> by symbolTable
+) : Type, Scope by symbolTable
 
-data class ParameterizedBasicTypeSymbol(
+class ParameterizedBasicTypeSymbol(
     val identifier: Identifier,
-    val instantiation: SingleTypeInstantiation,
+    val instantiation: SingleTypeInstantiation<TerminusType, TypeInstantiation>,
     val featureSupport: FeatureSupport,
     private val symbolTable: SymbolTable = SymbolTable(NullSymbolTable)
-) : Symbol(), RawTerminus, Type, Scope<Symbol> by symbolTable {
+) : TerminusType, Scope by symbolTable {
     override lateinit var typeParams: List<TypeParameter>
     lateinit var modeSelector: (List<Type>) -> BasicTypeMode
     lateinit var fields: List<PlatformFieldSymbol>

@@ -105,15 +105,15 @@ class EvalAstVisitor(private val globalScope: ValueTable) : ParameterizedAstVisi
                 toApply.apply(args)
             }
             is ListConstructorValue -> {
-                val instantiation = ast.symbolRef as SymbolInstantiation
+                val instantiation = ast.typeRef as TypeInstantiation
                 toApply.apply(instantiation.substitutionChain.replayArgs(), args)
             }
             is SetConstructorValue -> {
-                val instantiation = ast.symbolRef as SymbolInstantiation
+                val instantiation = ast.typeRef as TypeInstantiation
                 toApply.apply(instantiation.substitutionChain.replayArgs(), args)
             }
             is DictionaryConstructorValue -> {
-                val instantiation = ast.symbolRef as SymbolInstantiation
+                val instantiation = ast.typeRef as TypeInstantiation
                 toApply.apply(instantiation.substitutionChain.replayArgs(), args)
             }
             is PluginValue -> {
@@ -134,7 +134,7 @@ class EvalAstVisitor(private val globalScope: ValueTable) : ParameterizedAstVisi
                     return Plugins.groundMemberPlugins[toApply]!!.invoke(lhs, args)
                 }
                 is SymbolInstantiation -> {
-                    when (val parameterizedType = toApply.substitutionChain.originalSymbol) {
+                    when (val parameterizedType = toApply.substitutionChain.terminus) {
                         is ParameterizedFunctionSymbol -> {
                             when (lhs) {
                                 is RecordValue -> {

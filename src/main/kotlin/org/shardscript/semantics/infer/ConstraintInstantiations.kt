@@ -77,7 +77,7 @@ fun instantiateRecord(
     args: List<Ast>,
     parameterizedRecordTypeSymbol: ParameterizedRecordTypeSymbol,
     errors: LanguageErrors
-): SymbolInstantiation {
+): TypeInstantiation {
     val inOrderParameters = parameterizedRecordTypeSymbol.typeParams
     val parameterSet = inOrderParameters.toSet()
     if (parameterizedRecordTypeSymbol.fields.size == args.size) {
@@ -126,10 +126,10 @@ fun constrainSymbol(
                 listOf()
             }
         }
-        is SymbolInstantiation -> when (actual) {
-            is SymbolInstantiation -> {
+        is TypeInstantiation -> when (actual) {
+            is TypeInstantiation -> {
                 val constraints: MutableList<Constraint<TypeParameter, Type>> = ArrayList()
-                if (expected.substitutionChain.originalSymbol == actual.substitutionChain.originalSymbol) {
+                if (expected.substitutionChain.terminus == actual.substitutionChain.terminus) {
                     val expectedChain = expected.substitutionChain
                     val actualChain = actual.substitutionChain
                     expectedChain.replayArgs().zip(actualChain.replayArgs()).forEach {

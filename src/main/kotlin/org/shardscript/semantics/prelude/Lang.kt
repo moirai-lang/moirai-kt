@@ -68,8 +68,7 @@ object Lang {
 
     // Unit
     val unitObject = PlatformObjectSymbol(
-        unitId,
-        userTypeFeatureSupport
+        unitId
     )
 
     // Boolean
@@ -188,7 +187,7 @@ object Lang {
             charType.define(Identifier(NotInSource, name), plugin)
         }
 
-        decimalType.define(decimalTypeId, decimalTypeParam)
+        decimalType.defineType(decimalTypeId, decimalTypeParam)
         decimalType.typeParams = listOf(decimalTypeParam)
         decimalType.modeSelector = { _ ->
             ImmutableBasicTypeMode
@@ -206,8 +205,8 @@ object Lang {
         }
 
         // List
-        listType.define(listElementTypeId, listElementTypeParam)
-        listType.define(listFinTypeId, listFinTypeParam)
+        listType.defineType(listElementTypeId, listElementTypeParam)
+        listType.defineType(listFinTypeId, listFinTypeParam)
         listType.typeParams = listOf(listElementTypeParam, listFinTypeParam)
         listType.modeSelector = { _ ->
             ImmutableBasicTypeMode
@@ -216,8 +215,8 @@ object Lang {
         ListTypes.listCollectionType()
         
         // MutableList
-        mutableListType.define(mutableListElementTypeId, mutableListElementTypeParam)
-        mutableListType.define(mutableListFinTypeId, mutableListFinTypeParam)
+        mutableListType.defineType(mutableListElementTypeId, mutableListElementTypeParam)
+        mutableListType.defineType(mutableListFinTypeId, mutableListFinTypeParam)
         mutableListType.typeParams = listOf(mutableListElementTypeParam, mutableListFinTypeParam)
         mutableListType.modeSelector = { args ->
             when (val fin = args[1]) {
@@ -234,9 +233,9 @@ object Lang {
         ListTypes.mutableListCollectionType()
 
         // Dictionary
-        dictionaryType.define(dictionaryKeyTypeId, dictionaryKeyTypeParam)
-        dictionaryType.define(dictionaryValueTypeId, dictionaryValueTypeParam)
-        dictionaryType.define(dictionaryFinTypeId, dictionaryFinTypeParam)
+        dictionaryType.defineType(dictionaryKeyTypeId, dictionaryKeyTypeParam)
+        dictionaryType.defineType(dictionaryValueTypeId, dictionaryValueTypeParam)
+        dictionaryType.defineType(dictionaryFinTypeId, dictionaryFinTypeParam)
         dictionaryType.typeParams =
             listOf(dictionaryKeyTypeParam, dictionaryValueTypeParam, dictionaryFinTypeParam)
         dictionaryType.modeSelector = { _ ->
@@ -246,9 +245,9 @@ object Lang {
         DictionaryTypes.dictionaryCollectionType()
 
         // MutableDictionary
-        mutableDictionaryType.define(mutableDictionaryKeyTypeId, mutableDictionaryKeyTypeParam)
-        mutableDictionaryType.define(mutableDictionaryValueTypeId, mutableDictionaryValueTypeParam)
-        mutableDictionaryType.define(mutableDictionaryFinTypeId, mutableDictionaryFinTypeParam)
+        mutableDictionaryType.defineType(mutableDictionaryKeyTypeId, mutableDictionaryKeyTypeParam)
+        mutableDictionaryType.defineType(mutableDictionaryValueTypeId, mutableDictionaryValueTypeParam)
+        mutableDictionaryType.defineType(mutableDictionaryFinTypeId, mutableDictionaryFinTypeParam)
         mutableDictionaryType.typeParams =
             listOf(
                 mutableDictionaryKeyTypeParam,
@@ -270,8 +269,8 @@ object Lang {
         DictionaryTypes.mutableDictionaryCollectionType()
 
         // Set
-        setType.define(setElementTypeId, setElementTypeParam)
-        setType.define(setFinTypeId, setFinTypeParam)
+        setType.defineType(setElementTypeId, setElementTypeParam)
+        setType.defineType(setFinTypeId, setFinTypeParam)
         setType.typeParams = listOf(setElementTypeParam, setFinTypeParam)
         setType.modeSelector = { _ ->
             ImmutableBasicTypeMode
@@ -280,8 +279,8 @@ object Lang {
         SetTypes.setCollectionType()
 
         // MutableSet
-        mutableSetType.define(mutableSetElementTypeId, mutableSetElementTypeParam)
-        mutableSetType.define(mutableSetFinTypeId, mutableSetFinTypeParam)
+        mutableSetType.defineType(mutableSetElementTypeId, mutableSetElementTypeParam)
+        mutableSetType.defineType(mutableSetFinTypeId, mutableSetFinTypeParam)
         mutableSetType.typeParams = listOf(mutableSetElementTypeParam, mutableSetFinTypeParam)
         mutableSetType.modeSelector = { args ->
             when (val fin = args[1]) {
@@ -307,19 +306,19 @@ object Lang {
         pairType.define(pairSecondId, pairSecondField)
 
         // Compose output
-        prelude.define(unitId, unitObject)
-        prelude.define(booleanId, booleanType)
-        prelude.define(intId, intType)
-        prelude.define(decimalId, decimalType)
-        prelude.define(listId, listType)
-        prelude.define(mutableListId, mutableListType)
-        prelude.define(pairId, pairType)
-        prelude.define(dictionaryId, dictionaryType)
-        prelude.define(mutableDictionaryId, mutableDictionaryType)
-        prelude.define(setId, setType)
-        prelude.define(mutableSetId, mutableSetType)
-        prelude.define(charId, charType)
-        prelude.define(stringId, stringType)
+        prelude.defineType(unitId, unitObject)
+        prelude.defineType(booleanId, booleanType)
+        prelude.defineType(intId, intType)
+        prelude.defineType(decimalId, decimalType)
+        prelude.defineType(listId, listType)
+        prelude.defineType(mutableListId, mutableListType)
+        prelude.defineType(pairId, pairType)
+        prelude.defineType(dictionaryId, dictionaryType)
+        prelude.defineType(mutableDictionaryId, mutableDictionaryType)
+        prelude.defineType(setId, setType)
+        prelude.defineType(mutableSetId, mutableSetType)
+        prelude.defineType(charId, charType)
+        prelude.defineType(stringId, stringType)
         prelude.define(rangeId, StaticPlugins.rangePlugin)
         prelude.define(randomId, StaticPlugins.randomPlugin)
     }

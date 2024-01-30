@@ -7,7 +7,7 @@ data class InNamedSource(val fileName: String, val line: Int, val char: Int) : S
 data class InUnnamedSource(val line: Int, val char: Int) : SourceContext()
 data object NotInSource : SourceContext()
 
-sealed class ErrorType
+sealed class ErrorKind
 interface SymbolHostErrorType {
     val symbols: List<Symbol>
 }
@@ -17,161 +17,166 @@ interface TypeHostErrorType {
 }
 
 // Frontend Errors
-data object InvalidAssign : ErrorType()
-data class InvalidIntegerLiteral(val typeId: String, val text: String) : ErrorType()
-data class DuplicateImport(val import: List<String>) : ErrorType()
-data class NoSuchFile(val import: List<String>) : ErrorType()
-data class AmbiguousSymbol(val signifier: Signifier) : ErrorType()
-data object SelfImport : ErrorType()
-data object RecursiveNamespaceDetected : ErrorType()
+data object InvalidAssign : ErrorKind()
+data class InvalidIntegerLiteral(val typeId: String, val text: String) : ErrorKind()
+data class DuplicateImport(val import: List<String>) : ErrorKind()
+data class NoSuchFile(val import: List<String>) : ErrorKind()
+data class AmbiguousSymbol(val signifier: Signifier) : ErrorKind()
+data object SelfImport : ErrorKind()
+data object RecursiveNamespaceDetected : ErrorKind()
 
-data class ImpossibleState(val msg: String) : ErrorType()
+data class ImpossibleState(val msg: String) : ErrorKind()
 
 // Define errors
-data class IdentifierCouldNotBeDefined(val identifier: Identifier) : ErrorType()
-data class IdentifierAlreadyExists(val identifier: Identifier) : ErrorType()
+data class IdentifierCouldNotBeDefined(val identifier: Identifier) : ErrorKind()
+data class IdentifierAlreadyExists(val identifier: Identifier) : ErrorKind()
 
 // Fetch errors
-data class IdentifierNotFound(val signifier: Signifier) : ErrorType()
-data class SymbolHasNoParameters(val identifier: ParameterizedSignifier) : ErrorType()
-data class SymbolHasNoFields(val signifier: Signifier, val symbol: Symbol) : ErrorType(), SymbolHostErrorType {
+data class IdentifierNotFound(val signifier: Signifier) : ErrorKind()
+data class SymbolHasNoParameters(val identifier: ParameterizedSignifier) : ErrorKind()
+data class SymbolHasNoFields(val signifier: Signifier, val symbol: Symbol) : ErrorKind(), SymbolHostErrorType {
     override val symbols: List<Symbol> = listOf(symbol)
 }
 
-data class SymbolHasNoMembers(val signifier: Signifier, val symbol: Symbol) : ErrorType(), SymbolHostErrorType {
+data class SymbolHasNoMembers(val signifier: Signifier, val symbol: Symbol) : ErrorKind(), SymbolHostErrorType {
     override val symbols: List<Symbol> = listOf(symbol)
 }
 
 // Type errors
-data class TypeMismatch(val expected: Type, val actual: Type) : ErrorType(), TypeHostErrorType {
+data class TypeMismatch(val expected: Type, val actual: Type) : ErrorKind(), TypeHostErrorType {
     override val types: List<Type> = listOf(expected, actual)
 }
 
-data class FinMismatch(val expected: Long, val actual: Long) : ErrorType()
-data class IncorrectNumberOfArgs(val expected: Int, val actual: Int) : ErrorType()
-data class IncorrectNumberOfTypeArgs(val expected: Int, val actual: Int) : ErrorType()
-data class InvalidRef(val symbol: Symbol) : ErrorType(), SymbolHostErrorType {
+data class FinMismatch(val expected: Long, val actual: Long) : ErrorKind()
+
+data class MixedCostExpression(val expected: Type, val actual: Type) : ErrorKind(), TypeHostErrorType {
+    override val types: List<Type> = listOf(expected, actual)
+}
+
+data class IncorrectNumberOfArgs(val expected: Int, val actual: Int) : ErrorKind()
+data class IncorrectNumberOfTypeArgs(val expected: Int, val actual: Int) : ErrorKind()
+data class InvalidRef(val symbol: Symbol) : ErrorKind(), SymbolHostErrorType {
     override val symbols: List<Symbol> = listOf(symbol)
 }
 
-data object CannotInstantiate : ErrorType()
-data class TypeInferenceFailed(val typeParam: TypeParameter) : ErrorType()
+data object CannotInstantiate : ErrorKind()
+data class TypeInferenceFailed(val typeParam: TypeParameter) : ErrorKind()
 
-data class CannotUseRawType(val type: Type) : ErrorType(), TypeHostErrorType {
+data class CannotUseRawType(val type: Type) : ErrorKind(), TypeHostErrorType {
     override val types: List<Type> = listOf(type)
 }
 
-data class CannotUseRawSymbol(val symbol: Symbol) : ErrorType(), SymbolHostErrorType {
+data class CannotUseRawSymbol(val symbol: Symbol) : ErrorKind(), SymbolHostErrorType {
     override val symbols: List<Symbol> = listOf(symbol)
 }
 
-data class CannotFindBestType(override val types: List<Type>) : ErrorType(), TypeHostErrorType
+data class CannotFindBestType(override val types: List<Type>) : ErrorKind(), TypeHostErrorType
 
 // General Errors
-data class SyntaxError(val msg: String) : ErrorType()
-data object ResurrectWhitelistError : ErrorType()
-data object TypeSystemBug : ErrorType()
-data object ExpectOtherError : ErrorType()
-data object CostOverLimit : ErrorType()
-data object InvalidCostUpperLimit: ErrorType()
-data class SymbolCouldNotBeApplied(val signifier: Signifier) : ErrorType()
-data class SymbolIsNotAField(val signifier: Signifier) : ErrorType()
-data class SymbolIsNotAType(val signifier: Signifier) : ErrorType()
-data class InvalidSource(val type: Type) : ErrorType(), TypeHostErrorType {
+data class SyntaxError(val msg: String) : ErrorKind()
+data object ResurrectWhitelistError : ErrorKind()
+data object TypeSystemBug : ErrorKind()
+data object ExpectOtherError : ErrorKind()
+data object CostOverLimit : ErrorKind()
+data object InvalidCostUpperLimit: ErrorKind()
+data class SymbolCouldNotBeApplied(val signifier: Signifier) : ErrorKind()
+data class SymbolIsNotAField(val signifier: Signifier) : ErrorKind()
+data class SymbolIsNotAType(val signifier: Signifier) : ErrorKind()
+data class InvalidSource(val type: Type) : ErrorKind(), TypeHostErrorType {
     override val types: List<Type> = listOf(type)
 }
 
-data class IndexOutOfBounds(val index: Int, val size: Int) : ErrorType()
+data class IndexOutOfBounds(val index: Int, val size: Int) : ErrorKind()
 
-data class ParameterizedGroundMismatch(val ground: Identifier, val parameterized: Identifier) : ErrorType()
+data class ParameterizedGroundMismatch(val ground: Identifier, val parameterized: Identifier) : ErrorKind()
 
-data class RecursiveFunctionDetected(val symbol: Symbol) : ErrorType(), SymbolHostErrorType {
+data class RecursiveFunctionDetected(val symbol: Symbol) : ErrorKind(), SymbolHostErrorType {
     override val symbols: List<Symbol> = listOf(symbol)
 }
 
-data class RecursiveRecordDetected(val symbol: Symbol) : ErrorType(), SymbolHostErrorType {
-    override val symbols: List<Symbol> = listOf(symbol)
+data class RecursiveRecordDetected(val type: Type) : ErrorKind(), TypeHostErrorType {
+    override val types: List<Type> = listOf(type)
 }
 
-data class DictionaryArgsMustBePairs(val actual: Type) : ErrorType(), TypeHostErrorType {
+data class DictionaryArgsMustBePairs(val actual: Type) : ErrorKind(), TypeHostErrorType {
     override val types: List<Type> = listOf(actual)
 }
 
-data class ImmutableAssign(val symbol: Symbol) : ErrorType(), SymbolHostErrorType {
+data class ImmutableAssign(val symbol: Symbol) : ErrorKind(), SymbolHostErrorType {
     override val symbols: List<Symbol> = listOf(symbol)
 }
 
-data class InvalidDefinitionLocation(val identifier: Identifier) : ErrorType()
-data class IncompatibleString(val type: Type) : ErrorType(), TypeHostErrorType {
+data class InvalidDefinitionLocation(val identifier: Identifier) : ErrorKind()
+data class IncompatibleString(val type: Type) : ErrorKind(), TypeHostErrorType {
     override val types: List<Type> = listOf(type)
 }
 
-data object InvalidRangeArg : ErrorType()
-data object RandomRequiresIntLong : ErrorType()
+data object InvalidRangeArg : ErrorKind()
+data object RandomRequiresIntLong : ErrorKind()
 
 // Runtime errors
-data class RuntimeFinViolation(val fin: Long, val elements: Long) : ErrorType()
-data object RuntimeImmutableViolation : ErrorType()
-data object DecimalInfiniteDivide : ErrorType()
+data class RuntimeFinViolation(val fin: Long, val elements: Long) : ErrorKind()
+data object RuntimeImmutableViolation : ErrorKind()
+data object DecimalInfiniteDivide : ErrorKind()
 
 // Type Parameter Errors
-data class DuplicateTypeParameter(val identifier: Identifier) : ErrorType()
-data class TypeRequiresExplicit(val identifier: Identifier) : ErrorType()
-data class TooManyElements(val fin: Long, val elements: Long) : ErrorType()
+data class DuplicateTypeParameter(val identifier: Identifier) : ErrorKind()
+data class TypeRequiresExplicit(val identifier: Identifier) : ErrorKind()
+data class TooManyElements(val fin: Long, val elements: Long) : ErrorKind()
 
-data class ForeignTypeParameter(val identifier: Identifier) : ErrorType()
+data class ForeignTypeParameter(val identifier: Identifier) : ErrorKind()
 
-data class MaskingTypeParameter(val identifier: Identifier) : ErrorType()
-data class CannotExplicitlyInstantiate(val symbol: Symbol) : ErrorType(), SymbolHostErrorType {
+data class MaskingTypeParameter(val identifier: Identifier) : ErrorKind()
+data class CannotExplicitlyInstantiate(val symbol: Symbol) : ErrorKind(), SymbolHostErrorType {
     override val symbols: List<Symbol> = listOf(symbol)
 }
 
 // Fin Errors
-data object CalculateCostFailed : ErrorType()
-data object NegativeFin : ErrorType()
+data object CalculateCostFailed : ErrorKind()
+data object NegativeFin : ErrorKind()
 
 // Bans
-data class CannotRefFunctionParam(val identifier: Identifier) : ErrorType()
-data class FunctionReturnType(val identifier: Identifier) : ErrorType()
-data class FunctionAssign(val identifier: Identifier) : ErrorType()
-data class RecordFieldFunctionType(val record: Identifier, val field: Identifier) : ErrorType()
-data class InvalidFinTypeSub(val typeParam: TypeParameter, val type: Type) : ErrorType(), TypeHostErrorType {
+data class CannotRefFunctionParam(val identifier: Identifier) : ErrorKind()
+data class FunctionReturnType(val identifier: Identifier) : ErrorKind()
+data class FunctionAssign(val identifier: Identifier) : ErrorKind()
+data class RecordFieldFunctionType(val record: Identifier, val field: Identifier) : ErrorKind()
+data class InvalidFinTypeSub(val typeParam: TypeParameter, val type: Type) : ErrorKind(), TypeHostErrorType {
     override val types: List<Type> = listOf(type)
 }
 
-data class InvalidStandardTypeSub(val typeParam: TypeParameter, val type: Type) : ErrorType(), TypeHostErrorType {
+data class InvalidStandardTypeSub(val typeParam: TypeParameter, val type: Type) : ErrorKind(), TypeHostErrorType {
     override val types: List<Type> = listOf(type)
 }
 
-data class InvalidAsCast(val signifier: Signifier) : ErrorType()
-data class InvalidIsCheck(val signifier: Signifier) : ErrorType()
+data class InvalidAsCast(val signifier: Signifier) : ErrorKind()
+data class InvalidIsCheck(val signifier: Signifier) : ErrorKind()
 
-data class SecondDegreeHigherOrderFunction(val identifier: Identifier) : ErrorType()
+data class SecondDegreeHigherOrderFunction(val identifier: Identifier) : ErrorKind()
 
 // Feature Flags
-data class ForEachFeatureBan(val symbol: Symbol) : ErrorType(), SymbolHostErrorType {
-    override val symbols: List<Symbol> = listOf(symbol)
+data class ForEachFeatureBan(val type: Type) : ErrorKind(), TypeHostErrorType {
+    override val types: List<Type> = listOf(type)
 }
 
-data class RecordFieldFeatureBan(val symbol: Symbol) : ErrorType(), SymbolHostErrorType {
-    override val symbols: List<Symbol> = listOf(symbol)
+data class RecordFieldFeatureBan(val type: Type) : ErrorKind(), TypeHostErrorType {
+    override val types: List<Type> = listOf(type)
 }
 
-data class ReturnTypeFeatureBan(val symbol: Symbol) : ErrorType(), SymbolHostErrorType {
-    override val symbols: List<Symbol> = listOf(symbol)
+data class ReturnTypeFeatureBan(val type: Type) : ErrorKind(), TypeHostErrorType {
+    override val types: List<Type> = listOf(type)
 }
 
-data class FormalParamFeatureBan(val symbol: Symbol) : ErrorType(), SymbolHostErrorType {
-    override val symbols: List<Symbol> = listOf(symbol)
+data class FormalParamFeatureBan(val type: Type) : ErrorKind(), TypeHostErrorType {
+    override val types: List<Type> = listOf(type)
 }
 
-data class TypeArgFeatureBan(val symbol: Symbol) : ErrorType(), SymbolHostErrorType {
-    override val symbols: List<Symbol> = listOf(symbol)
+data class TypeArgFeatureBan(val type: Type) : ErrorKind(), TypeHostErrorType {
+    override val types: List<Type> = listOf(type)
 }
 
 data class LanguageError(
     val ctx: SourceContext,
-    val error: ErrorType
+    val error: ErrorKind
 ) {
     val callStack: StackTraceElement = Exception().stackTrace[3]
 }
@@ -179,7 +184,7 @@ data class LanguageError(
 class LanguageErrors {
     private val collectedErrors: MutableSet<LanguageError> = HashSet()
 
-    fun add(ctx: SourceContext, error: ErrorType) {
+    fun add(ctx: SourceContext, error: ErrorKind) {
         collectedErrors.add(LanguageError(ctx, error))
     }
 
@@ -192,20 +197,28 @@ class LanguageErrors {
 
 data class LanguageException(val errors: Set<LanguageError>) : Exception()
 
-fun langThrow(ctx: SourceContext, error: ErrorType): Nothing {
+fun langThrow(ctx: SourceContext, error: ErrorKind): Nothing {
     throw LanguageException(setOf(LanguageError(ctx, error)))
 }
 
-fun langThrow(error: ErrorType): Nothing {
+fun langThrow(error: ErrorKind): Nothing {
     throw LanguageException(setOf(LanguageError(NotInSource, error)))
 }
 
 fun filterThrow(errors: Set<LanguageError>): Nothing {
     val filtered = errors.filter {
-        if (it.error is SymbolHostErrorType) {
-            it.error.symbols.all { symbol -> symbol !is ErrorSymbol }
-        } else {
-            true
+        when (it.error) {
+            is SymbolHostErrorType -> {
+                it.error.symbols.all { symbol -> symbol !is ErrorSymbol }
+            }
+
+            is TypeHostErrorType -> {
+                it.error.types.all { type -> type !is ErrorType }
+            }
+
+            else -> {
+                true
+            }
         }
     }
     if (filtered.isEmpty()) {

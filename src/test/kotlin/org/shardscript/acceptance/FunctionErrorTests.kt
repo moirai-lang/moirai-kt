@@ -50,9 +50,9 @@ class FunctionErrorTests {
             }
             
             f(g, 5, 6)
-        """.trimIndent(), 2
+        """.trimIndent(), 1
         ) {
-            it.error is InvalidRef || it.error is TypeMismatch
+            it.error is InvalidRef
         }
     }
 

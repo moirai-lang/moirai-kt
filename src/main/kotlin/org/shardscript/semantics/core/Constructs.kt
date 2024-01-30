@@ -33,27 +33,27 @@ data class CoproductBranch(
 
 data class ElseBranch(override val ctx: SourceContext, override val body: BlockAst) : CaseBranch()
 
-interface SingleTypeInstantiation {
+interface SingleTypeInstantiation<T: RawTerminus, S> {
     fun apply(
         ctx: SourceContext,
         errors: LanguageErrors,
         args: List<Ast>,
-        rawTerminus: RawTerminus,
+        terminus: T,
         identifier: Identifier,
         explicitTypeArgs: List<Type>
-    ): SymbolInstantiation
+    ): S
 }
 
-interface TwoTypeInstantiation {
+interface TwoTypeInstantiation<T: RawTerminus, S> {
     fun apply(
         ctx: SourceContext,
         errors: LanguageErrors,
         args: List<Ast>,
-        rawTerminus: RawTerminus,
+        terminus: T,
         identifier: Identifier,
-        existingInstantiation: SymbolInstantiation,
+        existingInstantiation: TypeInstantiation,
         explicitTypeArgs: List<Type>
-    ): SymbolInstantiation
+    ): S
 }
 
 sealed class BasicTypeMode

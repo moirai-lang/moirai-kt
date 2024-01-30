@@ -3,10 +3,10 @@ package org.shardscript.semantics.visitors
 import org.shardscript.semantics.core.*
 
 fun addRecordEdge(
-    processFirst: Symbol,
-    processSecond: Symbol,
-    edges: MutableSet<DependencyEdge<Symbol>>,
-    nodes: MutableSet<Symbol>
+    processFirst: Type,
+    processSecond: Type,
+    edges: MutableSet<DependencyEdge<Type>>,
+    nodes: MutableSet<Type>
 ) {
     nodes.add(processFirst)
     nodes.add(processSecond)
@@ -14,17 +14,17 @@ fun addRecordEdge(
 }
 
 class GenerateRecordEdgesAstVisitor : UnitAstVisitor() {
-    val edges: MutableSet<DependencyEdge<Symbol>> = HashSet()
-    val nodes: MutableSet<Symbol> = HashSet()
+    val edges: MutableSet<DependencyEdge<Type>> = HashSet()
+    val nodes: MutableSet<Type> = HashSet()
 
     override fun visit(ast: RecordDefinitionAst) {
         super.visit(ast)
         val linearized = linearizeIdentifiers(ast.fields.map { it.ofType })
             .filterIsInstance<Identifier>()
-            .map { ast.scope.fetch(it) }
-        val symbol = ast.scope as Symbol
+            .map { ast.scope.fetchType(it) }
+        val type = ast.scope as Type
         linearized.forEach {
-            addRecordEdge(it, symbol, edges, nodes)
+            addRecordEdge(it, type, edges, nodes)
         }
     }
 }

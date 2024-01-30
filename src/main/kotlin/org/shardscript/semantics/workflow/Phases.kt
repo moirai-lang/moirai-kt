@@ -6,7 +6,7 @@ import org.shardscript.semantics.visitors.*
 fun bindScopes(
     ast: FileAst,
     fileName: String,
-    fileScope: Scope<Symbol>,
+    fileScope: Scope,
     architecture: Architecture
 ) {
     ast.scope = fileScope
@@ -23,7 +23,7 @@ fun parameterScan(ast: FileAst, fileName: String) {
     }
 }
 
-fun simpleRecursiveRecordDetection(ast: FileAst): SortResult<Symbol> {
+fun simpleRecursiveRecordDetection(ast: FileAst): SortResult<Type> {
     val generateEdgesAstVisitor = GenerateRecordEdgesAstVisitor()
     ast.accept(generateEdgesAstVisitor)
     val nodes = generateEdgesAstVisitor.nodes
@@ -58,7 +58,7 @@ fun functionScan(ast: FileAst) {
     }
 }
 
-fun propagateTypes(ast: FileAst, preludeTable: Scope<Symbol>) {
+fun propagateTypes(ast: FileAst, preludeTable: Scope) {
     val propagateTypesAstVisitor = PropagateTypesAstVisitor(preludeTable)
     ast.accept(propagateTypesAstVisitor)
     val errors = propagateTypesAstVisitor.errors.toSet()
@@ -67,7 +67,7 @@ fun propagateTypes(ast: FileAst, preludeTable: Scope<Symbol>) {
     }
 }
 
-fun checkTypes(ast: FileAst, prelude: Scope<Symbol>) {
+fun checkTypes(ast: FileAst, prelude: Scope) {
     val checkTypesAstVisitor = CheckTypesAstVisitor(prelude)
     ast.accept(checkTypesAstVisitor)
     val errors = checkTypesAstVisitor.errors.toSet()

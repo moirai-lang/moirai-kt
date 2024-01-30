@@ -11,7 +11,7 @@ sealed class Ast : LanguageElement {
         type = filterValidTypes(ctx, errors, t)
     }
 
-    lateinit var scope: Scope<Symbol>
+    lateinit var scope: Scope
     lateinit var costExpression: CostExpression
     var approach: Boolean = true
 
@@ -21,10 +21,11 @@ sealed class Ast : LanguageElement {
 
 sealed class SymbolRefAst : Ast() {
     lateinit var symbolRef: Symbol
+    var typeRef: Type = ErrorType
 }
 
 sealed class DefinitionAst : Ast() {
-    lateinit var definitionSpace: Scope<Symbol>
+    lateinit var definitionSpace: Scope
 }
 
 sealed class ApplyAst : SymbolRefAst() {

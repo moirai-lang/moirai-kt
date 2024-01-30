@@ -43,7 +43,7 @@ object StringOpMembers {
             "${Lang.stringId.name}.${BinaryOperator.Add.idStr}.${Lang.stringInputTypeId.name}",
             Lang.stringInputTypeId
         )
-        res.define(inputTypeArg.identifier, inputTypeArg)
+        res.defineType(inputTypeArg.identifier, inputTypeArg)
         res.typeParams = listOf(Lang.stringTypeParam, inputTypeArg)
 
         val inputSubstitution = Substitution(Lang.stringType.typeParams, listOf(inputTypeArg))
@@ -78,7 +78,7 @@ object StringOpMembers {
             "${Lang.stringId.name}.${BinaryOperator.Equal.idStr}.${Lang.stringInputTypeId.name}",
             Lang.stringInputTypeId
         )
-        res.define(inputTypeArg.identifier, inputTypeArg)
+        res.defineType(inputTypeArg.identifier, inputTypeArg)
         res.typeParams = listOf(Lang.stringTypeParam, inputTypeArg)
 
         val inputSubstitution = Substitution(Lang.stringType.typeParams, listOf(inputTypeArg))
@@ -116,7 +116,7 @@ object StringOpMembers {
             "${Lang.stringId.name}.${BinaryOperator.NotEqual.idStr}.${Lang.stringInputTypeId.name}",
             Lang.stringInputTypeId
         )
-        res.define(inputTypeArg.identifier, inputTypeArg)
+        res.defineType(inputTypeArg.identifier, inputTypeArg)
         res.typeParams = listOf(Lang.stringTypeParam, inputTypeArg)
 
         val inputSubstitution = Substitution(Lang.stringType.typeParams, listOf(inputTypeArg))
@@ -141,6 +141,110 @@ object StringOpMembers {
         res.returnType = Lang.booleanType
 
         res.costExpression = outputTypeArg
+        return res
+    }
+
+    val integerToStringMember = insertIntegerToStringMember()
+    val unitToStringMember = insertUnitToStringMember()
+    val booleanToStringMember = insertBooleanToStringMember()
+    val charToStringMember = insertCharToStringMember()
+    val decimalToStringMember = insertDecimalToStringMember()
+    val stringToStringMember = insertStringToStringMember()
+
+    private fun insertIntegerToStringMember(): GroundMemberPluginSymbol {
+        val res = GroundMemberPluginSymbol(
+            Lang.intType,
+            Identifier(NotInSource, StringMethods.ToString.idStr)
+        )
+        val fin = FinTypeSymbol(Lang.INT_FIN)
+        res.costExpression = fin
+
+        val substitution = Substitution(Lang.stringType.typeParams, listOf(fin))
+        val stringInstantiation = substitution.apply(Lang.stringType)
+        res.formalParams = listOf()
+        res.returnType = stringInstantiation
+        Lang.intType.define(res.identifier, res)
+        return res
+    }
+
+    private fun insertUnitToStringMember(): GroundMemberPluginSymbol {
+        val res = GroundMemberPluginSymbol(
+            Lang.unitObject,
+            Identifier(NotInSource, StringMethods.ToString.idStr)
+        )
+        val fin = FinTypeSymbol(Lang.unitFin)
+        res.costExpression = fin
+
+        val substitution = Substitution(Lang.stringType.typeParams, listOf(fin))
+        val stringInstantiation = substitution.apply(Lang.stringType)
+        res.formalParams = listOf()
+        res.returnType = stringInstantiation
+        Lang.unitObject.define(res.identifier, res)
+        return res
+    }
+
+    private fun insertBooleanToStringMember(): GroundMemberPluginSymbol {
+        val res = GroundMemberPluginSymbol(
+            Lang.booleanType,
+            Identifier(NotInSource, StringMethods.ToString.idStr)
+        )
+        val fin = FinTypeSymbol(Lang.BOOL_FIN)
+        res.costExpression = fin
+
+        val substitution = Substitution(Lang.stringType.typeParams, listOf(fin))
+        val stringInstantiation = substitution.apply(Lang.stringType)
+        res.formalParams = listOf()
+        res.returnType = stringInstantiation
+        Lang.booleanType.define(res.identifier, res)
+        return res
+    }
+
+    private fun insertCharToStringMember(): GroundMemberPluginSymbol {
+        val res = GroundMemberPluginSymbol(
+            Lang.charType,
+            Identifier(NotInSource, StringMethods.ToString.idStr)
+        )
+        val fin = FinTypeSymbol(Lang.CHAR_FIN)
+        res.costExpression = fin
+        val substitution = Substitution(Lang.stringType.typeParams, listOf(fin))
+        val stringInstantiation = substitution.apply(Lang.stringType)
+        res.formalParams = listOf()
+        res.returnType = stringInstantiation
+        Lang.charType.define(res.identifier, res)
+        return res
+    }
+
+    fun insertDecimalToStringMember(): ParameterizedMemberPluginSymbol {
+        val res = ParameterizedMemberPluginSymbol(
+            Lang.decimalType,
+            Identifier(NotInSource, StringMethods.ToString.idStr),
+            SingleParentArgInstantiation)
+        val fin = Lang.decimalType.typeParams.first()
+        res.costExpression = fin as ImmutableFinTypeParameter
+        res.typeParams = listOf(fin)
+
+        val substitution = Substitution(Lang.stringType.typeParams, listOf(fin))
+        val stringInstantiation = substitution.apply(Lang.stringType)
+        res.formalParams = listOf()
+        res.returnType = stringInstantiation
+        Lang.decimalType.define(res.identifier, res)
+        return res
+    }
+
+    fun insertStringToStringMember(): ParameterizedMemberPluginSymbol {
+        val res = ParameterizedMemberPluginSymbol(
+            Lang.stringType,
+            Identifier(NotInSource, StringMethods.ToString.idStr),
+            SingleParentArgInstantiation)
+        val fin = Lang.stringType.typeParams.first()
+        res.costExpression = fin as ImmutableFinTypeParameter
+        res.typeParams = listOf(fin)
+
+        res.formalParams = listOf()
+        val substitution = Substitution(Lang.stringType.typeParams, listOf(fin))
+        val outputType = substitution.apply(Lang.stringType)
+        res.returnType = outputType
+        Lang.stringType.define(res.identifier, res)
         return res
     }
 }

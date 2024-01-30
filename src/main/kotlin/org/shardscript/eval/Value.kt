@@ -83,25 +83,25 @@ object Plugins {
         ListTypes.removeAtFunction to GroundMemberPlugin { t: Value, args: List<Value> ->
             (t as ListValue).evalRemoveAt(args.first())
         },
-        ToStringMembers.integerToStringMember to GroundMemberPlugin { t: Value, _: List<Value> ->
+        StringOpMembers.integerToStringMember to GroundMemberPlugin { t: Value, _: List<Value> ->
             (t as IntValue).evalToString()
         },
-        ToStringMembers.unitToStringMember to GroundMemberPlugin { _: Value, _: List<Value> ->
+        StringOpMembers.unitToStringMember to GroundMemberPlugin { _: Value, _: List<Value> ->
             UnitValue.evalToString()
         },
-        ToStringMembers.booleanToStringMember to GroundMemberPlugin { t: Value, _: List<Value> ->
+        StringOpMembers.booleanToStringMember to GroundMemberPlugin { t: Value, _: List<Value> ->
             (t as BooleanValue).evalToString()
         },
-        ToStringMembers.charToStringMember to GroundMemberPlugin { t: Value, _: List<Value> ->
+        StringOpMembers.charToStringMember to GroundMemberPlugin { t: Value, _: List<Value> ->
             (t as CharValue).evalToString()
         }
     )
 
     val parameterizedMemberPlugins: Map<ParameterizedMemberPluginSymbol, GroundMemberPlugin> = mapOf(
-        ToStringMembers.decimalToStringMember to GroundMemberPlugin { t: Value, _: List<Value> ->
+        StringOpMembers.decimalToStringMember to GroundMemberPlugin { t: Value, _: List<Value> ->
             (t as DecimalValue).evalToString()
         },
-        ToStringMembers.stringToStringMember to GroundMemberPlugin { t: Value, _: List<Value> ->
+        StringOpMembers.stringToStringMember to GroundMemberPlugin { t: Value, _: List<Value> ->
             (t as StringValue).evalToString()
         },
         StringOpMembers.toCharArray to GroundMemberPlugin { t: Value, _: List<Value> ->
@@ -332,7 +332,7 @@ object Plugins {
 class ObjectValue(
     val symbol: ObjectSymbol
 ) : Value() {
-    val path = generatePath(symbol)
+    val path = getQualifiedName(symbol)
 
     override fun equals(other: Any?): Boolean {
         if (other != null && other is ObjectValue) {
@@ -367,9 +367,9 @@ data class FunctionValue(
     }
 }
 
-class RecordValue(val symbol: Symbol, val fields: ValueTable) : Value() {
-    lateinit var scope: Scope<Symbol>
-    val path = generatePath(symbol)
+class RecordValue(type: Type, val fields: ValueTable) : Value() {
+    lateinit var scope: Scope
+    val path = getQualifiedName(type)
 
     override fun equals(other: Any?): Boolean {
         if (other != null && other is RecordValue) {
@@ -389,29 +389,29 @@ class RecordValue(val symbol: Symbol, val fields: ValueTable) : Value() {
     }
 }
 
-data class RecordConstructorValue(val prelude: Scope<Symbol>, val symbol: Symbol) : Value() {
+data class RecordConstructorValue(val prelude: Scope, val type: Type) : Value() {
     fun apply(args: List<Value>): RecordValue {
-        return when (symbol) {
+        return when (type) {
             is GroundRecordTypeSymbol -> {
                 val fields = ValueTable(
-                    SymbolRouterValueTable(prelude, symbol)
+                    SymbolRouterValueTable(prelude, type)
                 )
-                symbol.fields.zip(args).forEach {
+                type.fields.zip(args).forEach {
                     fields.define(it.first.identifier, it.second)
                 }
-                val res = RecordValue(symbol, fields)
-                res.scope = symbol
+                val res = RecordValue(type, fields)
+                res.scope = type
                 res
             }
             is ParameterizedRecordTypeSymbol -> {
                 val fields = ValueTable(
-                    SymbolRouterValueTable(prelude, symbol)
+                    SymbolRouterValueTable(prelude, type)
                 )
-                symbol.fields.zip(args).forEach {
+                type.fields.zip(args).forEach {
                     fields.define(it.first.identifier, it.second)
                 }
-                val res = RecordValue(symbol, fields)
-                res.scope = symbol
+                val res = RecordValue(type, fields)
+                res.scope = type
                 res
             }
             else -> langThrow(NotInSource, TypeSystemBug)
@@ -806,7 +806,15 @@ data class DictionaryValue(
     }
 }
 
-class SymbolRouterValueTable(private val prelude: Scope<Symbol>, private val symbols: Scope<Symbol>) : Scope<Value> {
+interface ValueScope {
+    fun define(identifier: Identifier, definition: Value)
+    fun exists(signifier: Signifier): Boolean
+    fun existsHere(signifier: Signifier): Boolean
+    fun fetch(signifier: Signifier): Value
+    fun fetchHere(signifier: Signifier): Value
+}
+
+class SymbolRouterValueTable(private val prelude: Scope, private val symbols: Scope) : ValueScope {
     override fun define(identifier: Identifier, definition: Value) {
         langThrow(identifier.ctx, IdentifierCouldNotBeDefined(identifier))
     }
@@ -830,22 +838,26 @@ class SymbolRouterValueTable(private val prelude: Scope<Symbol>, private val sym
             }
 
             is ParameterizedStaticPluginSymbol -> Plugins.staticPlugins[res]!!
-            is GroundRecordTypeSymbol -> RecordConstructorValue(prelude, res)
-            is ParameterizedRecordTypeSymbol -> RecordConstructorValue(prelude, res)
-            is ParameterizedBasicTypeSymbol -> when (res.identifier) {
-                Lang.listId, Lang.mutableListId -> ListConstructorValue(res.modeSelector)
-                Lang.dictionaryId, Lang.mutableDictionaryId -> DictionaryConstructorValue(res.modeSelector)
-                Lang.setId, Lang.mutableSetId -> SetConstructorValue(res.modeSelector)
-                else -> langThrow(signifier.ctx, IdentifierNotFound(signifier))
-            }
+            is TypePlaceholder -> {
+                when (val type = symbols.fetchType(signifier)) {
+                    is GroundRecordTypeSymbol -> RecordConstructorValue(prelude, type)
+                    is ParameterizedRecordTypeSymbol -> RecordConstructorValue(prelude, type)
+                    is ParameterizedBasicTypeSymbol -> when (type.identifier) {
+                        Lang.listId, Lang.mutableListId -> ListConstructorValue(type.modeSelector)
+                        Lang.dictionaryId, Lang.mutableDictionaryId -> DictionaryConstructorValue(type.modeSelector)
+                        Lang.setId, Lang.mutableSetId -> SetConstructorValue(type.modeSelector)
+                        else -> langThrow(signifier.ctx, IdentifierNotFound(signifier))
+                    }
+                    is PlatformObjectSymbol -> if (type.identifier == Lang.unitId) {
+                        UnitValue
+                    } else {
+                        langThrow(signifier.ctx, TypeSystemBug)
+                    }
 
-            is PlatformObjectSymbol -> if (res.identifier == Lang.unitId) {
-                UnitValue
-            } else {
-                langThrow(signifier.ctx, TypeSystemBug)
+                    is ObjectSymbol -> ObjectValue(type)
+                    else -> langThrow(signifier.ctx, IdentifierNotFound(signifier))
+                }
             }
-
-            is ObjectSymbol -> ObjectValue(res)
             else -> langThrow(signifier.ctx, IdentifierNotFound(signifier))
         }
 
@@ -860,20 +872,25 @@ class SymbolRouterValueTable(private val prelude: Scope<Symbol>, private val sym
                 fv
             }
             is ParameterizedStaticPluginSymbol -> Plugins.staticPlugins[res]!!
-            is GroundRecordTypeSymbol -> RecordConstructorValue(prelude, res)
-            is ParameterizedRecordTypeSymbol -> RecordConstructorValue(prelude, res)
-            is ParameterizedBasicTypeSymbol -> when (res.identifier) {
-                Lang.listId, Lang.mutableListId -> ListConstructorValue(res.modeSelector)
-                Lang.dictionaryId, Lang.mutableDictionaryId -> DictionaryConstructorValue(res.modeSelector)
-                Lang.setId, Lang.mutableSetId -> SetConstructorValue(res.modeSelector)
-                else -> langThrow(signifier.ctx, IdentifierNotFound(signifier))
+            is TypePlaceholder -> {
+                when (val type = symbols.fetchTypeHere(signifier)) {
+                    is GroundRecordTypeSymbol -> RecordConstructorValue(prelude, type)
+                    is ParameterizedRecordTypeSymbol -> RecordConstructorValue(prelude, type)
+                    is ParameterizedBasicTypeSymbol -> when (type.identifier) {
+                        Lang.listId, Lang.mutableListId -> ListConstructorValue(type.modeSelector)
+                        Lang.dictionaryId, Lang.mutableDictionaryId -> DictionaryConstructorValue(type.modeSelector)
+                        Lang.setId, Lang.mutableSetId -> SetConstructorValue(type.modeSelector)
+                        else -> langThrow(signifier.ctx, IdentifierNotFound(signifier))
+                    }
+                    is ObjectSymbol -> ObjectValue(type)
+                    else -> langThrow(signifier.ctx, IdentifierNotFound(signifier))
+                }
             }
-            is ObjectSymbol -> ObjectValue(res)
             else -> langThrow(signifier.ctx, IdentifierNotFound(signifier))
         }
 }
 
-class ValueTable(private val parent: Scope<Value>) : Scope<Value> {
+class ValueTable(private val parent: ValueScope) : ValueScope {
     data class ScopeSlot(var value: Value)
 
     private val slotTable: MutableMap<String, ScopeSlot> = HashMap()
@@ -921,6 +938,7 @@ class ValueTable(private val parent: Scope<Value>) : Scope<Value> {
                     parent.fetch(signifier)
                 }
             }
+
             else -> langThrow(signifier.ctx, TypeSystemBug)
         }
 
@@ -933,6 +951,7 @@ class ValueTable(private val parent: Scope<Value>) : Scope<Value> {
                     langThrow(signifier.ctx, IdentifierNotFound(signifier))
                 }
             }
+
             else -> langThrow(signifier.ctx, TypeSystemBug)
         }
 }

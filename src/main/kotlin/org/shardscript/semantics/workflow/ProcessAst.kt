@@ -12,8 +12,8 @@ data class UserScopes(
 data class SemanticArtifacts(
     val processedAst: FileAst,
     val userScopes: UserScopes,
-    val file: Scope<Symbol>,
-    val sortedRecords: SortResult<Symbol>,
+    val file: Scope,
+    val sortedRecords: SortResult<Type>,
     val sortedFunctions: SortResult<Symbol>
 )
 
@@ -76,7 +76,7 @@ fun processAstAllPhases(
 ): SemanticArtifacts {
     val userScopes = createUserScopes()
     existingArtifacts.forEach { artifact ->
-        artifact.userScopes.exports.toMap().forEach { entry ->
+        artifact.userScopes.exports.symbolsToMap().forEach { entry ->
             userScopes.imports.define(Identifier(NotInSource, entry.key), entry.value)
         }
     }
@@ -94,14 +94,19 @@ fun processAstAllPhases(
     calculateCostMultipliers(ast, architecture)
 
     // By default, records, objects, and functions are exported
-    fileScope.toMap().forEach { kvp ->
+    fileScope.symbolsToMap().forEach { kvp ->
+        when (kvp.value) {
+            is GroundFunctionSymbol,
+            is ParameterizedFunctionSymbol -> userScopes.exports.define(Identifier(NotInSource, kvp.key), kvp.value)
+            else -> Unit
+        }
+    }
+
+    fileScope.typesToMap().forEach { kvp ->
         when (kvp.value) {
             is ObjectSymbol,
-            is GroundFunctionSymbol,
-            is ParameterizedFunctionSymbol,
             is GroundRecordTypeSymbol,
-            is ParameterizedRecordTypeSymbol -> userScopes.exports.define(Identifier(NotInSource, kvp.key), kvp.value)
-
+            is ParameterizedRecordTypeSymbol -> userScopes.exports.defineType(Identifier(NotInSource, kvp.key), kvp.value)
             else -> Unit
         }
     }
