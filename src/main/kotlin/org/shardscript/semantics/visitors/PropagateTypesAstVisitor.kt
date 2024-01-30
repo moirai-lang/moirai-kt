@@ -21,7 +21,7 @@ class PropagateTypesAstVisitor(
             is ParameterizedFunctionSymbol -> {
                 if (signifier is ParameterizedSignifier) {
                     val idArgs = signifier.args
-                    val idArgSymbols = idArgs.map { symbolToType(errors, it.ctx, ast.scope.fetch(it), it) }
+                    val idArgSymbols = idArgs.map { ast.scope.fetchType(it) }
                     if (idArgs.size == symbol.typeParams.size) {
                         val substitution = Substitution(symbol.typeParams, idArgSymbols)
                         val instantiation = substitution.apply(symbol)
@@ -65,7 +65,7 @@ class PropagateTypesAstVisitor(
                     is ParameterizedRecordTypeSymbol -> {
                         if (signifier is ParameterizedSignifier) {
                             val idArgs = signifier.args
-                            val idArgSymbols = idArgs.map { symbolToType(errors, it.ctx, ast.scope.fetch(it), it) }
+                            val idArgSymbols = idArgs.map { ast.scope.fetchType(it) }
                             if (idArgs.size == type.typeParams.size) {
                                 val substitution = Substitution(type.typeParams, idArgSymbols)
                                 val instantiation = substitution.apply(type)
@@ -87,7 +87,7 @@ class PropagateTypesAstVisitor(
                     is ParameterizedBasicTypeSymbol -> {
                         if (signifier is ParameterizedSignifier) {
                             val idArgs = signifier.args
-                            val idArgSymbols = idArgs.map { symbolToType(errors, it.ctx, ast.scope.fetch(it), it) }
+                            val idArgSymbols = idArgs.map { ast.scope.fetchType(it) }
                             if (idArgs.size == type.typeParams.size) {
                                 val instantiation = type.instantiation.apply(
                                     ast.ctx,
@@ -128,7 +128,7 @@ class PropagateTypesAstVisitor(
             is ParameterizedStaticPluginSymbol -> {
                 if (signifier is ParameterizedSignifier) {
                     val idArgs = signifier.args
-                    val idArgSymbols = idArgs.map { symbolToType(errors, it.ctx, ast.scope.fetch(it), it) }
+                    val idArgSymbols = idArgs.map { ast.scope.fetchType(it) }
                     if (idArgs.size == symbol.typeParams.size) {
                         val instantiation = symbol.instantiation.apply(
                             ast.ctx,
@@ -263,7 +263,7 @@ class PropagateTypesAstVisitor(
             if (ast.ofType is ImplicitTypeLiteral) {
                 ast.ofTypeSymbol = ast.rhs.readType()
             } else {
-                val ofType = symbolToType(errors, ast.ofType.ctx, ast.scope.fetch(ast.ofType), ast.ofType)
+                val ofType = ast.scope.fetchType(ast.ofType)
                 ast.ofTypeSymbol = ofType
             }
             val local = LocalVariableSymbol(ast.scope, ast.identifier, ast.ofTypeSymbol, ast.mutable)
@@ -639,7 +639,7 @@ class PropagateTypesAstVisitor(
                                 if (ast.ofType is ImplicitTypeLiteral) {
                                     ast.ofTypeSymbol = sourceType.substitutionChain.replayArgs().first()
                                 } else {
-                                    val ofType = symbolToType(errors, ast.ofType.ctx, ast.scope.fetch(ast.ofType), ast.ofType)
+                                    val ofType = ast.scope.fetchType(ast.ofType)
                                     ast.ofTypeSymbol = ofType
                                 }
                                 ast.body.scope.define(ast.identifier, ast.ofTypeSymbol as Symbol)
@@ -752,7 +752,7 @@ class PropagateTypesAstVisitor(
     override fun visit(ast: AsAst) {
         try {
             super.visit(ast)
-            val ofType = symbolToType(errors, ast.signifier.ctx, ast.scope.fetch(ast.signifier), ast.signifier)
+            val ofType = ast.scope.fetchType(ast.signifier)
             ast.assignType(errors, ofType)
         } catch (ex: LanguageException) {
             errors.addAll(ast.ctx, ex.errors)
@@ -763,7 +763,7 @@ class PropagateTypesAstVisitor(
     override fun visit(ast: IsAst) {
         try {
             super.visit(ast)
-            val ofType = symbolToType(errors, ast.signifier.ctx, ast.scope.fetch(ast.signifier), ast.signifier)
+            val ofType = ast.scope.fetchType(ast.signifier)
             ast.identifierSymbol = filterValidTypes(ast.ctx, errors, ofType)
             ast.assignType(errors, preludeTable.fetchType(Lang.booleanId))
         } catch (ex: LanguageException) {

@@ -51,8 +51,7 @@ class CheckTypesAstVisitor(private val prelude: Scope) : UnitAstVisitor() {
     override fun visit(ast: FunctionAst) {
         try {
             super.visit(ast)
-            val returnSymbol = ast.scope.fetch(ast.returnType)
-            val returnType = symbolToType(errors, ast.ctx, returnSymbol, ast.returnType)
+            val returnType = ast.scope.fetchType(ast.returnType)
             checkTypes(ast.ctx, prelude, errors, returnType, ast.body.readType())
         } catch (ex: LanguageException) {
             errors.addAll(ast.ctx, ex.errors)

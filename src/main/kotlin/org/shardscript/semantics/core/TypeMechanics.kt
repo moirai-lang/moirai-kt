@@ -206,15 +206,6 @@ fun filterValidDotApply(
         }
     }
 
-fun symbolToType(errors: LanguageErrors, ctx: SourceContext, symbol: Symbol, signifier: Signifier): Type {
-    return if (symbol is Type) {
-        symbol
-    } else {
-        errors.add(ctx, SymbolIsNotAType(signifier))
-        ErrorType
-    }
-}
-
 fun getQualifiedName(symbol: Symbol): String {
     return when (symbol) {
         is SymbolInstantiation -> {
