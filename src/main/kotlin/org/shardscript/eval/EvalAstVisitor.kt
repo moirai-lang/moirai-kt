@@ -105,15 +105,15 @@ class EvalAstVisitor(private val globalScope: ValueTable) : ParameterizedAstVisi
                 toApply.apply(args)
             }
             is ListConstructorValue -> {
-                val instantiation = ast.symbolRef as TypeInstantiation
+                val instantiation = ast.typeRef as TypeInstantiation
                 toApply.apply(instantiation.substitutionChain.replayArgs(), args)
             }
             is SetConstructorValue -> {
-                val instantiation = ast.symbolRef as TypeInstantiation
+                val instantiation = ast.typeRef as TypeInstantiation
                 toApply.apply(instantiation.substitutionChain.replayArgs(), args)
             }
             is DictionaryConstructorValue -> {
-                val instantiation = ast.symbolRef as TypeInstantiation
+                val instantiation = ast.typeRef as TypeInstantiation
                 toApply.apply(instantiation.substitutionChain.replayArgs(), args)
             }
             is PluginValue -> {

@@ -54,6 +54,7 @@ class SymbolTable(private val parent: Scope) : Scope {
     private val typeTable: MutableMap<String, Type> = HashMap()
 
     fun symbolsToMap(): Map<String, Symbol> = symbolTable.toMap()
+    fun typesToMap(): Map<String, Type> = typeTable.toMap()
 
     private fun toType(signifier: Signifier, symbol: Symbol): Type {
         if (symbol is Type) {

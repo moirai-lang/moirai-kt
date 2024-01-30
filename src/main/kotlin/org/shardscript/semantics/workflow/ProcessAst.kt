@@ -96,12 +96,17 @@ fun processAstAllPhases(
     // By default, records, objects, and functions are exported
     fileScope.symbolsToMap().forEach { kvp ->
         when (kvp.value) {
-            is ObjectSymbol,
             is GroundFunctionSymbol,
-            is ParameterizedFunctionSymbol,
-            is GroundRecordTypeSymbol,
-            is ParameterizedRecordTypeSymbol -> userScopes.exports.define(Identifier(NotInSource, kvp.key), kvp.value)
+            is ParameterizedFunctionSymbol -> userScopes.exports.define(Identifier(NotInSource, kvp.key), kvp.value)
+            else -> Unit
+        }
+    }
 
+    fileScope.typesToMap().forEach { kvp ->
+        when (kvp.value) {
+            is ObjectSymbol,
+            is GroundRecordTypeSymbol,
+            is ParameterizedRecordTypeSymbol -> userScopes.exports.defineType(Identifier(NotInSource, kvp.key), kvp.value)
             else -> Unit
         }
     }

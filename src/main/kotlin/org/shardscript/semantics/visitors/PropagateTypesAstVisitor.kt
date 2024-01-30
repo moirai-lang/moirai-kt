@@ -119,21 +119,8 @@ class PropagateTypesAstVisitor(
                         }
                     }
 
-                    is BasicTypeSymbol,
-                    ConstantFinTypeSymbol,
-                    is FinTypeSymbol,
-                    is ImmutableFinTypeParameter,
-                    is MaxCostExpression,
-                    is MutableFinTypeParameter,
-                    is ProductCostExpression,
-                    is SumCostExpression,
-                    ErrorType,
-                    is FunctionTypeSymbol,
-                    is ObjectSymbol,
-                    is PlatformObjectSymbol,
-                    is StandardTypeParameter,
-                    is TypeInstantiation -> {
-                        errors.add(ast.ctx, TypeSystemBug)
+                    else -> {
+                        errors.add(ast.ctx, SymbolCouldNotBeApplied(signifier))
                         ast.assignType(errors, ErrorType)
                     }
                 }
