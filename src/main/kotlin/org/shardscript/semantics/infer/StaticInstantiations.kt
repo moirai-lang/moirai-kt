@@ -87,8 +87,8 @@ object RandomInstantiation : SingleTypeInstantiation {
                 throw LanguageException(errors.toSet())
             }
         }
-        return when (generatePath((res.substitutionChain).replayArgs().first() as Symbol)) {
-            listOf(Lang.intId.name) -> res
+        return when (getQualifiedName((res.substitutionChain).replayArgs().first() as Symbol)) {
+            Lang.intId.name -> res
             else -> {
                 errors.add(ctx, RandomRequiresIntLong)
                 throw LanguageException(errors.toSet())

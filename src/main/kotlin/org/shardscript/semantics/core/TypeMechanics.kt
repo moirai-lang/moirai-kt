@@ -171,59 +171,58 @@ fun symbolToType(errors: LanguageErrors, ctx: SourceContext, symbol: Symbol, sig
     }
 }
 
-fun generatePath(symbol: Symbol): List<String> {
-    val inline: MutableList<String> = ArrayList()
-    inlineGeneratePath(symbol, inline)
-    return inline.toList()
-}
-
-fun inlineGeneratePath(symbol: Symbol, path: MutableList<String>) {
-    when (symbol) {
+fun getQualifiedName(symbol: Symbol): String {
+    return when (symbol) {
         is GroundRecordTypeSymbol -> {
-            path.add(symbol.qualifiedName)
+            symbol.qualifiedName
         }
         is ParameterizedRecordTypeSymbol -> {
-            path.add(symbol.qualifiedName)
+            symbol.qualifiedName
         }
         is SymbolInstantiation -> {
             when (val parameterizedType = symbol.substitutionChain.originalSymbol) {
                 is ParameterizedBasicTypeSymbol -> {
-                    path.add(parameterizedType.identifier.name)
+                    parameterizedType.identifier.name
+                }
+                is ParameterizedFunctionSymbol -> {
+                    parameterizedType.identifier.name
+                }
+                is ParameterizedMemberPluginSymbol -> {
+                    parameterizedType.identifier.name
                 }
                 is ParameterizedRecordTypeSymbol -> {
-                    path.add(parameterizedType.qualifiedName)
+                    parameterizedType.qualifiedName
                 }
                 is ParameterizedStaticPluginSymbol -> {
-                    path.add(parameterizedType.identifier.name)
+                    parameterizedType.identifier.name
                 }
-                else -> Unit
             }
         }
         is ParameterizedBasicTypeSymbol -> {
-            path.add(symbol.identifier.name)
+            symbol.identifier.name
         }
         is ParameterizedStaticPluginSymbol -> {
-            path.add(symbol.identifier.name)
+            symbol.identifier.name
         }
         is BasicTypeSymbol -> {
-            path.add(symbol.identifier.name)
+            symbol.identifier.name
         }
         is ObjectSymbol -> {
-            path.add(symbol.qualifiedName)
+            symbol.qualifiedName
         }
         is PlatformObjectSymbol -> {
-            path.add(symbol.identifier.name)
+            symbol.identifier.name
         }
         is StandardTypeParameter -> {
-            path.add(symbol.qualifiedName)
+            symbol.qualifiedName
         }
         is ImmutableFinTypeParameter -> {
-            path.add(symbol.qualifiedName)
+            symbol.qualifiedName
         }
         is MutableFinTypeParameter -> {
-            path.add(symbol.qualifiedName)
+            symbol.qualifiedName
         }
-        else -> Unit
+        else -> ""
     }
 }
 
@@ -277,8 +276,8 @@ fun checkTypes(
             }
         }
         else -> {
-            val expectedPath = generatePath(expected as Symbol)
-            val actualPath = generatePath(actual as Symbol)
+            val expectedPath = getQualifiedName(expected as Symbol)
+            val actualPath = getQualifiedName(actual as Symbol)
             if (expectedPath != actualPath) {
                 errors.add(ctx, TypeMismatch(expected, actual))
             }
@@ -447,11 +446,11 @@ fun findBestType(ctx: SourceContext, errors: LanguageErrors, types: List<Type>):
         return ErrorSymbol
     }
     val first = types.first()
-    val firstPath = generatePath(first as Symbol)
+    val firstPath = getQualifiedName(first as Symbol)
     return when (first) {
         is GroundRecordTypeSymbol -> {
             when {
-                types.all { it is GroundRecordTypeSymbol && firstPath == generatePath(it) } -> {
+                types.all { it is GroundRecordTypeSymbol && firstPath == getQualifiedName(it) } -> {
                     first
                 }
                 else -> {
@@ -462,7 +461,7 @@ fun findBestType(ctx: SourceContext, errors: LanguageErrors, types: List<Type>):
         }
         is ObjectSymbol -> {
             when {
-                types.all { it is ObjectSymbol && firstPath == generatePath(it) } -> {
+                types.all { it is ObjectSymbol && firstPath == getQualifiedName(it) } -> {
                     first
                 }
                 else -> {
@@ -473,7 +472,7 @@ fun findBestType(ctx: SourceContext, errors: LanguageErrors, types: List<Type>):
         }
         is PlatformObjectSymbol -> {
             when {
-                types.all { it is PlatformObjectSymbol && firstPath == generatePath(it) } -> {
+                types.all { it is PlatformObjectSymbol && firstPath == getQualifiedName(it) } -> {
                     first
                 }
                 else -> {
@@ -488,7 +487,7 @@ fun findBestType(ctx: SourceContext, errors: LanguageErrors, types: List<Type>):
                     if (types.all {
                             it is SymbolInstantiation &&
                                     it.substitutionChain.originalSymbol is ParameterizedRecordTypeSymbol &&
-                                    firstPath == generatePath(it.substitutionChain.originalSymbol) &&
+                                    firstPath == getQualifiedName(it.substitutionChain.originalSymbol) &&
                                     first.substitutionChain.replayArgs().size ==
                                     it.substitutionChain.replayArgs().size
                         }) {
@@ -508,7 +507,7 @@ fun findBestType(ctx: SourceContext, errors: LanguageErrors, types: List<Type>):
                     if (types.all {
                             it is SymbolInstantiation &&
                                     it.substitutionChain.originalSymbol is ParameterizedBasicTypeSymbol &&
-                                    firstPath == generatePath(it.substitutionChain.originalSymbol) &&
+                                    firstPath == getQualifiedName(it.substitutionChain.originalSymbol) &&
                                     first.substitutionChain.replayArgs().size ==
                                     it.substitutionChain.replayArgs().size
                         }) {
@@ -541,7 +540,7 @@ fun findBestType(ctx: SourceContext, errors: LanguageErrors, types: List<Type>):
             }
         }
         is BasicTypeSymbol -> {
-            if (types.all { it is BasicTypeSymbol && firstPath == generatePath(it) }) {
+            if (types.all { it is BasicTypeSymbol && firstPath == getQualifiedName(it) }) {
                 first
             } else {
                 errors.add(ctx, CannotFindBestType(types))
@@ -549,7 +548,7 @@ fun findBestType(ctx: SourceContext, errors: LanguageErrors, types: List<Type>):
             }
         }
         is StandardTypeParameter -> {
-            if (types.all { it is StandardTypeParameter && firstPath == generatePath(it) }) {
+            if (types.all { it is StandardTypeParameter && firstPath == getQualifiedName(it) }) {
                 first
             } else {
                 errors.add(ctx, CannotFindBestType(types))
@@ -565,7 +564,7 @@ fun findBestType(ctx: SourceContext, errors: LanguageErrors, types: List<Type>):
             }
         }
         is ImmutableFinTypeParameter -> {
-            if (types.all { it is ImmutableFinTypeParameter && firstPath == generatePath(it) }) {
+            if (types.all { it is ImmutableFinTypeParameter && firstPath == getQualifiedName(it) }) {
                 first
             } else {
                 errors.add(ctx, CannotFindBestType(types))
@@ -573,7 +572,7 @@ fun findBestType(ctx: SourceContext, errors: LanguageErrors, types: List<Type>):
             }
         }
         is MutableFinTypeParameter -> {
-            if (types.all { it is MutableFinTypeParameter && firstPath == generatePath(it) }) {
+            if (types.all { it is MutableFinTypeParameter && firstPath == getQualifiedName(it) }) {
                 first
             } else {
                 errors.add(ctx, CannotFindBestType(types))

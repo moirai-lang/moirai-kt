@@ -332,7 +332,7 @@ object Plugins {
 class ObjectValue(
     val symbol: ObjectSymbol
 ) : Value() {
-    val path = generatePath(symbol)
+    val path = getQualifiedName(symbol)
 
     override fun equals(other: Any?): Boolean {
         if (other != null && other is ObjectValue) {
@@ -369,7 +369,7 @@ data class FunctionValue(
 
 class RecordValue(val symbol: Symbol, val fields: ValueTable) : Value() {
     lateinit var scope: Scope
-    val path = generatePath(symbol)
+    val path = getQualifiedName(symbol)
 
     override fun equals(other: Any?): Boolean {
         if (other != null && other is RecordValue) {
