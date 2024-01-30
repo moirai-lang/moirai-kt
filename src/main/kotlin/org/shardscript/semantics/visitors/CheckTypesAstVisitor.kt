@@ -126,7 +126,7 @@ class CheckTypesAstVisitor(private val prelude: Scope) : UnitAstVisitor() {
     override fun visit(ast: IfAst) {
         try {
             super.visit(ast)
-            checkTypes(ast.condition.ctx, prelude, errors, prelude.fetch(Lang.booleanId) as Type, ast.condition.readType())
+            checkTypes(ast.condition.ctx, prelude, errors, prelude.fetchType(Lang.booleanId), ast.condition.readType())
         } catch (ex: LanguageException) {
             errors.addAll(ast.ctx, ex.errors)
         }

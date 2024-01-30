@@ -309,21 +309,36 @@ class PropagateTypesAstVisitor(
         try {
             super.visit(ast)
             val symbol = ast.scope.fetch(ast.identifier)
-            ast.symbolRef = symbol
-            when (symbol) {
-                is ErrorSymbol -> ast.assignType(errors, ErrorType)
-                is LocalVariableSymbol -> ast.assignType(errors, symbol.ofTypeSymbol)
-                is FunctionFormalParameterSymbol -> {
-                    ast.assignType(errors, symbol.ofTypeSymbol)
-                    if (ast.readType() is FunctionTypeSymbol) {
-                        errors.add(ast.ctx, CannotRefFunctionParam(ast.identifier))
+            if(symbol is TypePlaceholder) {
+                ast.symbolRef = TypePlaceholder
+                when(val type = ast.scope.fetchType(ast.identifier)) {
+                    is BasicTypeSymbol -> ast.assignType(errors, type)
+                    is ObjectSymbol -> ast.assignType(errors, type)
+                    is PlatformObjectSymbol -> ast.assignType(errors, type)
+                    is StandardTypeParameter -> ast.assignType(errors, type)
+                    is TypeInstantiation -> ast.assignType(errors, type)
+                    else -> {
+                        errors.add(ast.ctx, InvalidRef(symbol))
+                        ast.assignType(errors, ErrorType)
                     }
                 }
+            } else {
+                ast.symbolRef = symbol
+                when (symbol) {
+                    is ErrorSymbol -> ast.assignType(errors, ErrorType)
+                    is LocalVariableSymbol -> ast.assignType(errors, symbol.ofTypeSymbol)
+                    is FunctionFormalParameterSymbol -> {
+                        ast.assignType(errors, symbol.ofTypeSymbol)
+                        if (ast.readType() is FunctionTypeSymbol) {
+                            errors.add(ast.ctx, CannotRefFunctionParam(ast.identifier))
+                        }
+                    }
 
-                is FieldSymbol -> ast.assignType(errors, symbol.ofTypeSymbol)
-                else -> {
-                    errors.add(ast.ctx, InvalidRef(symbol))
-                    ast.assignType(errors, ErrorType)
+                    is FieldSymbol -> ast.assignType(errors, symbol.ofTypeSymbol)
+                    else -> {
+                        errors.add(ast.ctx, InvalidRef(symbol))
+                        ast.assignType(errors, ErrorType)
+                    }
                 }
             }
         } catch (ex: LanguageException) {
@@ -723,10 +738,10 @@ class PropagateTypesAstVisitor(
                                     val ofType = ast.scope.fetchType(ast.ofType)
                                     ast.ofTypeSymbol = ofType
                                 }
-                                ast.body.scope.define(ast.identifier, ast.ofTypeSymbol as Symbol)
+                                ast.body.scope.defineType(ast.identifier, ast.ofTypeSymbol)
                                 ast.body.accept(this)
                             } else {
-                                errors.add(ast.source.ctx, ForEachFeatureBan(ast.source.readType() as Symbol))
+                                errors.add(ast.source.ctx, ForEachFeatureBan(ast.source.readType()))
                             }
                         }
 

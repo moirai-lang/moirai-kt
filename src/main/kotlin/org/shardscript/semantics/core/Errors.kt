@@ -149,8 +149,8 @@ data class InvalidIsCheck(val signifier: Signifier) : ErrorKind()
 data class SecondDegreeHigherOrderFunction(val identifier: Identifier) : ErrorKind()
 
 // Feature Flags
-data class ForEachFeatureBan(val symbol: Symbol) : ErrorKind(), SymbolHostErrorType {
-    override val symbols: List<Symbol> = listOf(symbol)
+data class ForEachFeatureBan(val type: Type) : ErrorKind(), TypeHostErrorType {
+    override val types: List<Type> = listOf(type)
 }
 
 data class RecordFieldFeatureBan(val type: Type) : ErrorKind(), TypeHostErrorType {

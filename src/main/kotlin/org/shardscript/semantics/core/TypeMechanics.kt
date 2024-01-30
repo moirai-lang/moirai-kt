@@ -299,7 +299,9 @@ fun getQualifiedName(type: Type): String {
         is ProductCostExpression,
         is SumCostExpression,
         ErrorType,
-        is FunctionTypeSymbol -> langThrow(TypeSystemBug)
+        is FunctionTypeSymbol -> {
+            langThrow(TypeSystemBug)
+        }
     }
 }
 
@@ -315,17 +317,21 @@ fun checkTypes(
             checkTypes(ctx, prelude, errors, expected.formalParamTypes, actual.formalParamTypes)
             checkTypes(ctx, prelude, errors, expected.returnType, actual.returnType)
         }
+
         expected is FunctionTypeSymbol && actual !is FunctionTypeSymbol -> {
             errors.add(ctx, TypeMismatch(expected, actual))
         }
+
         expected !is FunctionTypeSymbol && actual is FunctionTypeSymbol -> {
             errors.add(ctx, TypeMismatch(expected, actual))
         }
+
         expected is FinTypeSymbol && actual is FinTypeSymbol -> {
             if (actual.magnitude > expected.magnitude) {
                 errors.add(ctx, FinMismatch(expected.magnitude, actual.magnitude))
             }
         }
+
         expected is TypeInstantiation && actual is TypeInstantiation -> {
             val expectedParameterized = expected.substitutionChain.terminus
             val actualParameterized = actual.substitutionChain.terminus
@@ -340,6 +346,7 @@ fun checkTypes(
                         actual.substitutionChain.replayArgs()
                     )
                 }
+
                 expectedParameterized is ParameterizedBasicTypeSymbol && actualParameterized is ParameterizedBasicTypeSymbol -> {
                     checkTypes(ctx, prelude, errors, expectedParameterized, actualParameterized)
                     checkTypes(
@@ -352,6 +359,20 @@ fun checkTypes(
                 }
             }
         }
+
+        expected is ConstantFinTypeSymbol && actual is ConstantFinTypeSymbol -> Unit
+        expected is MaxCostExpression && actual is MaxCostExpression -> {
+            checkTypes(ctx, prelude, errors, expected.children, actual.children)
+        }
+
+        expected is ProductCostExpression && actual is ProductCostExpression -> {
+            checkTypes(ctx, prelude, errors, expected.children, actual.children)
+        }
+
+        expected is SumCostExpression && actual is SumCostExpression -> {
+            checkTypes(ctx, prelude, errors, expected.children, actual.children)
+        }
+
         else -> {
             val expectedPath = getQualifiedName(expected)
             val actualPath = getQualifiedName(actual)
