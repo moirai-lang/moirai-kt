@@ -130,7 +130,7 @@ class BindScopesAstVisitor(
 
     override fun visit(ast: RecordDefinitionAst, param: Scope) {
         try {
-            val symbol = if (ast.typeParams.isEmpty()) {
+            val type = if (ast.typeParams.isEmpty()) {
                 val res = GroundRecordTypeSymbol(
                     param,
                     "${fileName}.${ast.identifier.name}",
@@ -155,13 +155,13 @@ class BindScopesAstVisitor(
             if (ast.definitionSpace.existsHere(ast.identifier)) {
                 errors.add(ast.ctx, IdentifierAlreadyExists(ast.identifier))
             } else {
-                ast.definitionSpace.define(
+                ast.definitionSpace.defineType(
                     ast.identifier,
-                    symbol
+                    type
                 )
             }
-            ast.scope = symbol
-            super.visit(ast, symbol)
+            ast.scope = type
+            super.visit(ast, type)
         } catch (ex: LanguageException) {
             errors.addAll(ast.ctx, ex.errors)
         }
@@ -169,7 +169,7 @@ class BindScopesAstVisitor(
 
     override fun visit(ast: ObjectDefinitionAst, param: Scope) {
         try {
-            val symbol = ObjectSymbol(
+            val type = ObjectSymbol(
                 "${fileName}.${ast.identifier.name}",
                 ast.identifier,
                 userTypeFeatureSupport
@@ -178,9 +178,9 @@ class BindScopesAstVisitor(
             if (ast.definitionSpace.existsHere(ast.identifier)) {
                 errors.add(ast.ctx, IdentifierAlreadyExists(ast.identifier))
             } else {
-                ast.definitionSpace.define(
+                ast.definitionSpace.defineType(
                     ast.identifier,
-                    symbol
+                    type
                 )
             }
             ast.scope = param

@@ -18,7 +18,7 @@ class BanSecondDegreeAstVisitor : UnitAstVisitor() {
     override fun visit(ast: FunctionAst) {
         super.visit(ast)
         ast.formalParams.forEach {
-            val ofTypeSymbol = ast.scope.fetch(it.ofType)
+            val ofTypeSymbol = ast.scope.fetchType(it.ofType)
             if (ofTypeSymbol is FunctionTypeSymbol) {
                 checkForSecondDegree(ast.ctx, it.identifier, ofTypeSymbol)
             }
