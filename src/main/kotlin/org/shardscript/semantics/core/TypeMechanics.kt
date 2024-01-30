@@ -564,10 +564,6 @@ fun findBestType(ctx: SourceContext, errors: LanguageErrors, types: List<Type>):
                         ErrorSymbol
                     }
                 }
-                else -> {
-                    errors.add(ctx, CannotFindBestType(types))
-                    ErrorSymbol
-                }
             }
         }
         is BasicTypeSymbol -> {
@@ -636,7 +632,6 @@ fun validateSubstitution(
                     is ParameterizedRecordTypeSymbol -> if (!parameterizedType.featureSupport.typeArg) {
                         errors.add(ctx, TypeArgFeatureBan(substitutedType))
                     }
-                    else -> Unit
                 }
             }
             is ObjectSymbol -> if (!substitutedType.featureSupport.typeArg) {

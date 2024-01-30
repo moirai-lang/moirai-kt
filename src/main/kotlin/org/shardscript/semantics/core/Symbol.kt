@@ -117,7 +117,7 @@ data class GroundMemberPluginSymbol(
 data class ParameterizedMemberPluginSymbol(
     override val parent: Scope,
     override val identifier: Identifier,
-    val instantiation: TwoTypeInstantiation
+    val instantiation: TwoTypeInstantiation<RawTerminusSymbol, SymbolInstantiation>
 ) : RawTerminusSymbol(parent) {
     override lateinit var typeParams: List<TypeParameter>
 
@@ -131,7 +131,7 @@ data class ParameterizedMemberPluginSymbol(
 data class ParameterizedStaticPluginSymbol(
     override val parent: Scope,
     override val identifier: Identifier,
-    val instantiation: SingleTypeInstantiation,
+    val instantiation: SingleTypeInstantiation<RawTerminusSymbol, SymbolInstantiation>,
 ) : RawTerminusSymbol(parent) {
     override lateinit var typeParams: List<TypeParameter>
     lateinit var formalParams: List<FunctionFormalParameterSymbol>

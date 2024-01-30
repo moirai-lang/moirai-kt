@@ -11,7 +11,7 @@ fun addFunctionEdge(
     val first: Symbol = when (processFirst) {
         is GroundFunctionSymbol -> processFirst
         is ParameterizedFunctionSymbol -> processFirst
-        is TypeInstantiation -> {
+        is SymbolInstantiation -> {
             when (val parameterizedSymbol = processFirst.substitutionChain.terminus) {
                 is ParameterizedFunctionSymbol -> parameterizedSymbol
                 else -> processFirst
@@ -22,7 +22,7 @@ fun addFunctionEdge(
     val second: Symbol = when (processSecond) {
         is GroundFunctionSymbol -> processSecond
         is ParameterizedFunctionSymbol -> processSecond
-        is TypeInstantiation -> {
+        is SymbolInstantiation -> {
             when (val parameterizedSymbol = processSecond.substitutionChain.terminus) {
                 is ParameterizedFunctionSymbol -> parameterizedSymbol
                 else -> processSecond
@@ -48,7 +48,7 @@ fun higherOrderEdges(
                 is ParameterizedFunctionSymbol -> {
                     addFunctionEdge(symbolRef, astSymbolRef, edges, nodes)
                 }
-                is TypeInstantiation -> {
+                is SymbolInstantiation -> {
                     when (val parameterizedSymbol = symbolRef.substitutionChain.terminus) {
                         is ParameterizedFunctionSymbol -> addFunctionEdge(
                             parameterizedSymbol,
@@ -102,7 +102,7 @@ class GenerateFunctionEdgesParameterizedAstVisitor(
             is ParameterizedFunctionSymbol -> {
                 addFunctionEdge(symbolRef, param, edges, nodes)
             }
-            is TypeInstantiation -> {
+            is SymbolInstantiation -> {
                 when (val parameterizedSymbol = symbolRef.substitutionChain.terminus) {
                     is ParameterizedFunctionSymbol -> addFunctionEdge(parameterizedSymbol, param, edges, nodes)
                     else -> Unit
@@ -118,7 +118,7 @@ class GenerateFunctionEdgesParameterizedAstVisitor(
         when (val symbolRef = ast.symbolRef) {
             is GroundMemberPluginSymbol,
             is ParameterizedMemberPluginSymbol -> Unit
-            is TypeInstantiation -> {
+            is SymbolInstantiation -> {
                 when (val parameterizedType = symbolRef.substitutionChain.terminus) {
                     is ParameterizedMemberPluginSymbol -> Unit
                     // TODO: Fix this use of the as keyword
@@ -136,7 +136,7 @@ class GenerateFunctionEdgesParameterizedAstVisitor(
             is ParameterizedFunctionSymbol -> {
                 addFunctionEdge(symbolRef, param, edges, nodes)
             }
-            is TypeInstantiation -> {
+            is SymbolInstantiation -> {
                 when (val parameterizedType = symbolRef.substitutionChain.terminus) {
                     is ParameterizedFunctionSymbol -> {
                         addFunctionEdge(parameterizedType, param, edges, nodes)

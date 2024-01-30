@@ -432,10 +432,6 @@ class PropagateTypesAstVisitor(
                                 }
                             }
                         }
-                        else -> {
-                            errors.add(ast.ctx, SymbolHasNoFields(ast.identifier, lhsType))
-                            ast.assignType(errors, ErrorSymbol)
-                        }
                     }
                 }
                 else -> {
@@ -604,10 +600,6 @@ class PropagateTypesAstVisitor(
                                     ast.assignType(errors, ErrorSymbol)
                                 }
                             }
-                        }
-                        else -> {
-                            errors.add(ast.ctx, SymbolCouldNotBeApplied(ast.signifier))
-                            ast.assignType(errors, ErrorSymbol)
                         }
                     }
                 }

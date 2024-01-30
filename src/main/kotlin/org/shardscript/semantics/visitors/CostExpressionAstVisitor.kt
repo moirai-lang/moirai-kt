@@ -14,11 +14,12 @@ class CostExpressionAstVisitor(private val architecture: Architecture) : UnitAst
             is GroundMemberPluginSymbol -> {
                 symbolRef.costExpression
             }
-            is TypeInstantiation -> replaySubstitutions(symbolRef)
+            is TypeInstantiation -> FinTypeSymbol(architecture.defaultNodeCost)
+            is SymbolInstantiation -> replaySubstitutions(symbolRef)
             else -> FinTypeSymbol(architecture.defaultNodeCost)
         }
 
-    private fun replaySubstitutions(instantiation: TypeInstantiation): CostExpression =
+    private fun replaySubstitutions(instantiation: SymbolInstantiation): CostExpression =
         when (val parameterizedSymbol = instantiation.substitutionChain.terminus) {
             is ParameterizedFunctionSymbol -> {
                 val original = parameterizedSymbol.costExpression
@@ -32,7 +33,6 @@ class CostExpressionAstVisitor(private val architecture: Architecture) : UnitAst
                 val original = parameterizedSymbol.costExpression
                 instantiation.substitutionChain.replay(original)
             }
-            else -> FinTypeSymbol(architecture.defaultNodeCost)
         }
 
     override fun visit(ast: IntLiteralAst) {
@@ -129,6 +129,9 @@ class CostExpressionAstVisitor(private val architecture: Architecture) : UnitAst
         val multipliers = when (val symbolRef = ast.symbolRef) {
             is GroundFunctionSymbol -> symbolRef.formalParams.map { it.costMultiplier }
             is TypeInstantiation -> {
+                listOf()
+            }
+            is SymbolInstantiation -> {
                 when (val parameterizedSymbol = symbolRef.substitutionChain.terminus) {
                     is ParameterizedFunctionSymbol -> {
                         parameterizedSymbol.formalParams.map { it.costMultiplier }
@@ -159,6 +162,9 @@ class CostExpressionAstVisitor(private val architecture: Architecture) : UnitAst
         val multipliers = when (val symbolRef = ast.symbolRef) {
             is GroundFunctionSymbol -> symbolRef.formalParams.map { it.costMultiplier }
             is TypeInstantiation -> {
+                listOf()
+            }
+            is SymbolInstantiation -> {
                 when (val parameterizedSymbol = symbolRef.substitutionChain.terminus) {
                     is ParameterizedFunctionSymbol -> {
                         parameterizedSymbol.formalParams.map {

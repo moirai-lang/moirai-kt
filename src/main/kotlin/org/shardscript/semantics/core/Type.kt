@@ -110,7 +110,7 @@ class BasicTypeSymbol(
 
 class ParameterizedBasicTypeSymbol(
     val identifier: Identifier,
-    val instantiation: SingleTypeInstantiation,
+    val instantiation: SingleTypeInstantiation<TerminusType, TypeInstantiation>,
     val featureSupport: FeatureSupport,
     private val symbolTable: SymbolTable = SymbolTable(NullSymbolTable)
 ) : Symbol(), TerminusType, Scope by symbolTable {
