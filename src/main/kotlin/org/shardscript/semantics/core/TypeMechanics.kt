@@ -217,22 +217,6 @@ fun symbolToType(errors: LanguageErrors, ctx: SourceContext, symbol: Symbol, sig
 
 fun getQualifiedName(symbol: Symbol): String {
     return when (symbol) {
-        is GroundRecordTypeSymbol -> {
-            symbol.qualifiedName
-        }
-        is ParameterizedRecordTypeSymbol -> {
-            symbol.qualifiedName
-        }
-        is TypeInstantiation -> {
-            when (val parameterizedType = symbol.substitutionChain.terminus) {
-                is ParameterizedBasicTypeSymbol -> {
-                    parameterizedType.identifier.name
-                }
-                is ParameterizedRecordTypeSymbol -> {
-                    parameterizedType.qualifiedName
-                }
-            }
-        }
         is SymbolInstantiation -> {
             when (val parameterizedType = symbol.substitutionChain.terminus) {
                 is ParameterizedFunctionSymbol -> {
@@ -248,31 +232,83 @@ fun getQualifiedName(symbol: Symbol): String {
                 }
             }
         }
-        is ParameterizedBasicTypeSymbol -> {
-            symbol.identifier.name
-        }
+
         is ParameterizedStaticPluginSymbol -> {
             symbol.identifier.name
         }
+
+        ErrorSymbol,
+        is Block,
+        is LambdaSymbol,
+        is FieldSymbol,
+        is FunctionFormalParameterSymbol,
+        is LocalVariableSymbol,
+        is GroundFunctionSymbol,
+        is GroundMemberPluginSymbol,
+        is ParameterizedFunctionSymbol,
+        is ParameterizedMemberPluginSymbol,
+        is PlatformFieldSymbol,
+        TypePlaceholder -> langThrow(TypeSystemBug)
+    }
+}
+
+fun getQualifiedName(type: Type): String {
+    return when (type) {
+        is GroundRecordTypeSymbol -> {
+            type.qualifiedName
+        }
+
+        is ParameterizedRecordTypeSymbol -> {
+            type.qualifiedName
+        }
+
+        is TypeInstantiation -> {
+            when (val parameterizedType = type.substitutionChain.terminus) {
+                is ParameterizedBasicTypeSymbol -> {
+                    parameterizedType.identifier.name
+                }
+
+                is ParameterizedRecordTypeSymbol -> {
+                    parameterizedType.qualifiedName
+                }
+            }
+        }
+
+        is ParameterizedBasicTypeSymbol -> {
+            type.identifier.name
+        }
+
         is BasicTypeSymbol -> {
-            symbol.identifier.name
+            type.identifier.name
         }
+
         is ObjectSymbol -> {
-            symbol.qualifiedName
+            type.qualifiedName
         }
+
         is PlatformObjectSymbol -> {
-            symbol.identifier.name
+            type.identifier.name
         }
+
         is StandardTypeParameter -> {
-            symbol.qualifiedName
+            type.qualifiedName
         }
+
         is ImmutableFinTypeParameter -> {
-            symbol.qualifiedName
+            type.qualifiedName
         }
+
         is MutableFinTypeParameter -> {
-            symbol.qualifiedName
+            type.qualifiedName
         }
-        else -> ""
+
+        ConstantFinTypeSymbol,
+        is FinTypeSymbol,
+        is MaxCostExpression,
+        is ProductCostExpression,
+        is SumCostExpression,
+        ErrorType,
+        is FunctionTypeSymbol -> langThrow(TypeSystemBug)
     }
 }
 
@@ -353,12 +389,44 @@ fun checkTypes(
 
 fun checkApply(prelude: Scope, errors: LanguageErrors, ast: ApplyAst) {
     when (val symbol = ast.symbolRef) {
-        is GroundFunctionSymbol -> {
-            checkArgs(prelude, errors, symbol.type(), ast)
+        is TypePlaceholder -> {
+            when (val type = ast.typeRef) {
+                is GroundRecordTypeSymbol -> {
+                    checkArgs(prelude, errors, type, ast)
+                }
+
+                is TypeInstantiation -> {
+                    when (val parameterizedSymbol = type.substitutionChain.terminus) {
+                        is ParameterizedRecordTypeSymbol -> {
+                            checkArgs(prelude, errors, type, parameterizedSymbol, ast)
+                        }
+
+                        is ParameterizedBasicTypeSymbol -> {
+                            checkArgs(prelude, errors, type, parameterizedSymbol, ast)
+                        }
+                    }
+                }
+
+                is BasicTypeSymbol,
+                ConstantFinTypeSymbol,
+                is FinTypeSymbol,
+                is ImmutableFinTypeParameter,
+                is MaxCostExpression,
+                is MutableFinTypeParameter,
+                is ProductCostExpression,
+                is SumCostExpression,
+                ErrorType,
+                is FunctionTypeSymbol,
+                is ObjectSymbol,
+                is PlatformObjectSymbol,
+                is StandardTypeParameter,
+                is ParameterizedBasicTypeSymbol,
+                is ParameterizedRecordTypeSymbol -> errors.add(ast.ctx, TypeSystemBug)
+            }
         }
 
-        is GroundRecordTypeSymbol -> {
-            checkArgs(prelude, errors, symbol, ast)
+        is GroundFunctionSymbol -> {
+            checkArgs(prelude, errors, symbol.type(), ast)
         }
 
         is FunctionFormalParameterSymbol -> when (val ofTypeSymbol = symbol.ofTypeSymbol) {
@@ -371,18 +439,6 @@ fun checkApply(prelude: Scope, errors: LanguageErrors, ast: ApplyAst) {
 
         is GroundMemberPluginSymbol -> {
             checkArgs(prelude, errors, symbol.type(), ast)
-        }
-
-        is TypeInstantiation -> {
-            when (val parameterizedSymbol = symbol.substitutionChain.terminus) {
-                is ParameterizedRecordTypeSymbol -> {
-                    checkArgs(prelude, errors, symbol, parameterizedSymbol, ast)
-                }
-
-                is ParameterizedBasicTypeSymbol -> {
-                    checkArgs(prelude, errors, symbol, parameterizedSymbol, ast)
-                }
-            }
         }
 
         is SymbolInstantiation -> {
@@ -466,7 +522,7 @@ fun checkArgs(
     ast: ApplyAst
 ) {
     if (parameterizedType.identifier == Lang.dictionaryId || parameterizedType.identifier == Lang.mutableDictionaryId) {
-        val pairType = prelude.fetch(Lang.pairId) as ParameterizedRecordTypeSymbol
+        val pairType = prelude.fetchType(Lang.pairId) as ParameterizedRecordTypeSymbol
         val pairSubstitution = Substitution(
             pairType.typeParams,
             listOf(
@@ -510,7 +566,7 @@ fun findBestType(ctx: SourceContext, errors: LanguageErrors, types: List<Type>):
         return ErrorType
     }
     val first = types.first()
-    val firstPath = getQualifiedName(first as Symbol)
+    val firstPath = getQualifiedName(first)
     return when (first) {
         is GroundRecordTypeSymbol -> {
             when {

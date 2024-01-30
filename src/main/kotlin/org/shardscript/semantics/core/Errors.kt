@@ -165,8 +165,8 @@ data class FormalParamFeatureBan(val symbol: Symbol) : ErrorKind(), SymbolHostEr
     override val symbols: List<Symbol> = listOf(symbol)
 }
 
-data class TypeArgFeatureBan(val symbol: Symbol) : ErrorKind(), SymbolHostErrorType {
-    override val symbols: List<Symbol> = listOf(symbol)
+data class TypeArgFeatureBan(val type: Type) : ErrorKind(), TypeHostErrorType {
+    override val types: List<Type> = listOf(type)
 }
 
 data class LanguageError(
