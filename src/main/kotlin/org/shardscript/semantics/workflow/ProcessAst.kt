@@ -13,7 +13,7 @@ data class SemanticArtifacts(
     val processedAst: FileAst,
     val userScopes: UserScopes,
     val file: Scope,
-    val sortedRecords: SortResult<Symbol>,
+    val sortedRecords: SortResult<Type>,
     val sortedFunctions: SortResult<Symbol>
 )
 

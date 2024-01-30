@@ -23,7 +23,7 @@ fun parameterScan(ast: FileAst, fileName: String) {
     }
 }
 
-fun simpleRecursiveRecordDetection(ast: FileAst): SortResult<Symbol> {
+fun simpleRecursiveRecordDetection(ast: FileAst): SortResult<Type> {
     val generateEdgesAstVisitor = GenerateRecordEdgesAstVisitor()
     ast.accept(generateEdgesAstVisitor)
     val nodes = generateEdgesAstVisitor.nodes

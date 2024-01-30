@@ -362,8 +362,8 @@ fun checkTypes(
             }
         }
         else -> {
-            val expectedPath = getQualifiedName(expected as Symbol)
-            val actualPath = getQualifiedName(actual as Symbol)
+            val expectedPath = getQualifiedName(expected)
+            val actualPath = getQualifiedName(actual)
             if (expectedPath != actualPath) {
                 errors.add(ctx, TypeMismatch(expected, actual))
             }

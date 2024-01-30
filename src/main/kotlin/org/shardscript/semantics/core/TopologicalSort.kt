@@ -10,7 +10,7 @@ data class Right<out B>(val value: B) : Either<Nothing, B>()
 data class SortResult<T>(
     val edges: Set<DependencyEdge<T>>,
     val nodes: Set<T>,
-    val sorted: List<Symbol>
+    val sorted: List<T>
 )
 
 fun <T> topologicalSort(nodes: Set<T>, edges: Set<DependencyEdge<T>>): Either<Set<T>, List<T>> {

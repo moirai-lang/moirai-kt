@@ -89,8 +89,8 @@ data class RecursiveFunctionDetected(val symbol: Symbol) : ErrorKind(), SymbolHo
     override val symbols: List<Symbol> = listOf(symbol)
 }
 
-data class RecursiveRecordDetected(val symbol: Symbol) : ErrorKind(), SymbolHostErrorType {
-    override val symbols: List<Symbol> = listOf(symbol)
+data class RecursiveRecordDetected(val type: Type) : ErrorKind(), TypeHostErrorType {
+    override val types: List<Type> = listOf(type)
 }
 
 data class DictionaryArgsMustBePairs(val actual: Type) : ErrorKind(), TypeHostErrorType {
