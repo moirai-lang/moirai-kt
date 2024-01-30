@@ -11,7 +11,7 @@ class PropagateTypesAstVisitor(
 ) : UnitAstVisitor() {
     private fun groundApply(ast: SymbolRefAst, signifier: Signifier, args: List<Ast>, symbol: Symbol) {
         when (symbol) {
-            is ErrorSymbol -> ast.assignType(errors, ErrorSymbol)
+            is ErrorType -> ast.assignType(errors, ErrorType)
             is GroundFunctionSymbol -> {
                 if (signifier is ParameterizedSignifier) {
                     errors.add(signifier.ctx, SymbolHasNoParameters(signifier))
@@ -30,7 +30,7 @@ class PropagateTypesAstVisitor(
                         ast.assignType(errors, returnType)
                     } else {
                         errors.add(ast.ctx, IncorrectNumberOfTypeArgs(symbol.typeParams.size, idArgs.size))
-                        ast.assignType(errors, ErrorSymbol)
+                        ast.assignType(errors, ErrorType)
                     }
                 } else {
                     val instantiation = instantiateFunction(ast.ctx, args, symbol, errors)
@@ -47,7 +47,7 @@ class PropagateTypesAstVisitor(
                     is FunctionTypeSymbol -> ast.assignType(errors, ofTypeSymbol.returnType)
                     else -> {
                         errors.add(ast.ctx, SymbolCouldNotBeApplied(signifier))
-                        ast.assignType(errors, ErrorSymbol)
+                        ast.assignType(errors, ErrorType)
                     }
                 }
             }
@@ -69,7 +69,7 @@ class PropagateTypesAstVisitor(
                         ast.assignType(errors, instantiation)
                     } else {
                         errors.add(ast.ctx, IncorrectNumberOfTypeArgs(symbol.typeParams.size, idArgs.size))
-                        ast.assignType(errors, ErrorSymbol)
+                        ast.assignType(errors, ErrorType)
                     }
                 } else {
                     val instantiation = instantiateRecord(ast.ctx, args, symbol, errors)
@@ -94,7 +94,7 @@ class PropagateTypesAstVisitor(
                         ast.assignType(errors, instantiation)
                     } else {
                         errors.add(ast.ctx, IncorrectNumberOfTypeArgs(symbol.typeParams.size, idArgs.size))
-                        ast.assignType(errors, ErrorSymbol)
+                        ast.assignType(errors, ErrorType)
                     }
                 } else {
                     val instantiation = symbol.instantiation.apply(
@@ -127,7 +127,7 @@ class PropagateTypesAstVisitor(
                         ast.assignType(errors, returnType)
                     } else {
                         errors.add(ast.ctx, IncorrectNumberOfTypeArgs(symbol.typeParams.size, idArgs.size))
-                        ast.assignType(errors, ErrorSymbol)
+                        ast.assignType(errors, ErrorType)
                     }
                 } else {
                     val instantiation = symbol.instantiation.apply(
@@ -145,7 +145,7 @@ class PropagateTypesAstVisitor(
             }
             else -> {
                 errors.add(ast.ctx, SymbolCouldNotBeApplied(signifier))
-                ast.assignType(errors, ErrorSymbol)
+                ast.assignType(errors, ErrorType)
             }
         }
     }
@@ -156,7 +156,7 @@ class PropagateTypesAstVisitor(
             ast.assignType(errors, preludeTable.fetch(Lang.intId) as Type)
         } catch (ex: LanguageException) {
             errors.addAll(ast.ctx, ex.errors)
-            ast.assignType(errors, ErrorSymbol)
+            ast.assignType(errors, ErrorType)
         }
     }
 
@@ -176,7 +176,7 @@ class PropagateTypesAstVisitor(
             )
         } catch (ex: LanguageException) {
             errors.addAll(ast.ctx, ex.errors)
-            ast.assignType(errors, ErrorSymbol)
+            ast.assignType(errors, ErrorType)
         }
     }
 
@@ -186,7 +186,7 @@ class PropagateTypesAstVisitor(
             ast.assignType(errors, preludeTable.fetch(Lang.booleanId) as Type)
         } catch (ex: LanguageException) {
             errors.addAll(ast.ctx, ex.errors)
-            ast.assignType(errors, ErrorSymbol)
+            ast.assignType(errors, ErrorType)
         }
     }
 
@@ -196,7 +196,7 @@ class PropagateTypesAstVisitor(
             ast.assignType(errors, preludeTable.fetch(Lang.charId) as Type)
         } catch (ex: LanguageException) {
             errors.addAll(ast.ctx, ex.errors)
-            ast.assignType(errors, ErrorSymbol)
+            ast.assignType(errors, ErrorType)
         }
     }
 
@@ -216,7 +216,7 @@ class PropagateTypesAstVisitor(
             )
         } catch (ex: LanguageException) {
             errors.addAll(ast.ctx, ex.errors)
-            ast.assignType(errors, ErrorSymbol)
+            ast.assignType(errors, ErrorType)
         }
     }
 
@@ -236,7 +236,7 @@ class PropagateTypesAstVisitor(
             )
         } catch (ex: LanguageException) {
             errors.addAll(ast.ctx, ex.errors)
-            ast.assignType(errors, ErrorSymbol)
+            ast.assignType(errors, ErrorType)
         }
     }
 
@@ -255,7 +255,7 @@ class PropagateTypesAstVisitor(
             ast.symbolRef = local
         } catch (ex: LanguageException) {
             errors.addAll(ast.ctx, ex.errors)
-            ast.assignType(errors, ErrorSymbol)
+            ast.assignType(errors, ErrorType)
         }
     }
 
@@ -265,7 +265,7 @@ class PropagateTypesAstVisitor(
             val symbol = ast.scope.fetch(ast.identifier)
             ast.symbolRef = symbol
             when (symbol) {
-                is ErrorSymbol -> ast.assignType(errors, ErrorSymbol)
+                is ErrorType -> ast.assignType(errors, ErrorType)
                 is BasicTypeSymbol -> ast.assignType(errors, symbol)
                 is LocalVariableSymbol -> ast.assignType(errors, symbol.ofTypeSymbol)
                 is ObjectSymbol -> ast.assignType(errors, symbol)
@@ -282,12 +282,12 @@ class PropagateTypesAstVisitor(
                 is TypeInstantiation -> ast.assignType(errors, symbol)
                 else -> {
                     errors.add(ast.ctx, InvalidRef(symbol))
-                    ast.assignType(errors, ErrorSymbol)
+                    ast.assignType(errors, ErrorType)
                 }
             }
         } catch (ex: LanguageException) {
             errors.addAll(ast.ctx, ex.errors)
-            ast.assignType(errors, ErrorSymbol)
+            ast.assignType(errors, ErrorType)
         }
     }
 
@@ -301,7 +301,7 @@ class PropagateTypesAstVisitor(
             }
         } catch (ex: LanguageException) {
             errors.addAll(ast.ctx, ex.errors)
-            ast.assignType(errors, ErrorSymbol)
+            ast.assignType(errors, ErrorType)
         }
     }
 
@@ -315,7 +315,7 @@ class PropagateTypesAstVisitor(
             }
         } catch (ex: LanguageException) {
             errors.addAll(ast.ctx, ex.errors)
-            ast.assignType(errors, ErrorSymbol)
+            ast.assignType(errors, ErrorType)
         }
     }
 
@@ -344,7 +344,7 @@ class PropagateTypesAstVisitor(
             }
         } catch (ex: LanguageException) {
             errors.addAll(ast.ctx, ex.errors)
-            ast.assignType(errors, ErrorSymbol)
+            ast.assignType(errors, ErrorType)
         }
     }
 
@@ -358,7 +358,7 @@ class PropagateTypesAstVisitor(
             ast.assignType(errors, lambdaSymbol.type())
         } catch (ex: LanguageException) {
             errors.addAll(ast.ctx, ex.errors)
-            ast.assignType(errors, ErrorSymbol)
+            ast.assignType(errors, ErrorType)
         }
     }
 
@@ -371,7 +371,7 @@ class PropagateTypesAstVisitor(
             }
         } catch (ex: LanguageException) {
             errors.addAll(ast.ctx, ex.errors)
-            ast.assignType(errors, ErrorSymbol)
+            ast.assignType(errors, ErrorType)
         }
     }
 
@@ -381,7 +381,7 @@ class PropagateTypesAstVisitor(
             ast.assignType(errors, preludeTable.fetch(Lang.unitId) as Type)
         } catch (ex: LanguageException) {
             errors.addAll(ast.ctx, ex.errors)
-            ast.assignType(errors, ErrorSymbol)
+            ast.assignType(errors, ErrorType)
         }
     }
 
@@ -389,7 +389,7 @@ class PropagateTypesAstVisitor(
         try {
             super.visit(ast)
             when (val lhsType = ast.lhs.readType()) {
-                is ErrorSymbol -> ast.assignType(errors, ErrorSymbol)
+                is ErrorType -> ast.assignType(errors, ErrorType)
                 is GroundRecordTypeSymbol -> {
                     val symbol = lhsType.fetchHere(ast.identifier)
                     ast.symbolRef = symbol
@@ -397,7 +397,7 @@ class PropagateTypesAstVisitor(
                         is FieldSymbol -> ast.assignType(errors, symbol.ofTypeSymbol)
                         else -> {
                             errors.add(ast.ctx, SymbolIsNotAField(ast.identifier))
-                            ast.assignType(errors, ErrorSymbol)
+                            ast.assignType(errors, ErrorType)
                         }
                     }
                 }
@@ -413,7 +413,7 @@ class PropagateTypesAstVisitor(
                                 }
                                 else -> {
                                     errors.add(ast.ctx, SymbolIsNotAField(ast.identifier))
-                                    ast.assignType(errors, ErrorSymbol)
+                                    ast.assignType(errors, ErrorType)
                                 }
                             }
                         }
@@ -427,7 +427,7 @@ class PropagateTypesAstVisitor(
                                 }
                                 else -> {
                                     errors.add(ast.ctx, SymbolIsNotAField(ast.identifier))
-                                    ast.assignType(errors, ErrorSymbol)
+                                    ast.assignType(errors, ErrorType)
 
                                 }
                             }
@@ -436,12 +436,12 @@ class PropagateTypesAstVisitor(
                 }
                 else -> {
                     errors.add(ast.ctx, SymbolHasNoFields(ast.identifier, ast.lhs.readType() as Symbol))
-                    ast.assignType(errors, ErrorSymbol)
+                    ast.assignType(errors, ErrorType)
                 }
             }
         } catch (ex: LanguageException) {
             errors.addAll(ast.ctx, ex.errors)
-            ast.assignType(errors, ErrorSymbol)
+            ast.assignType(errors, ErrorType)
         }
     }
 
@@ -465,7 +465,7 @@ class PropagateTypesAstVisitor(
             groundApply(ast, ast.signifier, ast.args, symbol)
         } catch (ex: LanguageException) {
             errors.addAll(ast.ctx, ex.errors)
-            ast.assignType(errors, ErrorSymbol)
+            ast.assignType(errors, ErrorType)
         }
     }
 
@@ -484,7 +484,7 @@ class PropagateTypesAstVisitor(
                 }
             }
             when (val lhsType = ast.lhs.readType()) {
-                is ErrorSymbol -> ast.assignType(errors, ErrorSymbol)
+                is ErrorType -> ast.assignType(errors, ErrorType)
                 is BasicTypeSymbol -> {
                     val member = lhsType.fetchHere(ast.tti)
                     filterValidDotApply(ast.ctx, errors, member, ast.signifier)
@@ -504,7 +504,7 @@ class PropagateTypesAstVisitor(
                         }
                         else -> {
                             errors.add(ast.ctx, SymbolCouldNotBeApplied(ast.signifier))
-                            ast.assignType(errors, ErrorSymbol)
+                            ast.assignType(errors, ErrorType)
                         }
                     }
                 }
@@ -521,7 +521,7 @@ class PropagateTypesAstVisitor(
                         }
                         else -> {
                             errors.add(ast.ctx, SymbolCouldNotBeApplied(ast.signifier))
-                            ast.assignType(errors, ErrorSymbol)
+                            ast.assignType(errors, ErrorType)
                         }
                     }
                 }
@@ -538,7 +538,7 @@ class PropagateTypesAstVisitor(
                         }
                         else -> {
                             errors.add(ast.ctx, SymbolCouldNotBeApplied(ast.signifier))
-                            ast.assignType(errors, ErrorSymbol)
+                            ast.assignType(errors, ErrorType)
                         }
                     }
                 }
@@ -576,11 +576,11 @@ class PropagateTypesAstVisitor(
                                 }
                                 is ParameterizedStaticPluginSymbol -> {
                                     errors.add(ast.ctx, TypeSystemBug)
-                                    ast.assignType(errors, ErrorSymbol)
+                                    ast.assignType(errors, ErrorType)
                                 }
                                 else -> {
                                     errors.add(ast.ctx, SymbolCouldNotBeApplied(ast.signifier))
-                                    ast.assignType(errors, ErrorSymbol)
+                                    ast.assignType(errors, ErrorType)
                                 }
                             }
                         }
@@ -597,7 +597,7 @@ class PropagateTypesAstVisitor(
                                 }
                                 else -> {
                                     errors.add(ast.ctx, SymbolCouldNotBeApplied(ast.signifier))
-                                    ast.assignType(errors, ErrorSymbol)
+                                    ast.assignType(errors, ErrorType)
                                 }
                             }
                         }
@@ -605,12 +605,12 @@ class PropagateTypesAstVisitor(
                 }
                 else -> {
                     errors.add(ast.ctx, SymbolHasNoMembers(ast.signifier, ast.lhs.readType() as Symbol))
-                    ast.assignType(errors, ErrorSymbol)
+                    ast.assignType(errors, ErrorType)
                 }
             }
         } catch (ex: LanguageException) {
             errors.addAll(ast.ctx, ex.errors)
-            ast.assignType(errors, ErrorSymbol)
+            ast.assignType(errors, ErrorType)
         }
     }
 
@@ -649,7 +649,7 @@ class PropagateTypesAstVisitor(
             }
         } catch (ex: LanguageException) {
             errors.addAll(ast.ctx, ex.errors)
-            ast.assignType(errors, ErrorSymbol)
+            ast.assignType(errors, ErrorType)
         }
     }
 
@@ -662,12 +662,12 @@ class PropagateTypesAstVisitor(
                 is LocalVariableSymbol -> ast.assignType(errors, preludeTable.fetch(Lang.unitId) as Type)
                 else -> {
                     errors.add(ast.ctx, InvalidRef(symbol))
-                    ast.assignType(errors, ErrorSymbol)
+                    ast.assignType(errors, ErrorType)
                 }
             }
         } catch (ex: LanguageException) {
             errors.addAll(ast.ctx, ex.errors)
-            ast.assignType(errors, ErrorSymbol)
+            ast.assignType(errors, ErrorType)
         }
     }
 
@@ -675,7 +675,7 @@ class PropagateTypesAstVisitor(
         try {
             super.visit(ast)
             when (val lhsType = ast.lhs.readType()) {
-                is ErrorSymbol -> ast.assignType(errors, ErrorSymbol)
+                is ErrorType -> ast.assignType(errors, ErrorType)
                 is GroundRecordTypeSymbol -> {
                     val member = lhsType.fetchHere(ast.identifier)
                     ast.symbolRef = member
@@ -683,7 +683,7 @@ class PropagateTypesAstVisitor(
                         is FieldSymbol -> ast.assignType(errors, preludeTable.fetch(Lang.unitId) as Type)
                         else -> {
                             errors.add(ast.ctx, SymbolIsNotAField(ast.identifier))
-                            ast.assignType(errors, ErrorSymbol)
+                            ast.assignType(errors, ErrorType)
                         }
                     }
                 }
@@ -698,24 +698,24 @@ class PropagateTypesAstVisitor(
                                 }
                                 else -> {
                                     errors.add(ast.ctx, SymbolIsNotAField(ast.identifier))
-                                    ast.assignType(errors, ErrorSymbol)
+                                    ast.assignType(errors, ErrorType)
                                 }
                             }
                         }
                         else -> {
                             errors.add(ast.ctx, SymbolHasNoFields(ast.identifier, ast.lhs.readType() as Symbol))
-                            ast.assignType(errors, ErrorSymbol)
+                            ast.assignType(errors, ErrorType)
                         }
                     }
                 }
                 else -> {
                     errors.add(ast.ctx, SymbolHasNoFields(ast.identifier, ast.lhs.readType() as Symbol))
-                    ast.assignType(errors, ErrorSymbol)
+                    ast.assignType(errors, ErrorType)
                 }
             }
         } catch (ex: LanguageException) {
             errors.addAll(ast.ctx, ex.errors)
-            ast.assignType(errors, ErrorSymbol)
+            ast.assignType(errors, ErrorType)
         }
     }
 
@@ -735,7 +735,7 @@ class PropagateTypesAstVisitor(
             )
         } catch (ex: LanguageException) {
             errors.addAll(ast.ctx, ex.errors)
-            ast.assignType(errors, ErrorSymbol)
+            ast.assignType(errors, ErrorType)
         }
     }
 
@@ -746,7 +746,7 @@ class PropagateTypesAstVisitor(
             ast.assignType(errors, ofType)
         } catch (ex: LanguageException) {
             errors.addAll(ast.ctx, ex.errors)
-            ast.assignType(errors, ErrorSymbol)
+            ast.assignType(errors, ErrorType)
         }
     }
 
@@ -758,7 +758,7 @@ class PropagateTypesAstVisitor(
             ast.assignType(errors, preludeTable.fetch(Lang.booleanId) as Type)
         } catch (ex: LanguageException) {
             errors.addAll(ast.ctx, ex.errors)
-            ast.assignType(errors, ErrorSymbol)
+            ast.assignType(errors, ErrorType)
         }
     }
 }

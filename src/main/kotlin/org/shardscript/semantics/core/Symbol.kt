@@ -7,6 +7,10 @@ import org.shardscript.semantics.infer.SubstitutionChain
  */
 sealed class Symbol
 
+data object ErrorSymbol: Symbol()
+
+data object TypePlaceholder: Symbol()
+
 sealed class SymbolTableElement: Symbol() {
     abstract val parent: Scope
 }

@@ -5,7 +5,7 @@ import org.shardscript.semantics.prelude.Lang
 
 fun filterValidTypes(ctx: SourceContext, errors: LanguageErrors, type: Type): Type =
     when (type) {
-        ErrorSymbol,
+        ErrorType,
         is GroundRecordTypeSymbol,
         is BasicTypeSymbol,
         is ObjectSymbol,
@@ -25,20 +25,20 @@ fun filterValidTypes(ctx: SourceContext, errors: LanguageErrors, type: Type): Ty
         is ImmutableFinTypeParameter,
         is MutableFinTypeParameter -> {
             errors.add(ctx, ExpectOtherError)
-            ErrorSymbol
+            ErrorType
         }
 
         is ParameterizedBasicTypeSymbol,
         is ParameterizedRecordTypeSymbol -> {
             errors.add(ctx, CannotUseRawType(type))
-            ErrorSymbol
+            ErrorType
         }
 
         is MaxCostExpression,
         is ProductCostExpression,
         is SumCostExpression -> {
             errors.add(ctx, TypeSystemBug)
-            ErrorSymbol
+            ErrorType
         }
     }
 
@@ -49,7 +49,7 @@ fun filterValidGroundApply(
     signifier: Signifier
 ): Symbol =
     when (symbol) {
-        ErrorSymbol,
+        ErrorType,
         is FunctionFormalParameterSymbol,
         is GroundFunctionSymbol,
         is GroundRecordTypeSymbol,
@@ -80,7 +80,7 @@ fun filterValidGroundApply(
 
                 else -> {
                     errors.add(ctx, SymbolCouldNotBeApplied(signifier))
-                    ErrorSymbol
+                    ErrorType
                 }
             }
         }
@@ -104,7 +104,7 @@ fun filterValidGroundApply(
         is LambdaSymbol,
         is LocalVariableSymbol -> {
             errors.add(ctx, SymbolCouldNotBeApplied(signifier))
-            ErrorSymbol
+            ErrorType
         }
     }
 
@@ -115,7 +115,7 @@ fun filterValidDotApply(
     signifier: Signifier
 ): Symbol =
     when (symbol) {
-        ErrorSymbol,
+        ErrorType,
         is GroundFunctionSymbol,
         is GroundRecordTypeSymbol,
         is GroundMemberPluginSymbol,
@@ -169,7 +169,7 @@ fun filterValidDotApply(
         is LambdaSymbol,
         is LocalVariableSymbol -> {
             errors.add(ctx, SymbolCouldNotBeApplied(signifier))
-            ErrorSymbol
+            ErrorType
         }
     }
 
@@ -178,7 +178,7 @@ fun symbolToType(errors: LanguageErrors, ctx: SourceContext, symbol: Symbol, sig
         symbol
     } else {
         errors.add(ctx, SymbolIsNotAType(signifier))
-        ErrorSymbol
+        ErrorType
     }
 }
 
@@ -474,7 +474,7 @@ private fun <T> transpose(table: List<List<T>>): List<List<T>> {
 fun findBestType(ctx: SourceContext, errors: LanguageErrors, types: List<Type>): Type {
     if (types.isEmpty()) {
         errors.add(ctx, TypeSystemBug)
-        return ErrorSymbol
+        return ErrorType
     }
     val first = types.first()
     val firstPath = getQualifiedName(first as Symbol)
@@ -486,7 +486,7 @@ fun findBestType(ctx: SourceContext, errors: LanguageErrors, types: List<Type>):
                 }
                 else -> {
                     errors.add(ctx, CannotFindBestType(types))
-                    ErrorSymbol
+                    ErrorType
                 }
             }
         }
@@ -497,7 +497,7 @@ fun findBestType(ctx: SourceContext, errors: LanguageErrors, types: List<Type>):
                 }
                 else -> {
                     errors.add(ctx, CannotFindBestType(types))
-                    ErrorSymbol
+                    ErrorType
                 }
             }
         }
@@ -508,7 +508,7 @@ fun findBestType(ctx: SourceContext, errors: LanguageErrors, types: List<Type>):
                 }
                 else -> {
                     errors.add(ctx, CannotFindBestType(types))
-                    ErrorSymbol
+                    ErrorType
                 }
             }
         }
@@ -531,7 +531,7 @@ fun findBestType(ctx: SourceContext, errors: LanguageErrors, types: List<Type>):
                         substitution.apply(parameterizedType)
                     } else {
                         errors.add(ctx, CannotFindBestType(types))
-                        ErrorSymbol
+                        ErrorType
                     }
                 }
                 is ParameterizedBasicTypeSymbol -> {
@@ -551,7 +551,7 @@ fun findBestType(ctx: SourceContext, errors: LanguageErrors, types: List<Type>):
                         substitution.apply(parameterizedType)
                     } else {
                         errors.add(ctx, CannotFindBestType(types))
-                        ErrorSymbol
+                        ErrorType
                     }
                 }
                 is CostExpression -> {
@@ -561,7 +561,7 @@ fun findBestType(ctx: SourceContext, errors: LanguageErrors, types: List<Type>):
                         )
                     } else {
                         errors.add(ctx, CannotFindBestType(types))
-                        ErrorSymbol
+                        ErrorType
                     }
                 }
             }
@@ -571,7 +571,7 @@ fun findBestType(ctx: SourceContext, errors: LanguageErrors, types: List<Type>):
                 first
             } else {
                 errors.add(ctx, CannotFindBestType(types))
-                ErrorSymbol
+                ErrorType
             }
         }
         is StandardTypeParameter -> {
@@ -579,7 +579,7 @@ fun findBestType(ctx: SourceContext, errors: LanguageErrors, types: List<Type>):
                 first
             } else {
                 errors.add(ctx, CannotFindBestType(types))
-                ErrorSymbol
+                ErrorType
             }
         }
         is FinTypeSymbol -> {
@@ -587,7 +587,7 @@ fun findBestType(ctx: SourceContext, errors: LanguageErrors, types: List<Type>):
                 FinTypeSymbol(types.maxOf { (it as FinTypeSymbol).magnitude })
             } else {
                 errors.add(ctx, CannotFindBestType(types))
-                ErrorSymbol
+                ErrorType
             }
         }
         is ImmutableFinTypeParameter -> {
@@ -595,7 +595,7 @@ fun findBestType(ctx: SourceContext, errors: LanguageErrors, types: List<Type>):
                 first
             } else {
                 errors.add(ctx, CannotFindBestType(types))
-                ErrorSymbol
+                ErrorType
             }
         }
         is MutableFinTypeParameter -> {
@@ -603,12 +603,12 @@ fun findBestType(ctx: SourceContext, errors: LanguageErrors, types: List<Type>):
                 first
             } else {
                 errors.add(ctx, CannotFindBestType(types))
-                ErrorSymbol
+                ErrorType
             }
         }
         else -> {
             errors.add(ctx, CannotFindBestType(types))
-            ErrorSymbol
+            ErrorType
         }
     }
 }
