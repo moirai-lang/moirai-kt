@@ -82,7 +82,7 @@ class BindScopesAstVisitor(
 
     override fun visit(ast: BlockAst, param: Scope) {
         try {
-            val blockScope = Block(param)
+            val blockScope = SymbolTable(param)
             ast.scope = blockScope
             super.visit(ast, blockScope)
         } catch (ex: LanguageException) {
@@ -222,7 +222,7 @@ class BindScopesAstVisitor(
         try {
             ast.scope = param
             ast.source.accept(this, param)
-            val bodyScope = Block(param)
+            val bodyScope = SymbolTable(param)
             ast.body.accept(this, bodyScope)
         } catch (ex: LanguageException) {
             errors.addAll(ast.ctx, ex.errors)
