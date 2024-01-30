@@ -11,7 +11,7 @@ object StringOpMembers {
     val equals = pluginEquals()
     val notEquals = pluginNotEquals()
 
-    fun pluginToCharArray(): ParameterizedMemberPluginSymbol {
+    private fun pluginToCharArray(): ParameterizedMemberPluginSymbol {
         val res = ParameterizedMemberPluginSymbol(
             Lang.stringType,
             Identifier(NotInSource, StringMethods.ToCharArray.idStr),
@@ -214,7 +214,7 @@ object StringOpMembers {
         return res
     }
 
-    fun insertDecimalToStringMember(): ParameterizedMemberPluginSymbol {
+    private fun insertDecimalToStringMember(): ParameterizedMemberPluginSymbol {
         val res = ParameterizedMemberPluginSymbol(
             Lang.decimalType,
             Identifier(NotInSource, StringMethods.ToString.idStr),
@@ -231,7 +231,7 @@ object StringOpMembers {
         return res
     }
 
-    fun insertStringToStringMember(): ParameterizedMemberPluginSymbol {
+    private fun insertStringToStringMember(): ParameterizedMemberPluginSymbol {
         val res = ParameterizedMemberPluginSymbol(
             Lang.stringType,
             Identifier(NotInSource, StringMethods.ToString.idStr),

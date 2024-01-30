@@ -15,17 +15,17 @@ object Lang {
     val stringInputTypeId = Identifier(NotInSource, "P")
 
     val decimalId = Identifier(NotInSource, "Decimal")
-    val decimalTypeId = Identifier(NotInSource, "O")
+    private val decimalTypeId = Identifier(NotInSource, "O")
     val decimalInputTypeId = Identifier(NotInSource, "P")
 
     val listId = Identifier(NotInSource, "List")
-    val listElementTypeId = Identifier(NotInSource, "E")
-    val listFinTypeId = Identifier(NotInSource, "O")
+    private val listElementTypeId = Identifier(NotInSource, "E")
+    private val listFinTypeId = Identifier(NotInSource, "O")
     val listInputFinTypeId = Identifier(NotInSource, "P")
 
     val mutableListId = Identifier(NotInSource, "MutableList")
-    val mutableListElementTypeId = Identifier(NotInSource, "E")
-    val mutableListFinTypeId = Identifier(NotInSource, "O")
+    private val mutableListElementTypeId = Identifier(NotInSource, "E")
+    private val mutableListFinTypeId = Identifier(NotInSource, "O")
     val mutableListInputFinTypeId = Identifier(NotInSource, "P")
 
     val pairId = Identifier(NotInSource, "Pair")
@@ -35,25 +35,25 @@ object Lang {
     val pairSecondId = Identifier(NotInSource, "second")
 
     val dictionaryId = Identifier(NotInSource, "Dictionary")
-    val dictionaryKeyTypeId = Identifier(NotInSource, "K")
-    val dictionaryValueTypeId = Identifier(NotInSource, "V")
-    val dictionaryFinTypeId = Identifier(NotInSource, "O")
+    private val dictionaryKeyTypeId = Identifier(NotInSource, "K")
+    private val dictionaryValueTypeId = Identifier(NotInSource, "V")
+    private val dictionaryFinTypeId = Identifier(NotInSource, "O")
     val dictionaryInputFinTypeId = Identifier(NotInSource, "P")
 
     val mutableDictionaryId = Identifier(NotInSource, "MutableDictionary")
-    val mutableDictionaryKeyTypeId = Identifier(NotInSource, "K")
-    val mutableDictionaryValueTypeId = Identifier(NotInSource, "V")
-    val mutableDictionaryFinTypeId = Identifier(NotInSource, "O")
+    private val mutableDictionaryKeyTypeId = Identifier(NotInSource, "K")
+    private val mutableDictionaryValueTypeId = Identifier(NotInSource, "V")
+    private val mutableDictionaryFinTypeId = Identifier(NotInSource, "O")
     val mutableDictionaryInputFinTypeId = Identifier(NotInSource, "P")
 
     val setId = Identifier(NotInSource, "Set")
-    val setElementTypeId = Identifier(NotInSource, "E")
-    val setFinTypeId = Identifier(NotInSource, "O")
+    private val setElementTypeId = Identifier(NotInSource, "E")
+    private val setFinTypeId = Identifier(NotInSource, "O")
     val setInputFinTypeId = Identifier(NotInSource, "P")
 
     val mutableSetId = Identifier(NotInSource, "MutableSet")
-    val mutableSetElementTypeId = Identifier(NotInSource, "E")
-    val mutableSetFinTypeId = Identifier(NotInSource, "O")
+    private val mutableSetElementTypeId = Identifier(NotInSource, "E")
+    private val mutableSetFinTypeId = Identifier(NotInSource, "O")
     val mutableSetInputFinTypeId = Identifier(NotInSource, "P")
 
     val rangeId = Identifier(NotInSource, "range")
@@ -122,14 +122,14 @@ object Lang {
     val stringTypeParam = ImmutableFinTypeParameter("${stringId.name}.${stringTypeId.name}", stringTypeId)
 
     // Pair
-    val pairType = ParameterizedRecordTypeSymbol(
+    private val pairType = ParameterizedRecordTypeSymbol(
         prelude,
         pairId.name,
         pairId,
         userTypeFeatureSupport
     )
-    val pairFirstType = StandardTypeParameter("${pairId.name}.${pairFirstTypeId.name}", pairFirstTypeId)
-    val pairSecondType = StandardTypeParameter("${pairId.name}.${pairSecondTypeId.name}", pairSecondTypeId)
+    private val pairFirstType = StandardTypeParameter("${pairId.name}.${pairFirstTypeId.name}", pairFirstTypeId)
+    private val pairSecondType = StandardTypeParameter("${pairId.name}.${pairSecondTypeId.name}", pairSecondTypeId)
 
     val dictionaryType = ParameterizedBasicTypeSymbol(
         dictionaryId,

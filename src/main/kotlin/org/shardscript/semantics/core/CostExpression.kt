@@ -135,29 +135,3 @@ object CanEvalCostExpressionVisitor: CostExpressionVisitor<Boolean> {
         return costExpression.children.all { it.accept(this) }
     }
 }
-
-object ValidateCostExpressionVisitor: CostExpressionVisitor<Unit> {
-    override fun visit(costExpression: ImmutableFinTypeParameter) {
-        langThrow(TypeSystemBug)
-    }
-
-    override fun visit(costExpression: MutableFinTypeParameter) {
-        langThrow(TypeSystemBug)
-    }
-
-    override fun visit(costExpression: FinTypeSymbol) = Unit
-
-    override fun visit(costExpression: ConstantFinTypeSymbol) = Unit
-
-    override fun visit(costExpression: SumCostExpression) {
-        costExpression.children.forEach { it.accept(this) }
-    }
-
-    override fun visit(costExpression: ProductCostExpression) {
-        costExpression.children.forEach { it.accept(this) }
-    }
-
-    override fun visit(costExpression: MaxCostExpression) {
-        costExpression.children.forEach { it.accept(this) }
-    }
-}

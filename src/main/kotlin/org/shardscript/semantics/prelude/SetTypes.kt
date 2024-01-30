@@ -89,7 +89,7 @@ object SetTypes {
         return removeMemberFunction
     }
 
-    fun createMutableSetToImmutableSetPlugin(): ParameterizedMemberPluginSymbol {
+    private fun createMutableSetToImmutableSetPlugin(): ParameterizedMemberPluginSymbol {
         val plugin = ParameterizedMemberPluginSymbol(
             Lang.mutableSetType,
             Identifier(NotInSource, CollectionMethods.ToImmutableSet.idStr),

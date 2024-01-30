@@ -19,20 +19,6 @@ enum class TypeParameterKind {
 
 data class TypeParameterDefinition(val identifier: Identifier, val type: TypeParameterKind)
 
-sealed class CaseBranch : LanguageElement {
-    abstract val body: BlockAst
-}
-
-data class CoproductBranch(
-    override val ctx: SourceContext,
-    val identifier: Identifier,
-    override val body: BlockAst
-) : CaseBranch() {
-    lateinit var path: List<String>
-}
-
-data class ElseBranch(override val ctx: SourceContext, override val body: BlockAst) : CaseBranch()
-
 interface SingleTypeInstantiation<T: RawTerminus, S> {
     fun apply(
         ctx: SourceContext,

@@ -93,14 +93,14 @@ class BindScopesAstVisitor(
     override fun visit(ast: FunctionAst, param: Scope) {
         try {
             val symbol: NamedSymbolWithMembers = if (ast.typeParams.isEmpty()) {
-                GroundFunctionSymbol(param, ast.identifier, ast.ctx, ast.body)
+                GroundFunctionSymbol(param, ast.identifier, ast.body)
             } else {
                 ast.typeParams.forEach {
                     if (it.identifier == ast.identifier) {
                         errors.add(it.identifier.ctx, MaskingTypeParameter(it.identifier))
                     }
                 }
-                ParameterizedFunctionSymbol(param, ast.identifier, ast.ctx, ast.body)
+                ParameterizedFunctionSymbol(param, ast.identifier, ast.body)
             }
             ast.definitionSpace = param
             if (ast.definitionSpace.existsHere(ast.identifier)) {

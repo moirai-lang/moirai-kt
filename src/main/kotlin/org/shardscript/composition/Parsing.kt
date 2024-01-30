@@ -61,17 +61,7 @@ fun resurrectString(original: String): String {
     return StringEscapeUtils.unescapeJava(trimmed)
 }
 
-fun persistString(original: String): String {
-    val escaped = StringEscapeUtils.escapeJava(original)
-    return "\"$escaped\""
-}
-
 fun resurrectChar(original: String): Char {
     val trimmed = original.removeSurrounding("'")
     return StringEscapeUtils.unescapeJava(trimmed).toCharArray().first()
-}
-
-fun persistChar(original: Char): String {
-    val escaped = StringEscapeUtils.escapeJava(original.toString())
-    return "\'$escaped\'"
 }

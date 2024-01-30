@@ -55,7 +55,6 @@ class FunctionFormalParameterSymbol(
 class GroundFunctionSymbol(
     override val parent: Scope,
     override val identifier: Identifier,
-    val originalCtx: SourceContext,
     val body: Ast
 ) : NamedSymbolWithMembers(parent) {
     lateinit var formalParams: List<FunctionFormalParameterSymbol>
@@ -79,7 +78,6 @@ class LambdaSymbol(
 class ParameterizedFunctionSymbol(
     override val parent: Scope,
     override val identifier: Identifier,
-    val originalCtx: SourceContext,
     val body: Ast
 ) : RawTerminusSymbol(parent) {
     override lateinit var typeParams: List<TypeParameter>

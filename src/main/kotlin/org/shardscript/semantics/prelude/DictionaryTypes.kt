@@ -134,7 +134,7 @@ object DictionaryTypes {
         return removeMemberFunction
     }
 
-    fun createToImmutableDictionaryPlugin(): ParameterizedMemberPluginSymbol {
+    private fun createToImmutableDictionaryPlugin(): ParameterizedMemberPluginSymbol {
         val plugin = ParameterizedMemberPluginSymbol(
             Lang.mutableDictionaryType,
             Identifier(NotInSource, CollectionMethods.ToImmutableDictionary.idStr),

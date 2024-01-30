@@ -165,84 +165,6 @@ fun filterValidDotApply(
         }
     }
 
-fun filterValidDotApply(
-    ctx: SourceContext,
-    errors: LanguageErrors,
-    type: Type,
-    signifier: Signifier
-): Type =
-    when (type) {
-        ErrorType,
-        is GroundRecordTypeSymbol,
-        is ParameterizedBasicTypeSymbol,
-        is ParameterizedRecordTypeSymbol -> type
-
-        is TypeInstantiation -> {
-            when (type.substitutionChain.terminus) {
-                is ParameterizedBasicTypeSymbol,
-                is ParameterizedRecordTypeSymbol -> {
-                    type.substitutionChain.terminus.typeParams.forEach {
-                        validateSubstitution(ctx, errors, it, type.substitutionChain.replay(it))
-                    }
-                    type
-                }
-            }
-        }
-
-        is FunctionTypeSymbol,
-        is FinTypeSymbol,
-        is ConstantFinTypeSymbol,
-        is ImmutableFinTypeParameter,
-        is MutableFinTypeParameter,
-        is BasicTypeSymbol,
-        is ObjectSymbol,
-        is PlatformObjectSymbol,
-        is StandardTypeParameter,
-        is SumCostExpression,
-        is ProductCostExpression,
-        is MaxCostExpression -> {
-            errors.add(ctx, SymbolCouldNotBeApplied(signifier))
-            ErrorType
-        }
-    }
-
-fun getQualifiedName(symbol: Symbol): String {
-    return when (symbol) {
-        is SymbolInstantiation -> {
-            when (val parameterizedType = symbol.substitutionChain.terminus) {
-                is ParameterizedFunctionSymbol -> {
-                    parameterizedType.identifier.name
-                }
-
-                is ParameterizedMemberPluginSymbol -> {
-                    parameterizedType.identifier.name
-                }
-
-                is ParameterizedStaticPluginSymbol -> {
-                    parameterizedType.identifier.name
-                }
-            }
-        }
-
-        is ParameterizedStaticPluginSymbol -> {
-            symbol.identifier.name
-        }
-
-        ErrorSymbol,
-        is Block,
-        is LambdaSymbol,
-        is FieldSymbol,
-        is FunctionFormalParameterSymbol,
-        is LocalVariableSymbol,
-        is GroundFunctionSymbol,
-        is GroundMemberPluginSymbol,
-        is ParameterizedFunctionSymbol,
-        is ParameterizedMemberPluginSymbol,
-        is PlatformFieldSymbol,
-        TypePlaceholder -> langThrow(TypeSystemBug)
-    }
-}
-
 fun getQualifiedName(type: Type): String {
     return when (type) {
         is GroundRecordTypeSymbol -> {
@@ -581,8 +503,7 @@ fun findBestType(ctx: SourceContext, errors: LanguageErrors, types: List<Type>):
         errors.add(ctx, TypeSystemBug)
         return ErrorType
     }
-    val first = types.first()
-    return when (first) {
+    return when (val first = types.first()) {
         is GroundRecordTypeSymbol -> {
             val firstPath = getQualifiedName(first)
             when {

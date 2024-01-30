@@ -21,7 +21,6 @@ data object InvalidAssign : ErrorKind()
 data class InvalidIntegerLiteral(val typeId: String, val text: String) : ErrorKind()
 data class DuplicateImport(val import: List<String>) : ErrorKind()
 data class NoSuchFile(val import: List<String>) : ErrorKind()
-data class AmbiguousSymbol(val signifier: Signifier) : ErrorKind()
 data object SelfImport : ErrorKind()
 data object RecursiveNamespaceDetected : ErrorKind()
 
@@ -49,10 +48,6 @@ data class TypeMismatch(val expected: Type, val actual: Type) : ErrorKind(), Typ
 
 data class FinMismatch(val expected: Long, val actual: Long) : ErrorKind()
 
-data class MixedCostExpression(val expected: Type, val actual: Type) : ErrorKind(), TypeHostErrorType {
-    override val types: List<Type> = listOf(expected, actual)
-}
-
 data class IncorrectNumberOfArgs(val expected: Int, val actual: Int) : ErrorKind()
 data class IncorrectNumberOfTypeArgs(val expected: Int, val actual: Int) : ErrorKind()
 data class InvalidRef(val symbol: Symbol) : ErrorKind(), SymbolHostErrorType {
@@ -66,10 +61,6 @@ data class CannotUseRawType(val type: Type) : ErrorKind(), TypeHostErrorType {
     override val types: List<Type> = listOf(type)
 }
 
-data class CannotUseRawSymbol(val symbol: Symbol) : ErrorKind(), SymbolHostErrorType {
-    override val symbols: List<Symbol> = listOf(symbol)
-}
-
 data class CannotFindBestType(override val types: List<Type>) : ErrorKind(), TypeHostErrorType
 
 // General Errors
@@ -81,7 +72,6 @@ data object CostOverLimit : ErrorKind()
 data object InvalidCostUpperLimit: ErrorKind()
 data class SymbolCouldNotBeApplied(val signifier: Signifier) : ErrorKind()
 data class SymbolIsNotAField(val signifier: Signifier) : ErrorKind()
-data class SymbolIsNotAType(val signifier: Signifier) : ErrorKind()
 data class InvalidSource(val type: Type) : ErrorKind(), TypeHostErrorType {
     override val types: List<Type> = listOf(type)
 }
@@ -123,8 +113,6 @@ data object DecimalInfiniteDivide : ErrorKind()
 data class DuplicateTypeParameter(val identifier: Identifier) : ErrorKind()
 data class TypeRequiresExplicit(val identifier: Identifier) : ErrorKind()
 data class TooManyElements(val fin: Long, val elements: Long) : ErrorKind()
-
-data class ForeignTypeParameter(val identifier: Identifier) : ErrorKind()
 
 data class MaskingTypeParameter(val identifier: Identifier) : ErrorKind()
 data class CannotExplicitlyInstantiate(val symbol: Symbol) : ErrorKind(), SymbolHostErrorType {

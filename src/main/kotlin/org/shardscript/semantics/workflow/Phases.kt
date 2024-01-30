@@ -149,10 +149,6 @@ fun calculateCost(symbol: Symbol, architecture: Architecture) {
     }
 }
 
-fun debugFin(ast: FileAst, architecture: Architecture) {
-    ast.accept(FinDebuggerAstVisitor(architecture))
-}
-
 fun calculateCost(ast: FileAst, architecture: Architecture) {
     val costExpressionAstVisitor = CostExpressionAstVisitor(architecture)
     ast.accept(costExpressionAstVisitor)
