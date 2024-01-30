@@ -11,7 +11,7 @@ object StringTypes {
     )
 
     fun stringType() {
-        Lang.stringType.define(Lang.stringTypeId, Lang.stringTypeParam)
+        Lang.stringType.defineType(Lang.stringTypeId, Lang.stringTypeParam)
         Lang.stringType.typeParams = listOf(Lang.stringTypeParam)
         Lang.stringType.modeSelector = { _ ->
             ImmutableBasicTypeMode

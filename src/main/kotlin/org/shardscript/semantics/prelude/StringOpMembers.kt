@@ -43,7 +43,7 @@ object StringOpMembers {
             "${Lang.stringId.name}.${BinaryOperator.Add.idStr}.${Lang.stringInputTypeId.name}",
             Lang.stringInputTypeId
         )
-        res.define(inputTypeArg.identifier, inputTypeArg)
+        res.defineType(inputTypeArg.identifier, inputTypeArg)
         res.typeParams = listOf(Lang.stringTypeParam, inputTypeArg)
 
         val inputSubstitution = Substitution(Lang.stringType.typeParams, listOf(inputTypeArg))
@@ -78,7 +78,7 @@ object StringOpMembers {
             "${Lang.stringId.name}.${BinaryOperator.Equal.idStr}.${Lang.stringInputTypeId.name}",
             Lang.stringInputTypeId
         )
-        res.define(inputTypeArg.identifier, inputTypeArg)
+        res.defineType(inputTypeArg.identifier, inputTypeArg)
         res.typeParams = listOf(Lang.stringTypeParam, inputTypeArg)
 
         val inputSubstitution = Substitution(Lang.stringType.typeParams, listOf(inputTypeArg))
@@ -116,7 +116,7 @@ object StringOpMembers {
             "${Lang.stringId.name}.${BinaryOperator.NotEqual.idStr}.${Lang.stringInputTypeId.name}",
             Lang.stringInputTypeId
         )
-        res.define(inputTypeArg.identifier, inputTypeArg)
+        res.defineType(inputTypeArg.identifier, inputTypeArg)
         res.typeParams = listOf(Lang.stringTypeParam, inputTypeArg)
 
         val inputSubstitution = Substitution(Lang.stringType.typeParams, listOf(inputTypeArg))

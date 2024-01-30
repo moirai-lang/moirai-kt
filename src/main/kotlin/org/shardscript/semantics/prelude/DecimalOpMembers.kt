@@ -32,7 +32,7 @@ object DecimalMathOpMembers {
             "${Lang.decimalId.name}.${BinaryOperator.Add.idStr}.${Lang.decimalInputTypeId.name}",
             Lang.decimalInputTypeId
         )
-        res.define(inputTypeArg.identifier, inputTypeArg)
+        res.defineType(inputTypeArg.identifier, inputTypeArg)
         res.typeParams = listOf(Lang.decimalTypeParam, inputTypeArg)
 
         val inputSubstitution = Substitution(listOf(Lang.decimalTypeParam), listOf(inputTypeArg))
@@ -71,7 +71,7 @@ object DecimalMathOpMembers {
             "${Lang.decimalId.name}.${BinaryOperator.Sub.idStr}.${Lang.decimalInputTypeId.name}",
             Lang.decimalInputTypeId
         )
-        res.define(inputTypeArg.identifier, inputTypeArg)
+        res.defineType(inputTypeArg.identifier, inputTypeArg)
         res.typeParams = listOf(Lang.decimalTypeParam, inputTypeArg)
 
         val inputSubstitution = Substitution(listOf(Lang.decimalTypeParam), listOf(inputTypeArg))
@@ -110,7 +110,7 @@ object DecimalMathOpMembers {
             "${Lang.decimalId.name}.${BinaryOperator.Mul.idStr}.${Lang.decimalInputTypeId.name}",
             Lang.decimalInputTypeId
         )
-        res.define(inputTypeArg.identifier, inputTypeArg)
+        res.defineType(inputTypeArg.identifier, inputTypeArg)
         res.typeParams = listOf(Lang.decimalTypeParam, inputTypeArg)
 
         val inputSubstitution = Substitution(listOf(Lang.decimalTypeParam), listOf(inputTypeArg))
@@ -149,7 +149,7 @@ object DecimalMathOpMembers {
             "${Lang.decimalId.name}.${BinaryOperator.Div.idStr}.${Lang.decimalInputTypeId.name}",
             Lang.decimalInputTypeId
         )
-        res.define(inputTypeArg.identifier, inputTypeArg)
+        res.defineType(inputTypeArg.identifier, inputTypeArg)
         res.typeParams = listOf(Lang.decimalTypeParam, inputTypeArg)
 
         val inputSubstitution = Substitution(listOf(Lang.decimalTypeParam), listOf(inputTypeArg))
@@ -183,7 +183,7 @@ object DecimalMathOpMembers {
             "${Lang.decimalId.name}.${BinaryOperator.Mod.idStr}.${Lang.decimalInputTypeId.name}",
             Lang.decimalInputTypeId
         )
-        res.define(inputTypeArg.identifier, inputTypeArg)
+        res.defineType(inputTypeArg.identifier, inputTypeArg)
         res.typeParams = listOf(Lang.decimalTypeParam, inputTypeArg)
 
         val inputSubstitution = Substitution(listOf(Lang.decimalTypeParam), listOf(inputTypeArg))
@@ -247,7 +247,7 @@ object DecimalOrderOpMembers {
             "${Lang.decimalId.name}.${BinaryOperator.GreaterThan.idStr}.${Lang.decimalInputTypeId.name}",
             Lang.decimalInputTypeId
         )
-        res.define(inputTypeArg.identifier, inputTypeArg)
+        res.defineType(inputTypeArg.identifier, inputTypeArg)
         res.typeParams = listOf(Lang.decimalTypeParam, inputTypeArg)
 
         val inputSubstitution = Substitution(listOf(Lang.decimalTypeParam), listOf(inputTypeArg))
@@ -284,7 +284,7 @@ object DecimalOrderOpMembers {
             "${Lang.decimalId.name}.${BinaryOperator.GreaterThanEqual.idStr}.${Lang.decimalInputTypeId.name}",
             Lang.decimalInputTypeId
         )
-        res.define(inputTypeArg.identifier, inputTypeArg)
+        res.defineType(inputTypeArg.identifier, inputTypeArg)
         res.typeParams = listOf(Lang.decimalTypeParam, inputTypeArg)
 
         val inputSubstitution = Substitution(listOf(Lang.decimalTypeParam), listOf(inputTypeArg))
@@ -321,7 +321,7 @@ object DecimalOrderOpMembers {
             "${Lang.decimalId.name}.${BinaryOperator.LessThan.idStr}.${Lang.decimalInputTypeId.name}",
             Lang.decimalInputTypeId
         )
-        res.define(inputTypeArg.identifier, inputTypeArg)
+        res.defineType(inputTypeArg.identifier, inputTypeArg)
         res.typeParams = listOf(Lang.decimalTypeParam, inputTypeArg)
 
         val inputSubstitution = Substitution(listOf(Lang.decimalTypeParam), listOf(inputTypeArg))
@@ -358,7 +358,7 @@ object DecimalOrderOpMembers {
             "${Lang.decimalId.name}.${BinaryOperator.LessThanEqual.idStr}.${Lang.decimalInputTypeId.name}",
             Lang.decimalInputTypeId
         )
-        res.define(inputTypeArg.identifier, inputTypeArg)
+        res.defineType(inputTypeArg.identifier, inputTypeArg)
         res.typeParams = listOf(Lang.decimalTypeParam, inputTypeArg)
 
         val inputSubstitution = Substitution(listOf(Lang.decimalTypeParam), listOf(inputTypeArg))
@@ -405,7 +405,7 @@ object DecimalEqualityOpMembers {
             "${Lang.decimalId.name}.${BinaryOperator.Equal.idStr}.${Lang.decimalInputTypeId.name}",
             Lang.decimalInputTypeId
         )
-        res.define(inputTypeArg.identifier, inputTypeArg)
+        res.defineType(inputTypeArg.identifier, inputTypeArg)
         res.typeParams = listOf(Lang.decimalTypeParam, inputTypeArg)
 
         val inputSubstitution = Substitution(listOf(Lang.decimalTypeParam), listOf(inputTypeArg))
@@ -442,7 +442,7 @@ object DecimalEqualityOpMembers {
             "${Lang.decimalId.name}.${BinaryOperator.NotEqual.idStr}.${Lang.decimalInputTypeId.name}",
             Lang.decimalInputTypeId
         )
-        res.define(inputTypeArg.identifier, inputTypeArg)
+        res.defineType(inputTypeArg.identifier, inputTypeArg)
         res.typeParams = listOf(Lang.decimalTypeParam, inputTypeArg)
 
         val inputSubstitution = Substitution(listOf(Lang.decimalTypeParam), listOf(inputTypeArg))

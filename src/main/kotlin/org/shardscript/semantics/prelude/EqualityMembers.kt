@@ -32,9 +32,9 @@ object EqualityMembers {
             "${Lang.listId.name}.${BinaryOperator.Equal.idStr}.${Lang.listInputFinTypeId.name}",
             Lang.listInputFinTypeId
         )
-        equalsMemberFunction.define(Lang.listElementTypeParam.identifier, Lang.listElementTypeParam)
-        equalsMemberFunction.define(Lang.listFinTypeParam.identifier, Lang.listFinTypeParam)
-        equalsMemberFunction.define(inputFinTypeArg.identifier, inputFinTypeArg)
+        equalsMemberFunction.defineType(Lang.listElementTypeParam.identifier, Lang.listElementTypeParam)
+        equalsMemberFunction.defineType(Lang.listFinTypeParam.identifier, Lang.listFinTypeParam)
+        equalsMemberFunction.defineType(inputFinTypeArg.identifier, inputFinTypeArg)
         equalsMemberFunction.typeParams = listOf(Lang.listElementTypeParam, Lang.listFinTypeParam, inputFinTypeArg)
 
         val inputSubstitution =
@@ -66,9 +66,9 @@ object EqualityMembers {
             "${Lang.listId.name}.${BinaryOperator.NotEqual.idStr}.${Lang.listInputFinTypeId.name}",
             Lang.listInputFinTypeId
         )
-        notEqualsMemberFunction.define(Lang.listElementTypeParam.identifier, Lang.listElementTypeParam)
-        notEqualsMemberFunction.define(Lang.listFinTypeParam.identifier, Lang.listFinTypeParam)
-        notEqualsMemberFunction.define(inputFinTypeArg.identifier, inputFinTypeArg)
+        notEqualsMemberFunction.defineType(Lang.listElementTypeParam.identifier, Lang.listElementTypeParam)
+        notEqualsMemberFunction.defineType(Lang.listFinTypeParam.identifier, Lang.listFinTypeParam)
+        notEqualsMemberFunction.defineType(inputFinTypeArg.identifier, inputFinTypeArg)
         notEqualsMemberFunction.typeParams = listOf(Lang.listElementTypeParam, Lang.listFinTypeParam, inputFinTypeArg)
 
         val inputSubstitution =
@@ -100,9 +100,9 @@ object EqualityMembers {
             "${Lang.mutableListId.name}.${BinaryOperator.Equal.idStr}.${Lang.mutableListInputFinTypeId.name}",
             Lang.mutableListInputFinTypeId
         )
-        equalsMemberFunction.define(Lang.mutableListElementTypeParam.identifier, Lang.mutableListElementTypeParam)
-        equalsMemberFunction.define(Lang.mutableListFinTypeParam.identifier, Lang.mutableListFinTypeParam)
-        equalsMemberFunction.define(inputFinTypeArg.identifier, inputFinTypeArg)
+        equalsMemberFunction.defineType(Lang.mutableListElementTypeParam.identifier, Lang.mutableListElementTypeParam)
+        equalsMemberFunction.defineType(Lang.mutableListFinTypeParam.identifier, Lang.mutableListFinTypeParam)
+        equalsMemberFunction.defineType(inputFinTypeArg.identifier, inputFinTypeArg)
         equalsMemberFunction.typeParams =
             listOf(Lang.mutableListElementTypeParam, Lang.mutableListFinTypeParam, inputFinTypeArg)
 
@@ -135,9 +135,9 @@ object EqualityMembers {
             "${Lang.mutableListId.name}.${BinaryOperator.NotEqual.idStr}.${Lang.mutableListInputFinTypeId.name}",
             Lang.mutableListInputFinTypeId
         )
-        notEqualsMemberFunction.define(Lang.mutableListElementTypeParam.identifier, Lang.mutableListElementTypeParam)
-        notEqualsMemberFunction.define(Lang.mutableListFinTypeParam.identifier, Lang.mutableListFinTypeParam)
-        notEqualsMemberFunction.define(inputFinTypeArg.identifier, inputFinTypeArg)
+        notEqualsMemberFunction.defineType(Lang.mutableListElementTypeParam.identifier, Lang.mutableListElementTypeParam)
+        notEqualsMemberFunction.defineType(Lang.mutableListFinTypeParam.identifier, Lang.mutableListFinTypeParam)
+        notEqualsMemberFunction.defineType(inputFinTypeArg.identifier, inputFinTypeArg)
         notEqualsMemberFunction.typeParams =
             listOf(Lang.mutableListElementTypeParam, Lang.mutableListFinTypeParam, inputFinTypeArg)
 
@@ -173,9 +173,9 @@ object EqualityMembers {
             "${Lang.dictionaryId.name}.${BinaryOperator.Equal.idStr}.${Lang.dictionaryInputFinTypeId.name}",
             Lang.dictionaryInputFinTypeId
         )
-        equalsMemberFunction.define(Lang.dictionaryKeyTypeParam.identifier, Lang.dictionaryKeyTypeParam)
-        equalsMemberFunction.define(Lang.dictionaryValueTypeParam.identifier, Lang.dictionaryValueTypeParam)
-        equalsMemberFunction.define(inputFinTypeArg.identifier, inputFinTypeArg)
+        equalsMemberFunction.defineType(Lang.dictionaryKeyTypeParam.identifier, Lang.dictionaryKeyTypeParam)
+        equalsMemberFunction.defineType(Lang.dictionaryValueTypeParam.identifier, Lang.dictionaryValueTypeParam)
+        equalsMemberFunction.defineType(inputFinTypeArg.identifier, inputFinTypeArg)
         equalsMemberFunction.typeParams =
             listOf(
                 Lang.dictionaryKeyTypeParam,
@@ -216,9 +216,9 @@ object EqualityMembers {
             "${Lang.dictionaryId.name}.${BinaryOperator.NotEqual.idStr}.${Lang.dictionaryInputFinTypeId.name}",
             Lang.dictionaryInputFinTypeId
         )
-        notEqualsMemberFunction.define(Lang.dictionaryKeyTypeParam.identifier, Lang.dictionaryKeyTypeParam)
-        notEqualsMemberFunction.define(Lang.dictionaryValueTypeParam.identifier, Lang.dictionaryValueTypeParam)
-        notEqualsMemberFunction.define(inputFinTypeArg.identifier, inputFinTypeArg)
+        notEqualsMemberFunction.defineType(Lang.dictionaryKeyTypeParam.identifier, Lang.dictionaryKeyTypeParam)
+        notEqualsMemberFunction.defineType(Lang.dictionaryValueTypeParam.identifier, Lang.dictionaryValueTypeParam)
+        notEqualsMemberFunction.defineType(inputFinTypeArg.identifier, inputFinTypeArg)
         notEqualsMemberFunction.typeParams =
             listOf(
                 Lang.dictionaryKeyTypeParam,
@@ -260,12 +260,12 @@ object EqualityMembers {
                 "${Lang.mutableDictionaryId.name}.${BinaryOperator.Equal.idStr}.${Lang.mutableDictionaryInputFinTypeId.name}",
                 Lang.mutableDictionaryInputFinTypeId
             )
-        equalsMemberFunction.define(Lang.mutableDictionaryKeyTypeParam.identifier, Lang.mutableDictionaryKeyTypeParam)
-        equalsMemberFunction.define(
+        equalsMemberFunction.defineType(Lang.mutableDictionaryKeyTypeParam.identifier, Lang.mutableDictionaryKeyTypeParam)
+        equalsMemberFunction.defineType(
             Lang.mutableDictionaryValueTypeParam.identifier,
             Lang.mutableDictionaryValueTypeParam
         )
-        equalsMemberFunction.define(inputFinTypeArg.identifier, inputFinTypeArg)
+        equalsMemberFunction.defineType(inputFinTypeArg.identifier, inputFinTypeArg)
         equalsMemberFunction.typeParams =
             listOf(
                 Lang.mutableDictionaryKeyTypeParam,
@@ -306,15 +306,15 @@ object EqualityMembers {
                 "${Lang.mutableDictionaryId.name}.${BinaryOperator.NotEqual.idStr}.${Lang.mutableDictionaryInputFinTypeId.name}",
                 Lang.mutableDictionaryInputFinTypeId
             )
-        notEqualsMemberFunction.define(
+        notEqualsMemberFunction.defineType(
             Lang.mutableDictionaryKeyTypeParam.identifier,
             Lang.mutableDictionaryKeyTypeParam
         )
-        notEqualsMemberFunction.define(
+        notEqualsMemberFunction.defineType(
             Lang.mutableDictionaryValueTypeParam.identifier,
             Lang.mutableDictionaryValueTypeParam
         )
-        notEqualsMemberFunction.define(inputFinTypeArg.identifier, inputFinTypeArg)
+        notEqualsMemberFunction.defineType(inputFinTypeArg.identifier, inputFinTypeArg)
         notEqualsMemberFunction.typeParams =
             listOf(
                 Lang.mutableDictionaryKeyTypeParam,
@@ -357,9 +357,9 @@ object EqualityMembers {
             "${Lang.setId.name}.${BinaryOperator.Equal.idStr}.${Lang.setInputFinTypeId.name}",
             Lang.setInputFinTypeId
         )
-        equalsMemberFunction.define(Lang.setElementTypeParam.identifier, Lang.setElementTypeParam)
-        equalsMemberFunction.define(Lang.setFinTypeParam.identifier, Lang.setFinTypeParam)
-        equalsMemberFunction.define(inputFinTypeArg.identifier, inputFinTypeArg)
+        equalsMemberFunction.defineType(Lang.setElementTypeParam.identifier, Lang.setElementTypeParam)
+        equalsMemberFunction.defineType(Lang.setFinTypeParam.identifier, Lang.setFinTypeParam)
+        equalsMemberFunction.defineType(inputFinTypeArg.identifier, inputFinTypeArg)
         equalsMemberFunction.typeParams = listOf(Lang.setElementTypeParam, Lang.setFinTypeParam, inputFinTypeArg)
 
         val inputSubstitution = Substitution(Lang.setType.typeParams, listOf(Lang.setElementTypeParam, inputFinTypeArg))
@@ -390,9 +390,9 @@ object EqualityMembers {
             "${Lang.setId.name}.${BinaryOperator.NotEqual.idStr}.${Lang.setInputFinTypeId.name}",
             Lang.setInputFinTypeId
         )
-        notEqualsMemberFunction.define(Lang.setElementTypeParam.identifier, Lang.setElementTypeParam)
-        notEqualsMemberFunction.define(Lang.setFinTypeParam.identifier, Lang.setFinTypeParam)
-        notEqualsMemberFunction.define(inputFinTypeArg.identifier, inputFinTypeArg)
+        notEqualsMemberFunction.defineType(Lang.setElementTypeParam.identifier, Lang.setElementTypeParam)
+        notEqualsMemberFunction.defineType(Lang.setFinTypeParam.identifier, Lang.setFinTypeParam)
+        notEqualsMemberFunction.defineType(inputFinTypeArg.identifier, inputFinTypeArg)
         notEqualsMemberFunction.typeParams = listOf(Lang.setElementTypeParam, Lang.setFinTypeParam, inputFinTypeArg)
 
         val inputSubstitution = Substitution(Lang.setType.typeParams, listOf(Lang.setElementTypeParam, inputFinTypeArg))
@@ -423,9 +423,9 @@ object EqualityMembers {
             "${Lang.mutableSetId.name}.${BinaryOperator.Equal.idStr}.${Lang.mutableSetInputFinTypeId.name}",
             Lang.mutableSetInputFinTypeId
         )
-        equalsMemberFunction.define(Lang.mutableSetElementTypeParam.identifier, Lang.mutableSetElementTypeParam)
-        equalsMemberFunction.define(Lang.mutableSetFinTypeParam.identifier, Lang.mutableSetFinTypeParam)
-        equalsMemberFunction.define(inputFinTypeArg.identifier, inputFinTypeArg)
+        equalsMemberFunction.defineType(Lang.mutableSetElementTypeParam.identifier, Lang.mutableSetElementTypeParam)
+        equalsMemberFunction.defineType(Lang.mutableSetFinTypeParam.identifier, Lang.mutableSetFinTypeParam)
+        equalsMemberFunction.defineType(inputFinTypeArg.identifier, inputFinTypeArg)
         equalsMemberFunction.typeParams =
             listOf(Lang.mutableSetElementTypeParam, Lang.mutableSetFinTypeParam, inputFinTypeArg)
 
@@ -458,9 +458,9 @@ object EqualityMembers {
             "${Lang.mutableSetId.name}.${BinaryOperator.NotEqual.idStr}.${Lang.mutableSetInputFinTypeId.name}",
             Lang.mutableSetInputFinTypeId
         )
-        notEqualsMemberFunction.define(Lang.mutableSetElementTypeParam.identifier, Lang.mutableSetElementTypeParam)
-        notEqualsMemberFunction.define(Lang.mutableSetFinTypeParam.identifier, Lang.mutableSetFinTypeParam)
-        notEqualsMemberFunction.define(inputFinTypeArg.identifier, inputFinTypeArg)
+        notEqualsMemberFunction.defineType(Lang.mutableSetElementTypeParam.identifier, Lang.mutableSetElementTypeParam)
+        notEqualsMemberFunction.defineType(Lang.mutableSetFinTypeParam.identifier, Lang.mutableSetFinTypeParam)
+        notEqualsMemberFunction.defineType(inputFinTypeArg.identifier, inputFinTypeArg)
         notEqualsMemberFunction.typeParams =
             listOf(Lang.mutableSetElementTypeParam, Lang.mutableSetFinTypeParam, inputFinTypeArg)
 
