@@ -87,7 +87,7 @@ object RandomInstantiation : SingleTypeInstantiation<RawTerminusSymbol, SymbolIn
                 throw LanguageException(errors.toSet())
             }
         }
-        return when (getQualifiedName((res.substitutionChain).replayArgs().first() as Symbol)) {
+        return when (getQualifiedName((res.substitutionChain).replayArgs().first())) {
             Lang.intId.name -> res
             else -> {
                 errors.add(ctx, RandomRequiresIntLong)

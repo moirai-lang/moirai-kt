@@ -56,14 +56,6 @@ class SymbolTable(private val parent: Scope) : Scope {
     fun symbolsToMap(): Map<String, Symbol> = symbolTable.toMap()
     fun typesToMap(): Map<String, Type> = typeTable.toMap()
 
-    private fun toType(signifier: Signifier, symbol: Symbol): Type {
-        if (symbol is Type) {
-            return symbol
-        } else {
-            langThrow(SymbolIsNotAType(signifier))
-        }
-    }
-
     override fun define(identifier: Identifier, definition: Symbol) {
         if (symbolTable.containsKey(identifier.name) || typeTable.containsKey(identifier.name)) {
             langThrow(identifier.ctx, IdentifierAlreadyExists(identifier))
@@ -100,8 +92,49 @@ class SymbolTable(private val parent: Scope) : Scope {
                     parent.fetch(signifier)
                 }
             }
+
             is FunctionTypeLiteral -> TypePlaceholder
-            is ParameterizedSignifier -> TypePlaceholder
+            is ParameterizedSignifier -> {
+                when (val symbol = fetch(signifier.tti)) {
+                    is ParameterizedFunctionSymbol -> {
+                        val typeArgs = signifier.args.map { fetchType(it) }
+                        if (typeArgs.size != symbol.typeParams.size) {
+                            langThrow(
+                                signifier.ctx,
+                                IncorrectNumberOfTypeArgs(symbol.typeParams.size, typeArgs.size)
+                            )
+                        } else {
+                            val substitution = Substitution(symbol.typeParams, typeArgs)
+                            substitution.apply(symbol)
+                        }
+                    }
+                    is ParameterizedMemberPluginSymbol -> {
+                        val typeArgs = signifier.args.map { fetchType(it) }
+                        if (typeArgs.size != symbol.typeParams.size) {
+                            langThrow(
+                                signifier.ctx,
+                                IncorrectNumberOfTypeArgs(symbol.typeParams.size, typeArgs.size)
+                            )
+                        } else {
+                            val substitution = Substitution(symbol.typeParams, typeArgs)
+                            substitution.apply(symbol)
+                        }
+                    }
+                    is ParameterizedStaticPluginSymbol -> {
+                        val typeArgs = signifier.args.map { fetchType(it) }
+                        if (typeArgs.size != symbol.typeParams.size) {
+                            langThrow(
+                                signifier.ctx,
+                                IncorrectNumberOfTypeArgs(symbol.typeParams.size, typeArgs.size)
+                            )
+                        } else {
+                            val substitution = Substitution(symbol.typeParams, typeArgs)
+                            substitution.apply(symbol)
+                        }
+                    }
+                    else -> TypePlaceholder
+                }
+            }
             is ImplicitTypeLiteral -> langThrow(signifier.ctx, TypeSystemBug)
             is FinLiteral -> TypePlaceholder
         }
@@ -117,9 +150,47 @@ class SymbolTable(private val parent: Scope) : Scope {
             }
 
             is FunctionTypeLiteral -> TypePlaceholder
-
-            is ParameterizedSignifier -> TypePlaceholder
-
+            is ParameterizedSignifier -> {
+                when (val symbol = fetchHere(signifier.tti)) {
+                    is ParameterizedFunctionSymbol -> {
+                        val typeArgs = signifier.args.map { fetchType(it) }
+                        if (typeArgs.size != symbol.typeParams.size) {
+                            langThrow(
+                                signifier.ctx,
+                                IncorrectNumberOfTypeArgs(symbol.typeParams.size, typeArgs.size)
+                            )
+                        } else {
+                            val substitution = Substitution(symbol.typeParams, typeArgs)
+                            substitution.apply(symbol)
+                        }
+                    }
+                    is ParameterizedMemberPluginSymbol -> {
+                        val typeArgs = signifier.args.map { fetchType(it) }
+                        if (typeArgs.size != symbol.typeParams.size) {
+                            langThrow(
+                                signifier.ctx,
+                                IncorrectNumberOfTypeArgs(symbol.typeParams.size, typeArgs.size)
+                            )
+                        } else {
+                            val substitution = Substitution(symbol.typeParams, typeArgs)
+                            substitution.apply(symbol)
+                        }
+                    }
+                    is ParameterizedStaticPluginSymbol -> {
+                        val typeArgs = signifier.args.map { fetchType(it) }
+                        if (typeArgs.size != symbol.typeParams.size) {
+                            langThrow(
+                                signifier.ctx,
+                                IncorrectNumberOfTypeArgs(symbol.typeParams.size, typeArgs.size)
+                            )
+                        } else {
+                            val substitution = Substitution(symbol.typeParams, typeArgs)
+                            substitution.apply(symbol)
+                        }
+                    }
+                    else -> TypePlaceholder
+                }
+            }
             is ImplicitTypeLiteral -> langThrow(signifier.ctx, TypeSystemBug)
             is FinLiteral -> TypePlaceholder
         }
@@ -167,33 +238,34 @@ class SymbolTable(private val parent: Scope) : Scope {
             )
 
             is ParameterizedSignifier -> {
-                when (val symbol = fetchType(signifier.tti)) {
+                when (val type = fetchType(signifier.tti)) {
                     is ParameterizedRecordTypeSymbol -> {
                         val typeArgs = signifier.args.map { fetchType(it) }
-                        if (typeArgs.size != symbol.typeParams.size) {
+                        if (typeArgs.size != type.typeParams.size) {
                             langThrow(
                                 signifier.ctx,
-                                IncorrectNumberOfTypeArgs(symbol.typeParams.size, typeArgs.size)
+                                IncorrectNumberOfTypeArgs(type.typeParams.size, typeArgs.size)
                             )
                         } else {
-                            val substitution = Substitution(symbol.typeParams, typeArgs)
-                            substitution.apply(symbol)
+                            val substitution = Substitution(type.typeParams, typeArgs)
+                            substitution.apply(type)
                         }
                     }
 
                     is ParameterizedBasicTypeSymbol -> {
                         val typeArgs = signifier.args.map { fetchType(it) }
-                        if (typeArgs.size != symbol.typeParams.size) {
+                        if (typeArgs.size != type.typeParams.size) {
                             langThrow(
                                 signifier.ctx,
-                                IncorrectNumberOfTypeArgs(symbol.typeParams.size, typeArgs.size)
+                                IncorrectNumberOfTypeArgs(type.typeParams.size, typeArgs.size)
                             )
                         } else {
-                            val substitution = Substitution(symbol.typeParams, typeArgs)
-                            substitution.apply(symbol)
+                            val substitution = Substitution(type.typeParams, typeArgs)
+                            substitution.apply(type)
                         }
                     }
 
+                    is TypeInstantiation -> type
                     else -> langThrow(signifier.ctx, SymbolHasNoParameters(signifier))
                 }
             }
@@ -218,33 +290,34 @@ class SymbolTable(private val parent: Scope) : Scope {
             )
 
             is ParameterizedSignifier -> {
-                when (val symbol = fetchTypeHere(signifier.tti)) {
+                when (val type = fetchTypeHere(signifier.tti)) {
                     is ParameterizedRecordTypeSymbol -> {
                         val typeArgs = signifier.args.map { fetchType(it) }
-                        if (typeArgs.size != symbol.typeParams.size) {
+                        if (typeArgs.size != type.typeParams.size) {
                             langThrow(
                                 signifier.ctx,
-                                IncorrectNumberOfTypeArgs(symbol.typeParams.size, typeArgs.size)
+                                IncorrectNumberOfTypeArgs(type.typeParams.size, typeArgs.size)
                             )
                         } else {
-                            val substitution = Substitution(symbol.typeParams, typeArgs)
-                            substitution.apply(symbol)
+                            val substitution = Substitution(type.typeParams, typeArgs)
+                            substitution.apply(type)
                         }
                     }
 
                     is ParameterizedBasicTypeSymbol -> {
                         val typeArgs = signifier.args.map { fetchType(it) }
-                        if (typeArgs.size != symbol.typeParams.size) {
+                        if (typeArgs.size != type.typeParams.size) {
                             langThrow(
                                 signifier.ctx,
-                                IncorrectNumberOfTypeArgs(symbol.typeParams.size, typeArgs.size)
+                                IncorrectNumberOfTypeArgs(type.typeParams.size, typeArgs.size)
                             )
                         } else {
-                            val substitution = Substitution(symbol.typeParams, typeArgs)
-                            substitution.apply(symbol)
+                            val substitution = Substitution(type.typeParams, typeArgs)
+                            substitution.apply(type)
                         }
                     }
 
+                    is TypeInstantiation -> type
                     else -> langThrow(signifier.ctx, SymbolHasNoParameters(signifier))
                 }
             }

@@ -20,25 +20,7 @@ class PropagateTypesAstVisitor(
             }
 
             is ParameterizedFunctionSymbol -> {
-                if (signifier is ParameterizedSignifier) {
-                    val idArgs = signifier.args
-                    val idArgSymbols = idArgs.map { ast.scope.fetchType(it) }
-                    if (idArgs.size == symbol.typeParams.size) {
-                        val substitution = Substitution(symbol.typeParams, idArgSymbols)
-                        val instantiation = substitution.apply(symbol)
-                        ast.symbolRef = instantiation
-                        val returnType = instantiation.substitutionChain.replay(symbol.returnType)
-                        ast.assignType(errors, returnType)
-                    } else {
-                        errors.add(ast.ctx, IncorrectNumberOfTypeArgs(symbol.typeParams.size, idArgs.size))
-                        ast.assignType(errors, ErrorType)
-                    }
-                } else {
-                    val instantiation = instantiateFunction(ast.ctx, args, symbol, errors)
-                    ast.symbolRef = instantiation
-                    val returnType = instantiation.substitutionChain.replay(symbol.returnType)
-                    ast.assignType(errors, returnType)
-                }
+                handleParamFunc(signifier, ast, symbol, args)
             }
 
             is FunctionFormalParameterSymbol -> {
@@ -88,37 +70,17 @@ class PropagateTypesAstVisitor(
             }
 
             is ParameterizedStaticPluginSymbol -> {
-                if (signifier is ParameterizedSignifier) {
-                    val idArgs = signifier.args
-                    val idArgSymbols = idArgs.map { ast.scope.fetchType(it) }
-                    if (idArgs.size == symbol.typeParams.size) {
-                        val instantiation = symbol.instantiation.apply(
-                            ast.ctx,
-                            errors,
-                            args,
-                            symbol,
-                            symbol.identifier,
-                            idArgSymbols
-                        )
-                        ast.symbolRef = instantiation
-                        val returnType = instantiation.substitutionChain.replay(symbol.returnType)
-                        ast.assignType(errors, returnType)
-                    } else {
-                        errors.add(ast.ctx, IncorrectNumberOfTypeArgs(symbol.typeParams.size, idArgs.size))
+                handleParamStatic(signifier, ast, symbol, args)
+            }
+
+            is SymbolInstantiation -> {
+                when(val terminus = symbol.substitutionChain.terminus) {
+                    is ParameterizedFunctionSymbol -> handleParamFunc(signifier, ast, terminus, args)
+                    is ParameterizedStaticPluginSymbol -> handleParamStatic(signifier, ast, terminus, args)
+                    is ParameterizedMemberPluginSymbol -> {
+                        errors.add(ast.ctx, SymbolCouldNotBeApplied(signifier))
                         ast.assignType(errors, ErrorType)
                     }
-                } else {
-                    val instantiation = symbol.instantiation.apply(
-                        ast.ctx,
-                        errors,
-                        args,
-                        symbol,
-                        symbol.identifier,
-                        listOf()
-                    )
-                    ast.symbolRef = instantiation
-                    val returnType = instantiation.substitutionChain.replay(symbol.returnType)
-                    ast.assignType(errors, returnType)
                 }
             }
 
@@ -126,6 +88,73 @@ class PropagateTypesAstVisitor(
                 errors.add(ast.ctx, SymbolCouldNotBeApplied(signifier))
                 ast.assignType(errors, ErrorType)
             }
+        }
+    }
+
+    private fun handleParamStatic(
+        signifier: Signifier,
+        ast: SymbolRefAst,
+        symbol: ParameterizedStaticPluginSymbol,
+        args: List<Ast>
+    ) {
+        if (signifier is ParameterizedSignifier) {
+            val idArgs = signifier.args
+            val idArgSymbols = idArgs.map { ast.scope.fetchType(it) }
+            if (idArgs.size == symbol.typeParams.size) {
+                val instantiation = symbol.instantiation.apply(
+                    ast.ctx,
+                    errors,
+                    args,
+                    symbol,
+                    symbol.identifier,
+                    idArgSymbols
+                )
+                ast.symbolRef = instantiation
+                val returnType = instantiation.substitutionChain.replay(symbol.returnType)
+                ast.assignType(errors, returnType)
+            } else {
+                errors.add(ast.ctx, IncorrectNumberOfTypeArgs(symbol.typeParams.size, idArgs.size))
+                ast.assignType(errors, ErrorType)
+            }
+        } else {
+            val instantiation = symbol.instantiation.apply(
+                ast.ctx,
+                errors,
+                args,
+                symbol,
+                symbol.identifier,
+                listOf()
+            )
+            ast.symbolRef = instantiation
+            val returnType = instantiation.substitutionChain.replay(symbol.returnType)
+            ast.assignType(errors, returnType)
+        }
+    }
+
+    private fun handleParamFunc(
+        signifier: Signifier,
+        ast: SymbolRefAst,
+        symbol: ParameterizedFunctionSymbol,
+        args: List<Ast>
+    ) {
+        if (signifier is ParameterizedSignifier) {
+            val idArgs = signifier.args
+            val idArgSymbols = idArgs.map { ast.scope.fetchType(it) }
+            if (idArgs.size == symbol.typeParams.size) {
+                val substitution = Substitution(symbol.typeParams, idArgSymbols)
+                val instantiation = substitution.apply(symbol)
+                ast.symbolRef = instantiation
+                val returnType = instantiation.substitutionChain.replay(symbol.returnType)
+                ast.assignType(errors, returnType)
+            } else {
+                errors.add(ast.ctx, IncorrectNumberOfTypeArgs(symbol.typeParams.size, idArgs.size))
+                ast.assignType(errors, ErrorType)
+            }
+        } else {
+            val instantiation = instantiateFunction(ast.ctx, args, symbol, errors)
+            ast.symbolRef = instantiation
+            val returnType = instantiation.substitutionChain.replay(symbol.returnType)
+            ast.assignType(errors, returnType)
         }
     }
 
