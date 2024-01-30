@@ -48,6 +48,11 @@ data class TypeMismatch(val expected: Type, val actual: Type) : ErrorKind(), Typ
 }
 
 data class FinMismatch(val expected: Long, val actual: Long) : ErrorKind()
+
+data class MixedCostExpression(val expected: Type, val actual: Type) : ErrorKind(), TypeHostErrorType {
+    override val types: List<Type> = listOf(expected, actual)
+}
+
 data class IncorrectNumberOfArgs(val expected: Int, val actual: Int) : ErrorKind()
 data class IncorrectNumberOfTypeArgs(val expected: Int, val actual: Int) : ErrorKind()
 data class InvalidRef(val symbol: Symbol) : ErrorKind(), SymbolHostErrorType {

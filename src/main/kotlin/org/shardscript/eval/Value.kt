@@ -83,25 +83,25 @@ object Plugins {
         ListTypes.removeAtFunction to GroundMemberPlugin { t: Value, args: List<Value> ->
             (t as ListValue).evalRemoveAt(args.first())
         },
-        ToStringMembers.integerToStringMember to GroundMemberPlugin { t: Value, _: List<Value> ->
+        StringOpMembers.integerToStringMember to GroundMemberPlugin { t: Value, _: List<Value> ->
             (t as IntValue).evalToString()
         },
-        ToStringMembers.unitToStringMember to GroundMemberPlugin { _: Value, _: List<Value> ->
+        StringOpMembers.unitToStringMember to GroundMemberPlugin { _: Value, _: List<Value> ->
             UnitValue.evalToString()
         },
-        ToStringMembers.booleanToStringMember to GroundMemberPlugin { t: Value, _: List<Value> ->
+        StringOpMembers.booleanToStringMember to GroundMemberPlugin { t: Value, _: List<Value> ->
             (t as BooleanValue).evalToString()
         },
-        ToStringMembers.charToStringMember to GroundMemberPlugin { t: Value, _: List<Value> ->
+        StringOpMembers.charToStringMember to GroundMemberPlugin { t: Value, _: List<Value> ->
             (t as CharValue).evalToString()
         }
     )
 
     val parameterizedMemberPlugins: Map<ParameterizedMemberPluginSymbol, GroundMemberPlugin> = mapOf(
-        ToStringMembers.decimalToStringMember to GroundMemberPlugin { t: Value, _: List<Value> ->
+        StringOpMembers.decimalToStringMember to GroundMemberPlugin { t: Value, _: List<Value> ->
             (t as DecimalValue).evalToString()
         },
-        ToStringMembers.stringToStringMember to GroundMemberPlugin { t: Value, _: List<Value> ->
+        StringOpMembers.stringToStringMember to GroundMemberPlugin { t: Value, _: List<Value> ->
             (t as StringValue).evalToString()
         },
         StringOpMembers.toCharArray to GroundMemberPlugin { t: Value, _: List<Value> ->

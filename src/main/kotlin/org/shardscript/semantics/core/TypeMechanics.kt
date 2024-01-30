@@ -373,6 +373,10 @@ fun checkTypes(
             checkTypes(ctx, prelude, errors, expected.children, actual.children)
         }
 
+        // We seem to hit this case during string interpolation, and the actual resolution happens during
+        // the CostExpressionAstVisitor phase
+        expected is CostExpression && actual is CostExpression -> Unit
+
         else -> {
             val expectedPath = getQualifiedName(expected)
             val actualPath = getQualifiedName(actual)
