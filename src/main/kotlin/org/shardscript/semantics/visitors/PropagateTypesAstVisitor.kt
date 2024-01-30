@@ -9,9 +9,9 @@ import org.shardscript.semantics.prelude.Lang
 class PropagateTypesAstVisitor(
     private val preludeTable: Scope
 ) : UnitAstVisitor() {
-    private fun groundApply(ast: SymbolRefAst, signifier: Signifier, args: List<Ast>, symbol: Symbol) {
-        when (symbol) {
-            is ErrorType -> ast.assignType(errors, ErrorType)
+    private fun groundApply(ast: SymbolRefAst, signifier: Signifier, args: List<Ast>, scope: Scope) {
+        when (val symbol = scope.fetch(signifier)) {
+            is ErrorSymbol -> ast.assignType(errors, ErrorType)
             is GroundFunctionSymbol -> {
                 if (signifier is ParameterizedSignifier) {
                     errors.add(signifier.ctx, SymbolHasNoParameters(signifier))
@@ -51,62 +51,91 @@ class PropagateTypesAstVisitor(
                     }
                 }
             }
-            is GroundRecordTypeSymbol -> {
-                if (signifier is ParameterizedSignifier) {
-                    errors.add(signifier.ctx, SymbolHasNoParameters(signifier))
-                }
-                ast.symbolRef = symbol
-                ast.assignType(errors, symbol)
-            }
-            is ParameterizedRecordTypeSymbol -> {
-                if (signifier is ParameterizedSignifier) {
-                    val idArgs = signifier.args
-                    val idArgSymbols = idArgs.map { symbolToType(errors, it.ctx, ast.scope.fetch(it), it) }
-                    if (idArgs.size == symbol.typeParams.size) {
-                        val substitution = Substitution(symbol.typeParams, idArgSymbols)
-                        val instantiation = substitution.apply(symbol)
-                        ast.symbolRef = instantiation
-                        ast.assignType(errors, instantiation)
-                    } else {
-                        errors.add(ast.ctx, IncorrectNumberOfTypeArgs(symbol.typeParams.size, idArgs.size))
+            is TypePlaceholder -> {
+                when (val type = scope.fetchType(signifier)) {
+                    is GroundRecordTypeSymbol -> {
+                        if (signifier is ParameterizedSignifier) {
+                            errors.add(signifier.ctx, SymbolHasNoParameters(signifier))
+                        }
+                        ast.symbolRef = TypePlaceholder
+                        ast.typeRef = type
+                        ast.assignType(errors, type)
+                    }
+
+                    is ParameterizedRecordTypeSymbol -> {
+                        if (signifier is ParameterizedSignifier) {
+                            val idArgs = signifier.args
+                            val idArgSymbols = idArgs.map { symbolToType(errors, it.ctx, ast.scope.fetch(it), it) }
+                            if (idArgs.size == type.typeParams.size) {
+                                val substitution = Substitution(type.typeParams, idArgSymbols)
+                                val instantiation = substitution.apply(type)
+                                ast.symbolRef = TypePlaceholder
+                                ast.typeRef = instantiation
+                                ast.assignType(errors, instantiation)
+                            } else {
+                                errors.add(ast.ctx, IncorrectNumberOfTypeArgs(type.typeParams.size, idArgs.size))
+                                ast.assignType(errors, ErrorType)
+                            }
+                        } else {
+                            val instantiation = instantiateRecord(ast.ctx, args, type, errors)
+                            ast.symbolRef = TypePlaceholder
+                            ast.typeRef = instantiation
+                            ast.assignType(errors, instantiation)
+                        }
+                    }
+
+                    is ParameterizedBasicTypeSymbol -> {
+                        if (signifier is ParameterizedSignifier) {
+                            val idArgs = signifier.args
+                            val idArgSymbols = idArgs.map { symbolToType(errors, it.ctx, ast.scope.fetch(it), it) }
+                            if (idArgs.size == type.typeParams.size) {
+                                val instantiation = type.instantiation.apply(
+                                    ast.ctx,
+                                    errors,
+                                    args,
+                                    type,
+                                    type.identifier,
+                                    idArgSymbols
+                                )
+                                ast.symbolRef = TypePlaceholder
+                                ast.typeRef = instantiation
+                                ast.assignType(errors, instantiation)
+                            } else {
+                                errors.add(ast.ctx, IncorrectNumberOfTypeArgs(type.typeParams.size, idArgs.size))
+                                ast.assignType(errors, ErrorType)
+                            }
+                        } else {
+                            val instantiation = type.instantiation.apply(
+                                ast.ctx,
+                                errors,
+                                args,
+                                type,
+                                type.identifier,
+                                listOf()
+                            )
+                            ast.symbolRef = TypePlaceholder
+                            ast.typeRef = instantiation
+                            ast.assignType(errors, instantiation)
+                        }
+                    }
+
+                    is BasicTypeSymbol,
+                    ConstantFinTypeSymbol,
+                    is FinTypeSymbol,
+                    is ImmutableFinTypeParameter,
+                    is MaxCostExpression,
+                    is MutableFinTypeParameter,
+                    is ProductCostExpression,
+                    is SumCostExpression,
+                    ErrorType,
+                    is FunctionTypeSymbol,
+                    is ObjectSymbol,
+                    is PlatformObjectSymbol,
+                    is StandardTypeParameter,
+                    is TypeInstantiation -> {
+                        errors.add(ast.ctx, TypeSystemBug)
                         ast.assignType(errors, ErrorType)
                     }
-                } else {
-                    val instantiation = instantiateRecord(ast.ctx, args, symbol, errors)
-                    ast.symbolRef = instantiation
-                    ast.assignType(errors, instantiation)
-                }
-            }
-            is ParameterizedBasicTypeSymbol -> {
-                if (signifier is ParameterizedSignifier) {
-                    val idArgs = signifier.args
-                    val idArgSymbols = idArgs.map { symbolToType(errors, it.ctx, ast.scope.fetch(it), it) }
-                    if (idArgs.size == symbol.typeParams.size) {
-                        val instantiation = symbol.instantiation.apply(
-                            ast.ctx,
-                            errors,
-                            args,
-                            symbol,
-                            symbol.identifier,
-                            idArgSymbols
-                        )
-                        ast.symbolRef = instantiation
-                        ast.assignType(errors, instantiation)
-                    } else {
-                        errors.add(ast.ctx, IncorrectNumberOfTypeArgs(symbol.typeParams.size, idArgs.size))
-                        ast.assignType(errors, ErrorType)
-                    }
-                } else {
-                    val instantiation = symbol.instantiation.apply(
-                        ast.ctx,
-                        errors,
-                        args,
-                        symbol,
-                        symbol.identifier,
-                        listOf()
-                    )
-                    ast.symbolRef = instantiation
-                    ast.assignType(errors, instantiation)
                 }
             }
             is ParameterizedStaticPluginSymbol -> {
@@ -153,7 +182,7 @@ class PropagateTypesAstVisitor(
     override fun visit(ast: IntLiteralAst) {
         try {
             super.visit(ast)
-            ast.assignType(errors, preludeTable.fetch(Lang.intId) as Type)
+            ast.assignType(errors, preludeTable.fetchType(Lang.intId))
         } catch (ex: LanguageException) {
             errors.addAll(ast.ctx, ex.errors)
             ast.assignType(errors, ErrorType)
@@ -163,7 +192,7 @@ class PropagateTypesAstVisitor(
     override fun visit(ast: DecimalLiteralAst) {
         try {
             super.visit(ast)
-            val parameterizedType = preludeTable.fetch(Lang.decimalId) as ParameterizedBasicTypeSymbol
+            val parameterizedType = preludeTable.fetchType(Lang.decimalId) as ParameterizedBasicTypeSymbol
             ast.assignType(
                 errors, parameterizedType.instantiation.apply(
                     ast.ctx,
@@ -183,7 +212,7 @@ class PropagateTypesAstVisitor(
     override fun visit(ast: BooleanLiteralAst) {
         try {
             super.visit(ast)
-            ast.assignType(errors, preludeTable.fetch(Lang.booleanId) as Type)
+            ast.assignType(errors, preludeTable.fetchType(Lang.booleanId))
         } catch (ex: LanguageException) {
             errors.addAll(ast.ctx, ex.errors)
             ast.assignType(errors, ErrorType)
@@ -193,7 +222,7 @@ class PropagateTypesAstVisitor(
     override fun visit(ast: CharLiteralAst) {
         try {
             super.visit(ast)
-            ast.assignType(errors, preludeTable.fetch(Lang.charId) as Type)
+            ast.assignType(errors, preludeTable.fetchType(Lang.charId))
         } catch (ex: LanguageException) {
             errors.addAll(ast.ctx, ex.errors)
             ast.assignType(errors, ErrorType)
@@ -203,7 +232,7 @@ class PropagateTypesAstVisitor(
     override fun visit(ast: StringLiteralAst) {
         try {
             super.visit(ast)
-            val parameterizedType = preludeTable.fetch(Lang.stringId) as ParameterizedBasicTypeSymbol
+            val parameterizedType = preludeTable.fetchType(Lang.stringId) as ParameterizedBasicTypeSymbol
             ast.assignType(
                 errors, parameterizedType.instantiation.apply(
                     ast.ctx,
@@ -223,7 +252,7 @@ class PropagateTypesAstVisitor(
     override fun visit(ast: StringInterpolationAst) {
         try {
             super.visit(ast)
-            val parameterizedType = preludeTable.fetch(Lang.stringId) as ParameterizedBasicTypeSymbol
+            val parameterizedType = preludeTable.fetchType(Lang.stringId) as ParameterizedBasicTypeSymbol
             ast.assignType(
                 errors, parameterizedType.instantiation.apply(
                     ast.ctx,
@@ -243,7 +272,7 @@ class PropagateTypesAstVisitor(
     override fun visit(ast: LetAst) {
         try {
             super.visit(ast)
-            ast.assignType(errors, preludeTable.fetch(Lang.unitId) as Type)
+            ast.assignType(errors, preludeTable.fetchType(Lang.unitId))
             if (ast.ofType is ImplicitTypeLiteral) {
                 ast.ofTypeSymbol = ast.rhs.readType()
             } else {
@@ -265,11 +294,8 @@ class PropagateTypesAstVisitor(
             val symbol = ast.scope.fetch(ast.identifier)
             ast.symbolRef = symbol
             when (symbol) {
-                is ErrorType -> ast.assignType(errors, ErrorType)
-                is BasicTypeSymbol -> ast.assignType(errors, symbol)
+                is ErrorSymbol -> ast.assignType(errors, ErrorType)
                 is LocalVariableSymbol -> ast.assignType(errors, symbol.ofTypeSymbol)
-                is ObjectSymbol -> ast.assignType(errors, symbol)
-                is PlatformObjectSymbol -> ast.assignType(errors, symbol)
                 is FunctionFormalParameterSymbol -> {
                     ast.assignType(errors, symbol.ofTypeSymbol)
                     if (ast.readType() is FunctionTypeSymbol) {
@@ -277,9 +303,6 @@ class PropagateTypesAstVisitor(
                     }
                 }
                 is FieldSymbol -> ast.assignType(errors, symbol.ofTypeSymbol)
-                is GroundRecordTypeSymbol -> ast.assignType(errors, symbol)
-                is StandardTypeParameter -> ast.assignType(errors, symbol)
-                is TypeInstantiation -> ast.assignType(errors, symbol)
                 else -> {
                     errors.add(ast.ctx, InvalidRef(symbol))
                     ast.assignType(errors, ErrorType)
@@ -295,7 +318,7 @@ class PropagateTypesAstVisitor(
         try {
             super.visit(ast)
             if (ast.lines.isEmpty()) {
-                ast.assignType(errors, preludeTable.fetch(Lang.unitId) as Type)
+                ast.assignType(errors, preludeTable.fetchType(Lang.unitId))
             } else {
                 ast.assignType(errors, ast.lines.last().readType())
             }
@@ -309,7 +332,7 @@ class PropagateTypesAstVisitor(
         try {
             super.visit(ast)
             if (ast.lines.isEmpty()) {
-                ast.assignType(errors, preludeTable.fetch(Lang.unitId) as Type)
+                ast.assignType(errors, preludeTable.fetchType(Lang.unitId))
             } else {
                 ast.assignType(errors, ast.lines.last().readType())
             }
@@ -322,7 +345,7 @@ class PropagateTypesAstVisitor(
     override fun visit(ast: FunctionAst) {
         try {
             super.visit(ast)
-            ast.assignType(errors, preludeTable.fetch(Lang.unitId) as Type)
+            ast.assignType(errors, preludeTable.fetchType(Lang.unitId))
             if (ast.typeParams.isEmpty()) {
                 val groundFunctionSymbol = ast.scope as GroundFunctionSymbol
                 if (groundFunctionSymbol.returnType == Lang.unitObject && ast.body.readType() != Lang.unitObject) {
@@ -330,7 +353,7 @@ class PropagateTypesAstVisitor(
                     refAst.scope = ast.body.scope
                     refAst.accept(this)
                     ast.body.lines.add(refAst)
-                    ast.body.assignType(errors, preludeTable.fetch(Lang.unitId) as Type)
+                    ast.body.assignType(errors, preludeTable.fetchType(Lang.unitId))
                 }
             } else {
                 val parameterizedFunctionSymbol = ast.scope as ParameterizedFunctionSymbol
@@ -339,7 +362,7 @@ class PropagateTypesAstVisitor(
                     refAst.scope = ast.body.scope
                     refAst.accept(this)
                     ast.body.lines.add(refAst)
-                    ast.body.assignType(errors, preludeTable.fetch(Lang.unitId) as Type)
+                    ast.body.assignType(errors, preludeTable.fetchType(Lang.unitId))
                 }
             }
         } catch (ex: LanguageException) {
@@ -365,7 +388,7 @@ class PropagateTypesAstVisitor(
     override fun visit(ast: RecordDefinitionAst) {
         try {
             super.visit(ast)
-            ast.assignType(errors, preludeTable.fetch(Lang.unitId) as Type)
+            ast.assignType(errors, preludeTable.fetchType(Lang.unitId))
             ast.fields.forEach {
                 it.symbol = ast.scope.fetch(it.ofType)
             }
@@ -378,7 +401,7 @@ class PropagateTypesAstVisitor(
     override fun visit(ast: ObjectDefinitionAst) {
         try {
             super.visit(ast)
-            ast.assignType(errors, preludeTable.fetch(Lang.unitId) as Type)
+            ast.assignType(errors, preludeTable.fetchType(Lang.unitId))
         } catch (ex: LanguageException) {
             errors.addAll(ast.ctx, ex.errors)
             ast.assignType(errors, ErrorType)
@@ -462,7 +485,7 @@ class PropagateTypesAstVisitor(
             val symbol = ast.scope.fetch(ast.tti)
             filterValidGroundApply(ast.ctx, errors, symbol, ast.signifier)
             ast.symbolRef = symbol
-            groundApply(ast, ast.signifier, ast.args, symbol)
+            groundApply(ast, ast.signifier, ast.args, ast.scope)
         } catch (ex: LanguageException) {
             errors.addAll(ast.ctx, ex.errors)
             ast.assignType(errors, ErrorType)
@@ -617,7 +640,7 @@ class PropagateTypesAstVisitor(
     // Do not call super for collection iterators
     override fun visit(ast: ForEachAst) {
         try {
-            ast.assignType(errors, preludeTable.fetch(Lang.unitId) as Type)
+            ast.assignType(errors, preludeTable.fetchType(Lang.unitId))
             ast.source.accept(this)
             when (val sourceType = ast.source.readType()) {
                 is TypeInstantiation -> {
@@ -659,7 +682,7 @@ class PropagateTypesAstVisitor(
             val symbol = ast.scope.fetch(ast.identifier)
             ast.symbolRef = symbol
             when (symbol) {
-                is LocalVariableSymbol -> ast.assignType(errors, preludeTable.fetch(Lang.unitId) as Type)
+                is LocalVariableSymbol -> ast.assignType(errors, preludeTable.fetchType(Lang.unitId))
                 else -> {
                     errors.add(ast.ctx, InvalidRef(symbol))
                     ast.assignType(errors, ErrorType)
@@ -680,7 +703,7 @@ class PropagateTypesAstVisitor(
                     val member = lhsType.fetchHere(ast.identifier)
                     ast.symbolRef = member
                     when (member) {
-                        is FieldSymbol -> ast.assignType(errors, preludeTable.fetch(Lang.unitId) as Type)
+                        is FieldSymbol -> ast.assignType(errors, preludeTable.fetchType(Lang.unitId))
                         else -> {
                             errors.add(ast.ctx, SymbolIsNotAField(ast.identifier))
                             ast.assignType(errors, ErrorType)
@@ -694,7 +717,7 @@ class PropagateTypesAstVisitor(
                             when (val member = parameterizedSymbol.fetchHere(ast.identifier)) {
                                 is FieldSymbol -> {
                                     ast.symbolRef = substitution.replay(member.ofTypeSymbol) as Symbol
-                                    ast.assignType(errors, preludeTable.fetch(Lang.unitId) as Type)
+                                    ast.assignType(errors, preludeTable.fetchType(Lang.unitId))
                                 }
                                 else -> {
                                     errors.add(ast.ctx, SymbolIsNotAField(ast.identifier))
@@ -755,7 +778,7 @@ class PropagateTypesAstVisitor(
             super.visit(ast)
             val ofType = symbolToType(errors, ast.signifier.ctx, ast.scope.fetch(ast.signifier), ast.signifier)
             ast.identifierSymbol = filterValidTypes(ast.ctx, errors, ofType)
-            ast.assignType(errors, preludeTable.fetch(Lang.booleanId) as Type)
+            ast.assignType(errors, preludeTable.fetchType(Lang.booleanId))
         } catch (ex: LanguageException) {
             errors.addAll(ast.ctx, ex.errors)
             ast.assignType(errors, ErrorType)

@@ -31,7 +31,7 @@ class ParameterScanAstVisitor(private val fileName: String) : UnitAstVisitor() {
                                 errors.add(it.identifier.ctx, DuplicateTypeParameter(it.identifier))
                             } else {
                                 seenTypeParameters.add(postFix)
-                                parameterizedRecordSymbol.define(it.identifier, typeParam)
+                                parameterizedRecordSymbol.defineType(it.identifier, typeParam)
                             }
                             typeParam
                         } else {
@@ -40,7 +40,7 @@ class ParameterScanAstVisitor(private val fileName: String) : UnitAstVisitor() {
                                 errors.add(it.identifier.ctx, DuplicateTypeParameter(it.identifier))
                             } else {
                                 seenTypeParameters.add(it.identifier.name)
-                                parameterizedRecordSymbol.define(it.identifier, typeParam)
+                                parameterizedRecordSymbol.defineType(it.identifier, typeParam)
                             }
                             typeParam
                         }
@@ -63,7 +63,7 @@ class ParameterScanAstVisitor(private val fileName: String) : UnitAstVisitor() {
                             errors.add(it.identifier.ctx, DuplicateTypeParameter(it.identifier))
                         } else {
                             seenTypeParameters.add(postFix)
-                            parameterizedFunctionSymbol.define(it.identifier, typeParam)
+                            parameterizedFunctionSymbol.defineType(it.identifier, typeParam)
                         }
                         typeParam
                     } else {
@@ -72,7 +72,7 @@ class ParameterScanAstVisitor(private val fileName: String) : UnitAstVisitor() {
                             errors.add(it.identifier.ctx, DuplicateTypeParameter(it.identifier))
                         } else {
                             seenTypeParameters.add(it.identifier.name)
-                            parameterizedFunctionSymbol.define(it.identifier, typeParam)
+                            parameterizedFunctionSymbol.defineType(it.identifier, typeParam)
                         }
                         typeParam
                     }
