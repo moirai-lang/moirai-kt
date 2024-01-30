@@ -21,6 +21,7 @@ sealed class Ast : LanguageElement {
 
 sealed class SymbolRefAst : Ast() {
     lateinit var symbolRef: Symbol
+    var typeRef: Type = ErrorType
 }
 
 sealed class DefinitionAst : Ast() {

@@ -49,25 +49,11 @@ fun filterValidGroundApply(
     signifier: Signifier
 ): Symbol =
     when (symbol) {
-        ErrorType,
         is FunctionFormalParameterSymbol,
         is GroundFunctionSymbol,
-        is GroundRecordTypeSymbol,
         is ParameterizedStaticPluginSymbol,
-        is ParameterizedBasicTypeSymbol,
-        is ParameterizedFunctionSymbol,
-        is ParameterizedRecordTypeSymbol -> symbol
-        is TypeInstantiation -> {
-            when (symbol.substitutionChain.terminus) {
-                is ParameterizedBasicTypeSymbol,
-                is ParameterizedRecordTypeSymbol -> {
-                    symbol.substitutionChain.terminus.typeParams.forEach {
-                        validateSubstitution(ctx, errors, it, symbol.substitutionChain.replay(it))
-                    }
-                    symbol
-                }
-            }
-        }
+        is ParameterizedFunctionSymbol -> symbol
+
         is SymbolInstantiation -> {
             when (symbol.substitutionChain.terminus) {
                 is ParameterizedStaticPluginSymbol,
@@ -80,29 +66,61 @@ fun filterValidGroundApply(
 
                 else -> {
                     errors.add(ctx, SymbolCouldNotBeApplied(signifier))
-                    ErrorType
+                    ErrorSymbol
                 }
             }
         }
-        is FunctionTypeSymbol,
+
+        is ErrorSymbol,
+        is TypePlaceholder,
         is ParameterizedMemberPluginSymbol,
-        is FinTypeSymbol,
-        is ConstantFinTypeSymbol,
-        is ImmutableFinTypeParameter,
-        is MutableFinTypeParameter,
         is GroundMemberPluginSymbol,
-        is BasicTypeSymbol,
-        is ObjectSymbol,
-        is PlatformObjectSymbol,
-        is StandardTypeParameter,
         is Block,
-        is SumCostExpression,
-        is ProductCostExpression,
-        is MaxCostExpression,
         is FieldSymbol,
         is PlatformFieldSymbol,
         is LambdaSymbol,
         is LocalVariableSymbol -> {
+            errors.add(ctx, SymbolCouldNotBeApplied(signifier))
+            ErrorSymbol
+        }
+    }
+
+fun filterValidGroundApply(
+    ctx: SourceContext,
+    errors: LanguageErrors,
+    type: Type,
+    signifier: Signifier
+): Type =
+    when (type) {
+        ErrorType,
+        is GroundRecordTypeSymbol,
+        is ParameterizedBasicTypeSymbol,
+        is ParameterizedRecordTypeSymbol -> type
+
+        is TypeInstantiation -> {
+            when (type.substitutionChain.terminus) {
+                is ParameterizedBasicTypeSymbol,
+                is ParameterizedRecordTypeSymbol -> {
+                    type.substitutionChain.terminus.typeParams.forEach {
+                        validateSubstitution(ctx, errors, it, type.substitutionChain.replay(it))
+                    }
+                    type
+                }
+            }
+        }
+
+        is FunctionTypeSymbol,
+        is FinTypeSymbol,
+        is ConstantFinTypeSymbol,
+        is ImmutableFinTypeParameter,
+        is MutableFinTypeParameter,
+        is BasicTypeSymbol,
+        is ObjectSymbol,
+        is PlatformObjectSymbol,
+        is StandardTypeParameter,
+        is SumCostExpression,
+        is ProductCostExpression,
+        is MaxCostExpression -> {
             errors.add(ctx, SymbolCouldNotBeApplied(signifier))
             ErrorType
         }
@@ -115,26 +133,10 @@ fun filterValidDotApply(
     signifier: Signifier
 ): Symbol =
     when (symbol) {
-        ErrorType,
         is GroundFunctionSymbol,
-        is GroundRecordTypeSymbol,
         is GroundMemberPluginSymbol,
         is ParameterizedStaticPluginSymbol,
-        is ParameterizedBasicTypeSymbol,
-        is ParameterizedFunctionSymbol,
-        is ParameterizedRecordTypeSymbol -> symbol
-
-        is TypeInstantiation -> {
-            when (symbol.substitutionChain.terminus) {
-                is ParameterizedBasicTypeSymbol,
-                is ParameterizedRecordTypeSymbol -> {
-                    symbol.substitutionChain.terminus.typeParams.forEach {
-                        validateSubstitution(ctx, errors, it, symbol.substitutionChain.replay(it))
-                    }
-                    symbol
-                }
-            }
-        }
+        is ParameterizedFunctionSymbol -> symbol
 
         is SymbolInstantiation -> {
             when (symbol.substitutionChain.terminus) {
@@ -149,8 +151,45 @@ fun filterValidDotApply(
             }
         }
 
-        is FunctionTypeSymbol,
+        is ErrorSymbol,
+        is TypePlaceholder,
         is ParameterizedMemberPluginSymbol,
+        is Block,
+        is FunctionFormalParameterSymbol,
+        is FieldSymbol,
+        is PlatformFieldSymbol,
+        is LambdaSymbol,
+        is LocalVariableSymbol -> {
+            errors.add(ctx, SymbolCouldNotBeApplied(signifier))
+            ErrorSymbol
+        }
+    }
+
+fun filterValidDotApply(
+    ctx: SourceContext,
+    errors: LanguageErrors,
+    type: Type,
+    signifier: Signifier
+): Type =
+    when (type) {
+        ErrorType,
+        is GroundRecordTypeSymbol,
+        is ParameterizedBasicTypeSymbol,
+        is ParameterizedRecordTypeSymbol -> type
+
+        is TypeInstantiation -> {
+            when (type.substitutionChain.terminus) {
+                is ParameterizedBasicTypeSymbol,
+                is ParameterizedRecordTypeSymbol -> {
+                    type.substitutionChain.terminus.typeParams.forEach {
+                        validateSubstitution(ctx, errors, it, type.substitutionChain.replay(it))
+                    }
+                    type
+                }
+            }
+        }
+
+        is FunctionTypeSymbol,
         is FinTypeSymbol,
         is ConstantFinTypeSymbol,
         is ImmutableFinTypeParameter,
@@ -159,15 +198,9 @@ fun filterValidDotApply(
         is ObjectSymbol,
         is PlatformObjectSymbol,
         is StandardTypeParameter,
-        is Block,
         is SumCostExpression,
         is ProductCostExpression,
-        is MaxCostExpression,
-        is FunctionFormalParameterSymbol,
-        is FieldSymbol,
-        is PlatformFieldSymbol,
-        is LambdaSymbol,
-        is LocalVariableSymbol -> {
+        is MaxCostExpression -> {
             errors.add(ctx, SymbolCouldNotBeApplied(signifier))
             ErrorType
         }
