@@ -153,16 +153,16 @@ data class ForEachFeatureBan(val symbol: Symbol) : ErrorKind(), SymbolHostErrorT
     override val symbols: List<Symbol> = listOf(symbol)
 }
 
-data class RecordFieldFeatureBan(val symbol: Symbol) : ErrorKind(), SymbolHostErrorType {
-    override val symbols: List<Symbol> = listOf(symbol)
+data class RecordFieldFeatureBan(val type: Type) : ErrorKind(), TypeHostErrorType {
+    override val types: List<Type> = listOf(type)
 }
 
-data class ReturnTypeFeatureBan(val symbol: Symbol) : ErrorKind(), SymbolHostErrorType {
-    override val symbols: List<Symbol> = listOf(symbol)
+data class ReturnTypeFeatureBan(val type: Type) : ErrorKind(), TypeHostErrorType {
+    override val types: List<Type> = listOf(type)
 }
 
-data class FormalParamFeatureBan(val symbol: Symbol) : ErrorKind(), SymbolHostErrorType {
-    override val symbols: List<Symbol> = listOf(symbol)
+data class FormalParamFeatureBan(val type: Type) : ErrorKind(), TypeHostErrorType {
+    override val types: List<Type> = listOf(type)
 }
 
 data class TypeArgFeatureBan(val type: Type) : ErrorKind(), TypeHostErrorType {

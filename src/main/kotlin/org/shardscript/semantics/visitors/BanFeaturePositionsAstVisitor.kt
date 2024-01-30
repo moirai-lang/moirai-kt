@@ -5,9 +5,9 @@ import org.shardscript.semantics.core.*
 class BanFeaturePositionsAstVisitor : UnitAstVisitor() {
     override fun visit(ast: FunctionAst) {
         super.visit(ast)
-        when (val returnType = ast.scope.fetch(ast.returnType)) {
+        when (val returnType = ast.scope.fetchType(ast.returnType)) {
             is ParameterizedBasicTypeSymbol,
-            is ParameterizedRecordTypeSymbol -> errors.add(ast.ctx, CannotUseRawSymbol(returnType))
+            is ParameterizedRecordTypeSymbol -> errors.add(ast.ctx, CannotUseRawType(returnType))
             is FunctionTypeSymbol -> errors.add(ast.ctx, FunctionReturnType(ast.identifier))
             is ObjectSymbol -> {
                 if (!returnType.featureSupport.returnType) {
@@ -30,9 +30,9 @@ class BanFeaturePositionsAstVisitor : UnitAstVisitor() {
             else -> Unit
         }
         ast.formalParams.forEach {
-            when (val formalParamType = ast.scope.fetch(it.ofType)) {
+            when (val formalParamType = ast.scope.fetchType(it.ofType)) {
                 is ParameterizedBasicTypeSymbol,
-                is ParameterizedRecordTypeSymbol -> errors.add(ast.ctx, CannotUseRawSymbol(formalParamType))
+                is ParameterizedRecordTypeSymbol -> errors.add(ast.ctx, CannotUseRawType(formalParamType))
                 is ObjectSymbol -> {
                     if (!formalParamType.featureSupport.paramType) {
                         errors.add(ast.ctx, FormalParamFeatureBan(formalParamType))
@@ -70,9 +70,9 @@ class BanFeaturePositionsAstVisitor : UnitAstVisitor() {
     override fun visit(ast: RecordDefinitionAst) {
         super.visit(ast)
         ast.fields.forEach {
-            when (val fieldType = ast.scope.fetch(it.ofType)) {
+            when (val fieldType = ast.scope.fetchType(it.ofType)) {
                 is ParameterizedBasicTypeSymbol,
-                is ParameterizedRecordTypeSymbol -> errors.add(ast.ctx, CannotUseRawSymbol(fieldType))
+                is ParameterizedRecordTypeSymbol -> errors.add(ast.ctx, CannotUseRawType(fieldType))
                 is FunctionTypeSymbol -> errors.add(ast.ctx, RecordFieldFunctionType(ast.identifier, it.identifier))
                 is ObjectSymbol -> {
                     if (!fieldType.featureSupport.recordField) {
@@ -99,7 +99,7 @@ class BanFeaturePositionsAstVisitor : UnitAstVisitor() {
 
     override fun visit(ast: AsAst) {
         super.visit(ast)
-        val asType = ast.scope.fetch(ast.signifier)
+        val asType = ast.scope.fetchType(ast.signifier)
         if (asType is FunctionTypeSymbol) {
             errors.add(ast.ctx, InvalidAsCast(ast.signifier))
         }
@@ -107,7 +107,7 @@ class BanFeaturePositionsAstVisitor : UnitAstVisitor() {
 
     override fun visit(ast: IsAst) {
         super.visit(ast)
-        val isType = ast.scope.fetch(ast.signifier)
+        val isType = ast.scope.fetchType(ast.signifier)
         if (isType is FunctionTypeSymbol) {
             errors.add(ast.ctx, InvalidIsCheck(ast.signifier))
         }
