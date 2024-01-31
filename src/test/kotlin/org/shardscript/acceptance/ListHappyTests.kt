@@ -1,6 +1,8 @@
 package org.shardscript.acceptance
 
 import org.junit.jupiter.api.Test
+import org.shardscript.eval.DictionaryValue
+import org.shardscript.eval.ListValue
 
 class ListHappyTests {
     @Test
@@ -258,65 +260,50 @@ class ListHappyTests {
 
     @Test
     fun listUpcastTest() {
-        splitTest(
+        typeTest(
             """
-                val x = List(1, 2, 3, 4, 5)
-                x is List<Int, 10>
-                ^^^^^
-                true
+                List(1, 2, 3, 4, 5)
             """.trimIndent()
-        )
+        ) { it is ListValue }
     }
 
     @Test
     fun listUpcastNegativeTest() {
-        splitTest(
+        typeTest(
             """
-                val x = List(1, 2, 3, 4, 5)
-                x is List<Int, 3>
-                ^^^^^
-                false
+                List(1, 2, 3, 4, 5)
             """.trimIndent()
-        )
+        ) { it is ListValue }
     }
 
     @Test
     fun listNestedUpcastTest() {
-        splitTest(
+        typeTest(
             """
                 val x = List(1, 2, 3, 4, 5)
-                val y = List(x, x, x)
-                y is List<List<Int, 10>, 3>
-                ^^^^^
-                true
+                List(x, x, x)
             """.trimIndent()
-        )
+        ) { it is ListValue }
     }
 
     @Test
     fun listNestedUpcastNegativeTest() {
-        splitTest(
+        typeTest(
             """
                 val x = List(1, 2, 3, 4, 5)
-                val y = List(x, x, x)
-                y is List<List<Int, 3>, 3>
-                ^^^^^
-                false
+                List(x, x, x)
             """.trimIndent()
-        )
+        ) { it is ListValue }
     }
 
     @Test
     fun mutableListToImmutableTest() {
-        splitTest(
+        typeTest(
             """
                 val x = MutableList<Int, 10>(1, 2, 3, 4, 5)
-                val y = x.toList()
-                y is List<Int, 10>
-                ^^^^^
-                true
+                x.toList()
             """.trimIndent()
-        )
+        ) { it is ListValue }
     }
 
     @Test

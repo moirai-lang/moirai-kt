@@ -96,20 +96,4 @@ class BanFeaturePositionsAstVisitor : UnitAstVisitor() {
             }
         }
     }
-
-    override fun visit(ast: AsAst) {
-        super.visit(ast)
-        val asType = ast.scope.fetchType(ast.signifier)
-        if (asType is FunctionTypeSymbol) {
-            errors.add(ast.ctx, InvalidAsCast(ast.signifier))
-        }
-    }
-
-    override fun visit(ast: IsAst) {
-        super.visit(ast)
-        val isType = ast.scope.fetchType(ast.signifier)
-        if (isType is FunctionTypeSymbol) {
-            errors.add(ast.ctx, InvalidIsCheck(ast.signifier))
-        }
-    }
 }

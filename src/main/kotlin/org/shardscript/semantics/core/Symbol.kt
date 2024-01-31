@@ -32,11 +32,6 @@ class SymbolInstantiation(
     val substitutionChain: SubstitutionChain<RawTerminusSymbol>
 ) : Symbol()
 
-class Block(
-    override val parent: Scope,
-    private val symbolTable: SymbolTable = SymbolTable(parent)
-) : SymbolTableElement(), Scope by symbolTable
-
 class LocalVariableSymbol(
     override val parent: Scope,
     override val identifier: Identifier,

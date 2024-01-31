@@ -126,22 +126,6 @@ internal class AstParseTreeVisitor(private val fileName: String, val errors: Lan
         return rewriteAsDotApply(left, listOf(right), op, sourceContext)
     }
 
-    override fun visitTypeRelation(ctx: ShardScriptParser.TypeRelationContext): Ast {
-        val sourceContext = createContext(fileName, ctx.op)
-        val left = visit(ctx.left)
-        return when (ctx.op.text) {
-            TypeRelations.As.idStr -> {
-                val res = AsAst(sourceContext, left, typeVisitor.visit(ctx.id))
-                res
-            }
-
-            else -> {
-                val res = IsAst(sourceContext, left, typeVisitor.visit(ctx.id))
-                res
-            }
-        }
-    }
-
     override fun visitInfixEquality(ctx: ShardScriptParser.InfixEqualityContext): Ast {
         val sourceContext = createContext(fileName, ctx.op)
         val op = if (ctx.op.text == BinaryOperator.Equal.opStr) {

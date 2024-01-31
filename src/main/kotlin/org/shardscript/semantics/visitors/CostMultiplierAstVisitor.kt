@@ -145,12 +145,4 @@ class CostMultiplierAstVisitor(val architecture: Architecture) : AstVisitor<List
         res.addAll(ast.falseBranch.accept(this))
         return res
     }
-
-    override fun visit(ast: AsAst): List<ParamCostExMultiplier> {
-        return ast.lhs.accept(this)
-    }
-
-    override fun visit(ast: IsAst): List<ParamCostExMultiplier> {
-        return ast.lhs.accept(this)
-    }
 }

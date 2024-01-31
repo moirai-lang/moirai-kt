@@ -234,14 +234,4 @@ class CostExpressionAstVisitor(private val architecture: Architecture) : UnitAst
             )
         )
     }
-
-    override fun visit(ast: AsAst) {
-        super.visit(ast)
-        ast.costExpression = addDefault(ast.lhs.costExpression)
-    }
-
-    override fun visit(ast: IsAst) {
-        super.visit(ast)
-        ast.costExpression = addDefault(ast.lhs.costExpression)
-    }
 }

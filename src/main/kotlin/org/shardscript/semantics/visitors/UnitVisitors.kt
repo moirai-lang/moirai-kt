@@ -86,14 +86,6 @@ open class UnitAstVisitor : AstVisitor<Unit> {
         ast.trueBranch.accept(this)
         ast.falseBranch.accept(this)
     }
-
-    override fun visit(ast: AsAst) {
-        ast.lhs.accept(this)
-    }
-
-    override fun visit(ast: IsAst) {
-        ast.lhs.accept(this)
-    }
 }
 
 open class ParameterizedUnitAstVisitor<P> : ParameterizedAstVisitor<P, Unit> {
@@ -179,13 +171,5 @@ open class ParameterizedUnitAstVisitor<P> : ParameterizedAstVisitor<P, Unit> {
         ast.condition.accept(this, param)
         ast.trueBranch.accept(this, param)
         ast.falseBranch.accept(this, param)
-    }
-
-    override fun visit(ast: AsAst, param: P) {
-        ast.lhs.accept(this, param)
-    }
-
-    override fun visit(ast: IsAst, param: P) {
-        ast.lhs.accept(this, param)
     }
 }

@@ -146,6 +146,12 @@ fun splitTest(
     }
 }
 
+fun typeTest(source: String, predicate: (Value) -> Boolean) {
+    val actual = testEval(source, TestArchitecture)
+    val success = predicate(actual)
+    Assertions.assertTrue(success)
+}
+
 fun assertEqualsDec(value: String, res: Value) {
     if (res is DecimalValue) {
         val dec = BigDecimal(value)

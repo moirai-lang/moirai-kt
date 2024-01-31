@@ -111,7 +111,6 @@ expr
     |   left=expr op=(MUL|DIV|MOD) right=expr                                                       # InfixMulDivMod
     |   left=expr op=(ADD|SUB) right=expr                                                           # InfixAddSub
     |   left=expr op=(GT|GTE|LT|LTE) right=expr                                                     # InfixOrder
-    |   left=expr op=(IS|AS) id=typeExpr                                                            # TypeRelation
     |   left=expr op=(EQ|NEQ) right=expr                                                            # InfixEquality
     |   left=expr op=AND right=expr                                                                 # InfixAnd
     |   left=expr op=OR right=expr                                                                  # InfixOr
