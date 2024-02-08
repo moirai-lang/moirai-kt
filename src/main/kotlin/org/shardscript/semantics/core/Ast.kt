@@ -86,7 +86,7 @@ data class LetAst(
     val ofType: Signifier,
     val rhs: Ast,
     val mutable: Boolean
-) : SymbolRefAst() {
+) : Ast() {
     lateinit var ofTypeSymbol: Type
 
     override fun <R> accept(visitor: AstVisitor<R>): R =

@@ -327,7 +327,6 @@ class PropagateTypesAstVisitor(
             }
             val local = LocalVariableSymbol(ast.scope, ast.identifier, ast.ofTypeSymbol, ast.mutable)
             ast.scope.define(ast.identifier, local)
-            ast.symbolRef = local
         } catch (ex: LanguageException) {
             errors.addAll(ast.ctx, ex.errors)
             ast.assignType(errors, ErrorType)
