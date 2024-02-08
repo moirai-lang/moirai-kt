@@ -19,3 +19,10 @@ sealed class DotAssignAstSymbolSlot
 
 data object DotAssignSlotError: DotAssignAstSymbolSlot()
 data class DotAssignSlotField(val payload: FieldSymbol): DotAssignAstSymbolSlot()
+
+sealed class DotAstSymbolSlot
+
+data object DotSlotError: DotAstSymbolSlot()
+data class DotSlotField(val payload: FieldSymbol): DotAstSymbolSlot()
+
+data class DotSlotPlatformField(val payload: PlatformFieldSymbol): DotAstSymbolSlot()

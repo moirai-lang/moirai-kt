@@ -177,7 +177,9 @@ data class DotAst(
     override val ctx: SourceContext,
     val lhs: Ast,
     val identifier: Identifier
-) : SymbolRefAst() {
+) : Ast() {
+    lateinit var dotSlot: DotAstSymbolSlot
+
     override fun <R> accept(visitor: AstVisitor<R>): R =
         visitor.visit(this)
 

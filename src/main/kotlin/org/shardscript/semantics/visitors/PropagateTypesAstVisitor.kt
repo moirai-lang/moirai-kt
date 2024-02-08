@@ -499,10 +499,11 @@ class PropagateTypesAstVisitor(
             when (val lhsType = ast.lhs.readType()) {
                 is ErrorType -> ast.assignType(errors, ErrorType)
                 is GroundRecordTypeSymbol -> {
-                    val symbol = lhsType.fetchHere(ast.identifier)
-                    ast.symbolRef = symbol
-                    when (symbol) {
-                        is FieldSymbol -> ast.assignType(errors, symbol.ofTypeSymbol)
+                    when (val symbol = lhsType.fetchHere(ast.identifier)) {
+                        is FieldSymbol -> {
+                            ast.dotSlot = DotSlotField(symbol)
+                            ast.assignType(errors, symbol.ofTypeSymbol)
+                        }
                         else -> {
                             errors.add(ast.ctx, SymbolIsNotAField(ast.identifier))
                             ast.assignType(errors, ErrorType)
@@ -513,10 +514,9 @@ class PropagateTypesAstVisitor(
                 is TypeInstantiation -> {
                     when (val parameterizedSymbol = lhsType.substitutionChain.terminus) {
                         is ParameterizedRecordTypeSymbol -> {
-                            val member = parameterizedSymbol.fetchHere(ast.identifier)
-                            ast.symbolRef = member
-                            when (member) {
+                            when (val member = parameterizedSymbol.fetchHere(ast.identifier)) {
                                 is FieldSymbol -> {
+                                    ast.dotSlot = DotSlotField(member)
                                     val astType = lhsType.substitutionChain.replay(member.ofTypeSymbol)
                                     ast.assignType(errors, astType)
                                 }
@@ -529,10 +529,9 @@ class PropagateTypesAstVisitor(
                         }
 
                         is ParameterizedBasicTypeSymbol -> {
-                            val member = parameterizedSymbol.fetchHere(ast.identifier)
-                            ast.symbolRef = member
-                            when (member) {
+                            when (val member = parameterizedSymbol.fetchHere(ast.identifier)) {
                                 is PlatformFieldSymbol -> {
+                                    ast.dotSlot = DotSlotPlatformField(member)
                                     val astType = lhsType.substitutionChain.replay(member.ofTypeSymbol)
                                     ast.assignType(errors, astType)
                                 }

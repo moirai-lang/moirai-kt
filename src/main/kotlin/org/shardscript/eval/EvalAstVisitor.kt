@@ -76,16 +76,28 @@ class EvalAstVisitor(private val globalScope: ValueTable) : ParameterizedAstVisi
                 lhs.fields.fetch(ast.identifier)
             }
             is ListValue -> {
-                Plugins.fields[ast.symbolRef as PlatformFieldSymbol]!!.invoke(lhs)
+                when (val dotSlot = ast.dotSlot) {
+                    is DotSlotPlatformField -> Plugins.fields[dotSlot.payload]!!.invoke(lhs)
+                    else -> langThrow(ast.ctx, TypeSystemBug)
+                }
             }
             is DictionaryValue -> {
-                Plugins.fields[ast.symbolRef as PlatformFieldSymbol]!!.invoke(lhs)
+                when (val dotSlot = ast.dotSlot) {
+                    is DotSlotPlatformField -> Plugins.fields[dotSlot.payload]!!.invoke(lhs)
+                    else -> langThrow(ast.ctx, TypeSystemBug)
+                }
             }
             is SetValue -> {
-                Plugins.fields[ast.symbolRef as PlatformFieldSymbol]!!.invoke(lhs)
+                when (val dotSlot = ast.dotSlot) {
+                    is DotSlotPlatformField -> Plugins.fields[dotSlot.payload]!!.invoke(lhs)
+                    else -> langThrow(ast.ctx, TypeSystemBug)
+                }
             }
             is StringValue -> {
-                Plugins.fields[ast.symbolRef as PlatformFieldSymbol]!!.invoke(lhs)
+                when (val dotSlot = ast.dotSlot) {
+                    is DotSlotPlatformField -> Plugins.fields[dotSlot.payload]!!.invoke(lhs)
+                    else -> langThrow(ast.ctx, TypeSystemBug)
+                }
             }
             else -> {
                 langThrow(ast.ctx, TypeSystemBug)
