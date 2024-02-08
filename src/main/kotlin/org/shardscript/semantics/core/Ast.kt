@@ -28,10 +28,6 @@ sealed class DefinitionAst : Ast() {
     lateinit var definitionSpace: Scope
 }
 
-sealed class ApplyAst : SymbolRefAst() {
-    abstract val args: List<Ast>
-}
-
 data class IntLiteralAst(override val ctx: SourceContext, val canonicalForm: Int) : Ast() {
     override fun <R> accept(visitor: AstVisitor<R>): R =
         visitor.visit(this)
@@ -190,8 +186,8 @@ data class DotAst(
 data class GroundApplyAst(
     override val ctx: SourceContext,
     val signifier: Signifier,
-    override val args: List<Ast>
-) : ApplyAst() {
+    val args: List<Ast>
+) : SymbolRefAst() {
     lateinit var tti: TerminalTextSignifier
 
     override fun <R> accept(visitor: AstVisitor<R>): R =
@@ -205,8 +201,8 @@ data class DotApplyAst(
     override val ctx: SourceContext,
     val lhs: Ast,
     val signifier: Signifier,
-    override val args: List<Ast>
-) : ApplyAst() {
+    val args: List<Ast>
+) : SymbolRefAst() {
     lateinit var tti: TerminalTextSignifier
 
     override fun <R> accept(visitor: AstVisitor<R>): R =

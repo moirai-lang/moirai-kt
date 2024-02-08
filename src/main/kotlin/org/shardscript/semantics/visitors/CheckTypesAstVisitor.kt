@@ -61,7 +61,7 @@ class CheckTypesAstVisitor(private val prelude: Scope) : UnitAstVisitor() {
     override fun visit(ast: GroundApplyAst) {
         try {
             super.visit(ast)
-            checkApply(prelude, errors, ast)
+            checkApply(prelude, errors, ast, ast.args)
         } catch (ex: LanguageException) {
             errors.addAll(ast.ctx, ex.errors)
         }
@@ -70,7 +70,7 @@ class CheckTypesAstVisitor(private val prelude: Scope) : UnitAstVisitor() {
     override fun visit(ast: DotApplyAst) {
         try {
             super.visit(ast)
-            checkApply(prelude, errors, ast)
+            checkApply(prelude, errors, ast, ast.args)
         } catch (ex: LanguageException) {
             errors.addAll(ast.ctx, ex.errors)
         }
