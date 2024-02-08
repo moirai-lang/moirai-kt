@@ -96,7 +96,9 @@ data class LetAst(
         visitor.visit(this, param)
 }
 
-data class RefAst(override val ctx: SourceContext, val identifier: Identifier) : SymbolRefAst() {
+data class RefAst(override val ctx: SourceContext, val identifier: Identifier) : Ast() {
+    lateinit var refSlot: RefAstSymbolSlot
+
     override fun <R> accept(visitor: AstVisitor<R>): R =
         visitor.visit(this)
 

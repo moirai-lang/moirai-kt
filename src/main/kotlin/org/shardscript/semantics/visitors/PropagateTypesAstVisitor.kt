@@ -338,40 +338,74 @@ class PropagateTypesAstVisitor(
         try {
             super.visit(ast)
             val symbol = ast.scope.fetch(ast.identifier)
-            if(symbol is TypePlaceholder) {
-                ast.symbolRef = TypePlaceholder
-                when(val type = ast.scope.fetchType(ast.identifier)) {
-                    is BasicTypeSymbol -> ast.assignType(errors, type)
-                    is ObjectSymbol -> ast.assignType(errors, type)
-                    is PlatformObjectSymbol -> ast.assignType(errors, type)
-                    is StandardTypeParameter -> ast.assignType(errors, type)
-                    is TypeInstantiation -> ast.assignType(errors, type)
+            if (symbol is TypePlaceholder) {
+                when (val type = ast.scope.fetchType(ast.identifier)) {
+                    is BasicTypeSymbol -> {
+                        ast.refSlot = RefSlotBasic(type)
+                        ast.assignType(errors, type)
+                    }
+
+                    is ObjectSymbol -> {
+                        ast.refSlot = RefSlotObject(type)
+                        ast.assignType(errors, type)
+                    }
+
+                    is PlatformObjectSymbol -> {
+                        ast.refSlot = RefSlotPlatformObject(type)
+                        ast.assignType(errors, type)
+                    }
+
+                    is StandardTypeParameter -> {
+                        ast.refSlot = RefSlotSTP(type)
+                        ast.assignType(errors, type)
+                    }
+
+                    is TypeInstantiation -> {
+                        ast.refSlot = RefSlotTI(type)
+                        ast.assignType(errors, type)
+                    }
+
                     else -> {
                         errors.add(ast.ctx, InvalidRef(symbol))
+                        ast.refSlot = RefSlotError
                         ast.assignType(errors, ErrorType)
                     }
                 }
             } else {
-                ast.symbolRef = symbol
                 when (symbol) {
-                    is ErrorSymbol -> ast.assignType(errors, ErrorType)
-                    is LocalVariableSymbol -> ast.assignType(errors, symbol.ofTypeSymbol)
+                    is ErrorSymbol -> {
+                        ast.refSlot = RefSlotError
+                        ast.assignType(errors, ErrorType)
+                    }
+
+                    is LocalVariableSymbol -> {
+                        ast.refSlot = RefSlotLVS(symbol)
+                        ast.assignType(errors, symbol.ofTypeSymbol)
+                    }
+
                     is FunctionFormalParameterSymbol -> {
+                        ast.refSlot = RefSlotFormal(symbol)
                         ast.assignType(errors, symbol.ofTypeSymbol)
                         if (ast.readType() is FunctionTypeSymbol) {
                             errors.add(ast.ctx, CannotRefFunctionParam(ast.identifier))
                         }
                     }
 
-                    is FieldSymbol -> ast.assignType(errors, symbol.ofTypeSymbol)
+                    is FieldSymbol -> {
+                        ast.refSlot = RefSlotField(symbol)
+                        ast.assignType(errors, symbol.ofTypeSymbol)
+                    }
+
                     else -> {
                         errors.add(ast.ctx, InvalidRef(symbol))
+                        ast.refSlot = RefSlotError
                         ast.assignType(errors, ErrorType)
                     }
                 }
             }
         } catch (ex: LanguageException) {
             errors.addAll(ast.ctx, ex.errors)
+            ast.refSlot = RefSlotError
             ast.assignType(errors, ErrorType)
         }
     }

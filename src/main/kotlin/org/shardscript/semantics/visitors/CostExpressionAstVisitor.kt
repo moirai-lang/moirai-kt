@@ -77,7 +77,12 @@ class CostExpressionAstVisitor(private val architecture: Architecture) : UnitAst
     }
 
     override fun visit(ast: RefAst) {
-        ast.costExpression = convertCostExpression(ast.symbolRef)
+        val refSlot = ast.refSlot
+        if (refSlot is RefSlotTI) {
+            ast.costExpression = convertCostExpression(refSlot.payload)
+        } else {
+            ast.costExpression = FinTypeSymbol(architecture.defaultNodeCost)
+        }
     }
 
     override fun visit(ast: FileAst) {
