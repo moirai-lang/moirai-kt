@@ -14,3 +14,8 @@ sealed class AssignAstSymbolSlot
 
 data object AssignSlotError: AssignAstSymbolSlot()
 data class AssignSlotLVS(val payload: LocalVariableSymbol): AssignAstSymbolSlot()
+
+sealed class DotAssignAstSymbolSlot
+
+data object DotAssignSlotError: DotAssignAstSymbolSlot()
+data class DotAssignSlotField(val payload: FieldSymbol): DotAssignAstSymbolSlot()

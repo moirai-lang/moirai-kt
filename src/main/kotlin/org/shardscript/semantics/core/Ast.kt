@@ -251,7 +251,9 @@ data class DotAssignAst(
     val lhs: Ast,
     val identifier: Identifier,
     val rhs: Ast
-) : SymbolRefAst() {
+) : Ast() {
+    lateinit var dotAssignSlot: DotAssignAstSymbolSlot
+
     override fun <R> accept(visitor: AstVisitor<R>): R =
         visitor.visit(this)
 

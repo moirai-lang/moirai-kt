@@ -840,14 +840,20 @@ class PropagateTypesAstVisitor(
         try {
             super.visit(ast)
             when (val lhsType = ast.lhs.readType()) {
-                is ErrorType -> ast.assignType(errors, ErrorType)
+                is ErrorType -> {
+                    ast.dotAssignSlot = DotAssignSlotError
+                    ast.assignType(errors, ErrorType)
+                }
                 is GroundRecordTypeSymbol -> {
-                    val member = lhsType.fetchHere(ast.identifier)
-                    ast.symbolRef = member
-                    when (member) {
-                        is FieldSymbol -> ast.assignType(errors, preludeTable.fetchType(Lang.unitId))
+                    when (val member = lhsType.fetchHere(ast.identifier)) {
+                        is FieldSymbol -> {
+                            ast.dotAssignSlot = DotAssignSlotField(member)
+                            ast.assignType(errors, preludeTable.fetchType(Lang.unitId))
+                        }
+
                         else -> {
                             errors.add(ast.ctx, SymbolIsNotAField(ast.identifier))
+                            ast.dotAssignSlot = DotAssignSlotError
                             ast.assignType(errors, ErrorType)
                         }
                     }
@@ -856,15 +862,15 @@ class PropagateTypesAstVisitor(
                 is TypeInstantiation -> {
                     when (val parameterizedSymbol = lhsType.substitutionChain.terminus) {
                         is ParameterizedRecordTypeSymbol -> {
-                            val substitution = lhsType.substitutionChain
                             when (val member = parameterizedSymbol.fetchHere(ast.identifier)) {
                                 is FieldSymbol -> {
-                                    ast.symbolRef = substitution.replay(member.ofTypeSymbol) as Symbol
+                                    ast.dotAssignSlot = DotAssignSlotField(member)
                                     ast.assignType(errors, preludeTable.fetchType(Lang.unitId))
                                 }
 
                                 else -> {
                                     errors.add(ast.ctx, SymbolIsNotAField(ast.identifier))
+                                    ast.dotAssignSlot = DotAssignSlotError
                                     ast.assignType(errors, ErrorType)
                                 }
                             }
@@ -872,6 +878,7 @@ class PropagateTypesAstVisitor(
 
                         else -> {
                             errors.add(ast.ctx, SymbolHasNoFields(ast.identifier, ast.lhs.readType() as Symbol))
+                            ast.dotAssignSlot = DotAssignSlotError
                             ast.assignType(errors, ErrorType)
                         }
                     }
@@ -879,11 +886,13 @@ class PropagateTypesAstVisitor(
 
                 else -> {
                     errors.add(ast.ctx, SymbolHasNoFields(ast.identifier, ast.lhs.readType() as Symbol))
+                    ast.dotAssignSlot = DotAssignSlotError
                     ast.assignType(errors, ErrorType)
                 }
             }
         } catch (ex: LanguageException) {
             errors.addAll(ast.ctx, ex.errors)
+            ast.dotAssignSlot = DotAssignSlotError
             ast.assignType(errors, ErrorType)
         }
     }

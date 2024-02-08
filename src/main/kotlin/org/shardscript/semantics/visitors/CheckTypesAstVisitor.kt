@@ -108,13 +108,15 @@ class CheckTypesAstVisitor(private val prelude: Scope) : UnitAstVisitor() {
     override fun visit(ast: DotAssignAst) {
         try {
             super.visit(ast)
-            when(val symbolRef = ast.symbolRef) {
-                is FieldSymbol -> {
+            when (val dotAssignSlot = ast.dotAssignSlot) {
+                is DotAssignSlotField -> {
+                    val symbolRef = dotAssignSlot.payload
                     if (!symbolRef.mutable) {
                         errors.add(ast.ctx, ImmutableAssign(symbolRef))
                     }
                     checkTypes(ast.ctx, prelude, errors, symbolRef.ofTypeSymbol, ast.rhs.readType())
                 }
+
                 else -> {
                     errors.add(ast.ctx, SymbolIsNotAField(ast.identifier))
                 }
