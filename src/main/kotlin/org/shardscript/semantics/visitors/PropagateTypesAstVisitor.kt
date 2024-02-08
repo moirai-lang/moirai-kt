@@ -340,11 +340,6 @@ class PropagateTypesAstVisitor(
             val symbol = ast.scope.fetch(ast.identifier)
             if (symbol is TypePlaceholder) {
                 when (val type = ast.scope.fetchType(ast.identifier)) {
-                    is BasicTypeSymbol -> {
-                        ast.refSlot = RefSlotBasic(type)
-                        ast.assignType(errors, type)
-                    }
-
                     is ObjectSymbol -> {
                         ast.refSlot = RefSlotObject(type)
                         ast.assignType(errors, type)
@@ -357,11 +352,6 @@ class PropagateTypesAstVisitor(
 
                     is StandardTypeParameter -> {
                         ast.refSlot = RefSlotSTP(type)
-                        ast.assignType(errors, type)
-                    }
-
-                    is TypeInstantiation -> {
-                        ast.refSlot = RefSlotTI(type)
                         ast.assignType(errors, type)
                     }
 
@@ -801,7 +791,8 @@ class PropagateTypesAstVisitor(
                                     val ofType = ast.scope.fetchType(ast.ofType)
                                     ast.ofTypeSymbol = ofType
                                 }
-                                ast.body.scope.defineType(ast.identifier, ast.ofTypeSymbol)
+                                val lvs = LocalVariableSymbol(ast.body.scope, ast.identifier, ast.ofTypeSymbol, false)
+                                ast.body.scope.define(ast.identifier, lvs)
                                 ast.body.accept(this)
                             } else {
                                 errors.add(ast.source.ctx, ForEachFeatureBan(ast.source.readType()))
