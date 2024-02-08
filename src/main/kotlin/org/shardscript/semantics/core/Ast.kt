@@ -236,7 +236,9 @@ data class AssignAst(
     override val ctx: SourceContext,
     val identifier: Identifier,
     val rhs: Ast
-) : SymbolRefAst() {
+) : Ast() {
+    lateinit var assignSlot: AssignAstSymbolSlot
+
     override fun <R> accept(visitor: AstVisitor<R>): R =
         visitor.visit(this)
 

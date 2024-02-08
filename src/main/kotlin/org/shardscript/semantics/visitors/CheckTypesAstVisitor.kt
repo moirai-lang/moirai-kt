@@ -88,8 +88,9 @@ class CheckTypesAstVisitor(private val prelude: Scope) : UnitAstVisitor() {
     override fun visit(ast: AssignAst) {
         try {
             super.visit(ast)
-            when (val symbolRef = ast.symbolRef) {
-                is LocalVariableSymbol -> {
+            when (val assignSlot = ast.assignSlot) {
+                is AssignSlotLVS -> {
+                    val symbolRef = assignSlot.payload
                     if (!symbolRef.mutable) {
                         errors.add(ast.ctx, ImmutableAssign(symbolRef))
                     }

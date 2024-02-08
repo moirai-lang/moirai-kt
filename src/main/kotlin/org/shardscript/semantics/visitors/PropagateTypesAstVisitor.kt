@@ -818,17 +818,20 @@ class PropagateTypesAstVisitor(
     override fun visit(ast: AssignAst) {
         try {
             super.visit(ast)
-            val symbol = ast.scope.fetch(ast.identifier)
-            ast.symbolRef = symbol
-            when (symbol) {
-                is LocalVariableSymbol -> ast.assignType(errors, preludeTable.fetchType(Lang.unitId))
+            when (val symbol = ast.scope.fetch(ast.identifier)) {
+                is LocalVariableSymbol -> {
+                    ast.assignSlot = AssignSlotLVS(symbol)
+                    ast.assignType(errors, preludeTable.fetchType(Lang.unitId))
+                }
                 else -> {
                     errors.add(ast.ctx, InvalidRef(symbol))
+                    ast.assignSlot = AssignSlotError
                     ast.assignType(errors, ErrorType)
                 }
             }
         } catch (ex: LanguageException) {
             errors.addAll(ast.ctx, ex.errors)
+            ast.assignSlot = AssignSlotError
             ast.assignType(errors, ErrorType)
         }
     }
