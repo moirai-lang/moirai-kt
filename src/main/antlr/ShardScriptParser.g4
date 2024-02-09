@@ -125,11 +125,15 @@ expr
     ;
 
 matchExpr
-    :   op=MATCH LPAREN condition=expr RPAREN LCURLY cases=caseStat+ RCURLY
+    :   op=MATCH LPAREN condition=expr RPAREN LCURLY cases=caseStats RCURLY
+    ;
+
+caseStats
+    :   caseStat+
     ;
 
 caseStat
-    : op=CASE LCURLY stats=stat* RCURLY
+    : op=CASE id=IDENTIFIER LCURLY stats=stat* RCURLY
     ;
 
 ifExpr

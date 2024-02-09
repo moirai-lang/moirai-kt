@@ -268,3 +268,15 @@ data class IfAst(
     override fun <P, R> accept(visitor: ParameterizedAstVisitor<P, R>, param: P): R =
         visitor.visit(this, param)
 }
+
+data class MatchAst(
+    override val ctx: SourceContext,
+    val condition: Ast,
+    val cases: List<CaseBlock>
+) : Ast() {
+    override fun <R> accept(visitor: AstVisitor<R>): R =
+        visitor.visit(this)
+
+    override fun <P, R> accept(visitor: ParameterizedAstVisitor<P, R>, param: P): R =
+        visitor.visit(this, param)
+}
