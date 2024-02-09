@@ -30,13 +30,7 @@ fun eval(
 
     val executionArtifacts = frontend.compile(source)
 
-    val prelude = executionArtifacts.semanticArtifacts.userScopes.prelude
-
-    val router = SymbolRouterValueTable(
-        prelude,
-        executionArtifacts.semanticArtifacts.file
-    )
-    val globalScope = ValueTable(router)
+    val globalScope = ValueTable(NullValueTable)
     val evalVisitor = EvalAstVisitor(globalScope)
 
     val executionScope = ValueTable(globalScope)

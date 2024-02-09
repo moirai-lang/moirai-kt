@@ -393,9 +393,7 @@ data class RecordConstructorValue(val prelude: Scope, val type: Type) : Value() 
     fun apply(args: List<Value>): RecordValue {
         return when (type) {
             is GroundRecordType -> {
-                val fields = ValueTable(
-                    SymbolRouterValueTable(prelude, type)
-                )
+                val fields = ValueTable(NullValueTable)
                 type.fields.zip(args).forEach {
                     fields.define(it.first.identifier, it.second)
                 }
@@ -404,9 +402,7 @@ data class RecordConstructorValue(val prelude: Scope, val type: Type) : Value() 
                 res
             }
             is ParameterizedRecordType -> {
-                val fields = ValueTable(
-                    SymbolRouterValueTable(prelude, type)
-                )
+                val fields = ValueTable(NullValueTable)
                 type.fields.zip(args).forEach {
                     fields.define(it.first.identifier, it.second)
                 }
@@ -416,35 +412,6 @@ data class RecordConstructorValue(val prelude: Scope, val type: Type) : Value() 
             }
             else -> langThrow(NotInSource, TypeSystemBug)
         }
-    }
-}
-
-data class ListConstructorValue(val modeSelector: (List<Type>) -> BasicTypeMode) :
-    Value() {
-    fun apply(typeArgs: List<Type>, elements: List<Value>): ListValue {
-        return ListValue(modeSelector(typeArgs), elements.toMutableList())
-    }
-}
-
-data class SetConstructorValue(val modeSelector: (List<Type>) -> BasicTypeMode) :
-    Value() {
-    fun apply(typeArgs: List<Type>, elements: List<Value>): SetValue {
-        return SetValue(modeSelector(typeArgs), elements.toMutableSet())
-    }
-}
-
-data class DictionaryConstructorValue(val modeSelector: (List<Type>) -> BasicTypeMode) :
-    Value() {
-    fun apply(typeArgs: List<Type>, elements: List<Value>): DictionaryValue {
-        val pairs = elements.map {
-            it as RecordValue
-        }.map {
-            Pair(
-                it.fields.fetchHere(Lang.pairFirstId),
-                it.fields.fetchHere(Lang.pairSecondId)
-            )
-        }
-        return DictionaryValue(modeSelector(typeArgs), pairs.toMap().toMutableMap())
     }
 }
 
@@ -785,80 +752,23 @@ interface ValueScope {
     fun fetchHere(signifier: Signifier): Value
 }
 
-class SymbolRouterValueTable(private val prelude: Scope, private val symbols: Scope) : ValueScope {
+object NullValueTable : ValueScope {
     override fun define(identifier: Identifier, definition: Value) {
-        langThrow(identifier.ctx, IdentifierCouldNotBeDefined(identifier))
+        langThrow(NotInSource, IdentifierCouldNotBeDefined(identifier))
     }
 
-    override fun exists(signifier: Signifier): Boolean =
-        symbols.exists(signifier)
+    override fun exists(signifier: Signifier): Boolean = false
 
-    override fun existsHere(signifier: Signifier): Boolean =
-        symbols.existsHere(signifier)
+    override fun existsHere(signifier: Signifier): Boolean = false
 
-    override fun fetch(signifier: Signifier): Value =
-        when (val res = symbols.fetch(signifier)) {
-            is GroundFunctionSymbol -> {
-                val fv = FunctionValue(res.formalParams, res.body)
-                fv
-            }
+    override fun fetch(signifier: Signifier): Value {
+        langThrow(NotInSource, IdentifierNotFound(signifier))
+    }
 
-            is ParameterizedFunctionSymbol -> {
-                val fv = FunctionValue(res.formalParams, res.body)
-                fv
-            }
+    override fun fetchHere(signifier: Signifier): Value {
+        langThrow(NotInSource, IdentifierNotFound(signifier))
+    }
 
-            is ParameterizedStaticPluginSymbol -> Plugins.staticPlugins[res]!!
-            is TypePlaceholder -> {
-                when (val type = symbols.fetchType(signifier)) {
-                    is GroundRecordType -> RecordConstructorValue(prelude, type)
-                    is ParameterizedRecordType -> RecordConstructorValue(prelude, type)
-                    is ParameterizedBasicType -> when (type.identifier) {
-                        Lang.listId, Lang.mutableListId -> ListConstructorValue(type.modeSelector)
-                        Lang.dictionaryId, Lang.mutableDictionaryId -> DictionaryConstructorValue(type.modeSelector)
-                        Lang.setId, Lang.mutableSetId -> SetConstructorValue(type.modeSelector)
-                        else -> langThrow(signifier.ctx, IdentifierNotFound(signifier))
-                    }
-                    is PlatformObjectType -> if (type.identifier == Lang.unitId) {
-                        UnitValue
-                    } else {
-                        langThrow(signifier.ctx, TypeSystemBug)
-                    }
-
-                    is ObjectType -> ObjectValue(type)
-                    else -> langThrow(signifier.ctx, IdentifierNotFound(signifier))
-                }
-            }
-            else -> langThrow(signifier.ctx, IdentifierNotFound(signifier))
-        }
-
-    override fun fetchHere(signifier: Signifier): Value =
-        when (val res = symbols.fetchHere(signifier)) {
-            is GroundFunctionSymbol -> {
-                val fv = FunctionValue(res.formalParams, res.body)
-                fv
-            }
-            is ParameterizedFunctionSymbol -> {
-                val fv = FunctionValue(res.formalParams, res.body)
-                fv
-            }
-            is ParameterizedStaticPluginSymbol -> Plugins.staticPlugins[res]!!
-            is TypePlaceholder -> {
-                when (val type = symbols.fetchTypeHere(signifier)) {
-                    is GroundRecordType -> RecordConstructorValue(prelude, type)
-                    is ParameterizedRecordType -> RecordConstructorValue(prelude, type)
-                    is ParameterizedBasicType -> when (type.identifier) {
-                        Lang.listId, Lang.mutableListId -> ListConstructorValue(type.modeSelector)
-                        Lang.dictionaryId, Lang.mutableDictionaryId -> DictionaryConstructorValue(type.modeSelector)
-                        Lang.setId, Lang.mutableSetId -> SetConstructorValue(type.modeSelector)
-                        else -> langThrow(signifier.ctx, IdentifierNotFound(signifier))
-                    }
-                    is ObjectType -> ObjectValue(type)
-                    else -> langThrow(signifier.ctx, IdentifierNotFound(signifier))
-                }
-            }
-            else -> langThrow(signifier.ctx, IdentifierNotFound(signifier))
-        }
 }
 
 class ValueTable(private val parent: ValueScope) : ValueScope {
