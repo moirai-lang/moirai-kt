@@ -39,3 +39,11 @@ val userTypeFeatureSupport = FeatureSupport(
     returnType = true,
     typeArg = true
 )
+
+val unitFeatureSupport = FeatureSupport(
+    forEachBlock = false,
+    recordField = false,
+    paramType = true,
+    returnType = true,
+    typeArg = true
+)

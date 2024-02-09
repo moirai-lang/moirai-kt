@@ -65,6 +65,7 @@ class TypeInstantiation(
 
 class PlatformObjectType(
     val identifier: Identifier,
+    val featureSupport: FeatureSupport,
     private val symbolTable: SymbolTable = SymbolTable(NullSymbolTable)
 ) : Type, Scope by symbolTable
 
@@ -109,3 +110,28 @@ class ParameterizedBasicType(
     lateinit var fields: List<PlatformFieldSymbol>
 }
 
+class PlatformSumType(
+    val identifier: Identifier,
+    val featureSupport: FeatureSupport
+) : TerminusType {
+    override lateinit var typeParams: List<TypeParameter>
+    lateinit var memberTypes: List<Type>
+}
+
+class PlatformSumRecordType(
+    definitionScopeForTypeChecking: Scope,
+    val sumType: PlatformSumType,
+    val identifier: Identifier,
+    val featureSupport: FeatureSupport,
+    private val symbolTable: SymbolTable = SymbolTable(definitionScopeForTypeChecking)
+) : TerminusType, Scope by symbolTable {
+    override lateinit var typeParams: List<TypeParameter>
+    lateinit var fields: List<FieldSymbol>
+}
+
+class PlatformSumObjectType(
+    val sumType: PlatformSumType,
+    val identifier: Identifier,
+    val featureSupport: FeatureSupport,
+    private val symbolTable: SymbolTable = SymbolTable(NullSymbolTable)
+) : Type, Scope by symbolTable

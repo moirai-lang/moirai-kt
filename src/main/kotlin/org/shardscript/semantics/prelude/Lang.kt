@@ -56,6 +56,12 @@ object Lang {
     private val mutableSetFinTypeId = Identifier(NotInSource, "O")
     val mutableSetInputFinTypeId = Identifier(NotInSource, "P")
 
+    val optionId = Identifier(NotInSource, "Option")
+    private val optionTypeParamId = Identifier(NotInSource, "A")
+    val someId = Identifier(NotInSource, "Some")
+    val someValueId = Identifier(NotInSource, "value")
+    val noneId = Identifier(NotInSource, "None")
+
     val rangeId = Identifier(NotInSource, "range")
     val rangeTypeId = Identifier(NotInSource, "O")
     val randomId = Identifier(NotInSource, "random")
@@ -68,7 +74,8 @@ object Lang {
 
     // Unit
     val unitObject = PlatformObjectType(
-        unitId
+        unitId,
+        unitFeatureSupport
     )
 
     // Boolean
@@ -260,6 +267,20 @@ object Lang {
         pairType.define(pairFirstId, pairFirstField)
         pairType.define(pairSecondId, pairSecondField)
 
+        // Option
+        val optionType = PlatformSumType(optionId, userTypeFeatureSupport)
+        val optionTypeParam = StandardTypeParameter("${optionId.name}.${optionTypeParamId.name}", optionTypeParamId)
+
+        val someType = PlatformSumRecordType(prelude, optionType, someId, noFeatureSupport)
+        val noneType = PlatformSumObjectType(optionType, noneId, noFeatureSupport)
+
+        optionType.typeParams = listOf(optionTypeParam)
+
+        someType.typeParams = listOf(optionTypeParam)
+        val valueField = FieldSymbol(someType, someValueId, optionTypeParam, mutable = false)
+        someType.fields = listOf(valueField)
+        someType.define(someValueId, valueField)
+
         // Compose output
         prelude.defineType(unitId, unitObject)
         prelude.defineType(booleanId, booleanType)
@@ -274,6 +295,9 @@ object Lang {
         prelude.defineType(mutableSetId, mutableSetType)
         prelude.defineType(charId, charType)
         prelude.defineType(stringId, stringType)
+        prelude.defineType(optionId, optionType)
+        prelude.defineType(someId, someType)
+        prelude.defineType(noneId, noneType)
         prelude.define(rangeId, StaticPlugins.rangePlugin)
         prelude.define(randomId, StaticPlugins.randomPlugin)
     }

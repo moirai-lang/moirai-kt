@@ -61,6 +61,10 @@ data class CannotUseRawType(val type: Type) : ErrorKind(), TypeHostErrorType {
     override val types: List<Type> = listOf(type)
 }
 
+data class CannotUsePlatformSumTypeMember(val type: Type) : ErrorKind(), TypeHostErrorType {
+    override val types: List<Type> = listOf(type)
+}
+
 data class CannotFindBestType(override val types: List<Type>) : ErrorKind(), TypeHostErrorType
 
 // General Errors
