@@ -26,7 +26,7 @@ class StringInstantiation : SingleTypeInstantiation<TerminusType, TypeInstantiat
             when {
                 args.size == 1 && args.first() is StringLiteralAst -> {
                     val stringAst = args.first() as StringLiteralAst
-                    val fin = FinTypeSymbol(stringAst.canonicalForm.length.toLong())
+                    val fin = Fin(stringAst.canonicalForm.length.toLong())
                     val substitution = Substitution(inOrderParameters, listOf(fin))
                     return substitution.apply(terminus)
                 }

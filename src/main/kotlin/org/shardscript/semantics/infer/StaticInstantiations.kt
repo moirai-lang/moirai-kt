@@ -30,7 +30,7 @@ object RangeInstantiation : SingleTypeInstantiation<RawTerminusSymbol, SymbolIns
                 val second = intArgs[1].canonicalForm
                 val min = first.coerceAtMost(second)
                 val max = first.coerceAtLeast(second)
-                val fin = FinTypeSymbol(abs(max - min).toLong())
+                val fin = Fin(abs(max - min).toLong())
                 val substitution = Substitution(terminus.typeParams, listOf(fin))
                 return substitution.apply(terminus)
             } else {

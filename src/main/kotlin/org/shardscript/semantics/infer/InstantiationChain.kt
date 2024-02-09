@@ -1,7 +1,7 @@
 package org.shardscript.semantics.infer
 
 import org.shardscript.semantics.core.CostExpression
-import org.shardscript.semantics.core.FunctionTypeSymbol
+import org.shardscript.semantics.core.FunctionType
 import org.shardscript.semantics.core.RawTerminus
 import org.shardscript.semantics.core.Type
 
@@ -37,14 +37,14 @@ data class SubstitutionChain<T: RawTerminus>(val substitution: Substitution, val
         }
     }
 
-    fun replay(functionTypeSymbol: FunctionTypeSymbol): FunctionTypeSymbol {
+    fun replay(functionType: FunctionType): FunctionType {
         return when (chain) {
             is SubstitutionChain -> {
-                substitution.applyFunctionType(chain.replay(functionTypeSymbol))
+                substitution.applyFunctionType(chain.replay(functionType))
             }
 
             is TerminalChain -> {
-                substitution.applyFunctionType(functionTypeSymbol)
+                substitution.applyFunctionType(functionType)
             }
         }
     }

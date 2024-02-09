@@ -131,14 +131,14 @@ class BindScopesAstVisitor(
     override fun visit(ast: RecordDefinitionAst, param: Scope) {
         try {
             val type = if (ast.typeParams.isEmpty()) {
-                val res = GroundRecordTypeSymbol(
+                val res = GroundRecordType(
                     param,
                     "${fileName}.${ast.identifier.name}",
                     ast.identifier
                 )
                 res
             } else {
-                val res = ParameterizedRecordTypeSymbol(
+                val res = ParameterizedRecordType(
                     param,
                     "${fileName}.${ast.identifier.name}",
                     ast.identifier,
@@ -169,7 +169,7 @@ class BindScopesAstVisitor(
 
     override fun visit(ast: ObjectDefinitionAst, param: Scope) {
         try {
-            val type = ObjectSymbol(
+            val type = ObjectType(
                 "${fileName}.${ast.identifier.name}",
                 ast.identifier,
                 userTypeFeatureSupport

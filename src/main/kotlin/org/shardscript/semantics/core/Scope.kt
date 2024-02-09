@@ -232,14 +232,14 @@ class SymbolTable(private val parent: Scope) : Scope {
                 }
             }
 
-            is FunctionTypeLiteral -> FunctionTypeSymbol(
+            is FunctionTypeLiteral -> FunctionType(
                 signifier.formalParamTypes.map { fetchType(it) },
                 fetchType(signifier.returnType)
             )
 
             is ParameterizedSignifier -> {
                 when (val type = fetchType(signifier.tti)) {
-                    is ParameterizedRecordTypeSymbol -> {
+                    is ParameterizedRecordType -> {
                         val typeArgs = signifier.args.map { fetchType(it) }
                         if (typeArgs.size != type.typeParams.size) {
                             langThrow(
@@ -252,7 +252,7 @@ class SymbolTable(private val parent: Scope) : Scope {
                         }
                     }
 
-                    is ParameterizedBasicTypeSymbol -> {
+                    is ParameterizedBasicType -> {
                         val typeArgs = signifier.args.map { fetchType(it) }
                         if (typeArgs.size != type.typeParams.size) {
                             langThrow(
@@ -271,7 +271,7 @@ class SymbolTable(private val parent: Scope) : Scope {
             }
 
             is ImplicitTypeLiteral -> langThrow(signifier.ctx, TypeSystemBug)
-            is FinLiteral -> FinTypeSymbol(signifier.magnitude)
+            is FinLiteral -> Fin(signifier.magnitude)
         }
 
     override fun fetchTypeHere(signifier: Signifier): Type =
@@ -284,14 +284,14 @@ class SymbolTable(private val parent: Scope) : Scope {
                 }
             }
 
-            is FunctionTypeLiteral -> FunctionTypeSymbol(
+            is FunctionTypeLiteral -> FunctionType(
                 signifier.formalParamTypes.map { fetchType(it) },
                 fetchType(signifier.returnType)
             )
 
             is ParameterizedSignifier -> {
                 when (val type = fetchTypeHere(signifier.tti)) {
-                    is ParameterizedRecordTypeSymbol -> {
+                    is ParameterizedRecordType -> {
                         val typeArgs = signifier.args.map { fetchType(it) }
                         if (typeArgs.size != type.typeParams.size) {
                             langThrow(
@@ -304,7 +304,7 @@ class SymbolTable(private val parent: Scope) : Scope {
                         }
                     }
 
-                    is ParameterizedBasicTypeSymbol -> {
+                    is ParameterizedBasicType -> {
                         val typeArgs = signifier.args.map { fetchType(it) }
                         if (typeArgs.size != type.typeParams.size) {
                             langThrow(
@@ -323,6 +323,6 @@ class SymbolTable(private val parent: Scope) : Scope {
             }
 
             is ImplicitTypeLiteral -> langThrow(signifier.ctx, TypeSystemBug)
-            is FinLiteral -> FinTypeSymbol(signifier.magnitude)
+            is FinLiteral -> Fin(signifier.magnitude)
         }
 }

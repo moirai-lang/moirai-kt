@@ -58,7 +58,7 @@ object StaticPlugins {
         randomPlugin.formalParams = listOf(beginFormalParam, endFormalParam)
         randomPlugin.returnType = randomTypeParam
 
-        randomPlugin.costExpression = ConstantFinTypeSymbol
+        randomPlugin.costExpression = ConstantFin
         return randomPlugin
     }
 }

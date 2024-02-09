@@ -32,10 +32,10 @@ class Substitution(
         return TypeInstantiation(chain)
     }
 
-    fun applyFunctionType(typeSymbol: FunctionTypeSymbol): FunctionTypeSymbol {
+    fun applyFunctionType(typeSymbol: FunctionType): FunctionType {
         val formalParams = typeSymbol.formalParamTypes.map { applySymbol(it) }
         val returnType = applySymbol(typeSymbol.returnType)
-        return FunctionTypeSymbol(
+        return FunctionType(
             formalParams,
             returnType
         )
@@ -43,9 +43,9 @@ class Substitution(
 
     fun applySymbol(type: Type): Type =
         when (type) {
-            is FunctionTypeSymbol -> applyFunctionType(type)
-            is ParameterizedRecordTypeSymbol -> apply(type)
-            is ParameterizedBasicTypeSymbol -> apply(type)
+            is FunctionType -> applyFunctionType(type)
+            is ParameterizedRecordType -> apply(type)
+            is ParameterizedBasicType -> apply(type)
             is TypeInstantiation -> apply(type)
             is StandardTypeParameter -> {
                 val res = if (solutions.containsKey(type)) {
@@ -93,8 +93,8 @@ class Substitution(
                 }
                 res
             }
-            is FinTypeSymbol -> costExpression
-            is ConstantFinTypeSymbol -> costExpression
+            is Fin -> costExpression
+            is ConstantFin -> costExpression
             is SumCostExpression -> SumCostExpression(costExpression.children.map { applyCost(it) })
             is ProductCostExpression -> ProductCostExpression(costExpression.children.map { applyCost(it) })
             is MaxCostExpression -> MaxCostExpression(costExpression.children.map { applyCost(it) })

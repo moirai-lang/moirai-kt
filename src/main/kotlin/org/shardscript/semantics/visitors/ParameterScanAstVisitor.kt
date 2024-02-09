@@ -13,7 +13,7 @@ class ParameterScanAstVisitor(private val fileName: String) : UnitAstVisitor() {
 
     private fun scanRecord(ast: RecordDefinitionAst, recordMode: RecordMode) {
         if (ast.typeParams.isNotEmpty()) {
-            val parameterizedRecordSymbol = ast.scope as ParameterizedRecordTypeSymbol
+            val parameterizedRecordSymbol = ast.scope as ParameterizedRecordType
             when (recordMode) {
                 is EnumRecord -> {
                     errors.add(

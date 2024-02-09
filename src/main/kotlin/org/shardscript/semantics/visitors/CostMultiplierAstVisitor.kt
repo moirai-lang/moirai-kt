@@ -87,10 +87,10 @@ class CostMultiplierAstVisitor(val architecture: Architecture) : AstVisitor<List
         val res = ast.args.flatMap { it.accept(this) }.toMutableList()
         when (val groundApplySlot = ast.groundApplySlot) {
             is GroundApplySlotFormal -> when (groundApplySlot.payload.ofTypeSymbol) {
-                is FunctionTypeSymbol -> res.add(
+                is FunctionType -> res.add(
                     ParamCostExMultiplier(
                         groundApplySlot.payload,
-                        FinTypeSymbol(architecture.defaultNodeCost)
+                        Fin(architecture.defaultNodeCost)
                     )
                 )
 
@@ -112,7 +112,7 @@ class CostMultiplierAstVisitor(val architecture: Architecture) : AstVisitor<List
         val res = ast.source.accept(this).toMutableList()
         val multiplier: CostExpression = when (val fin = ast.sourceFinSymbol) {
             is ImmutableFinTypeParameter -> fin
-            is FinTypeSymbol -> fin
+            is Fin -> fin
             else -> {
                 langThrow(ast.ctx, TypeSystemBug)
             }

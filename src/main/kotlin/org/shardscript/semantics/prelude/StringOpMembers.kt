@@ -156,7 +156,7 @@ object StringOpMembers {
             Lang.intType,
             Identifier(NotInSource, StringMethods.ToString.idStr)
         )
-        val fin = FinTypeSymbol(Lang.INT_FIN)
+        val fin = Fin(Lang.INT_FIN)
         res.costExpression = fin
 
         val substitution = Substitution(Lang.stringType.typeParams, listOf(fin))
@@ -172,7 +172,7 @@ object StringOpMembers {
             Lang.unitObject,
             Identifier(NotInSource, StringMethods.ToString.idStr)
         )
-        val fin = FinTypeSymbol(Lang.unitFin)
+        val fin = Fin(Lang.unitFin)
         res.costExpression = fin
 
         val substitution = Substitution(Lang.stringType.typeParams, listOf(fin))
@@ -188,7 +188,7 @@ object StringOpMembers {
             Lang.booleanType,
             Identifier(NotInSource, StringMethods.ToString.idStr)
         )
-        val fin = FinTypeSymbol(Lang.BOOL_FIN)
+        val fin = Fin(Lang.BOOL_FIN)
         res.costExpression = fin
 
         val substitution = Substitution(Lang.stringType.typeParams, listOf(fin))
@@ -204,7 +204,7 @@ object StringOpMembers {
             Lang.charType,
             Identifier(NotInSource, StringMethods.ToString.idStr)
         )
-        val fin = FinTypeSymbol(Lang.CHAR_FIN)
+        val fin = Fin(Lang.CHAR_FIN)
         res.costExpression = fin
         val substitution = Substitution(Lang.stringType.typeParams, listOf(fin))
         val stringInstantiation = substitution.apply(Lang.stringType)

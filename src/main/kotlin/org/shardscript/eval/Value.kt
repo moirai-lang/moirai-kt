@@ -330,7 +330,7 @@ object Plugins {
 }
 
 class ObjectValue(
-    val symbol: ObjectSymbol
+    val symbol: ObjectType
 ) : Value() {
     val path = getQualifiedName(symbol)
 
@@ -392,7 +392,7 @@ class RecordValue(type: Type, val fields: ValueTable) : Value() {
 data class RecordConstructorValue(val prelude: Scope, val type: Type) : Value() {
     fun apply(args: List<Value>): RecordValue {
         return when (type) {
-            is GroundRecordTypeSymbol -> {
+            is GroundRecordType -> {
                 val fields = ValueTable(
                     SymbolRouterValueTable(prelude, type)
                 )
@@ -403,7 +403,7 @@ data class RecordConstructorValue(val prelude: Scope, val type: Type) : Value() 
                 res.scope = type
                 res
             }
-            is ParameterizedRecordTypeSymbol -> {
+            is ParameterizedRecordType -> {
                 val fields = ValueTable(
                     SymbolRouterValueTable(prelude, type)
                 )
@@ -840,21 +840,21 @@ class SymbolRouterValueTable(private val prelude: Scope, private val symbols: Sc
             is ParameterizedStaticPluginSymbol -> Plugins.staticPlugins[res]!!
             is TypePlaceholder -> {
                 when (val type = symbols.fetchType(signifier)) {
-                    is GroundRecordTypeSymbol -> RecordConstructorValue(prelude, type)
-                    is ParameterizedRecordTypeSymbol -> RecordConstructorValue(prelude, type)
-                    is ParameterizedBasicTypeSymbol -> when (type.identifier) {
+                    is GroundRecordType -> RecordConstructorValue(prelude, type)
+                    is ParameterizedRecordType -> RecordConstructorValue(prelude, type)
+                    is ParameterizedBasicType -> when (type.identifier) {
                         Lang.listId, Lang.mutableListId -> ListConstructorValue(type.modeSelector)
                         Lang.dictionaryId, Lang.mutableDictionaryId -> DictionaryConstructorValue(type.modeSelector)
                         Lang.setId, Lang.mutableSetId -> SetConstructorValue(type.modeSelector)
                         else -> langThrow(signifier.ctx, IdentifierNotFound(signifier))
                     }
-                    is PlatformObjectSymbol -> if (type.identifier == Lang.unitId) {
+                    is PlatformObjectType -> if (type.identifier == Lang.unitId) {
                         UnitValue
                     } else {
                         langThrow(signifier.ctx, TypeSystemBug)
                     }
 
-                    is ObjectSymbol -> ObjectValue(type)
+                    is ObjectType -> ObjectValue(type)
                     else -> langThrow(signifier.ctx, IdentifierNotFound(signifier))
                 }
             }
@@ -874,15 +874,15 @@ class SymbolRouterValueTable(private val prelude: Scope, private val symbols: Sc
             is ParameterizedStaticPluginSymbol -> Plugins.staticPlugins[res]!!
             is TypePlaceholder -> {
                 when (val type = symbols.fetchTypeHere(signifier)) {
-                    is GroundRecordTypeSymbol -> RecordConstructorValue(prelude, type)
-                    is ParameterizedRecordTypeSymbol -> RecordConstructorValue(prelude, type)
-                    is ParameterizedBasicTypeSymbol -> when (type.identifier) {
+                    is GroundRecordType -> RecordConstructorValue(prelude, type)
+                    is ParameterizedRecordType -> RecordConstructorValue(prelude, type)
+                    is ParameterizedBasicType -> when (type.identifier) {
                         Lang.listId, Lang.mutableListId -> ListConstructorValue(type.modeSelector)
                         Lang.dictionaryId, Lang.mutableDictionaryId -> DictionaryConstructorValue(type.modeSelector)
                         Lang.setId, Lang.mutableSetId -> SetConstructorValue(type.modeSelector)
                         else -> langThrow(signifier.ctx, IdentifierNotFound(signifier))
                     }
-                    is ObjectSymbol -> ObjectValue(type)
+                    is ObjectType -> ObjectValue(type)
                     else -> langThrow(signifier.ctx, IdentifierNotFound(signifier))
                 }
             }

@@ -104,9 +104,9 @@ fun processAstAllPhases(
 
     fileScope.typesToMap().forEach { kvp ->
         when (kvp.value) {
-            is ObjectSymbol,
-            is GroundRecordTypeSymbol,
-            is ParameterizedRecordTypeSymbol -> userScopes.exports.defineType(Identifier(NotInSource, kvp.key), kvp.value)
+            is ObjectType,
+            is GroundRecordType,
+            is ParameterizedRecordType -> userScopes.exports.defineType(Identifier(NotInSource, kvp.key), kvp.value)
             else -> Unit
         }
     }

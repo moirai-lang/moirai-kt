@@ -4,18 +4,18 @@ import org.shardscript.semantics.prelude.StringMethods
 
 fun isValidStringType(type: Type): Boolean =
     when (type) {
-        is ObjectSymbol -> {
+        is ObjectType -> {
             false
         }
-        is PlatformObjectSymbol -> {
+        is PlatformObjectType -> {
             type.existsHere(Identifier(NotInSource, StringMethods.ToString.idStr))
         }
-        is BasicTypeSymbol -> {
+        is BasicType -> {
             type.existsHere(Identifier(NotInSource, StringMethods.ToString.idStr))
         }
         is TypeInstantiation -> {
             when (val parameterizedType = type.substitutionChain.terminus) {
-                is ParameterizedBasicTypeSymbol -> {
+                is ParameterizedBasicType -> {
                     parameterizedType.existsHere(Identifier(NotInSource, StringMethods.ToString.idStr))
                 }
                 else -> false
@@ -26,15 +26,15 @@ fun isValidStringType(type: Type): Boolean =
 
 fun costExpressionFromValidStringType(type: Type): CostExpression {
     val member = when (type) {
-        is PlatformObjectSymbol -> {
+        is PlatformObjectType -> {
             type.fetchHere(Identifier(NotInSource, StringMethods.ToString.idStr))
         }
-        is BasicTypeSymbol -> {
+        is BasicType -> {
             type.fetchHere(Identifier(NotInSource, StringMethods.ToString.idStr))
         }
         is TypeInstantiation -> {
             when (val parameterizedType = type.substitutionChain.terminus) {
-                is ParameterizedBasicTypeSymbol -> {
+                is ParameterizedBasicType -> {
                     parameterizedType.fetchHere(Identifier(NotInSource, StringMethods.ToString.idStr))
                 }
                 else -> langThrow(TypeSystemBug)
