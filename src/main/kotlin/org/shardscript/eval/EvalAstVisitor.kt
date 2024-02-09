@@ -31,12 +31,12 @@ class EvalAstVisitor(architecture: Architecture, private val globalScope: ValueT
         }
     }
 
-    private fun createSubstitutions(
+    private fun <T: RawTerminus> createSubstitutions(
         substitutions: Map<TypeParameter, Type>,
-        substitutionChain: SubstitutionChain<RawTerminusSymbol>
+        substitutionChain: SubstitutionChain<T>
     ): Map<TypeParameter, Type> {
         if (substitutions.isEmpty()) {
-            return substitutions
+            return substitutionChain.terminus.typeParams.zip(substitutionChain.replayArgs()).toMap()
         }
 
         val entries = substitutions.entries.toList()
@@ -44,8 +44,7 @@ class EvalAstVisitor(architecture: Architecture, private val globalScope: ValueT
         val args = entries.map { it.value }
         val extendedSub = Substitution(params, args)
         val extendedChain = SubstitutionChain(extendedSub, substitutionChain)
-        val replayed = extendedChain.replayArgs()
-        return substitutionChain.terminus.typeParams.zip(replayed).toMap()
+        return substitutionChain.terminus.typeParams.zip(extendedChain.replayArgs()).toMap()
     }
 
     override fun visit(ast: FileAst, param: EvalContext): Value {
@@ -204,8 +203,7 @@ class EvalAstVisitor(architecture: Architecture, private val globalScope: ValueT
                     is ParameterizedBasicType -> {
                         when (terminus.identifier) {
                             Lang.listId, Lang.mutableListId -> {
-                                val replayedTypeArgs = groundApplySlot.payload.substitutionChain.replayArgs()
-                                val substitutions = terminus.typeParams.zip(replayedTypeArgs).toMap()
+                                val substitutions = createSubstitutions(param.substitutions, groundApplySlot.payload.substitutionChain)
                                 ListValue(
                                     args.toMutableList(),
                                     substitutions,
@@ -223,8 +221,7 @@ class EvalAstVisitor(architecture: Architecture, private val globalScope: ValueT
                                         it.fields.fetchHere(Lang.pairSecondId)
                                     )
                                 }
-                                val replayedTypeArgs = groundApplySlot.payload.substitutionChain.replayArgs()
-                                val substitutions = terminus.typeParams.zip(replayedTypeArgs).toMap()
+                                val substitutions = createSubstitutions(param.substitutions, groundApplySlot.payload.substitutionChain)
                                 DictionaryValue(
                                     pairs.toMap().toMutableMap(),
                                     substitutions,
@@ -234,8 +231,7 @@ class EvalAstVisitor(architecture: Architecture, private val globalScope: ValueT
                             }
 
                             Lang.setId, Lang.mutableSetId -> {
-                                val replayedTypeArgs = groundApplySlot.payload.substitutionChain.replayArgs()
-                                val substitutions = terminus.typeParams.zip(replayedTypeArgs).toMap()
+                                val substitutions = createSubstitutions(param.substitutions, groundApplySlot.payload.substitutionChain)
                                 SetValue(
                                     args.toMutableSet(),
                                     substitutions,
@@ -252,8 +248,7 @@ class EvalAstVisitor(architecture: Architecture, private val globalScope: ValueT
                         terminus.fields.zip(args).forEach {
                             fields.define(it.first.identifier, it.second)
                         }
-                        val replayedTypeArgs = groundApplySlot.payload.substitutionChain.replayArgs()
-                        val substitutions = terminus.typeParams.zip(replayedTypeArgs).toMap()
+                        val substitutions = createSubstitutions(param.substitutions, groundApplySlot.payload.substitutionChain)
                         val res = RecordValue(groundApplySlot.payload, fields, substitutions)
                         res.scope = terminus
                         res
