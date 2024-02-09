@@ -762,9 +762,6 @@ private fun handleSumType(
             }
             val substitution = Substitution(sumType.typeParams, typeArgs)
             substitution.apply(sumType)
-
-            errors.add(ctx, CannotFindBestType(types))
-            ErrorType
         } else {
             errors.add(ctx, CannotFindBestType(types))
             ErrorType
