@@ -377,60 +377,31 @@ fun checkApply(prelude: Scope, errors: LanguageErrors, ast: DotApplyAst) {
 }
 
 fun checkApply(prelude: Scope, errors: LanguageErrors, ast: GroundApplyAst, args: List<Ast>) {
-    when (val symbol = ast.symbolRef) {
-        is TypePlaceholder -> {
-            when (val type = ast.typeRef) {
-                is GroundRecordTypeSymbol -> {
-                    checkArgs(prelude, errors, type, ast, args)
+    when (val groundApplySlot = ast.groundApplySlot) {
+        GroundApplySlotError -> langThrow(NotInSource, TypeSystemBug)
+        is GroundApplySlotFormal -> {
+            val symbol = groundApplySlot.payload
+            when (val ofTypeSymbol = symbol.ofTypeSymbol) {
+                is FunctionTypeSymbol -> {
+                    checkArgs(prelude, errors, ofTypeSymbol, ast, args)
                 }
 
-                is TypeInstantiation -> {
-                    when (val parameterizedSymbol = type.substitutionChain.terminus) {
-                        is ParameterizedRecordTypeSymbol -> {
-                            checkArgs(prelude, errors, type, parameterizedSymbol, ast, args)
-                        }
-
-                        is ParameterizedBasicTypeSymbol -> {
-                            checkArgs(prelude, errors, type, parameterizedSymbol, args)
-                        }
-                    }
-                }
-
-                is BasicTypeSymbol,
-                ConstantFinTypeSymbol,
-                is FinTypeSymbol,
-                is ImmutableFinTypeParameter,
-                is MaxCostExpression,
-                is MutableFinTypeParameter,
-                is ProductCostExpression,
-                is SumCostExpression,
-                ErrorType,
-                is FunctionTypeSymbol,
-                is ObjectSymbol,
-                is PlatformObjectSymbol,
-                is StandardTypeParameter,
-                is ParameterizedBasicTypeSymbol,
-                is ParameterizedRecordTypeSymbol -> errors.add(ast.ctx, TypeSystemBug)
+                else -> errors.add(ast.ctx, TypeSystemBug)
             }
         }
 
-        is GroundFunctionSymbol -> {
+        is GroundApplySlotGF -> {
+            val symbol = groundApplySlot.payload
             checkArgs(prelude, errors, symbol.type(), ast, args)
         }
 
-        is FunctionFormalParameterSymbol -> when (val ofTypeSymbol = symbol.ofTypeSymbol) {
-            is FunctionTypeSymbol -> {
-                checkArgs(prelude, errors, ofTypeSymbol, ast, args)
-            }
-
-            else -> errors.add(ast.ctx, TypeSystemBug)
+        is GroundApplySlotGRT -> {
+            val type = groundApplySlot.payload
+            checkArgs(prelude, errors, type, ast, args)
         }
 
-        is GroundMemberPluginSymbol -> {
-            checkArgs(prelude, errors, symbol.type(), ast, args)
-        }
-
-        is SymbolInstantiation -> {
+        is GroundApplySlotSI -> {
+            val symbol = groundApplySlot.payload
             when (val parameterizedSymbol = symbol.substitutionChain.terminus) {
                 is ParameterizedMemberPluginSymbol -> {
                     checkArgs(
@@ -464,7 +435,18 @@ fun checkApply(prelude: Scope, errors: LanguageErrors, ast: GroundApplyAst, args
             }
         }
 
-        else -> errors.add(ast.ctx, TypeSystemBug)
+        is GroundApplySlotTI -> {
+            val type = groundApplySlot.payload
+            when (val parameterizedSymbol = type.substitutionChain.terminus) {
+                is ParameterizedRecordTypeSymbol -> {
+                    checkArgs(prelude, errors, type, parameterizedSymbol, ast, args)
+                }
+
+                is ParameterizedBasicTypeSymbol -> {
+                    checkArgs(prelude, errors, type, parameterizedSymbol, args)
+                }
+            }
+        }
     }
 }
 

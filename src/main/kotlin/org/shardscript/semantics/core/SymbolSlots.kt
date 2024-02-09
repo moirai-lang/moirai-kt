@@ -33,3 +33,12 @@ data object DotApplySlotError: DotApplyAstSymbolSlot()
 data class DotApplySlotGF(val payload: GroundFunctionSymbol): DotApplyAstSymbolSlot()
 data class DotApplySlotGMP(val payload: GroundMemberPluginSymbol): DotApplyAstSymbolSlot()
 data class DotApplySlotSI(val payload: SymbolInstantiation): DotApplyAstSymbolSlot()
+
+sealed class GroundApplyAstSymbolSlot
+
+data object GroundApplySlotError: GroundApplyAstSymbolSlot()
+data class GroundApplySlotGF(val payload: GroundFunctionSymbol): GroundApplyAstSymbolSlot()
+data class GroundApplySlotSI(val payload: SymbolInstantiation): GroundApplyAstSymbolSlot()
+data class GroundApplySlotTI(val payload: TypeInstantiation): GroundApplyAstSymbolSlot()
+data class GroundApplySlotFormal(val payload: FunctionFormalParameterSymbol): GroundApplyAstSymbolSlot()
+data class GroundApplySlotGRT(val payload: GroundRecordTypeSymbol): GroundApplyAstSymbolSlot()

@@ -9,13 +9,18 @@ import org.shardscript.semantics.prelude.Lang
 class PropagateTypesAstVisitor(
     private val preludeTable: Scope
 ) : UnitAstVisitor() {
-    private fun groundApply(ast: SymbolRefAst, signifier: Signifier, args: List<Ast>, scope: Scope) {
+    private fun groundApply(ast: GroundApplyAst, signifier: Signifier, args: List<Ast>, scope: Scope) {
         when (val symbol = scope.fetch(signifier)) {
-            is ErrorSymbol -> ast.assignType(errors, ErrorType)
+            is ErrorSymbol -> {
+                ast.groundApplySlot = GroundApplySlotError
+                ast.assignType(errors, ErrorType)
+            }
+
             is GroundFunctionSymbol -> {
                 if (signifier is ParameterizedSignifier) {
                     errors.add(signifier.ctx, SymbolHasNoParameters(signifier))
                 }
+                ast.groundApplySlot = GroundApplySlotGF(symbol)
                 ast.assignType(errors, symbol.returnType)
             }
 
@@ -28,9 +33,14 @@ class PropagateTypesAstVisitor(
                     errors.add(signifier.ctx, SymbolHasNoParameters(signifier))
                 }
                 when (val ofTypeSymbol = symbol.ofTypeSymbol) {
-                    is FunctionTypeSymbol -> ast.assignType(errors, ofTypeSymbol.returnType)
+                    is FunctionTypeSymbol -> {
+                        ast.groundApplySlot = GroundApplySlotFormal(symbol)
+                        ast.assignType(errors, ofTypeSymbol.returnType)
+                    }
+
                     else -> {
                         errors.add(ast.ctx, SymbolCouldNotBeApplied(signifier))
+                        ast.groundApplySlot = GroundApplySlotError
                         ast.assignType(errors, ErrorType)
                     }
                 }
@@ -49,8 +59,7 @@ class PropagateTypesAstVisitor(
                         if (signifier is ParameterizedSignifier) {
                             errors.add(signifier.ctx, SymbolHasNoParameters(signifier))
                         }
-                        ast.symbolRef = TypePlaceholder
-                        ast.typeRef = type
+                        ast.groundApplySlot = GroundApplySlotGRT(type)
                         ast.assignType(errors, type)
                     }
 
@@ -64,6 +73,7 @@ class PropagateTypesAstVisitor(
 
                     else -> {
                         errors.add(ast.ctx, SymbolCouldNotBeApplied(signifier))
+                        ast.groundApplySlot = GroundApplySlotError
                         ast.assignType(errors, ErrorType)
                     }
                 }
@@ -74,11 +84,12 @@ class PropagateTypesAstVisitor(
             }
 
             is SymbolInstantiation -> {
-                when(val terminus = symbol.substitutionChain.terminus) {
+                when (val terminus = symbol.substitutionChain.terminus) {
                     is ParameterizedFunctionSymbol -> handleParamFunc(signifier, ast, terminus, args)
                     is ParameterizedStaticPluginSymbol -> handleParamStatic(signifier, ast, terminus, args)
                     is ParameterizedMemberPluginSymbol -> {
                         errors.add(ast.ctx, SymbolCouldNotBeApplied(signifier))
+                        ast.groundApplySlot = GroundApplySlotError
                         ast.assignType(errors, ErrorType)
                     }
                 }
@@ -86,6 +97,7 @@ class PropagateTypesAstVisitor(
 
             else -> {
                 errors.add(ast.ctx, SymbolCouldNotBeApplied(signifier))
+                ast.groundApplySlot = GroundApplySlotError
                 ast.assignType(errors, ErrorType)
             }
         }
@@ -93,7 +105,7 @@ class PropagateTypesAstVisitor(
 
     private fun handleParamStatic(
         signifier: Signifier,
-        ast: SymbolRefAst,
+        ast: GroundApplyAst,
         symbol: ParameterizedStaticPluginSymbol,
         args: List<Ast>
     ) {
@@ -109,7 +121,7 @@ class PropagateTypesAstVisitor(
                     symbol.identifier,
                     idArgSymbols
                 )
-                ast.symbolRef = instantiation
+                ast.groundApplySlot = GroundApplySlotSI(instantiation)
                 val returnType = instantiation.substitutionChain.replay(symbol.returnType)
                 ast.assignType(errors, returnType)
             } else {
@@ -125,7 +137,7 @@ class PropagateTypesAstVisitor(
                 symbol.identifier,
                 listOf()
             )
-            ast.symbolRef = instantiation
+            ast.groundApplySlot = GroundApplySlotSI(instantiation)
             val returnType = instantiation.substitutionChain.replay(symbol.returnType)
             ast.assignType(errors, returnType)
         }
@@ -133,7 +145,7 @@ class PropagateTypesAstVisitor(
 
     private fun handleParamFunc(
         signifier: Signifier,
-        ast: SymbolRefAst,
+        ast: GroundApplyAst,
         symbol: ParameterizedFunctionSymbol,
         args: List<Ast>
     ) {
@@ -143,7 +155,7 @@ class PropagateTypesAstVisitor(
             if (idArgs.size == symbol.typeParams.size) {
                 val substitution = Substitution(symbol.typeParams, idArgSymbols)
                 val instantiation = substitution.apply(symbol)
-                ast.symbolRef = instantiation
+                ast.groundApplySlot = GroundApplySlotSI(instantiation)
                 val returnType = instantiation.substitutionChain.replay(symbol.returnType)
                 ast.assignType(errors, returnType)
             } else {
@@ -152,7 +164,7 @@ class PropagateTypesAstVisitor(
             }
         } else {
             val instantiation = instantiateFunction(ast.ctx, args, symbol, errors)
-            ast.symbolRef = instantiation
+            ast.groundApplySlot = GroundApplySlotSI(instantiation)
             val returnType = instantiation.substitutionChain.replay(symbol.returnType)
             ast.assignType(errors, returnType)
         }
@@ -160,7 +172,7 @@ class PropagateTypesAstVisitor(
 
     private fun handleParamRecord(
         signifier: Signifier,
-        ast: SymbolRefAst,
+        ast: GroundApplyAst,
         type: ParameterizedRecordTypeSymbol,
         args: List<Ast>
     ) {
@@ -170,8 +182,7 @@ class PropagateTypesAstVisitor(
             if (idArgs.size == type.typeParams.size) {
                 val substitution = Substitution(type.typeParams, idArgSymbols)
                 val instantiation = substitution.apply(type)
-                ast.symbolRef = TypePlaceholder
-                ast.typeRef = instantiation
+                ast.groundApplySlot = GroundApplySlotTI(instantiation)
                 ast.assignType(errors, instantiation)
             } else {
                 errors.add(ast.ctx, IncorrectNumberOfTypeArgs(type.typeParams.size, idArgs.size))
@@ -179,15 +190,14 @@ class PropagateTypesAstVisitor(
             }
         } else {
             val instantiation = instantiateRecord(ast.ctx, args, type, errors)
-            ast.symbolRef = TypePlaceholder
-            ast.typeRef = instantiation
+            ast.groundApplySlot = GroundApplySlotTI(instantiation)
             ast.assignType(errors, instantiation)
         }
     }
 
     private fun handleParamBasicType(
         signifier: Signifier,
-        ast: SymbolRefAst,
+        ast: GroundApplyAst,
         type: ParameterizedBasicTypeSymbol,
         args: List<Ast>
     ) {
@@ -203,8 +213,7 @@ class PropagateTypesAstVisitor(
                     type.identifier,
                     idArgSymbols
                 )
-                ast.symbolRef = TypePlaceholder
-                ast.typeRef = instantiation
+                ast.groundApplySlot = GroundApplySlotTI(instantiation)
                 ast.assignType(errors, instantiation)
             } else {
                 errors.add(ast.ctx, IncorrectNumberOfTypeArgs(type.typeParams.size, idArgs.size))
@@ -219,8 +228,7 @@ class PropagateTypesAstVisitor(
                 type.identifier,
                 listOf()
             )
-            ast.symbolRef = TypePlaceholder
-            ast.typeRef = instantiation
+            ast.groundApplySlot = GroundApplySlotTI(instantiation)
             ast.assignType(errors, instantiation)
         }
     }
@@ -585,11 +593,8 @@ class PropagateTypesAstVisitor(
             if (symbol is TypePlaceholder) {
                 val type = ast.scope.fetchType(ast.tti)
                 filterValidGroundApply(ast.ctx, errors, type, ast.signifier)
-                ast.symbolRef = TypePlaceholder
-                ast.typeRef = type
             } else {
                 filterValidGroundApply(ast.ctx, errors, symbol, ast.signifier)
-                ast.symbolRef = symbol
             }
             groundApply(ast, ast.signifier, ast.args, ast.scope)
         } catch (ex: LanguageException) {

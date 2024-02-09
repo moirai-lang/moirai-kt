@@ -131,28 +131,54 @@ class CostExpressionAstVisitor(private val architecture: Architecture) : UnitAst
     override fun visit(ast: GroundApplyAst) {
         super.visit(ast)
         val argCosts: MutableList<CostExpression> = ArrayList()
-        val multipliers = when (val symbolRef = ast.symbolRef) {
-            is GroundFunctionSymbol -> symbolRef.formalParams.map { it.costMultiplier }
-            is SymbolInstantiation -> {
+        val multipliers = when (val groundApplySlot = ast.groundApplySlot) {
+            GroundApplySlotError -> langThrow(NotInSource, TypeSystemBug)
+            is GroundApplySlotFormal -> listOf()
+            is GroundApplySlotGF -> {
+                val symbolRef = groundApplySlot.payload
+                symbolRef.formalParams.map { it.costMultiplier }
+            }
+
+            is GroundApplySlotGRT -> listOf()
+            is GroundApplySlotSI -> {
+                val symbolRef = groundApplySlot.payload
                 when (val parameterizedSymbol = symbolRef.substitutionChain.terminus) {
                     is ParameterizedFunctionSymbol -> {
                         parameterizedSymbol.formalParams.map { it.costMultiplier }
                     }
+
                     else -> {
                         listOf()
                     }
                 }
             }
-            else -> {
-                listOf()
-            }
+
+            is GroundApplySlotTI -> listOf()
         }
         multipliers.zip(ast.args).forEach {
             argCosts.add(ProductCostExpression(listOf(it.second.costExpression, it.first)))
         }
-        val bodyCost = when (ast.symbolRef) {
-            is TypePlaceholder -> convertCostExpression(ast.typeRef)
-            else -> convertCostExpression(ast.symbolRef)
+        val bodyCost = when (val groundApplySlot = ast.groundApplySlot) {
+            GroundApplySlotError -> langThrow(NotInSource, TypeSystemBug)
+            is GroundApplySlotFormal -> {
+                convertCostExpression(groundApplySlot.payload)
+            }
+
+            is GroundApplySlotGF -> {
+                convertCostExpression(groundApplySlot.payload)
+            }
+
+            is GroundApplySlotGRT -> {
+                convertCostExpression(groundApplySlot.payload)
+            }
+
+            is GroundApplySlotSI -> {
+                convertCostExpression(groundApplySlot.payload)
+            }
+
+            is GroundApplySlotTI -> {
+                convertCostExpression(groundApplySlot.payload)
+            }
         }
         if (argCosts.isEmpty()) {
             ast.costExpression = addDefault(bodyCost)

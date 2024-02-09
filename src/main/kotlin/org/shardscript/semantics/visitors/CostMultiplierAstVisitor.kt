@@ -85,18 +85,18 @@ class CostMultiplierAstVisitor(val architecture: Architecture) : AstVisitor<List
 
     override fun visit(ast: GroundApplyAst): List<ParamCostExMultiplier> {
         val res = ast.args.flatMap { it.accept(this) }.toMutableList()
-        when (val symbolRef = ast.symbolRef) {
-            is FunctionFormalParameterSymbol -> {
-                when (symbolRef.ofTypeSymbol) {
-                    is FunctionTypeSymbol -> res.add(
-                        ParamCostExMultiplier(
-                            symbolRef,
-                            FinTypeSymbol(architecture.defaultNodeCost)
-                        )
+        when (val groundApplySlot = ast.groundApplySlot) {
+            is GroundApplySlotFormal -> when (groundApplySlot.payload.ofTypeSymbol) {
+                is FunctionTypeSymbol -> res.add(
+                    ParamCostExMultiplier(
+                        groundApplySlot.payload,
+                        FinTypeSymbol(architecture.defaultNodeCost)
                     )
-                    else -> Unit
-                }
+                )
+
+                else -> Unit
             }
+
             else -> Unit
         }
         return res

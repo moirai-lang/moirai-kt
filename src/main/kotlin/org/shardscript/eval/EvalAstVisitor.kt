@@ -117,16 +117,22 @@ class EvalAstVisitor(private val globalScope: ValueTable) : ParameterizedAstVisi
                 toApply.apply(args)
             }
             is ListConstructorValue -> {
-                val instantiation = ast.typeRef as TypeInstantiation
-                toApply.apply(instantiation.substitutionChain.replayArgs(), args)
+                when (val groundApplySlot = ast.groundApplySlot) {
+                    is GroundApplySlotTI -> toApply.apply(groundApplySlot.payload.substitutionChain.replayArgs(), args)
+                    else -> langThrow(ast.ctx, TypeSystemBug)
+                }
             }
             is SetConstructorValue -> {
-                val instantiation = ast.typeRef as TypeInstantiation
-                toApply.apply(instantiation.substitutionChain.replayArgs(), args)
+                when (val groundApplySlot = ast.groundApplySlot) {
+                    is GroundApplySlotTI -> toApply.apply(groundApplySlot.payload.substitutionChain.replayArgs(), args)
+                    else -> langThrow(ast.ctx, TypeSystemBug)
+                }
             }
             is DictionaryConstructorValue -> {
-                val instantiation = ast.typeRef as TypeInstantiation
-                toApply.apply(instantiation.substitutionChain.replayArgs(), args)
+                when (val groundApplySlot = ast.groundApplySlot) {
+                    is GroundApplySlotTI -> toApply.apply(groundApplySlot.payload.substitutionChain.replayArgs(), args)
+                    else -> langThrow(ast.ctx, TypeSystemBug)
+                }
             }
             is PluginValue -> {
                 toApply.invoke(args)

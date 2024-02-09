@@ -55,18 +55,14 @@ class GenerateFunctionEdgesParameterizedAstVisitor(
 ) : ParameterizedUnitAstVisitor<Symbol>() {
     override fun visit(ast: GroundApplyAst, param: Symbol) {
         super.visit(ast, param)
-        when (val symbolRef = ast.symbolRef) {
-            is FunctionFormalParameterSymbol -> Unit
-            is GroundFunctionSymbol,
-            is ParameterizedFunctionSymbol -> {
-                addFunctionEdge(symbolRef, param, edges, nodes)
+        when (val groundApplySlot = ast.groundApplySlot) {
+            is GroundApplySlotGF -> addFunctionEdge(groundApplySlot.payload, param, edges, nodes)
+            is GroundApplySlotSI -> when (val parameterizedSymbol =
+                groundApplySlot.payload.substitutionChain.terminus) {
+                is ParameterizedFunctionSymbol -> addFunctionEdge(parameterizedSymbol, param, edges, nodes)
+                else -> Unit
             }
-            is SymbolInstantiation -> {
-                when (val parameterizedSymbol = symbolRef.substitutionChain.terminus) {
-                    is ParameterizedFunctionSymbol -> addFunctionEdge(parameterizedSymbol, param, edges, nodes)
-                    else -> Unit
-                }
-            }
+
             else -> Unit
         }
     }

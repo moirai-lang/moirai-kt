@@ -19,11 +19,6 @@ sealed class Ast : LanguageElement {
     abstract fun <P, R> accept(visitor: ParameterizedAstVisitor<P, R>, param: P): R
 }
 
-sealed class SymbolRefAst : Ast() {
-    lateinit var symbolRef: Symbol
-    var typeRef: Type = ErrorType
-}
-
 sealed class DefinitionAst : Ast() {
     lateinit var definitionSpace: Scope
 }
@@ -187,8 +182,9 @@ data class GroundApplyAst(
     override val ctx: SourceContext,
     val signifier: Signifier,
     val args: List<Ast>
-) : SymbolRefAst() {
+) : Ast() {
     lateinit var tti: TerminalTextSignifier
+    lateinit var groundApplySlot: GroundApplyAstSymbolSlot
 
     override fun <R> accept(visitor: AstVisitor<R>): R =
         visitor.visit(this)
