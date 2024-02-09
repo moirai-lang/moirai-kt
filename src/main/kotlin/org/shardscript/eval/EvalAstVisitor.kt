@@ -3,34 +3,36 @@ package org.shardscript.eval
 import org.shardscript.semantics.core.*
 import org.shardscript.semantics.prelude.Lang
 
-class EvalAstVisitor(private val globalScope: ValueTable) : ParameterizedAstVisitor<ValueTable, Value> {
-    fun invoke(functionValue: FunctionValue, args: List<Value>): Value {
+data class EvalContext(val values: ValueTable, val substitutions: Map<Type, Type>)
+
+class EvalAstVisitor(private val globalScope: ValueTable) : ParameterizedAstVisitor<EvalContext, Value> {
+    fun invoke(functionValue: FunctionValue, args: List<Value>, substitutions: Map<Type, Type>): Value {
         val functionScope = ValueTable(globalScope)
         functionValue.formalParams.zip(args).forEach {
             functionScope.define(it.first.identifier, it.second)
         }
-        return functionValue.body.accept(this, functionScope)
+        return functionValue.body.accept(this, EvalContext(functionScope, substitutions))
     }
 
-    override fun visit(ast: FileAst, param: ValueTable): Value {
-        val blockScope = ValueTable(param)
-        val resLines = ast.lines.map { it.accept(this, blockScope) }
+    override fun visit(ast: FileAst, param: EvalContext): Value {
+        val blockScope = ValueTable(param.values)
+        val resLines = ast.lines.map { it.accept(this, EvalContext(blockScope, param.substitutions)) }
         return resLines.last()
     }
 
-    override fun visit(ast: BlockAst, param: ValueTable): Value {
-        val blockScope = ValueTable(param)
-        val resLines = ast.lines.map { it.accept(this, blockScope) }
+    override fun visit(ast: BlockAst, param: EvalContext): Value {
+        val blockScope = ValueTable(param.values)
+        val resLines = ast.lines.map { it.accept(this, EvalContext(blockScope, param.substitutions)) }
         return resLines.last()
     }
 
-    override fun visit(ast: LetAst, param: ValueTable): Value {
+    override fun visit(ast: LetAst, param: EvalContext): Value {
         val right = ast.rhs.accept(this, param)
-        param.define(ast.identifier, right)
+        param.values.define(ast.identifier, right)
         return UnitValue
     }
 
-    override fun visit(ast: RefAst, param: ValueTable): Value {
+    override fun visit(ast: RefAst, param: EvalContext): Value {
         return when (val refSlot = ast.refSlot) {
             is RefSlotObject -> ObjectValue(refSlot.payload)
             is RefSlotPlatformObject -> if (refSlot.payload.identifier == Lang.unitId) {
@@ -39,26 +41,26 @@ class EvalAstVisitor(private val globalScope: ValueTable) : ParameterizedAstVisi
                 langThrow(NotInSource, TypeSystemBug)
             }
 
-            else -> param.fetch(ast.identifier)
+            else -> param.values.fetch(ast.identifier)
         }
     }
 
-    override fun visit(ast: IntLiteralAst, param: ValueTable): Value =
+    override fun visit(ast: IntLiteralAst, param: EvalContext): Value =
         IntValue(ast.canonicalForm)
 
-    override fun visit(ast: BooleanLiteralAst, param: ValueTable): Value =
+    override fun visit(ast: BooleanLiteralAst, param: EvalContext): Value =
         BooleanValue(ast.canonicalForm)
 
-    override fun visit(ast: DecimalLiteralAst, param: ValueTable): Value =
+    override fun visit(ast: DecimalLiteralAst, param: EvalContext): Value =
         DecimalValue(ast.canonicalForm)
 
-    override fun visit(ast: CharLiteralAst, param: ValueTable): Value =
+    override fun visit(ast: CharLiteralAst, param: EvalContext): Value =
         CharValue(ast.canonicalForm)
 
-    override fun visit(ast: StringLiteralAst, param: ValueTable): Value =
+    override fun visit(ast: StringLiteralAst, param: EvalContext): Value =
         StringValue(ast.canonicalForm)
 
-    override fun visit(ast: StringInterpolationAst, param: ValueTable): Value {
+    override fun visit(ast: StringInterpolationAst, param: EvalContext): Value {
         val sb = StringBuilder()
         ast.components.forEach {
             when (val component = it.accept(this, param)) {
@@ -74,21 +76,21 @@ class EvalAstVisitor(private val globalScope: ValueTable) : ParameterizedAstVisi
         return StringValue(sb.toString())
     }
 
-    override fun visit(ast: FunctionAst, param: ValueTable): Value =
+    override fun visit(ast: FunctionAst, param: EvalContext): Value =
         UnitValue
 
-    override fun visit(ast: LambdaAst, param: ValueTable): Value {
+    override fun visit(ast: LambdaAst, param: EvalContext): Value {
         val lambdaSymbol = ast.scope as LambdaSymbol
         return FunctionValue(lambdaSymbol.formalParams, ast.body)
     }
 
-    override fun visit(ast: RecordDefinitionAst, param: ValueTable): Value =
+    override fun visit(ast: RecordDefinitionAst, param: EvalContext): Value =
         UnitValue
 
-    override fun visit(ast: ObjectDefinitionAst, param: ValueTable): Value =
+    override fun visit(ast: ObjectDefinitionAst, param: EvalContext): Value =
         UnitValue
 
-    override fun visit(ast: DotAst, param: ValueTable): Value {
+    override fun visit(ast: DotAst, param: EvalContext): Value {
         return when (val lhs = ast.lhs.accept(this, param)) {
             is RecordValue -> {
                 lhs.fields.fetch(ast.identifier)
@@ -123,14 +125,14 @@ class EvalAstVisitor(private val globalScope: ValueTable) : ParameterizedAstVisi
         }
     }
 
-    override fun visit(ast: GroundApplyAst, param: ValueTable): Value {
+    override fun visit(ast: GroundApplyAst, param: EvalContext): Value {
         return when (val groundApplySlot = ast.groundApplySlot) {
             GroundApplySlotError -> langThrow(NotInSource, TypeSystemBug)
             is GroundApplySlotFormal -> {
                 val args = ast.args.map { it.accept(this, param) }
-                when (val toApply = param.fetch(groundApplySlot.payload.identifier)) {
+                when (val toApply = param.values.fetch(groundApplySlot.payload.identifier)) {
                     is FunctionValue -> {
-                        invoke(toApply, args)
+                        invoke(toApply, args, param.substitutions)
                     }
                     else -> langThrow(NotInSource, TypeSystemBug)
                 }
@@ -138,7 +140,7 @@ class EvalAstVisitor(private val globalScope: ValueTable) : ParameterizedAstVisi
             is GroundApplySlotGF -> {
                 val args = ast.args.map { it.accept(this, param) }
                 val toApply = FunctionValue(groundApplySlot.payload.formalParams, groundApplySlot.payload.body)
-                invoke(toApply, args)
+                invoke(toApply, args, param.substitutions)
             }
             is GroundApplySlotGRT -> {
                 val args = ast.args.map { it.accept(this, param) }
@@ -155,7 +157,7 @@ class EvalAstVisitor(private val globalScope: ValueTable) : ParameterizedAstVisi
                 when (val terminus = groundApplySlot.payload.substitutionChain.terminus) {
                     is ParameterizedFunctionSymbol -> {
                         val toApply = FunctionValue(terminus.formalParams, terminus.body)
-                        invoke(toApply, args)
+                        invoke(toApply, args, param.substitutions)
                     }
                     is ParameterizedMemberPluginSymbol -> langThrow(NotInSource, TypeSystemBug)
                     is ParameterizedStaticPluginSymbol -> Plugins.staticPlugins[terminus]!!.invoke(args)
@@ -215,7 +217,7 @@ class EvalAstVisitor(private val globalScope: ValueTable) : ParameterizedAstVisi
         }
     }
 
-    override fun visit(ast: DotApplyAst, param: ValueTable): Value {
+    override fun visit(ast: DotApplyAst, param: EvalContext): Value {
         val args = ast.args.map { it.accept(this, param) }
         try {
             val lhs = ast.lhs.accept(this, param)
@@ -230,7 +232,7 @@ class EvalAstVisitor(private val globalScope: ValueTable) : ParameterizedAstVisi
                             toApply.formalParams.zip(args).forEach {
                                 functionScope.define(it.first.identifier, it.second)
                             }
-                            return function.accept(this, functionScope)
+                            return function.accept(this, EvalContext(functionScope, param.substitutions))
                         }
                         else -> {
                             langThrow(ast.ctx, TypeSystemBug)
@@ -252,7 +254,7 @@ class EvalAstVisitor(private val globalScope: ValueTable) : ParameterizedAstVisi
                                     parameterizedType.formalParams.zip(args).forEach {
                                         functionScope.define(it.first.identifier, it.second)
                                     }
-                                    return function.accept(this, functionScope)
+                                    return function.accept(this, EvalContext(functionScope, param.substitutions))
                                 }
                                 else -> {
                                     langThrow(ast.ctx, TypeSystemBug)
@@ -271,13 +273,13 @@ class EvalAstVisitor(private val globalScope: ValueTable) : ParameterizedAstVisi
         }
     }
 
-    override fun visit(ast: ForEachAst, param: ValueTable): Value {
+    override fun visit(ast: ForEachAst, param: EvalContext): Value {
         when (val source = ast.source.accept(this, param)) {
             is ListValue -> {
                 source.elements.forEach {
-                    val bodyScope = ValueTable(param)
+                    val bodyScope = ValueTable(param.values)
                     bodyScope.define(ast.identifier, it)
-                    ast.body.accept(this, bodyScope)
+                    ast.body.accept(this, EvalContext(bodyScope, param.substitutions))
                 }
                 return UnitValue
             }
@@ -287,13 +289,13 @@ class EvalAstVisitor(private val globalScope: ValueTable) : ParameterizedAstVisi
         }
     }
 
-    override fun visit(ast: AssignAst, param: ValueTable): Value {
+    override fun visit(ast: AssignAst, param: EvalContext): Value {
         val rhs = ast.rhs.accept(this, param)
-        param.assign(ast.identifier, rhs)
+        param.values.assign(ast.identifier, rhs)
         return UnitValue
     }
 
-    override fun visit(ast: DotAssignAst, param: ValueTable): Value {
+    override fun visit(ast: DotAssignAst, param: EvalContext): Value {
         return when (val lhs = ast.lhs.accept(this, param)) {
             is RecordValue -> {
                 val rhs = ast.rhs.accept(this, param)
@@ -306,7 +308,7 @@ class EvalAstVisitor(private val globalScope: ValueTable) : ParameterizedAstVisi
         }
     }
 
-    override fun visit(ast: IfAst, param: ValueTable): Value {
+    override fun visit(ast: IfAst, param: EvalContext): Value {
         val condition = ast.condition.accept(this, param)
         if (condition is BooleanValue) {
             return if (condition.canonicalForm) {

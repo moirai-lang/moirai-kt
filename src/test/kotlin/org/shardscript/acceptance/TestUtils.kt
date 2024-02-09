@@ -34,7 +34,7 @@ fun eval(
     val evalVisitor = EvalAstVisitor(globalScope)
 
     val executionScope = ValueTable(globalScope)
-    return executionArtifacts.processedAst.accept(evalVisitor, executionScope)
+    return executionArtifacts.processedAst.accept(evalVisitor, EvalContext(executionScope, mapOf()))
 }
 
 fun testEval(
