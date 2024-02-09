@@ -3,6 +3,7 @@ package org.shardscript.semantics.visitors
 import org.shardscript.semantics.core.*
 import org.shardscript.semantics.infer.Substitution
 import org.shardscript.semantics.infer.instantiateFunction
+import org.shardscript.semantics.infer.instantiatePlatformSumRecord
 import org.shardscript.semantics.infer.instantiateRecord
 import org.shardscript.semantics.prelude.Lang
 
@@ -52,6 +53,12 @@ class PropagateTypesAstVisitor(
                         when (val terminus = type.substitutionChain.terminus) {
                             is ParameterizedBasicType -> handleParamBasicType(signifier, ast, terminus, args)
                             is ParameterizedRecordType -> handleParamRecord(signifier, ast, terminus, args)
+                            is PlatformSumRecordType -> handlePlatformSumRecord(signifier, ast, terminus, args)
+                            is PlatformSumType -> {
+                                errors.add(ast.ctx, SymbolCouldNotBeApplied(signifier))
+                                ast.groundApplySlot = GroundApplySlotError
+                                ast.assignType(errors, ErrorType)
+                            }
                         }
                     }
 
@@ -190,6 +197,31 @@ class PropagateTypesAstVisitor(
             }
         } else {
             val instantiation = instantiateRecord(ast.ctx, args, type, errors)
+            ast.groundApplySlot = GroundApplySlotTI(instantiation)
+            ast.assignType(errors, instantiation)
+        }
+    }
+
+    private fun handlePlatformSumRecord(
+        signifier: Signifier,
+        ast: GroundApplyAst,
+        type: PlatformSumRecordType,
+        args: List<Ast>
+    ) {
+        if (signifier is ParameterizedSignifier) {
+            val idArgs = signifier.args
+            val idArgSymbols = idArgs.map { ast.scope.fetchType(it) }
+            if (idArgs.size == type.typeParams.size) {
+                val substitution = Substitution(type.typeParams, idArgSymbols)
+                val instantiation = substitution.apply(type)
+                ast.groundApplySlot = GroundApplySlotTI(instantiation)
+                ast.assignType(errors, instantiation)
+            } else {
+                errors.add(ast.ctx, IncorrectNumberOfTypeArgs(type.typeParams.size, idArgs.size))
+                ast.assignType(errors, ErrorType)
+            }
+        } else {
+            val instantiation = instantiatePlatformSumRecord(ast.ctx, args, type, errors)
             ast.groundApplySlot = GroundApplySlotTI(instantiation)
             ast.assignType(errors, instantiation)
         }
@@ -553,9 +585,29 @@ class PropagateTypesAstVisitor(
                                     errors.add(ast.ctx, SymbolIsNotAField(ast.identifier))
                                     ast.dotSlot = DotSlotError
                                     ast.assignType(errors, ErrorType)
-
                                 }
                             }
+                        }
+
+                        is PlatformSumRecordType -> {
+                            when (val member = parameterizedSymbol.fetchHere(ast.identifier)) {
+                                is FieldSymbol -> {
+                                    ast.dotSlot = DotSlotField(member)
+                                    val astType = lhsType.substitutionChain.replay(member.ofTypeSymbol)
+                                    ast.assignType(errors, astType)
+                                }
+
+                                else -> {
+                                    errors.add(ast.ctx, SymbolIsNotAField(ast.identifier))
+                                    ast.dotSlot = DotSlotError
+                                    ast.assignType(errors, ErrorType)
+                                }
+                            }
+                        }
+                        is PlatformSumType -> {
+                            errors.add(ast.ctx, SymbolHasNoFields(ast.identifier, ast.lhs.readType() as Symbol))
+                            ast.dotSlot = DotSlotError
+                            ast.assignType(errors, ErrorType)
                         }
                     }
                 }
@@ -777,6 +829,31 @@ class PropagateTypesAstVisitor(
                                     ast.assignType(errors, ErrorType)
                                 }
                             }
+                        }
+
+                        is PlatformSumRecordType -> {
+                            val member = parameterizedSymbol.fetchHere(ast.tti)
+                            filterValidDotApply(ast.ctx, errors, member, ast.signifier)
+                            when (member) {
+                                is GroundMemberPluginSymbol -> {
+                                    if (ast.signifier is ParameterizedSignifier) {
+                                        errors.add(ast.signifier.ctx, SymbolHasNoParameters(ast.signifier))
+                                    }
+                                    ast.dotApplySlot = DotApplySlotGMP(member)
+                                    ast.assignType(errors, member.returnType)
+                                }
+
+                                else -> {
+                                    errors.add(ast.ctx, SymbolCouldNotBeApplied(ast.signifier))
+                                    ast.dotApplySlot = DotApplySlotError
+                                    ast.assignType(errors, ErrorType)
+                                }
+                            }
+                        }
+                        is PlatformSumType -> {
+                            errors.add(ast.ctx, SymbolHasNoMembers(ast.signifier, ast.lhs.readType() as Symbol))
+                            ast.dotApplySlot = DotApplySlotError
+                            ast.assignType(errors, ErrorType)
                         }
                     }
                 }

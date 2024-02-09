@@ -291,6 +291,18 @@ class EvalAstVisitor(architecture: Architecture, private val globalScope: ValueT
                         res.scope = terminus
                         res
                     }
+
+                    is PlatformSumRecordType -> {
+                        val fields = ValueTable(NullValueTable)
+                        terminus.fields.zip(args).forEach {
+                            fields.define(it.first.identifier, it.second)
+                        }
+                        val substitutions = createSubstitutions(param.substitutions, groundApplySlot.payload.substitutionChain)
+                        val res = RecordValue(groundApplySlot.payload, fields, substitutions)
+                        res.scope = terminus
+                        res
+                    }
+                    is PlatformSumType -> langThrow(NotInSource, TypeSystemBug)
                 }
             }
         }

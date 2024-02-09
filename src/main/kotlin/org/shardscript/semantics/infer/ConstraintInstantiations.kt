@@ -98,6 +98,32 @@ fun instantiateRecord(
     return substitution.apply(parameterizedRecordType)
 }
 
+fun instantiatePlatformSumRecord(
+    ctx: SourceContext,
+    args: List<Ast>,
+    platformSumRecordType: PlatformSumRecordType,
+    errors: LanguageErrors
+): TypeInstantiation {
+    val inOrderParameters = platformSumRecordType.typeParams
+    val parameterSet = inOrderParameters.toSet()
+    if (platformSumRecordType.fields.size == args.size) {
+        val constraints: MutableList<Constraint<TypeParameter, Type>> = ArrayList()
+        platformSumRecordType.fields.zip(args).forEach {
+            val expected = it.first.ofTypeSymbol
+            constraints.addAll(constrainSymbol(ctx, parameterSet, expected, it.second.readType(), errors))
+        }
+        val substitution = createSubstitution(ctx, constraints, parameterSet, inOrderParameters, errors)
+        return substitution.apply(platformSumRecordType)
+    } else {
+        errors.add(
+            ctx,
+            IncorrectNumberOfArgs(platformSumRecordType.fields.size, args.size)
+        )
+    }
+    val substitution = Substitution(platformSumRecordType.typeParams, listOf())
+    return substitution.apply(platformSumRecordType)
+}
+
 fun constrainSymbol(
     ctx: SourceContext,
     typeParams: Set<TypeParameter>,
