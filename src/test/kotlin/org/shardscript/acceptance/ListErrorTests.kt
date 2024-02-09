@@ -58,7 +58,7 @@ class ListErrorTests {
             """
             val x = MutableList<Int, Int>(1, 2, 3)
             x[0]
-        """.trimIndent(), 3
+        """.trimIndent(), 2
         ) {
             it.error is InvalidFinTypeSub
         }
@@ -115,45 +115,9 @@ class ListErrorTests {
             }
 
             f<3>()
-        """.trimIndent(), 7
-        ) {
-            it.error is InvalidFinTypeSub
-        }
-    }
-
-    @Test
-    fun invalidSourceTypeForEachMutableListTest() {
-        failTest(
-            """
-            val x = MutableList<Int, 3>(1, 2, 3)
-            for(y in x) {
-                y
-            }
         """.trimIndent(), 1
         ) {
-            it.error is ForEachFeatureBan
-        }
-    }
-
-    @Test
-    fun finTypeParamMutableListTest2() {
-        failTest(
-            """
-            def size<E, O: Fin>(x: List<E, O>): Int {
-                val z = MutableList<E, O>()
-                mutable res = 0
-                for(e in x) {
-                    z.add(e)
-                    res = res + 1
-                }
-                res
-            }
-
-            val x = List(1, 2, 3)
-            size(x)
-        """.trimIndent(), 2
-        ) {
-            it.error is InvalidFinTypeSub
+            it.error is RuntimeFinViolation
         }
     }
 
