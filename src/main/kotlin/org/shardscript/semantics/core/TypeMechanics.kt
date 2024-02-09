@@ -133,19 +133,21 @@ fun filterValidDotApply(
 ): Symbol =
     when (symbol) {
         is GroundFunctionSymbol,
-        is GroundMemberPluginSymbol,
-        is ParameterizedStaticPluginSymbol,
-        is ParameterizedFunctionSymbol -> symbol
+        is GroundMemberPluginSymbol -> symbol
 
         is SymbolInstantiation -> {
             when (symbol.substitutionChain.terminus) {
-                is ParameterizedStaticPluginSymbol,
-                is ParameterizedFunctionSymbol,
                 is ParameterizedMemberPluginSymbol -> {
                     symbol.substitutionChain.terminus.typeParams.forEach {
                         validateSubstitution(ctx, errors, it, symbol.substitutionChain.replay(it))
                     }
                     symbol
+                }
+
+                is ParameterizedStaticPluginSymbol,
+                is ParameterizedFunctionSymbol -> {
+                    errors.add(ctx, SymbolCouldNotBeApplied(signifier))
+                    ErrorSymbol
                 }
             }
         }
@@ -157,7 +159,9 @@ fun filterValidDotApply(
         is FieldSymbol,
         is PlatformFieldSymbol,
         is LambdaSymbol,
-        is LocalVariableSymbol -> {
+        is LocalVariableSymbol,
+        is ParameterizedStaticPluginSymbol,
+        is ParameterizedFunctionSymbol -> {
             errors.add(ctx, SymbolCouldNotBeApplied(signifier))
             ErrorSymbol
         }
@@ -323,7 +327,56 @@ fun checkTypes(
     }
 }
 
-fun checkApply(prelude: Scope, errors: LanguageErrors, ast: SymbolRefAst, args: List<Ast>) {
+fun checkApply(prelude: Scope, errors: LanguageErrors, ast: DotApplyAst) {
+    when (val dotApplySlot = ast.dotApplySlot) {
+        is DotApplySlotGF -> {
+            checkArgs(prelude, errors, dotApplySlot.payload.type(), ast, ast.args)
+        }
+
+        is DotApplySlotGMP -> {
+            checkArgs(prelude, errors, dotApplySlot.payload.type(), ast, ast.args)
+        }
+
+        is DotApplySlotSI -> {
+            val symbol = dotApplySlot.payload
+            when (val parameterizedSymbol = symbol.substitutionChain.terminus) {
+                is ParameterizedMemberPluginSymbol -> {
+                    checkArgs(
+                        prelude,
+                        errors,
+                        symbol.substitutionChain.replay(parameterizedSymbol.type()),
+                        ast,
+                        ast.args
+                    )
+                }
+
+                is ParameterizedFunctionSymbol -> {
+                    checkArgs(
+                        prelude,
+                        errors,
+                        symbol.substitutionChain.replay(parameterizedSymbol.type()),
+                        ast,
+                        ast.args
+                    )
+                }
+
+                is ParameterizedStaticPluginSymbol -> {
+                    checkArgs(
+                        prelude,
+                        errors,
+                        symbol.substitutionChain.replay(parameterizedSymbol.type()),
+                        ast,
+                        ast.args
+                    )
+                }
+            }
+        }
+
+        else -> Unit
+    }
+}
+
+fun checkApply(prelude: Scope, errors: LanguageErrors, ast: GroundApplyAst, args: List<Ast>) {
     when (val symbol = ast.symbolRef) {
         is TypePlaceholder -> {
             when (val type = ast.typeRef) {

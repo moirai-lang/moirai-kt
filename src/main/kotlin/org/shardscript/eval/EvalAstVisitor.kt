@@ -141,11 +141,30 @@ class EvalAstVisitor(private val globalScope: ValueTable) : ParameterizedAstVisi
         val args = ast.args.map { it.accept(this, param) }
         try {
             val lhs = ast.lhs.accept(this, param)
-            when (val toApply = ast.symbolRef) {
-                is GroundMemberPluginSymbol -> {
+            when (val dotApplySlot = ast.dotApplySlot) {
+                DotApplySlotError -> langThrow(ast.ctx, TypeSystemBug)
+                is DotApplySlotGF -> {
+                    val toApply = dotApplySlot.payload
+                    when (lhs) {
+                        is RecordValue -> {
+                            val functionScope = ValueTable(lhs.fields)
+                            val function = toApply.body
+                            toApply.formalParams.zip(args).forEach {
+                                functionScope.define(it.first.identifier, it.second)
+                            }
+                            return function.accept(this, functionScope)
+                        }
+                        else -> {
+                            langThrow(ast.ctx, TypeSystemBug)
+                        }
+                    }
+                }
+                is DotApplySlotGMP -> {
+                    val toApply = dotApplySlot.payload
                     return Plugins.groundMemberPlugins[toApply]!!.invoke(lhs, args)
                 }
-                is SymbolInstantiation -> {
+                is DotApplySlotSI -> {
+                    val toApply = dotApplySlot.payload
                     when (val parameterizedType = toApply.substitutionChain.terminus) {
                         is ParameterizedFunctionSymbol -> {
                             when (lhs) {
@@ -167,27 +186,6 @@ class EvalAstVisitor(private val globalScope: ValueTable) : ParameterizedAstVisi
                         }
                         else -> langThrow(ast.ctx, TypeSystemBug)
                     }
-                }
-                is ParameterizedStaticPluginSymbol -> {
-                    langThrow(ast.ctx, TypeSystemBug)
-                }
-                is GroundFunctionSymbol -> {
-                    when (lhs) {
-                        is RecordValue -> {
-                            val functionScope = ValueTable(lhs.fields)
-                            val function = toApply.body
-                            toApply.formalParams.zip(args).forEach {
-                                functionScope.define(it.first.identifier, it.second)
-                            }
-                            return function.accept(this, functionScope)
-                        }
-                        else -> {
-                            langThrow(ast.ctx, TypeSystemBug)
-                        }
-                    }
-                }
-                else -> {
-                    langThrow(ast.ctx, TypeSystemBug)
                 }
             }
         } catch (ex: ArithmeticException) {

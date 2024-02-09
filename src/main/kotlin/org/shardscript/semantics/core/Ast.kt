@@ -202,8 +202,9 @@ data class DotApplyAst(
     val lhs: Ast,
     val signifier: Signifier,
     val args: List<Ast>
-) : SymbolRefAst() {
+) : Ast() {
     lateinit var tti: TerminalTextSignifier
+    lateinit var dotApplySlot: DotApplyAstSymbolSlot
 
     override fun <R> accept(visitor: AstVisitor<R>): R =
         visitor.visit(this)

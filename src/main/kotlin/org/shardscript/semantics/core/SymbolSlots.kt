@@ -26,3 +26,10 @@ data object DotSlotError: DotAstSymbolSlot()
 data class DotSlotField(val payload: FieldSymbol): DotAstSymbolSlot()
 
 data class DotSlotPlatformField(val payload: PlatformFieldSymbol): DotAstSymbolSlot()
+
+sealed class DotApplyAstSymbolSlot
+
+data object DotApplySlotError: DotApplyAstSymbolSlot()
+data class DotApplySlotGF(val payload: GroundFunctionSymbol): DotApplyAstSymbolSlot()
+data class DotApplySlotGMP(val payload: GroundMemberPluginSymbol): DotApplyAstSymbolSlot()
+data class DotApplySlotSI(val payload: SymbolInstantiation): DotApplyAstSymbolSlot()

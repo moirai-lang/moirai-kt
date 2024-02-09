@@ -164,9 +164,18 @@ class CostExpressionAstVisitor(private val architecture: Architecture) : UnitAst
     override fun visit(ast: DotApplyAst) {
         super.visit(ast)
         val argCosts: MutableList<CostExpression> = ArrayList()
-        val multipliers = when (val symbolRef = ast.symbolRef) {
-            is GroundFunctionSymbol -> symbolRef.formalParams.map { it.costMultiplier }
-            is SymbolInstantiation -> {
+        val multipliers = when (val dotApplySlot = ast.dotApplySlot) {
+            DotApplySlotError -> langThrow(NotInSource, TypeSystemBug)
+            is DotApplySlotGF -> {
+                val symbolRef = dotApplySlot.payload
+                symbolRef.formalParams.map { it.costMultiplier }
+            }
+            is DotApplySlotGMP -> {
+                val symbolRef = dotApplySlot.payload
+                symbolRef.formalParams.map { it.costMultiplier }
+            }
+            is DotApplySlotSI -> {
+                val symbolRef = dotApplySlot.payload
                 when (val parameterizedSymbol = symbolRef.substitutionChain.terminus) {
                     is ParameterizedFunctionSymbol -> {
                         parameterizedSymbol.formalParams.map {
@@ -178,16 +187,21 @@ class CostExpressionAstVisitor(private val architecture: Architecture) : UnitAst
                     }
                 }
             }
-            else -> {
-                listOf()
-            }
         }
         multipliers.zip(ast.args).forEach {
             argCosts.add(ProductCostExpression(listOf(it.second.costExpression, it.first)))
         }
-        val bodyCost = when (ast.symbolRef) {
-            is TypePlaceholder -> convertCostExpression(ast.typeRef)
-            else -> convertCostExpression(ast.symbolRef)
+        val bodyCost = when (val dotApplySlot = ast.dotApplySlot) {
+            DotApplySlotError -> langThrow(NotInSource, TypeSystemBug)
+            is DotApplySlotGF -> {
+                convertCostExpression(dotApplySlot.payload)
+            }
+            is DotApplySlotGMP -> {
+                convertCostExpression(dotApplySlot.payload)
+            }
+            is DotApplySlotSI -> {
+                convertCostExpression(dotApplySlot.payload)
+            }
         }
         if (argCosts.isEmpty()) {
             ast.costExpression = addDefault(SumCostExpression(listOf(bodyCost, ast.lhs.costExpression)))

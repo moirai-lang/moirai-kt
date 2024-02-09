@@ -70,19 +70,4 @@ class GenerateFunctionEdgesParameterizedAstVisitor(
             else -> Unit
         }
     }
-
-    override fun visit(ast: DotApplyAst, param: Symbol) {
-        super.visit(ast, param)
-        when (val symbolRef = ast.symbolRef) {
-            is GroundMemberPluginSymbol,
-            is ParameterizedMemberPluginSymbol -> Unit
-            is SymbolInstantiation -> {
-                when (val terminusSymbol = symbolRef.substitutionChain.terminus) {
-                    is ParameterizedMemberPluginSymbol -> Unit
-                    else -> addFunctionEdge(terminusSymbol, param, edges, nodes)
-                }
-            }
-            else -> addFunctionEdge(symbolRef, param, edges, nodes)
-        }
-    }
 }

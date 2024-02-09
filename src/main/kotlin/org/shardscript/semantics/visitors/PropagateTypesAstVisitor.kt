@@ -497,7 +497,10 @@ class PropagateTypesAstVisitor(
         try {
             super.visit(ast)
             when (val lhsType = ast.lhs.readType()) {
-                is ErrorType -> ast.assignType(errors, ErrorType)
+                is ErrorType -> {
+                    ast.dotSlot = DotSlotError
+                    ast.assignType(errors, ErrorType)
+                }
                 is GroundRecordTypeSymbol -> {
                     when (val symbol = lhsType.fetchHere(ast.identifier)) {
                         is FieldSymbol -> {
@@ -506,6 +509,7 @@ class PropagateTypesAstVisitor(
                         }
                         else -> {
                             errors.add(ast.ctx, SymbolIsNotAField(ast.identifier))
+                            ast.dotSlot = DotSlotError
                             ast.assignType(errors, ErrorType)
                         }
                     }
@@ -523,6 +527,7 @@ class PropagateTypesAstVisitor(
 
                                 else -> {
                                     errors.add(ast.ctx, SymbolIsNotAField(ast.identifier))
+                                    ast.dotSlot = DotSlotError
                                     ast.assignType(errors, ErrorType)
                                 }
                             }
@@ -538,6 +543,7 @@ class PropagateTypesAstVisitor(
 
                                 else -> {
                                     errors.add(ast.ctx, SymbolIsNotAField(ast.identifier))
+                                    ast.dotSlot = DotSlotError
                                     ast.assignType(errors, ErrorType)
 
                                 }
@@ -548,11 +554,13 @@ class PropagateTypesAstVisitor(
 
                 else -> {
                     errors.add(ast.ctx, SymbolHasNoFields(ast.identifier, ast.lhs.readType() as Symbol))
+                    ast.dotSlot = DotSlotError
                     ast.assignType(errors, ErrorType)
                 }
             }
         } catch (ex: LanguageException) {
             errors.addAll(ast.ctx, ex.errors)
+            ast.dotSlot = DotSlotError
             ast.assignType(errors, ErrorType)
         }
     }
@@ -607,23 +615,26 @@ class PropagateTypesAstVisitor(
                 }
             }
             when (val lhsType = ast.lhs.readType()) {
-                is ErrorType -> ast.assignType(errors, ErrorType)
+                is ErrorType -> {
+                    ast.dotApplySlot = DotApplySlotError
+                    ast.assignType(errors, ErrorType)
+                }
+
                 is BasicTypeSymbol -> {
                     val member = lhsType.fetchHere(ast.tti)
                     if (member is TypePlaceholder) {
-                        val type = lhsType.fetchTypeHere(ast.tti)
-                        filterValidGroundApply(ast.ctx, errors, type, ast.signifier)
-                        ast.symbolRef = TypePlaceholder
-                        ast.typeRef = type
+                        errors.add(ast.ctx, SymbolCouldNotBeApplied(ast.signifier))
+                        ast.dotApplySlot = DotApplySlotError
+                        ast.assignType(errors, ErrorType)
                     } else {
                         filterValidDotApply(ast.ctx, errors, member, ast.signifier)
                     }
-                    ast.symbolRef = member
                     when (member) {
                         is GroundFunctionSymbol -> {
                             if (ast.signifier is ParameterizedSignifier) {
                                 errors.add(ast.signifier.ctx, SymbolHasNoParameters(ast.signifier))
                             }
+                            ast.dotApplySlot = DotApplySlotGF(member)
                             ast.assignType(errors, member.returnType)
                         }
 
@@ -631,11 +642,13 @@ class PropagateTypesAstVisitor(
                             if (ast.signifier is ParameterizedSignifier) {
                                 errors.add(ast.signifier.ctx, SymbolHasNoParameters(ast.signifier))
                             }
+                            ast.dotApplySlot = DotApplySlotGMP(member)
                             ast.assignType(errors, member.returnType)
                         }
 
                         else -> {
                             errors.add(ast.ctx, SymbolCouldNotBeApplied(ast.signifier))
+                            ast.dotApplySlot = DotApplySlotError
                             ast.assignType(errors, ErrorType)
                         }
                     }
@@ -644,24 +657,24 @@ class PropagateTypesAstVisitor(
                 is GroundRecordTypeSymbol -> {
                     val member = lhsType.fetchHere(ast.tti)
                     if (member is TypePlaceholder) {
-                        val type = lhsType.fetchTypeHere(ast.tti)
-                        filterValidGroundApply(ast.ctx, errors, type, ast.signifier)
-                        ast.symbolRef = TypePlaceholder
-                        ast.typeRef = type
+                        errors.add(ast.ctx, SymbolCouldNotBeApplied(ast.signifier))
+                        ast.dotApplySlot = DotApplySlotError
+                        ast.assignType(errors, ErrorType)
                     } else {
                         filterValidDotApply(ast.ctx, errors, member, ast.signifier)
                     }
-                    ast.symbolRef = member
                     when (member) {
                         is GroundMemberPluginSymbol -> {
                             if (ast.signifier is ParameterizedSignifier) {
                                 errors.add(ast.signifier.ctx, SymbolHasNoParameters(ast.signifier))
                             }
+                            ast.dotApplySlot = DotApplySlotGMP(member)
                             ast.assignType(errors, member.returnType)
                         }
 
                         else -> {
                             errors.add(ast.ctx, SymbolCouldNotBeApplied(ast.signifier))
+                            ast.dotApplySlot = DotApplySlotError
                             ast.assignType(errors, ErrorType)
                         }
                     }
@@ -670,24 +683,24 @@ class PropagateTypesAstVisitor(
                 is PlatformObjectSymbol -> {
                     val member = lhsType.fetchHere(ast.tti)
                     if (member is TypePlaceholder) {
-                        val type = lhsType.fetchTypeHere(ast.tti)
-                        filterValidGroundApply(ast.ctx, errors, type, ast.signifier)
-                        ast.symbolRef = TypePlaceholder
-                        ast.typeRef = type
+                        errors.add(ast.ctx, SymbolCouldNotBeApplied(ast.signifier))
+                        ast.dotApplySlot = DotApplySlotError
+                        ast.assignType(errors, ErrorType)
                     } else {
                         filterValidDotApply(ast.ctx, errors, member, ast.signifier)
                     }
-                    ast.symbolRef = member
                     when (member) {
                         is GroundMemberPluginSymbol -> {
                             if (ast.signifier is ParameterizedSignifier) {
                                 errors.add(ast.signifier.ctx, SymbolHasNoParameters(ast.signifier))
                             }
+                            ast.dotApplySlot = DotApplySlotGMP(member)
                             ast.assignType(errors, member.returnType)
                         }
 
                         else -> {
                             errors.add(ast.ctx, SymbolCouldNotBeApplied(ast.signifier))
+                            ast.dotApplySlot = DotApplySlotError
                             ast.assignType(errors, ErrorType)
                         }
                     }
@@ -705,8 +718,8 @@ class PropagateTypesAstVisitor(
                                     if (ast.signifier is ParameterizedSignifier) {
                                         errors.add(ast.signifier.ctx, SymbolHasNoParameters(ast.signifier))
                                     }
-                                    ast.symbolRef = member
                                     filterValidDotApply(ast.ctx, errors, member, ast.signifier)
+                                    ast.dotApplySlot = DotApplySlotGMP(member)
                                     ast.assignType(errors, member.returnType)
                                 }
 
@@ -720,7 +733,7 @@ class PropagateTypesAstVisitor(
                                         lhsType,
                                         listOf()
                                     )
-                                    ast.symbolRef = instantiation
+                                    ast.dotApplySlot = DotApplySlotSI(instantiation)
                                     filterValidDotApply(ast.ctx, errors, instantiation, ast.signifier)
                                     val returnType =
                                         instantiation.substitutionChain.replay(member.returnType)
@@ -729,11 +742,13 @@ class PropagateTypesAstVisitor(
 
                                 is ParameterizedStaticPluginSymbol -> {
                                     errors.add(ast.ctx, TypeSystemBug)
+                                    ast.dotApplySlot = DotApplySlotError
                                     ast.assignType(errors, ErrorType)
                                 }
 
                                 else -> {
                                     errors.add(ast.ctx, SymbolCouldNotBeApplied(ast.signifier))
+                                    ast.dotApplySlot = DotApplySlotError
                                     ast.assignType(errors, ErrorType)
                                 }
                             }
@@ -742,17 +757,18 @@ class PropagateTypesAstVisitor(
                         is ParameterizedRecordTypeSymbol -> {
                             val member = parameterizedSymbol.fetchHere(ast.tti)
                             filterValidDotApply(ast.ctx, errors, member, ast.signifier)
-                            ast.symbolRef = member
                             when (member) {
                                 is GroundMemberPluginSymbol -> {
                                     if (ast.signifier is ParameterizedSignifier) {
                                         errors.add(ast.signifier.ctx, SymbolHasNoParameters(ast.signifier))
                                     }
+                                    ast.dotApplySlot = DotApplySlotGMP(member)
                                     ast.assignType(errors, member.returnType)
                                 }
 
                                 else -> {
                                     errors.add(ast.ctx, SymbolCouldNotBeApplied(ast.signifier))
+                                    ast.dotApplySlot = DotApplySlotError
                                     ast.assignType(errors, ErrorType)
                                 }
                             }
@@ -762,11 +778,13 @@ class PropagateTypesAstVisitor(
 
                 else -> {
                     errors.add(ast.ctx, SymbolHasNoMembers(ast.signifier, ast.lhs.readType() as Symbol))
+                    ast.dotApplySlot = DotApplySlotError
                     ast.assignType(errors, ErrorType)
                 }
             }
         } catch (ex: LanguageException) {
             errors.addAll(ast.ctx, ex.errors)
+            ast.dotApplySlot = DotApplySlotError
             ast.assignType(errors, ErrorType)
         }
     }
