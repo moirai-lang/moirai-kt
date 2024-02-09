@@ -1,14 +1,16 @@
 package org.shardscript.eval
 
 import org.shardscript.semantics.core.*
+import org.shardscript.semantics.infer.Substitution
+import org.shardscript.semantics.infer.SubstitutionChain
 import org.shardscript.semantics.prelude.Lang
 
-data class EvalContext(val values: ValueTable, val substitutions: Map<Type, Type>)
+data class EvalContext(val values: ValueTable, val substitutions: Map<TypeParameter, Type>)
 
 class EvalAstVisitor(architecture: Architecture, private val globalScope: ValueTable) : ParameterizedAstVisitor<EvalContext, Value> {
     private val evalCostVisitor = EvalCostExpressionVisitor(architecture)
 
-    fun invoke(functionValue: FunctionValue, args: List<Value>, substitutions: Map<Type, Type>): Value {
+    fun invoke(functionValue: FunctionValue, args: List<Value>, substitutions: Map<TypeParameter, Type>): Value {
         val functionScope = ValueTable(globalScope)
         functionValue.formalParams.zip(args).forEach {
             functionScope.define(it.first.identifier, it.second)
@@ -16,7 +18,7 @@ class EvalAstVisitor(architecture: Architecture, private val globalScope: ValueT
         return functionValue.body.accept(this, EvalContext(functionScope, substitutions))
     }
 
-    private fun computeFin(typeParameter: FinTypeParameter, substitutions: Map<Type, Type>): Long {
+    private fun computeFin(typeParameter: FinTypeParameter, substitutions: Map<TypeParameter, Type>): Long {
         if (substitutions.containsKey(typeParameter)) {
             val mapped = substitutions[typeParameter]!!
             if (mapped is CostExpression && mapped.accept(CanEvalCostExpressionVisitor)) {
@@ -27,6 +29,23 @@ class EvalAstVisitor(architecture: Architecture, private val globalScope: ValueT
         } else {
             langThrow(NotInSource, RuntimeCostExpressionEvalFailed)
         }
+    }
+
+    private fun createSubstitutions(
+        substitutions: Map<TypeParameter, Type>,
+        substitutionChain: SubstitutionChain<RawTerminusSymbol>
+    ): Map<TypeParameter, Type> {
+        if (substitutions.isEmpty()) {
+            return substitutions
+        }
+
+        val entries = substitutions.entries.toList()
+        val params = entries.map { it.key }
+        val args = entries.map { it.value }
+        val extendedSub = Substitution(params, args)
+        val extendedChain = SubstitutionChain(extendedSub, substitutionChain)
+        val replayed = extendedChain.replayArgs()
+        return substitutionChain.terminus.typeParams.zip(replayed).toMap()
     }
 
     override fun visit(ast: FileAst, param: EvalContext): Value {
@@ -171,8 +190,9 @@ class EvalAstVisitor(architecture: Architecture, private val globalScope: ValueT
                 val args = ast.args.map { it.accept(this, param) }
                 when (val terminus = groundApplySlot.payload.substitutionChain.terminus) {
                     is ParameterizedFunctionSymbol -> {
+                        val substitutions = createSubstitutions(param.substitutions, groundApplySlot.payload.substitutionChain)
                         val toApply = FunctionValue(terminus.formalParams, terminus.body)
-                        invoke(toApply, args, param.substitutions)
+                        invoke(toApply, args, substitutions)
                     }
                     is ParameterizedMemberPluginSymbol -> langThrow(NotInSource, TypeSystemBug)
                     is ParameterizedStaticPluginSymbol -> Plugins.staticPlugins[terminus]!!.invoke(args)
@@ -185,7 +205,7 @@ class EvalAstVisitor(architecture: Architecture, private val globalScope: ValueT
                         when (terminus.identifier) {
                             Lang.listId, Lang.mutableListId -> {
                                 val replayedTypeArgs = groundApplySlot.payload.substitutionChain.replayArgs()
-                                val substitutions = terminus.typeParams.zip(replayedTypeArgs).toMap<Type, Type>()
+                                val substitutions = terminus.typeParams.zip(replayedTypeArgs).toMap()
                                 ListValue(
                                     args.toMutableList(),
                                     substitutions,
@@ -204,7 +224,7 @@ class EvalAstVisitor(architecture: Architecture, private val globalScope: ValueT
                                     )
                                 }
                                 val replayedTypeArgs = groundApplySlot.payload.substitutionChain.replayArgs()
-                                val substitutions = terminus.typeParams.zip(replayedTypeArgs).toMap<Type, Type>()
+                                val substitutions = terminus.typeParams.zip(replayedTypeArgs).toMap()
                                 DictionaryValue(
                                     pairs.toMap().toMutableMap(),
                                     substitutions,
@@ -215,7 +235,7 @@ class EvalAstVisitor(architecture: Architecture, private val globalScope: ValueT
 
                             Lang.setId, Lang.mutableSetId -> {
                                 val replayedTypeArgs = groundApplySlot.payload.substitutionChain.replayArgs()
-                                val substitutions = terminus.typeParams.zip(replayedTypeArgs).toMap<Type, Type>()
+                                val substitutions = terminus.typeParams.zip(replayedTypeArgs).toMap()
                                 SetValue(
                                     args.toMutableSet(),
                                     substitutions,
@@ -233,7 +253,7 @@ class EvalAstVisitor(architecture: Architecture, private val globalScope: ValueT
                             fields.define(it.first.identifier, it.second)
                         }
                         val replayedTypeArgs = groundApplySlot.payload.substitutionChain.replayArgs()
-                        val substitutions = terminus.typeParams.zip(replayedTypeArgs).toMap<Type, Type>()
+                        val substitutions = terminus.typeParams.zip(replayedTypeArgs).toMap()
                         val res = RecordValue(groundApplySlot.payload, fields, substitutions)
                         res.scope = terminus
                         res

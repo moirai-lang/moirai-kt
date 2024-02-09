@@ -42,7 +42,7 @@ data class FunctionValue(
     val body: Ast
 ) : Value()
 
-class RecordValue(type: Type, val fields: ValueTable, val substitutions: Map<Type, Type>) : Value() {
+class RecordValue(type: Type, val fields: ValueTable, val substitutions: Map<TypeParameter, Type>) : Value() {
     lateinit var scope: Scope
     val path = getQualifiedName(type)
 
@@ -192,7 +192,7 @@ data class StringValue(val canonicalForm: String) : Value(), EqualityValue {
 
 data class ListValue(
     val elements: MutableList<Value>,
-    val substitutions: Map<Type, Type>,
+    val substitutions: Map<TypeParameter, Type>,
     val fin: Long,
     val mutable: Boolean
 ) : Value(), EqualityValue {
@@ -277,7 +277,7 @@ data class ListValue(
 
 data class SetValue(
     val elements: MutableSet<Value>,
-    val substitutions: Map<Type, Type>,
+    val substitutions: Map<TypeParameter, Type>,
     val fin: Long,
     val mutable: Boolean
 ) : Value(), EqualityValue {
@@ -340,7 +340,7 @@ data class SetValue(
 
 data class DictionaryValue(
     val dictionary: MutableMap<Value, Value>,
-    val substitutions: Map<Type, Type>,
+    val substitutions: Map<TypeParameter, Type>,
     val fin: Long,
     val mutable: Boolean
 ) : Value(), EqualityValue {

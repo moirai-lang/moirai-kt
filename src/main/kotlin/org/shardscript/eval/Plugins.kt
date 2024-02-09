@@ -243,7 +243,7 @@ object Plugins {
                     IntValue(it)
                 }.toMutableList()
                 val fin = list.size.toLong()
-                val substitutions = mapOf<Type, Type>(Lang.listFinTypeParam to Fin(fin))
+                val substitutions = mapOf<TypeParameter, Type>(Lang.listFinTypeParam to Fin(fin))
                 ListValue(list, substitutions, fin, false)
             } else {
                 val lowerBound = originalUpperBound.canonicalForm + 1
@@ -253,7 +253,7 @@ object Plugins {
                 }.toMutableList()
                 list.reverse()
                 val fin = list.size.toLong()
-                val substitutions = mapOf<Type, Type>(Lang.listFinTypeParam to Fin(fin))
+                val substitutions = mapOf<TypeParameter, Type>(Lang.listFinTypeParam to Fin(fin))
                 ListValue(list, substitutions, fin, false)
             }
         },
