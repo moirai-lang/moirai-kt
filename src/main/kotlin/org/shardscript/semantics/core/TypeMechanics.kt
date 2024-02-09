@@ -738,48 +738,53 @@ private fun handleSumType(
     sumPath: String,
     ctx: SourceContext,
     errors: LanguageErrors
-) = if(types.any {
-    (it is TypeInstantiation && it.substitutionChain.terminus is PlatformSumRecordType && sumPath == getQualifiedName(
-        it.substitutionChain.terminus.sumType
-    )) || (it is TypeInstantiation && it.substitutionChain.terminus is PlatformSumType && sumPath == getQualifiedName(
-        it.substitutionChain.terminus
-    ))
-}) {
-    if (types.all {
-            it is PlatformSumObjectType && sumPath == getQualifiedName(it.sumType) ||
-                    (it is TypeInstantiation && it.substitutionChain.terminus is PlatformSumRecordType && sumPath == getQualifiedName(
-                        it.substitutionChain.terminus.sumType
-                    )) || (it is TypeInstantiation && it.substitutionChain.terminus is PlatformSumType && sumPath == getQualifiedName(
-                it.substitutionChain.terminus
-            ))
-        }) {
-        // We know that we have nothing but objects and instantiations of compatible sum types
-        val instantiations = types.filterIsInstance<TypeInstantiation>()
-        val firstTerminus = instantiations.first().substitutionChain.terminus
-        val sumType = if (firstTerminus is PlatformSumType) {
-            firstTerminus
+): Type {
+    return if (types.any { isCorrectSumRecord(it, sumPath) || isCorrectSumType(it, sumPath) }) {
+        if (types.all {
+                it is PlatformSumObjectType && sumPath == getQualifiedName(it.sumType) || isCorrectSumRecord(
+                    it,
+                    sumPath
+                ) || isCorrectSumType(it, sumPath)
+            }) {
+            // We know that we have nothing but objects and instantiations of compatible sum types
+            val instantiations = types.filterIsInstance<TypeInstantiation>()
+            val firstTerminus = instantiations.first().substitutionChain.terminus
+            val sumType = if (firstTerminus is PlatformSumType) {
+                firstTerminus
+            } else {
+                (firstTerminus as PlatformSumRecordType).sumType
+            }
+
+            val typeArgs = transpose(instantiations.map {
+                it.substitutionChain.replayArgs()
+            }).map {
+                findBestType(ctx, errors, it)
+            }
+            val substitution = Substitution(sumType.typeParams, typeArgs)
+            substitution.apply(sumType)
+
+            errors.add(ctx, CannotFindBestType(types))
+            ErrorType
         } else {
-            (firstTerminus as PlatformSumRecordType).sumType
+            errors.add(ctx, CannotFindBestType(types))
+            ErrorType
         }
-
-        val typeArgs = transpose(instantiations.map {
-            it.substitutionChain.replayArgs()
-        }).map {
-            findBestType(ctx, errors, it)
-        }
-        val substitution = Substitution(sumType.typeParams, typeArgs)
-        substitution.apply(sumType)
-
-        errors.add(ctx, CannotFindBestType(types))
-        ErrorType
     } else {
         errors.add(ctx, CannotFindBestType(types))
         ErrorType
     }
-} else {
-    errors.add(ctx, CannotFindBestType(types))
-    ErrorType
 }
+
+private fun isCorrectSumType(it: Type, sumPath: String): Boolean =
+    it is TypeInstantiation && it.substitutionChain.terminus is PlatformSumType && sumPath == getQualifiedName(
+        it.substitutionChain.terminus
+    )
+
+private fun isCorrectSumRecord(
+    it: Type,
+    sumPath: String
+): Boolean = it is TypeInstantiation && it.substitutionChain.terminus is PlatformSumRecordType &&
+        sumPath == getQualifiedName(it.substitutionChain.terminus.sumType)
 
 fun validateSubstitution(
     ctx: SourceContext,
