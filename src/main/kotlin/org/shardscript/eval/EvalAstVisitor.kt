@@ -23,7 +23,16 @@ class EvalAstVisitor(private val globalScope: ValueTable) : ParameterizedAstVisi
     }
 
     override fun visit(ast: RefAst, param: ValueTable): Value {
-        return param.fetch(ast.identifier)
+        return when (val refSlot = ast.refSlot) {
+            is RefSlotObject -> ObjectValue(refSlot.payload)
+            is RefSlotPlatformObject -> if (refSlot.payload.identifier == Lang.unitId) {
+                UnitValue
+            } else {
+                langThrow(NotInSource, TypeSystemBug)
+            }
+
+            else -> param.fetch(ast.identifier)
+        }
     }
 
     override fun visit(ast: IntLiteralAst, param: ValueTable): Value =
@@ -146,8 +155,8 @@ class EvalAstVisitor(private val globalScope: ValueTable) : ParameterizedAstVisi
                             a.accept(this, v)
                         }
                     }
-                    is ParameterizedMemberPluginSymbol,
-                    is ParameterizedStaticPluginSymbol -> langThrow(NotInSource, TypeSystemBug)
+                    is ParameterizedMemberPluginSymbol -> langThrow(NotInSource, TypeSystemBug)
+                    is ParameterizedStaticPluginSymbol -> Plugins.staticPlugins[terminus]!!.invoke(args)
                 }
             }
             is GroundApplySlotTI -> {
