@@ -76,16 +76,28 @@ class EvalAstVisitor(private val globalScope: ValueTable) : ParameterizedAstVisi
                 lhs.fields.fetch(ast.identifier)
             }
             is ListValue -> {
-                Plugins.fields[ast.symbolRef as PlatformFieldSymbol]!!.invoke(lhs)
+                when (val dotSlot = ast.dotSlot) {
+                    is DotSlotPlatformField -> Plugins.fields[dotSlot.payload]!!.invoke(lhs)
+                    else -> langThrow(ast.ctx, TypeSystemBug)
+                }
             }
             is DictionaryValue -> {
-                Plugins.fields[ast.symbolRef as PlatformFieldSymbol]!!.invoke(lhs)
+                when (val dotSlot = ast.dotSlot) {
+                    is DotSlotPlatformField -> Plugins.fields[dotSlot.payload]!!.invoke(lhs)
+                    else -> langThrow(ast.ctx, TypeSystemBug)
+                }
             }
             is SetValue -> {
-                Plugins.fields[ast.symbolRef as PlatformFieldSymbol]!!.invoke(lhs)
+                when (val dotSlot = ast.dotSlot) {
+                    is DotSlotPlatformField -> Plugins.fields[dotSlot.payload]!!.invoke(lhs)
+                    else -> langThrow(ast.ctx, TypeSystemBug)
+                }
             }
             is StringValue -> {
-                Plugins.fields[ast.symbolRef as PlatformFieldSymbol]!!.invoke(lhs)
+                when (val dotSlot = ast.dotSlot) {
+                    is DotSlotPlatformField -> Plugins.fields[dotSlot.payload]!!.invoke(lhs)
+                    else -> langThrow(ast.ctx, TypeSystemBug)
+                }
             }
             else -> {
                 langThrow(ast.ctx, TypeSystemBug)
@@ -105,16 +117,22 @@ class EvalAstVisitor(private val globalScope: ValueTable) : ParameterizedAstVisi
                 toApply.apply(args)
             }
             is ListConstructorValue -> {
-                val instantiation = ast.typeRef as TypeInstantiation
-                toApply.apply(instantiation.substitutionChain.replayArgs(), args)
+                when (val groundApplySlot = ast.groundApplySlot) {
+                    is GroundApplySlotTI -> toApply.apply(groundApplySlot.payload.substitutionChain.replayArgs(), args)
+                    else -> langThrow(ast.ctx, TypeSystemBug)
+                }
             }
             is SetConstructorValue -> {
-                val instantiation = ast.typeRef as TypeInstantiation
-                toApply.apply(instantiation.substitutionChain.replayArgs(), args)
+                when (val groundApplySlot = ast.groundApplySlot) {
+                    is GroundApplySlotTI -> toApply.apply(groundApplySlot.payload.substitutionChain.replayArgs(), args)
+                    else -> langThrow(ast.ctx, TypeSystemBug)
+                }
             }
             is DictionaryConstructorValue -> {
-                val instantiation = ast.typeRef as TypeInstantiation
-                toApply.apply(instantiation.substitutionChain.replayArgs(), args)
+                when (val groundApplySlot = ast.groundApplySlot) {
+                    is GroundApplySlotTI -> toApply.apply(groundApplySlot.payload.substitutionChain.replayArgs(), args)
+                    else -> langThrow(ast.ctx, TypeSystemBug)
+                }
             }
             is PluginValue -> {
                 toApply.invoke(args)
@@ -129,11 +147,30 @@ class EvalAstVisitor(private val globalScope: ValueTable) : ParameterizedAstVisi
         val args = ast.args.map { it.accept(this, param) }
         try {
             val lhs = ast.lhs.accept(this, param)
-            when (val toApply = ast.symbolRef) {
-                is GroundMemberPluginSymbol -> {
+            when (val dotApplySlot = ast.dotApplySlot) {
+                DotApplySlotError -> langThrow(ast.ctx, TypeSystemBug)
+                is DotApplySlotGF -> {
+                    val toApply = dotApplySlot.payload
+                    when (lhs) {
+                        is RecordValue -> {
+                            val functionScope = ValueTable(lhs.fields)
+                            val function = toApply.body
+                            toApply.formalParams.zip(args).forEach {
+                                functionScope.define(it.first.identifier, it.second)
+                            }
+                            return function.accept(this, functionScope)
+                        }
+                        else -> {
+                            langThrow(ast.ctx, TypeSystemBug)
+                        }
+                    }
+                }
+                is DotApplySlotGMP -> {
+                    val toApply = dotApplySlot.payload
                     return Plugins.groundMemberPlugins[toApply]!!.invoke(lhs, args)
                 }
-                is SymbolInstantiation -> {
+                is DotApplySlotSI -> {
+                    val toApply = dotApplySlot.payload
                     when (val parameterizedType = toApply.substitutionChain.terminus) {
                         is ParameterizedFunctionSymbol -> {
                             when (lhs) {
@@ -155,27 +192,6 @@ class EvalAstVisitor(private val globalScope: ValueTable) : ParameterizedAstVisi
                         }
                         else -> langThrow(ast.ctx, TypeSystemBug)
                     }
-                }
-                is ParameterizedStaticPluginSymbol -> {
-                    langThrow(ast.ctx, TypeSystemBug)
-                }
-                is GroundFunctionSymbol -> {
-                    when (lhs) {
-                        is RecordValue -> {
-                            val functionScope = ValueTable(lhs.fields)
-                            val function = toApply.body
-                            toApply.formalParams.zip(args).forEach {
-                                functionScope.define(it.first.identifier, it.second)
-                            }
-                            return function.accept(this, functionScope)
-                        }
-                        else -> {
-                            langThrow(ast.ctx, TypeSystemBug)
-                        }
-                    }
-                }
-                else -> {
-                    langThrow(ast.ctx, TypeSystemBug)
                 }
             }
         } catch (ex: ArithmeticException) {

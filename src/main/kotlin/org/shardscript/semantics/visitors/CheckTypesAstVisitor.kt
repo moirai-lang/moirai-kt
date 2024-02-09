@@ -61,7 +61,7 @@ class CheckTypesAstVisitor(private val prelude: Scope) : UnitAstVisitor() {
     override fun visit(ast: GroundApplyAst) {
         try {
             super.visit(ast)
-            checkApply(prelude, errors, ast)
+            checkApply(prelude, errors, ast, ast.args)
         } catch (ex: LanguageException) {
             errors.addAll(ast.ctx, ex.errors)
         }
@@ -88,8 +88,9 @@ class CheckTypesAstVisitor(private val prelude: Scope) : UnitAstVisitor() {
     override fun visit(ast: AssignAst) {
         try {
             super.visit(ast)
-            when (val symbolRef = ast.symbolRef) {
-                is LocalVariableSymbol -> {
+            when (val assignSlot = ast.assignSlot) {
+                is AssignSlotLVS -> {
+                    val symbolRef = assignSlot.payload
                     if (!symbolRef.mutable) {
                         errors.add(ast.ctx, ImmutableAssign(symbolRef))
                     }
@@ -107,13 +108,15 @@ class CheckTypesAstVisitor(private val prelude: Scope) : UnitAstVisitor() {
     override fun visit(ast: DotAssignAst) {
         try {
             super.visit(ast)
-            when(val symbolRef = ast.symbolRef) {
-                is FieldSymbol -> {
+            when (val dotAssignSlot = ast.dotAssignSlot) {
+                is DotAssignSlotField -> {
+                    val symbolRef = dotAssignSlot.payload
                     if (!symbolRef.mutable) {
                         errors.add(ast.ctx, ImmutableAssign(symbolRef))
                     }
                     checkTypes(ast.ctx, prelude, errors, symbolRef.ofTypeSymbol, ast.rhs.readType())
                 }
+
                 else -> {
                     errors.add(ast.ctx, SymbolIsNotAField(ast.identifier))
                 }

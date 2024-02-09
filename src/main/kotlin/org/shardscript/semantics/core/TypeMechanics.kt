@@ -133,19 +133,21 @@ fun filterValidDotApply(
 ): Symbol =
     when (symbol) {
         is GroundFunctionSymbol,
-        is GroundMemberPluginSymbol,
-        is ParameterizedStaticPluginSymbol,
-        is ParameterizedFunctionSymbol -> symbol
+        is GroundMemberPluginSymbol -> symbol
 
         is SymbolInstantiation -> {
             when (symbol.substitutionChain.terminus) {
-                is ParameterizedStaticPluginSymbol,
-                is ParameterizedFunctionSymbol,
                 is ParameterizedMemberPluginSymbol -> {
                     symbol.substitutionChain.terminus.typeParams.forEach {
                         validateSubstitution(ctx, errors, it, symbol.substitutionChain.replay(it))
                     }
                     symbol
+                }
+
+                is ParameterizedStaticPluginSymbol,
+                is ParameterizedFunctionSymbol -> {
+                    errors.add(ctx, SymbolCouldNotBeApplied(signifier))
+                    ErrorSymbol
                 }
             }
         }
@@ -157,7 +159,9 @@ fun filterValidDotApply(
         is FieldSymbol,
         is PlatformFieldSymbol,
         is LambdaSymbol,
-        is LocalVariableSymbol -> {
+        is LocalVariableSymbol,
+        is ParameterizedStaticPluginSymbol,
+        is ParameterizedFunctionSymbol -> {
             errors.add(ctx, SymbolCouldNotBeApplied(signifier))
             ErrorSymbol
         }
@@ -323,68 +327,26 @@ fun checkTypes(
     }
 }
 
-fun checkApply(prelude: Scope, errors: LanguageErrors, ast: ApplyAst) {
-    when (val symbol = ast.symbolRef) {
-        is TypePlaceholder -> {
-            when (val type = ast.typeRef) {
-                is GroundRecordTypeSymbol -> {
-                    checkArgs(prelude, errors, type, ast)
-                }
-
-                is TypeInstantiation -> {
-                    when (val parameterizedSymbol = type.substitutionChain.terminus) {
-                        is ParameterizedRecordTypeSymbol -> {
-                            checkArgs(prelude, errors, type, parameterizedSymbol, ast)
-                        }
-
-                        is ParameterizedBasicTypeSymbol -> {
-                            checkArgs(prelude, errors, type, parameterizedSymbol, ast)
-                        }
-                    }
-                }
-
-                is BasicTypeSymbol,
-                ConstantFinTypeSymbol,
-                is FinTypeSymbol,
-                is ImmutableFinTypeParameter,
-                is MaxCostExpression,
-                is MutableFinTypeParameter,
-                is ProductCostExpression,
-                is SumCostExpression,
-                ErrorType,
-                is FunctionTypeSymbol,
-                is ObjectSymbol,
-                is PlatformObjectSymbol,
-                is StandardTypeParameter,
-                is ParameterizedBasicTypeSymbol,
-                is ParameterizedRecordTypeSymbol -> errors.add(ast.ctx, TypeSystemBug)
-            }
+fun checkApply(prelude: Scope, errors: LanguageErrors, ast: DotApplyAst) {
+    when (val dotApplySlot = ast.dotApplySlot) {
+        is DotApplySlotGF -> {
+            checkArgs(prelude, errors, dotApplySlot.payload.type(), ast, ast.args)
         }
 
-        is GroundFunctionSymbol -> {
-            checkArgs(prelude, errors, symbol.type(), ast)
+        is DotApplySlotGMP -> {
+            checkArgs(prelude, errors, dotApplySlot.payload.type(), ast, ast.args)
         }
 
-        is FunctionFormalParameterSymbol -> when (val ofTypeSymbol = symbol.ofTypeSymbol) {
-            is FunctionTypeSymbol -> {
-                checkArgs(prelude, errors, ofTypeSymbol, ast)
-            }
-
-            else -> errors.add(ast.ctx, TypeSystemBug)
-        }
-
-        is GroundMemberPluginSymbol -> {
-            checkArgs(prelude, errors, symbol.type(), ast)
-        }
-
-        is SymbolInstantiation -> {
+        is DotApplySlotSI -> {
+            val symbol = dotApplySlot.payload
             when (val parameterizedSymbol = symbol.substitutionChain.terminus) {
                 is ParameterizedMemberPluginSymbol -> {
                     checkArgs(
                         prelude,
                         errors,
                         symbol.substitutionChain.replay(parameterizedSymbol.type()),
-                        ast
+                        ast,
+                        ast.args
                     )
                 }
 
@@ -393,7 +355,8 @@ fun checkApply(prelude: Scope, errors: LanguageErrors, ast: ApplyAst) {
                         prelude,
                         errors,
                         symbol.substitutionChain.replay(parameterizedSymbol.type()),
-                        ast
+                        ast,
+                        ast.args
                     )
                 }
 
@@ -402,32 +365,107 @@ fun checkApply(prelude: Scope, errors: LanguageErrors, ast: ApplyAst) {
                         prelude,
                         errors,
                         symbol.substitutionChain.replay(parameterizedSymbol.type()),
-                        ast
+                        ast,
+                        ast.args
                     )
                 }
             }
         }
 
-        else -> errors.add(ast.ctx, TypeSystemBug)
+        else -> Unit
     }
 }
 
-fun checkArgs(prelude: Scope, errors: LanguageErrors, type: FunctionTypeSymbol, ast: ApplyAst) {
-    if (type.formalParamTypes.size != ast.args.size) {
-        errors.add(ast.ctx, IncorrectNumberOfArgs(type.formalParamTypes.size, ast.args.size))
+fun checkApply(prelude: Scope, errors: LanguageErrors, ast: GroundApplyAst, args: List<Ast>) {
+    when (val groundApplySlot = ast.groundApplySlot) {
+        GroundApplySlotError -> langThrow(NotInSource, TypeSystemBug)
+        is GroundApplySlotFormal -> {
+            val symbol = groundApplySlot.payload
+            when (val ofTypeSymbol = symbol.ofTypeSymbol) {
+                is FunctionTypeSymbol -> {
+                    checkArgs(prelude, errors, ofTypeSymbol, ast, args)
+                }
+
+                else -> errors.add(ast.ctx, TypeSystemBug)
+            }
+        }
+
+        is GroundApplySlotGF -> {
+            val symbol = groundApplySlot.payload
+            checkArgs(prelude, errors, symbol.type(), ast, args)
+        }
+
+        is GroundApplySlotGRT -> {
+            val type = groundApplySlot.payload
+            checkArgs(prelude, errors, type, ast, args)
+        }
+
+        is GroundApplySlotSI -> {
+            val symbol = groundApplySlot.payload
+            when (val parameterizedSymbol = symbol.substitutionChain.terminus) {
+                is ParameterizedMemberPluginSymbol -> {
+                    checkArgs(
+                        prelude,
+                        errors,
+                        symbol.substitutionChain.replay(parameterizedSymbol.type()),
+                        ast,
+                        args
+                    )
+                }
+
+                is ParameterizedFunctionSymbol -> {
+                    checkArgs(
+                        prelude,
+                        errors,
+                        symbol.substitutionChain.replay(parameterizedSymbol.type()),
+                        ast,
+                        args
+                    )
+                }
+
+                is ParameterizedStaticPluginSymbol -> {
+                    checkArgs(
+                        prelude,
+                        errors,
+                        symbol.substitutionChain.replay(parameterizedSymbol.type()),
+                        ast,
+                        args
+                    )
+                }
+            }
+        }
+
+        is GroundApplySlotTI -> {
+            val type = groundApplySlot.payload
+            when (val parameterizedSymbol = type.substitutionChain.terminus) {
+                is ParameterizedRecordTypeSymbol -> {
+                    checkArgs(prelude, errors, type, parameterizedSymbol, ast, args)
+                }
+
+                is ParameterizedBasicTypeSymbol -> {
+                    checkArgs(prelude, errors, type, parameterizedSymbol, args)
+                }
+            }
+        }
+    }
+}
+
+fun checkArgs(prelude: Scope, errors: LanguageErrors, type: FunctionTypeSymbol, ast: Ast, args: List<Ast>) {
+    if (type.formalParamTypes.size != args.size) {
+        errors.add(ast.ctx, IncorrectNumberOfArgs(type.formalParamTypes.size, args.size))
     } else {
-        type.formalParamTypes.zip(ast.args).forEach {
+        type.formalParamTypes.zip(args).forEach {
             checkTypes(it.second.ctx, prelude, errors, it.first, it.second.readType())
         }
         checkTypes(ast.ctx, prelude, errors, type.returnType, ast.readType())
     }
 }
 
-fun checkArgs(prelude: Scope, errors: LanguageErrors, type: GroundRecordTypeSymbol, ast: ApplyAst) {
-    if (type.fields.size != ast.args.size) {
-        errors.add(ast.ctx, IncorrectNumberOfArgs(type.fields.size, ast.args.size))
+fun checkArgs(prelude: Scope, errors: LanguageErrors, type: GroundRecordTypeSymbol, ast: Ast, args: List<Ast>) {
+    if (type.fields.size != args.size) {
+        errors.add(ast.ctx, IncorrectNumberOfArgs(type.fields.size, args.size))
     } else {
-        type.fields.zip(ast.args).forEach {
+        type.fields.zip(args).forEach {
             checkTypes(it.second.ctx, prelude, errors, it.first.ofTypeSymbol, it.second.readType())
         }
     }
@@ -438,12 +476,13 @@ fun checkArgs(
     errors: LanguageErrors,
     instantiation: TypeInstantiation,
     parameterizedType: ParameterizedRecordTypeSymbol,
-    ast: ApplyAst
+    ast: Ast,
+    args: List<Ast>
 ) {
-    if (parameterizedType.fields.size != ast.args.size) {
-        errors.add(ast.ctx, IncorrectNumberOfArgs(parameterizedType.fields.size, ast.args.size))
+    if (parameterizedType.fields.size != args.size) {
+        errors.add(ast.ctx, IncorrectNumberOfArgs(parameterizedType.fields.size, args.size))
     } else {
-        parameterizedType.fields.zip(ast.args).forEach {
+        parameterizedType.fields.zip(args).forEach {
             val ofTypeSymbol = instantiation.substitutionChain.replay(it.first.ofTypeSymbol)
             checkTypes(it.second.ctx, prelude, errors, ofTypeSymbol, it.second.readType())
         }
@@ -455,7 +494,7 @@ fun checkArgs(
     errors: LanguageErrors,
     instantiation: TypeInstantiation,
     parameterizedType: ParameterizedBasicTypeSymbol,
-    ast: ApplyAst
+    args: List<Ast>
 ) {
     if (parameterizedType.identifier == Lang.dictionaryId || parameterizedType.identifier == Lang.mutableDictionaryId) {
         val pairType = prelude.fetchType(Lang.pairId) as ParameterizedRecordTypeSymbol
@@ -467,11 +506,11 @@ fun checkArgs(
             )
         )
         val pairInstantiation = pairSubstitution.apply(pairType)
-        ast.args.forEach {
+        args.forEach {
             checkTypes(it.ctx, prelude, errors, pairInstantiation, it.readType())
         }
     } else {
-        ast.args.forEach {
+        args.forEach {
             checkTypes(
                 it.ctx,
                 prelude,

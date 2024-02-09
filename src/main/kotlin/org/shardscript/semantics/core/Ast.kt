@@ -19,17 +19,8 @@ sealed class Ast : LanguageElement {
     abstract fun <P, R> accept(visitor: ParameterizedAstVisitor<P, R>, param: P): R
 }
 
-sealed class SymbolRefAst : Ast() {
-    lateinit var symbolRef: Symbol
-    var typeRef: Type = ErrorType
-}
-
 sealed class DefinitionAst : Ast() {
     lateinit var definitionSpace: Scope
-}
-
-sealed class ApplyAst : SymbolRefAst() {
-    abstract val args: List<Ast>
 }
 
 data class IntLiteralAst(override val ctx: SourceContext, val canonicalForm: Int) : Ast() {
@@ -86,7 +77,7 @@ data class LetAst(
     val ofType: Signifier,
     val rhs: Ast,
     val mutable: Boolean
-) : SymbolRefAst() {
+) : Ast() {
     lateinit var ofTypeSymbol: Type
 
     override fun <R> accept(visitor: AstVisitor<R>): R =
@@ -96,7 +87,9 @@ data class LetAst(
         visitor.visit(this, param)
 }
 
-data class RefAst(override val ctx: SourceContext, val identifier: Identifier) : SymbolRefAst() {
+data class RefAst(override val ctx: SourceContext, val identifier: Identifier) : Ast() {
+    lateinit var refSlot: RefAstSymbolSlot
+
     override fun <R> accept(visitor: AstVisitor<R>): R =
         visitor.visit(this)
 
@@ -175,7 +168,9 @@ data class DotAst(
     override val ctx: SourceContext,
     val lhs: Ast,
     val identifier: Identifier
-) : SymbolRefAst() {
+) : Ast() {
+    lateinit var dotSlot: DotAstSymbolSlot
+
     override fun <R> accept(visitor: AstVisitor<R>): R =
         visitor.visit(this)
 
@@ -186,9 +181,10 @@ data class DotAst(
 data class GroundApplyAst(
     override val ctx: SourceContext,
     val signifier: Signifier,
-    override val args: List<Ast>
-) : ApplyAst() {
+    val args: List<Ast>
+) : Ast() {
     lateinit var tti: TerminalTextSignifier
+    lateinit var groundApplySlot: GroundApplyAstSymbolSlot
 
     override fun <R> accept(visitor: AstVisitor<R>): R =
         visitor.visit(this)
@@ -201,9 +197,10 @@ data class DotApplyAst(
     override val ctx: SourceContext,
     val lhs: Ast,
     val signifier: Signifier,
-    override val args: List<Ast>
-) : ApplyAst() {
+    val args: List<Ast>
+) : Ast() {
     lateinit var tti: TerminalTextSignifier
+    lateinit var dotApplySlot: DotApplyAstSymbolSlot
 
     override fun <R> accept(visitor: AstVisitor<R>): R =
         visitor.visit(this)
@@ -234,7 +231,9 @@ data class AssignAst(
     override val ctx: SourceContext,
     val identifier: Identifier,
     val rhs: Ast
-) : SymbolRefAst() {
+) : Ast() {
+    lateinit var assignSlot: AssignAstSymbolSlot
+
     override fun <R> accept(visitor: AstVisitor<R>): R =
         visitor.visit(this)
 
@@ -247,7 +246,9 @@ data class DotAssignAst(
     val lhs: Ast,
     val identifier: Identifier,
     val rhs: Ast
-) : SymbolRefAst() {
+) : Ast() {
+    lateinit var dotAssignSlot: DotAssignAstSymbolSlot
+
     override fun <R> accept(visitor: AstVisitor<R>): R =
         visitor.visit(this)
 
