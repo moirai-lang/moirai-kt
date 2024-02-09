@@ -107,7 +107,7 @@ object Lang {
     val mutableListType = ParameterizedBasicType(
         mutableListId,
         MutableListInstantiation(),
-        noFeatureSupport
+        immutableOrderedFeatureSupport
     )
     val mutableListElementTypeParam = StandardTypeParameter("${mutableListId.name}.${mutableListElementTypeId.name}", mutableListElementTypeId)
     val mutableListFinTypeParam = FinTypeParameter("${mutableListId.name}.${mutableListFinTypeId.name}", mutableListFinTypeId)
@@ -143,7 +143,7 @@ object Lang {
     val mutableDictionaryType = ParameterizedBasicType(
         mutableDictionaryId,
         MutableDictionaryInstantiation(pairType),
-        noFeatureSupport
+        immutableUnorderedFeatureSupport
     )
     val mutableDictionaryKeyTypeParam = StandardTypeParameter("${mutableDictionaryId.name}.${mutableDictionaryKeyTypeId.name}", mutableDictionaryKeyTypeId)
     val mutableDictionaryValueTypeParam = StandardTypeParameter("${mutableDictionaryId.name}.${mutableDictionaryValueTypeId.name}", mutableDictionaryValueTypeId)
@@ -160,7 +160,7 @@ object Lang {
     val mutableSetType = ParameterizedBasicType(
         mutableSetId,
         MutableSetInstantiation(),
-        noFeatureSupport
+        immutableUnorderedFeatureSupport
     )
     val mutableSetElementTypeParam = StandardTypeParameter("${mutableSetId.name}.${mutableSetElementTypeId.name}", mutableSetElementTypeId)
     val mutableSetFinTypeParam = FinTypeParameter("${mutableSetId.name}.${mutableSetFinTypeId.name}", mutableSetFinTypeId)
