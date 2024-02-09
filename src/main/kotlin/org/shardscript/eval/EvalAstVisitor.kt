@@ -202,17 +202,27 @@ class EvalAstVisitor(architecture: Architecture, private val globalScope: ValueT
                 when (val terminus = groundApplySlot.payload.substitutionChain.terminus) {
                     is ParameterizedBasicType -> {
                         when (terminus.identifier) {
-                            Lang.listId, Lang.mutableListId -> {
+                            Lang.listId -> {
                                 val substitutions = createSubstitutions(param.substitutions, groundApplySlot.payload.substitutionChain)
                                 ListValue(
                                     args.toMutableList(),
                                     substitutions,
                                     computeFin(Lang.listFinTypeParam, substitutions),
-                                    terminus.identifier == Lang.mutableListId
+                                    false
                                 )
                             }
 
-                            Lang.dictionaryId, Lang.mutableDictionaryId -> {
+                            Lang.mutableListId -> {
+                                val substitutions = createSubstitutions(param.substitutions, groundApplySlot.payload.substitutionChain)
+                                ListValue(
+                                    args.toMutableList(),
+                                    substitutions,
+                                    computeFin(Lang.mutableListFinTypeParam, substitutions),
+                                    true
+                                )
+                            }
+
+                            Lang.dictionaryId -> {
                                 val pairs = args.map {
                                     it as RecordValue
                                 }.map {
@@ -226,17 +236,45 @@ class EvalAstVisitor(architecture: Architecture, private val globalScope: ValueT
                                     pairs.toMap().toMutableMap(),
                                     substitutions,
                                     computeFin(Lang.dictionaryFinTypeParam, substitutions),
-                                    terminus.identifier == Lang.mutableDictionaryId
+                                    false
                                 )
                             }
 
-                            Lang.setId, Lang.mutableSetId -> {
+                            Lang.mutableDictionaryId -> {
+                                val pairs = args.map {
+                                    it as RecordValue
+                                }.map {
+                                    Pair(
+                                        it.fields.fetchHere(Lang.pairFirstId),
+                                        it.fields.fetchHere(Lang.pairSecondId)
+                                    )
+                                }
+                                val substitutions = createSubstitutions(param.substitutions, groundApplySlot.payload.substitutionChain)
+                                DictionaryValue(
+                                    pairs.toMap().toMutableMap(),
+                                    substitutions,
+                                    computeFin(Lang.mutableDictionaryFinTypeParam, substitutions),
+                                    true
+                                )
+                            }
+
+                            Lang.setId -> {
                                 val substitutions = createSubstitutions(param.substitutions, groundApplySlot.payload.substitutionChain)
                                 SetValue(
                                     args.toMutableSet(),
                                     substitutions,
                                     computeFin(Lang.setFinTypeParam, substitutions),
-                                    terminus.identifier == Lang.mutableSetId
+                                    false
+                                )
+                            }
+
+                            Lang.mutableSetId -> {
+                                val substitutions = createSubstitutions(param.substitutions, groundApplySlot.payload.substitutionChain)
+                                SetValue(
+                                    args.toMutableSet(),
+                                    substitutions,
+                                    computeFin(Lang.mutableSetFinTypeParam, substitutions),
+                                    true
                                 )
                             }
 
