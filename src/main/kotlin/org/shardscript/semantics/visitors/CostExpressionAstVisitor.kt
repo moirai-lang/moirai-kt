@@ -274,4 +274,20 @@ class CostExpressionAstVisitor(private val architecture: Architecture) : UnitAst
             )
         )
     }
+
+    override fun visit(ast: MatchAst) {
+        super.visit(ast)
+        ast.costExpression = addDefault(
+            SumCostExpression(
+                listOf(
+                    ast.condition.costExpression,
+                    MaxCostExpression(
+                        ast.cases.map {
+                            it.block.costExpression
+                        }
+                    )
+                )
+            )
+        )
+    }
 }
