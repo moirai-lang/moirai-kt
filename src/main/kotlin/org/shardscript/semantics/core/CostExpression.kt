@@ -7,10 +7,9 @@ sealed interface CostExpression : Type {
 }
 
 interface CostExpressionVisitor<R> {
-    fun visit(costExpression: ImmutableFinTypeParameter): R
-    fun visit(costExpression: MutableFinTypeParameter): R
-    fun visit(costExpression: FinTypeSymbol): R
-    fun visit(costExpression: ConstantFinTypeSymbol): R
+    fun visit(costExpression: FinTypeParameter): R
+    fun visit(costExpression: Fin): R
+    fun visit(costExpression: ConstantFin): R
     fun visit(costExpression: SumCostExpression): R
     fun visit(costExpression: ProductCostExpression): R
     fun visit(costExpression: MaxCostExpression): R
@@ -23,22 +22,18 @@ class EvalCostExpressionVisitor(val architecture: Architecture): CostExpressionV
         }
     }
 
-    override fun visit(costExpression: ImmutableFinTypeParameter): Long {
+    override fun visit(costExpression: FinTypeParameter): Long {
         langThrow(CalculateCostFailed)
     }
 
-    override fun visit(costExpression: MutableFinTypeParameter): Long {
-        langThrow(CalculateCostFailed)
-    }
-
-    override fun visit(costExpression: FinTypeSymbol): Long {
+    override fun visit(costExpression: Fin): Long {
         if (costExpression.magnitude <= 0L) {
             langThrow(NegativeFin)
         }
         return costExpression.magnitude
     }
 
-    override fun visit(costExpression: ConstantFinTypeSymbol): Long {
+    override fun visit(costExpression: ConstantFin): Long {
         return architecture.defaultNodeCost
     }
 
@@ -102,24 +97,20 @@ class EvalCostExpressionVisitor(val architecture: Architecture): CostExpressionV
 }
 
 object CommonCostExpressions {
-    val defaultMultiplier = FinTypeSymbol(1L)
-    val twoPass = FinTypeSymbol(2L)
+    val defaultMultiplier = Fin(1L)
+    val twoPass = Fin(2L)
 }
 
 object CanEvalCostExpressionVisitor: CostExpressionVisitor<Boolean> {
-    override fun visit(costExpression: ImmutableFinTypeParameter): Boolean {
+    override fun visit(costExpression: FinTypeParameter): Boolean {
         return false
     }
 
-    override fun visit(costExpression: MutableFinTypeParameter): Boolean {
-        return false
-    }
-
-    override fun visit(costExpression: FinTypeSymbol): Boolean {
+    override fun visit(costExpression: Fin): Boolean {
         return true
     }
 
-    override fun visit(costExpression: ConstantFinTypeSymbol): Boolean {
+    override fun visit(costExpression: ConstantFin): Boolean {
         return true
     }
 

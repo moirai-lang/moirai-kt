@@ -20,7 +20,7 @@ object DictionaryTypes {
             DoubleParentArgInstantiation
         )
         getMemberFunction.typeParams = listOf(Lang.dictionaryKeyTypeParam, Lang.dictionaryValueTypeParam)
-        getMemberFunction.costExpression = ConstantFinTypeSymbol
+        getMemberFunction.costExpression = ConstantFin
         val getFormalParamId = Identifier(NotInSource, "key")
         val getFormalParam = FunctionFormalParameterSymbol(getMemberFunction, getFormalParamId, Lang.dictionaryKeyTypeParam)
         getMemberFunction.define(getFormalParamId, getFormalParam)
@@ -39,7 +39,7 @@ object DictionaryTypes {
             DoubleParentArgInstantiation
         )
         getMemberFunction.typeParams = listOf(Lang.mutableDictionaryKeyTypeParam, Lang.mutableDictionaryValueTypeParam)
-        getMemberFunction.costExpression = ConstantFinTypeSymbol
+        getMemberFunction.costExpression = ConstantFin
         val getFormalParamId = Identifier(NotInSource, "key")
         val getFormalParam = FunctionFormalParameterSymbol(getMemberFunction, getFormalParamId, Lang.mutableDictionaryKeyTypeParam)
         getMemberFunction.define(getFormalParamId, getFormalParam)
@@ -58,7 +58,7 @@ object DictionaryTypes {
             SingleParentArgInstantiation
         )
         containsMemberFunction.typeParams = listOf(Lang.dictionaryKeyTypeParam)
-        containsMemberFunction.costExpression = ConstantFinTypeSymbol
+        containsMemberFunction.costExpression = ConstantFin
         val containsFormalParamId = Identifier(NotInSource, "key")
         val containsFormalParam =
             FunctionFormalParameterSymbol(containsMemberFunction, containsFormalParamId, Lang.dictionaryKeyTypeParam)
@@ -78,7 +78,7 @@ object DictionaryTypes {
             SingleParentArgInstantiation
         )
         containsMemberFunction.typeParams = listOf(Lang.mutableDictionaryKeyTypeParam)
-        containsMemberFunction.costExpression = ConstantFinTypeSymbol
+        containsMemberFunction.costExpression = ConstantFin
         val containsFormalParamId = Identifier(NotInSource, "key")
         val containsFormalParam =
             FunctionFormalParameterSymbol(containsMemberFunction, containsFormalParamId, Lang.mutableDictionaryKeyTypeParam)
@@ -98,7 +98,7 @@ object DictionaryTypes {
             DoubleParentArgInstantiation
         )
         setMemberFunction.typeParams = listOf(Lang.mutableDictionaryKeyTypeParam, Lang.mutableDictionaryValueTypeParam)
-        setMemberFunction.costExpression = ConstantFinTypeSymbol
+        setMemberFunction.costExpression = ConstantFin
         val keyFormalParamId = Identifier(NotInSource, "key")
         val keyFormalParam = FunctionFormalParameterSymbol(setMemberFunction, keyFormalParamId, Lang.mutableDictionaryKeyTypeParam)
         setMemberFunction.define(keyFormalParamId, keyFormalParam)
@@ -122,7 +122,7 @@ object DictionaryTypes {
             SingleParentArgInstantiation
         )
         removeMemberFunction.typeParams = listOf(Lang.mutableDictionaryKeyTypeParam)
-        removeMemberFunction.costExpression = ConstantFinTypeSymbol
+        removeMemberFunction.costExpression = ConstantFin
         val removeFormalParamId = Identifier(NotInSource, "key")
         val removeFormalParam =
             FunctionFormalParameterSymbol(removeMemberFunction, removeFormalParamId, Lang.mutableDictionaryKeyTypeParam)

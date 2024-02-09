@@ -33,7 +33,7 @@ class PropagateTypesAstVisitor(
                     errors.add(signifier.ctx, SymbolHasNoParameters(signifier))
                 }
                 when (val ofTypeSymbol = symbol.ofTypeSymbol) {
-                    is FunctionTypeSymbol -> {
+                    is FunctionType -> {
                         ast.groundApplySlot = GroundApplySlotFormal(symbol)
                         ast.assignType(errors, ofTypeSymbol.returnType)
                     }
@@ -50,12 +50,12 @@ class PropagateTypesAstVisitor(
                 when (val type = scope.fetchType(signifier)) {
                     is TypeInstantiation -> {
                         when (val terminus = type.substitutionChain.terminus) {
-                            is ParameterizedBasicTypeSymbol -> handleParamBasicType(signifier, ast, terminus, args)
-                            is ParameterizedRecordTypeSymbol -> handleParamRecord(signifier, ast, terminus, args)
+                            is ParameterizedBasicType -> handleParamBasicType(signifier, ast, terminus, args)
+                            is ParameterizedRecordType -> handleParamRecord(signifier, ast, terminus, args)
                         }
                     }
 
-                    is GroundRecordTypeSymbol -> {
+                    is GroundRecordType -> {
                         if (signifier is ParameterizedSignifier) {
                             errors.add(signifier.ctx, SymbolHasNoParameters(signifier))
                         }
@@ -63,11 +63,11 @@ class PropagateTypesAstVisitor(
                         ast.assignType(errors, type)
                     }
 
-                    is ParameterizedRecordTypeSymbol -> {
+                    is ParameterizedRecordType -> {
                         handleParamRecord(signifier, ast, type, args)
                     }
 
-                    is ParameterizedBasicTypeSymbol -> {
+                    is ParameterizedBasicType -> {
                         handleParamBasicType(signifier, ast, type, args)
                     }
 
@@ -173,7 +173,7 @@ class PropagateTypesAstVisitor(
     private fun handleParamRecord(
         signifier: Signifier,
         ast: GroundApplyAst,
-        type: ParameterizedRecordTypeSymbol,
+        type: ParameterizedRecordType,
         args: List<Ast>
     ) {
         if (signifier is ParameterizedSignifier) {
@@ -198,7 +198,7 @@ class PropagateTypesAstVisitor(
     private fun handleParamBasicType(
         signifier: Signifier,
         ast: GroundApplyAst,
-        type: ParameterizedBasicTypeSymbol,
+        type: ParameterizedBasicType,
         args: List<Ast>
     ) {
         if (signifier is ParameterizedSignifier) {
@@ -246,7 +246,7 @@ class PropagateTypesAstVisitor(
     override fun visit(ast: DecimalLiteralAst) {
         try {
             super.visit(ast)
-            val parameterizedType = preludeTable.fetchType(Lang.decimalId) as ParameterizedBasicTypeSymbol
+            val parameterizedType = preludeTable.fetchType(Lang.decimalId) as ParameterizedBasicType
             ast.assignType(
                 errors, parameterizedType.instantiation.apply(
                     ast.ctx,
@@ -286,7 +286,7 @@ class PropagateTypesAstVisitor(
     override fun visit(ast: StringLiteralAst) {
         try {
             super.visit(ast)
-            val parameterizedType = preludeTable.fetchType(Lang.stringId) as ParameterizedBasicTypeSymbol
+            val parameterizedType = preludeTable.fetchType(Lang.stringId) as ParameterizedBasicType
             ast.assignType(
                 errors, parameterizedType.instantiation.apply(
                     ast.ctx,
@@ -306,7 +306,7 @@ class PropagateTypesAstVisitor(
     override fun visit(ast: StringInterpolationAst) {
         try {
             super.visit(ast)
-            val parameterizedType = preludeTable.fetchType(Lang.stringId) as ParameterizedBasicTypeSymbol
+            val parameterizedType = preludeTable.fetchType(Lang.stringId) as ParameterizedBasicType
             ast.assignType(
                 errors, parameterizedType.instantiation.apply(
                     ast.ctx,
@@ -347,12 +347,12 @@ class PropagateTypesAstVisitor(
             val symbol = ast.scope.fetch(ast.identifier)
             if (symbol is TypePlaceholder) {
                 when (val type = ast.scope.fetchType(ast.identifier)) {
-                    is ObjectSymbol -> {
+                    is ObjectType -> {
                         ast.refSlot = RefSlotObject(type)
                         ast.assignType(errors, type)
                     }
 
-                    is PlatformObjectSymbol -> {
+                    is PlatformObjectType -> {
                         ast.refSlot = RefSlotPlatformObject(type)
                         ast.assignType(errors, type)
                     }
@@ -383,7 +383,7 @@ class PropagateTypesAstVisitor(
                     is FunctionFormalParameterSymbol -> {
                         ast.refSlot = RefSlotFormal(symbol)
                         ast.assignType(errors, symbol.ofTypeSymbol)
-                        if (ast.readType() is FunctionTypeSymbol) {
+                        if (ast.readType() is FunctionType) {
                             errors.add(ast.ctx, CannotRefFunctionParam(ast.identifier))
                         }
                     }
@@ -509,7 +509,7 @@ class PropagateTypesAstVisitor(
                     ast.dotSlot = DotSlotError
                     ast.assignType(errors, ErrorType)
                 }
-                is GroundRecordTypeSymbol -> {
+                is GroundRecordType -> {
                     when (val symbol = lhsType.fetchHere(ast.identifier)) {
                         is FieldSymbol -> {
                             ast.dotSlot = DotSlotField(symbol)
@@ -525,7 +525,7 @@ class PropagateTypesAstVisitor(
 
                 is TypeInstantiation -> {
                     when (val parameterizedSymbol = lhsType.substitutionChain.terminus) {
-                        is ParameterizedRecordTypeSymbol -> {
+                        is ParameterizedRecordType -> {
                             when (val member = parameterizedSymbol.fetchHere(ast.identifier)) {
                                 is FieldSymbol -> {
                                     ast.dotSlot = DotSlotField(member)
@@ -541,7 +541,7 @@ class PropagateTypesAstVisitor(
                             }
                         }
 
-                        is ParameterizedBasicTypeSymbol -> {
+                        is ParameterizedBasicType -> {
                             when (val member = parameterizedSymbol.fetchHere(ast.identifier)) {
                                 is PlatformFieldSymbol -> {
                                     ast.dotSlot = DotSlotPlatformField(member)
@@ -625,7 +625,7 @@ class PropagateTypesAstVisitor(
                     ast.assignType(errors, ErrorType)
                 }
 
-                is BasicTypeSymbol -> {
+                is BasicType -> {
                     val member = lhsType.fetchHere(ast.tti)
                     if (member is TypePlaceholder) {
                         errors.add(ast.ctx, SymbolCouldNotBeApplied(ast.signifier))
@@ -659,7 +659,7 @@ class PropagateTypesAstVisitor(
                     }
                 }
 
-                is GroundRecordTypeSymbol -> {
+                is GroundRecordType -> {
                     val member = lhsType.fetchHere(ast.tti)
                     if (member is TypePlaceholder) {
                         errors.add(ast.ctx, SymbolCouldNotBeApplied(ast.signifier))
@@ -685,7 +685,7 @@ class PropagateTypesAstVisitor(
                     }
                 }
 
-                is PlatformObjectSymbol -> {
+                is PlatformObjectType -> {
                     val member = lhsType.fetchHere(ast.tti)
                     if (member is TypePlaceholder) {
                         errors.add(ast.ctx, SymbolCouldNotBeApplied(ast.signifier))
@@ -713,7 +713,7 @@ class PropagateTypesAstVisitor(
 
                 is TypeInstantiation -> {
                     when (val parameterizedSymbol = lhsType.substitutionChain.terminus) {
-                        is ParameterizedBasicTypeSymbol -> {
+                        is ParameterizedBasicType -> {
                             val member = parameterizedSymbol.fetchHere(ast.tti)
                             if (ast.signifier is ParameterizedSignifier) {
                                 errors.add(ast.ctx, CannotExplicitlyInstantiate(member))
@@ -759,7 +759,7 @@ class PropagateTypesAstVisitor(
                             }
                         }
 
-                        is ParameterizedRecordTypeSymbol -> {
+                        is ParameterizedRecordType -> {
                             val member = parameterizedSymbol.fetchHere(ast.tti)
                             filterValidDotApply(ast.ctx, errors, member, ast.signifier)
                             when (member) {
@@ -802,7 +802,7 @@ class PropagateTypesAstVisitor(
             when (val sourceType = ast.source.readType()) {
                 is TypeInstantiation -> {
                     when (val parameterizedSymbol = sourceType.substitutionChain.terminus) {
-                        is ParameterizedBasicTypeSymbol -> {
+                        is ParameterizedBasicType -> {
                             if (parameterizedSymbol.featureSupport.forEachBlock) {
                                 ast.sourceTypeSymbol = sourceType.substitutionChain.replayArgs().first()
                                 ast.sourceFinSymbol = sourceType.substitutionChain.replayArgs()[1]
@@ -865,7 +865,7 @@ class PropagateTypesAstVisitor(
                     ast.dotAssignSlot = DotAssignSlotError
                     ast.assignType(errors, ErrorType)
                 }
-                is GroundRecordTypeSymbol -> {
+                is GroundRecordType -> {
                     when (val member = lhsType.fetchHere(ast.identifier)) {
                         is FieldSymbol -> {
                             ast.dotAssignSlot = DotAssignSlotField(member)
@@ -882,7 +882,7 @@ class PropagateTypesAstVisitor(
 
                 is TypeInstantiation -> {
                     when (val parameterizedSymbol = lhsType.substitutionChain.terminus) {
-                        is ParameterizedRecordTypeSymbol -> {
+                        is ParameterizedRecordType -> {
                             when (val member = parameterizedSymbol.fetchHere(ast.identifier)) {
                                 is FieldSymbol -> {
                                     ast.dotAssignSlot = DotAssignSlotField(member)

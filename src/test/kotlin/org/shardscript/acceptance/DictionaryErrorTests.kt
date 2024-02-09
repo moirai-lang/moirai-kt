@@ -96,7 +96,7 @@ class DictionaryErrorTests {
             """
             val x = MutableDictionary<Int, Int, Int>(1 to 2, 2 to 3, 3 to 4)
             x[1]
-        """.trimIndent(), 3
+        """.trimIndent(), 2
         ) {
             it.error is InvalidFinTypeSub
         }
@@ -162,20 +162,6 @@ class DictionaryErrorTests {
         """.trimIndent(), 1
         ) {
             it.error is ForEachFeatureBan
-        }
-    }
-
-    @Test
-    fun invalidReturnTypeMutableDictionaryTest() {
-        failTest(
-            """
-            def f(): MutableDictionary<Int, Int, 3> {
-                val x = MutableDictionary<Int, Int, 3>(1 to 2, 2 to 3, 3 to 4)
-                x
-            }
-        """.trimIndent(), 1
-        ) {
-            it.error is ReturnTypeFeatureBan
         }
     }
 }

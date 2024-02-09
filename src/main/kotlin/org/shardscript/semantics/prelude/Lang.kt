@@ -67,62 +67,62 @@ object Lang {
     const val CHAR_FIN: Long = 1L
 
     // Unit
-    val unitObject = PlatformObjectSymbol(
+    val unitObject = PlatformObjectType(
         unitId
     )
 
     // Boolean
-    val booleanType = BasicTypeSymbol(
+    val booleanType = BasicType(
         booleanId
     )
 
     // Integer
-    val intType = BasicTypeSymbol(
+    val intType = BasicType(
         intId
     )
 
     // Char
-    val charType = BasicTypeSymbol(
+    val charType = BasicType(
         charId
     )
 
     // Decimal
-    val decimalType = ParameterizedBasicTypeSymbol(
+    val decimalType = ParameterizedBasicType(
         decimalId,
         DecimalInstantiation(),
         userTypeFeatureSupport
     )
-    val decimalTypeParam = ImmutableFinTypeParameter("${decimalId.name}.${decimalTypeId.name}", decimalTypeId)
+    val decimalTypeParam = FinTypeParameter("${decimalId.name}.${decimalTypeId.name}", decimalTypeId)
 
     // List
-    val listType = ParameterizedBasicTypeSymbol(
+    val listType = ParameterizedBasicType(
         listId,
         ListInstantiation(),
         immutableOrderedFeatureSupport
     )
     val listElementTypeParam = StandardTypeParameter("${listId.name}.${listElementTypeId.name}", listElementTypeId)
-    val listFinTypeParam = ImmutableFinTypeParameter("${listId.name}.${listFinTypeId.name}", listFinTypeId)
+    val listFinTypeParam = FinTypeParameter("${listId.name}.${listFinTypeId.name}", listFinTypeId)
 
     // MutableList
-    val mutableListType = ParameterizedBasicTypeSymbol(
+    val mutableListType = ParameterizedBasicType(
         mutableListId,
         MutableListInstantiation(),
-        noFeatureSupport
+        immutableOrderedFeatureSupport
     )
     val mutableListElementTypeParam = StandardTypeParameter("${mutableListId.name}.${mutableListElementTypeId.name}", mutableListElementTypeId)
-    val mutableListFinTypeParam = MutableFinTypeParameter("${mutableListId.name}.${mutableListFinTypeId.name}", mutableListFinTypeId)
+    val mutableListFinTypeParam = FinTypeParameter("${mutableListId.name}.${mutableListFinTypeId.name}", mutableListFinTypeId)
 
     // String
-    val stringType = ParameterizedBasicTypeSymbol(
+    val stringType = ParameterizedBasicType(
         stringId,
         StringInstantiation(),
         userTypeFeatureSupport
     )
 
-    val stringTypeParam = ImmutableFinTypeParameter("${stringId.name}.${stringTypeId.name}", stringTypeId)
+    val stringTypeParam = FinTypeParameter("${stringId.name}.${stringTypeId.name}", stringTypeId)
 
     // Pair
-    private val pairType = ParameterizedRecordTypeSymbol(
+    private val pairType = ParameterizedRecordType(
         prelude,
         pairId.name,
         pairId,
@@ -131,39 +131,39 @@ object Lang {
     private val pairFirstType = StandardTypeParameter("${pairId.name}.${pairFirstTypeId.name}", pairFirstTypeId)
     private val pairSecondType = StandardTypeParameter("${pairId.name}.${pairSecondTypeId.name}", pairSecondTypeId)
 
-    val dictionaryType = ParameterizedBasicTypeSymbol(
+    val dictionaryType = ParameterizedBasicType(
         dictionaryId,
         DictionaryInstantiation(pairType),
         immutableUnorderedFeatureSupport
     )
     val dictionaryKeyTypeParam = StandardTypeParameter("${dictionaryId.name}.${dictionaryKeyTypeId.name}", dictionaryKeyTypeId)
     val dictionaryValueTypeParam = StandardTypeParameter("${dictionaryId.name}.${dictionaryValueTypeId.name}", dictionaryValueTypeId)
-    val dictionaryFinTypeParam = ImmutableFinTypeParameter("${dictionaryId.name}.${dictionaryFinTypeId.name}", dictionaryFinTypeId)
+    val dictionaryFinTypeParam = FinTypeParameter("${dictionaryId.name}.${dictionaryFinTypeId.name}", dictionaryFinTypeId)
 
-    val mutableDictionaryType = ParameterizedBasicTypeSymbol(
+    val mutableDictionaryType = ParameterizedBasicType(
         mutableDictionaryId,
         MutableDictionaryInstantiation(pairType),
-        noFeatureSupport
+        immutableUnorderedFeatureSupport
     )
     val mutableDictionaryKeyTypeParam = StandardTypeParameter("${mutableDictionaryId.name}.${mutableDictionaryKeyTypeId.name}", mutableDictionaryKeyTypeId)
     val mutableDictionaryValueTypeParam = StandardTypeParameter("${mutableDictionaryId.name}.${mutableDictionaryValueTypeId.name}", mutableDictionaryValueTypeId)
-    val mutableDictionaryFinTypeParam = MutableFinTypeParameter("${mutableDictionaryId.name}.${mutableDictionaryFinTypeId.name}", mutableDictionaryFinTypeId)
+    val mutableDictionaryFinTypeParam = FinTypeParameter("${mutableDictionaryId.name}.${mutableDictionaryFinTypeId.name}", mutableDictionaryFinTypeId)
 
-    val setType = ParameterizedBasicTypeSymbol(
+    val setType = ParameterizedBasicType(
         setId,
         SetInstantiation(),
         immutableUnorderedFeatureSupport
     )
     val setElementTypeParam = StandardTypeParameter("${setId.name}.${setElementTypeId.name}", setElementTypeId)
-    val setFinTypeParam = ImmutableFinTypeParameter("${setId.name}.${setFinTypeId.name}", setFinTypeId)
+    val setFinTypeParam = FinTypeParameter("${setId.name}.${setFinTypeId.name}", setFinTypeId)
 
-    val mutableSetType = ParameterizedBasicTypeSymbol(
+    val mutableSetType = ParameterizedBasicType(
         mutableSetId,
         MutableSetInstantiation(),
-        noFeatureSupport
+        immutableUnorderedFeatureSupport
     )
     val mutableSetElementTypeParam = StandardTypeParameter("${mutableSetId.name}.${mutableSetElementTypeId.name}", mutableSetElementTypeId)
-    val mutableSetFinTypeParam = MutableFinTypeParameter("${mutableSetId.name}.${mutableSetFinTypeId.name}", mutableSetFinTypeId)
+    val mutableSetFinTypeParam = FinTypeParameter("${mutableSetId.name}.${mutableSetFinTypeId.name}", mutableSetFinTypeId)
 
     init {
         IntegerMathOpMembers.members().forEach { (name, plugin) ->
@@ -189,9 +189,6 @@ object Lang {
 
         decimalType.defineType(decimalTypeId, decimalTypeParam)
         decimalType.typeParams = listOf(decimalTypeParam)
-        decimalType.modeSelector = { _ ->
-            ImmutableBasicTypeMode
-        }
         decimalType.fields = listOf()
 
         DecimalMathOpMembers.members().forEach { (name, plugin) ->
@@ -208,9 +205,6 @@ object Lang {
         listType.defineType(listElementTypeId, listElementTypeParam)
         listType.defineType(listFinTypeId, listFinTypeParam)
         listType.typeParams = listOf(listElementTypeParam, listFinTypeParam)
-        listType.modeSelector = { _ ->
-            ImmutableBasicTypeMode
-        }
         
         ListTypes.listCollectionType()
         
@@ -218,17 +212,6 @@ object Lang {
         mutableListType.defineType(mutableListElementTypeId, mutableListElementTypeParam)
         mutableListType.defineType(mutableListFinTypeId, mutableListFinTypeParam)
         mutableListType.typeParams = listOf(mutableListElementTypeParam, mutableListFinTypeParam)
-        mutableListType.modeSelector = { args ->
-            when (val fin = args[1]) {
-                is FinTypeSymbol -> {
-                    MutableBasicTypeMode(fin.magnitude)
-                }
-
-                else -> {
-                    ImmutableBasicTypeMode
-                }
-            }
-        }
         
         ListTypes.mutableListCollectionType()
 
@@ -238,9 +221,6 @@ object Lang {
         dictionaryType.defineType(dictionaryFinTypeId, dictionaryFinTypeParam)
         dictionaryType.typeParams =
             listOf(dictionaryKeyTypeParam, dictionaryValueTypeParam, dictionaryFinTypeParam)
-        dictionaryType.modeSelector = { _ ->
-            ImmutableBasicTypeMode
-        }
 
         DictionaryTypes.dictionaryCollectionType()
 
@@ -254,17 +234,6 @@ object Lang {
                 mutableDictionaryValueTypeParam,
                 mutableDictionaryFinTypeParam
             )
-        mutableDictionaryType.modeSelector = { args ->
-            when (val fin = args[2]) {
-                is FinTypeSymbol -> {
-                    MutableBasicTypeMode(fin.magnitude)
-                }
-
-                else -> {
-                    ImmutableBasicTypeMode
-                }
-            }
-        }
 
         DictionaryTypes.mutableDictionaryCollectionType()
 
@@ -272,9 +241,6 @@ object Lang {
         setType.defineType(setElementTypeId, setElementTypeParam)
         setType.defineType(setFinTypeId, setFinTypeParam)
         setType.typeParams = listOf(setElementTypeParam, setFinTypeParam)
-        setType.modeSelector = { _ ->
-            ImmutableBasicTypeMode
-        }
         
         SetTypes.setCollectionType()
 
@@ -282,17 +248,6 @@ object Lang {
         mutableSetType.defineType(mutableSetElementTypeId, mutableSetElementTypeParam)
         mutableSetType.defineType(mutableSetFinTypeId, mutableSetFinTypeParam)
         mutableSetType.typeParams = listOf(mutableSetElementTypeParam, mutableSetFinTypeParam)
-        mutableSetType.modeSelector = { args ->
-            when (val fin = args[1]) {
-                is FinTypeSymbol -> {
-                    MutableBasicTypeMode(fin.magnitude)
-                }
-
-                else -> {
-                    ImmutableBasicTypeMode
-                }
-            }
-        }
         
         SetTypes.mutableSetCollectionType()
 

@@ -58,7 +58,7 @@ class SetErrorTests {
             """
             val x = MutableSet<Int, Int>(1, 2, 3)
             x.contains(1)
-        """.trimIndent(), 3
+        """.trimIndent(), 2
         ) {
             it.error is InvalidFinTypeSub
         }

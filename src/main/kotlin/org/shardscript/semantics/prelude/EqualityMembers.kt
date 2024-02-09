@@ -28,7 +28,7 @@ object EqualityMembers {
             Identifier(NotInSource, BinaryOperator.Equal.idStr),
             DoubleParentSingleFinPluginInstantiation
         )
-        val inputFinTypeArg = ImmutableFinTypeParameter(
+        val inputFinTypeArg = FinTypeParameter(
             "${Lang.listId.name}.${BinaryOperator.Equal.idStr}.${Lang.listInputFinTypeId.name}",
             Lang.listInputFinTypeId
         )
@@ -62,7 +62,7 @@ object EqualityMembers {
             Identifier(NotInSource, BinaryOperator.NotEqual.idStr),
             DoubleParentSingleFinPluginInstantiation
         )
-        val inputFinTypeArg = ImmutableFinTypeParameter(
+        val inputFinTypeArg = FinTypeParameter(
             "${Lang.listId.name}.${BinaryOperator.NotEqual.idStr}.${Lang.listInputFinTypeId.name}",
             Lang.listInputFinTypeId
         )
@@ -96,7 +96,7 @@ object EqualityMembers {
             Identifier(NotInSource, BinaryOperator.Equal.idStr),
             DoubleParentSingleFinPluginInstantiation
         )
-        val inputFinTypeArg = ImmutableFinTypeParameter(
+        val inputFinTypeArg = FinTypeParameter(
             "${Lang.mutableListId.name}.${BinaryOperator.Equal.idStr}.${Lang.mutableListInputFinTypeId.name}",
             Lang.mutableListInputFinTypeId
         )
@@ -131,7 +131,7 @@ object EqualityMembers {
             Identifier(NotInSource, BinaryOperator.NotEqual.idStr),
             DoubleParentSingleFinPluginInstantiation
         )
-        val inputFinTypeArg = ImmutableFinTypeParameter(
+        val inputFinTypeArg = FinTypeParameter(
             "${Lang.mutableListId.name}.${BinaryOperator.NotEqual.idStr}.${Lang.mutableListInputFinTypeId.name}",
             Lang.mutableListInputFinTypeId
         )
@@ -169,7 +169,7 @@ object EqualityMembers {
             Identifier(NotInSource, BinaryOperator.Equal.idStr),
             TripleParentSingleFinPluginInstantiation
         )
-        val inputFinTypeArg = ImmutableFinTypeParameter(
+        val inputFinTypeArg = FinTypeParameter(
             "${Lang.dictionaryId.name}.${BinaryOperator.Equal.idStr}.${Lang.dictionaryInputFinTypeId.name}",
             Lang.dictionaryInputFinTypeId
         )
@@ -212,7 +212,7 @@ object EqualityMembers {
             Identifier(NotInSource, BinaryOperator.NotEqual.idStr),
             TripleParentSingleFinPluginInstantiation
         )
-        val inputFinTypeArg = ImmutableFinTypeParameter(
+        val inputFinTypeArg = FinTypeParameter(
             "${Lang.dictionaryId.name}.${BinaryOperator.NotEqual.idStr}.${Lang.dictionaryInputFinTypeId.name}",
             Lang.dictionaryInputFinTypeId
         )
@@ -256,7 +256,7 @@ object EqualityMembers {
             TripleParentSingleFinPluginInstantiation
         )
         val inputFinTypeArg =
-            ImmutableFinTypeParameter(
+            FinTypeParameter(
                 "${Lang.mutableDictionaryId.name}.${BinaryOperator.Equal.idStr}.${Lang.mutableDictionaryInputFinTypeId.name}",
                 Lang.mutableDictionaryInputFinTypeId
             )
@@ -302,7 +302,7 @@ object EqualityMembers {
             TripleParentSingleFinPluginInstantiation
         )
         val inputFinTypeArg =
-            ImmutableFinTypeParameter(
+            FinTypeParameter(
                 "${Lang.mutableDictionaryId.name}.${BinaryOperator.NotEqual.idStr}.${Lang.mutableDictionaryInputFinTypeId.name}",
                 Lang.mutableDictionaryInputFinTypeId
             )
@@ -353,7 +353,7 @@ object EqualityMembers {
             Identifier(NotInSource, BinaryOperator.Equal.idStr),
             DoubleParentSingleFinPluginInstantiation
         )
-        val inputFinTypeArg = ImmutableFinTypeParameter(
+        val inputFinTypeArg = FinTypeParameter(
             "${Lang.setId.name}.${BinaryOperator.Equal.idStr}.${Lang.setInputFinTypeId.name}",
             Lang.setInputFinTypeId
         )
@@ -386,7 +386,7 @@ object EqualityMembers {
             Identifier(NotInSource, BinaryOperator.NotEqual.idStr),
             DoubleParentSingleFinPluginInstantiation
         )
-        val inputFinTypeArg = ImmutableFinTypeParameter(
+        val inputFinTypeArg = FinTypeParameter(
             "${Lang.setId.name}.${BinaryOperator.NotEqual.idStr}.${Lang.setInputFinTypeId.name}",
             Lang.setInputFinTypeId
         )
@@ -419,7 +419,7 @@ object EqualityMembers {
             Identifier(NotInSource, BinaryOperator.Equal.idStr),
             DoubleParentSingleFinPluginInstantiation
         )
-        val inputFinTypeArg = ImmutableFinTypeParameter(
+        val inputFinTypeArg = FinTypeParameter(
             "${Lang.mutableSetId.name}.${BinaryOperator.Equal.idStr}.${Lang.mutableSetInputFinTypeId.name}",
             Lang.mutableSetInputFinTypeId
         )
@@ -454,7 +454,7 @@ object EqualityMembers {
             Identifier(NotInSource, BinaryOperator.NotEqual.idStr),
             DoubleParentSingleFinPluginInstantiation
         )
-        val inputFinTypeArg = ImmutableFinTypeParameter(
+        val inputFinTypeArg = FinTypeParameter(
             "${Lang.mutableSetId.name}.${BinaryOperator.NotEqual.idStr}.${Lang.mutableSetInputFinTypeId.name}",
             Lang.mutableSetInputFinTypeId
         )

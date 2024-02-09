@@ -41,8 +41,3 @@ interface TwoTypeInstantiation<T: RawTerminus, S> {
         explicitTypeArgs: List<Type>
     ): S
 }
-
-sealed class BasicTypeMode
-
-data class MutableBasicTypeMode(val fin: Long) : BasicTypeMode()
-data object ImmutableBasicTypeMode : BasicTypeMode()

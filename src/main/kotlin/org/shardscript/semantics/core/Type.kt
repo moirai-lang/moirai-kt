@@ -8,7 +8,7 @@ sealed interface TerminusType: Type, RawTerminus
 
 data object ErrorType : Type
 
-class FunctionTypeSymbol(
+class FunctionType(
     val formalParamTypes: List<Type>,
     val returnType: Type
 ) : Type
@@ -20,7 +20,7 @@ class StandardTypeParameter(
     val identifier: Identifier
 ) : TypeParameter(), Type
 
-class ImmutableFinTypeParameter(
+class FinTypeParameter(
     val qualifiedName: String,
     val identifier: Identifier
 ) : TypeParameter(), CostExpression, Type {
@@ -29,22 +29,13 @@ class ImmutableFinTypeParameter(
     }
 }
 
-class MutableFinTypeParameter(
-    val qualifiedName: String,
-    val identifier: Identifier
-) : TypeParameter(), CostExpression, Type {
+class Fin(val magnitude: Long) : CostExpression, Type {
     override fun <R> accept(visitor: CostExpressionVisitor<R>): R {
         return visitor.visit(this)
     }
 }
 
-class FinTypeSymbol(val magnitude: Long) : CostExpression, Type {
-    override fun <R> accept(visitor: CostExpressionVisitor<R>): R {
-        return visitor.visit(this)
-    }
-}
-
-data object ConstantFinTypeSymbol : CostExpression, Type {
+data object ConstantFin : CostExpression, Type {
     override fun <R> accept(visitor: CostExpressionVisitor<R>): R {
         return visitor.visit(this)
     }
@@ -72,18 +63,18 @@ class TypeInstantiation(
     val substitutionChain: SubstitutionChain<TerminusType>
 ) : Type
 
-class PlatformObjectSymbol(
+class PlatformObjectType(
     val identifier: Identifier,
     private val symbolTable: SymbolTable = SymbolTable(NullSymbolTable)
 ) : Type, Scope by symbolTable
 
-class ObjectSymbol(
+class ObjectType(
     val qualifiedName: String,
     val identifier: Identifier,
     val featureSupport: FeatureSupport
 ) : Type
 
-class GroundRecordTypeSymbol(
+class GroundRecordType(
     definitionScopeForTypeChecking: Scope,
     val qualifiedName: String,
     val identifier: Identifier,
@@ -92,7 +83,7 @@ class GroundRecordTypeSymbol(
     lateinit var fields: List<FieldSymbol>
 }
 
-class ParameterizedRecordTypeSymbol(
+class ParameterizedRecordType(
     definitionScopeForTypeChecking: Scope,
     val qualifiedName: String,
     val identifier: Identifier,
@@ -103,19 +94,18 @@ class ParameterizedRecordTypeSymbol(
     lateinit var fields: List<FieldSymbol>
 }
 
-class BasicTypeSymbol(
+class BasicType(
     val identifier: Identifier,
     private val symbolTable: SymbolTable = SymbolTable(NullSymbolTable)
 ) : Type, Scope by symbolTable
 
-class ParameterizedBasicTypeSymbol(
+class ParameterizedBasicType(
     val identifier: Identifier,
     val instantiation: SingleTypeInstantiation<TerminusType, TypeInstantiation>,
     val featureSupport: FeatureSupport,
     private val symbolTable: SymbolTable = SymbolTable(NullSymbolTable)
 ) : TerminusType, Scope by symbolTable {
     override lateinit var typeParams: List<TypeParameter>
-    lateinit var modeSelector: (List<Type>) -> BasicTypeMode
     lateinit var fields: List<PlatformFieldSymbol>
 }
 

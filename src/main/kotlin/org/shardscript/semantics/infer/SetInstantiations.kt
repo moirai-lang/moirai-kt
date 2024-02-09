@@ -19,8 +19,8 @@ class SetInstantiation : SingleTypeInstantiation<TerminusType, TypeInstantiation
             } else {
                 validateSubstitution(ctx, errors, terminus.typeParams.first(), explicitTypeArgs.first())
                 validateSubstitution(ctx, errors, terminus.typeParams[1], explicitTypeArgs[1])
-                if (explicitTypeArgs[1] is FinTypeSymbol) {
-                    val fin = explicitTypeArgs[1] as FinTypeSymbol
+                if (explicitTypeArgs[1] is Fin) {
+                    val fin = explicitTypeArgs[1] as Fin
                     if (args.size.toLong() > fin.magnitude) {
                         errors.add(ctx, TooManyElements(fin.magnitude, args.size.toLong()))
                     }
@@ -45,7 +45,7 @@ class SetInstantiation : SingleTypeInstantiation<TerminusType, TypeInstantiation
                 constraints.add(
                     Constraint(
                         Left(inOrderParameters[1]),
-                        Right(FinTypeSymbol(args.size.toLong()))
+                        Right(Fin(args.size.toLong()))
                     )
                 )
                 val substitution = createSubstitution(ctx, constraints, parameterSet, inOrderParameters, errors)
@@ -85,8 +85,8 @@ class MutableSetInstantiation : SingleTypeInstantiation<TerminusType, TypeInstan
                     explicitTypeArgs.first()
                 )
                 validateSubstitution(ctx, errors, terminus.typeParams[1], explicitTypeArgs[1])
-                if (explicitTypeArgs[1] is FinTypeSymbol) {
-                    val fin = explicitTypeArgs[1] as FinTypeSymbol
+                if (explicitTypeArgs[1] is Fin) {
+                    val fin = explicitTypeArgs[1] as Fin
                     if (args.size.toLong() > fin.magnitude) {
                         errors.add(ctx, TooManyElements(fin.magnitude, args.size.toLong()))
                     }

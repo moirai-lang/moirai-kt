@@ -56,7 +56,7 @@ class GroundFunctionSymbol(
     lateinit var returnType: Type
     lateinit var costExpression: CostExpression
 
-    fun type() = FunctionTypeSymbol(formalParams.map { it.ofTypeSymbol }, returnType)
+    fun type() = FunctionType(formalParams.map { it.ofTypeSymbol }, returnType)
 }
 
 class LambdaSymbol(
@@ -67,7 +67,7 @@ class LambdaSymbol(
     lateinit var returnType: Type
     lateinit var costExpression: CostExpression
 
-    fun type() = FunctionTypeSymbol(formalParams.map { it.ofTypeSymbol }, returnType)
+    fun type() = FunctionType(formalParams.map { it.ofTypeSymbol }, returnType)
 }
 
 class ParameterizedFunctionSymbol(
@@ -81,7 +81,7 @@ class ParameterizedFunctionSymbol(
     lateinit var returnType: Type
     lateinit var costExpression: CostExpression
 
-    fun type() = FunctionTypeSymbol(formalParams.map { it.ofTypeSymbol }, returnType)
+    fun type() = FunctionType(formalParams.map { it.ofTypeSymbol }, returnType)
 }
 
 class FieldSymbol(
@@ -94,7 +94,7 @@ class FieldSymbol(
 data class PlatformFieldSymbol(
     override val parent: Scope,
     override val identifier: Identifier,
-    val ofTypeSymbol: BasicTypeSymbol
+    val ofTypeSymbol: BasicType
 ) : NamedSymbolTableElement()
 
 /**
@@ -108,7 +108,7 @@ data class GroundMemberPluginSymbol(
     lateinit var returnType: Type
     lateinit var costExpression: CostExpression
 
-    fun type() = FunctionTypeSymbol(formalParams.map { it.ofTypeSymbol }, returnType)
+    fun type() = FunctionType(formalParams.map { it.ofTypeSymbol }, returnType)
 }
 
 data class ParameterizedMemberPluginSymbol(
@@ -122,7 +122,7 @@ data class ParameterizedMemberPluginSymbol(
     lateinit var returnType: Type
     lateinit var costExpression: CostExpression
 
-    fun type() = FunctionTypeSymbol(formalParams.map { it.ofTypeSymbol }, returnType)
+    fun type() = FunctionType(formalParams.map { it.ofTypeSymbol }, returnType)
 }
 
 data class ParameterizedStaticPluginSymbol(
@@ -135,5 +135,5 @@ data class ParameterizedStaticPluginSymbol(
     lateinit var returnType: Type
     lateinit var costExpression: CostExpression
 
-    fun type() = FunctionTypeSymbol(formalParams.map { it.ofTypeSymbol }, returnType)
+    fun type() = FunctionType(formalParams.map { it.ofTypeSymbol }, returnType)
 }

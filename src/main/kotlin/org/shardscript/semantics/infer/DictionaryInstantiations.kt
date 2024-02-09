@@ -2,7 +2,7 @@ package org.shardscript.semantics.infer
 
 import org.shardscript.semantics.core.*
 
-class DictionaryInstantiation(private val pairTypeSymbol: ParameterizedRecordTypeSymbol) :
+class DictionaryInstantiation(private val pairTypeSymbol: ParameterizedRecordType) :
     SingleTypeInstantiation<TerminusType, TypeInstantiation> {
     override fun apply(
         ctx: SourceContext,
@@ -27,8 +27,8 @@ class DictionaryInstantiation(private val pairTypeSymbol: ParameterizedRecordTyp
                 validateSubstitution(ctx, errors, terminus.typeParams.first(), explicitTypeArgs.first())
                 validateSubstitution(ctx, errors, terminus.typeParams[1], explicitTypeArgs[1])
                 validateSubstitution(ctx, errors, terminus.typeParams[2], explicitTypeArgs[2])
-                if (explicitTypeArgs[2] is FinTypeSymbol) {
-                    val fin = explicitTypeArgs[2] as FinTypeSymbol
+                if (explicitTypeArgs[2] is Fin) {
+                    val fin = explicitTypeArgs[2] as Fin
                     if (args.size.toLong() > fin.magnitude) {
                         errors.add(ctx, TooManyElements(fin.magnitude, args.size.toLong()))
                     }
@@ -64,7 +64,7 @@ class DictionaryInstantiation(private val pairTypeSymbol: ParameterizedRecordTyp
                     constraints.add(
                         Constraint(
                             Left(inOrderParameters[2]),
-                            Right(FinTypeSymbol(args.size.toLong()))
+                            Right(Fin(args.size.toLong()))
                         )
                     )
                     val substitution = createSubstitution(ctx, constraints, parameterSet, inOrderParameters, errors)
@@ -90,7 +90,7 @@ class DictionaryInstantiation(private val pairTypeSymbol: ParameterizedRecordTyp
     }
 }
 
-class MutableDictionaryInstantiation(private val pairTypeSymbol: ParameterizedRecordTypeSymbol) :
+class MutableDictionaryInstantiation(private val pairTypeSymbol: ParameterizedRecordType) :
     SingleTypeInstantiation<TerminusType, TypeInstantiation> {
     override fun apply(
         ctx: SourceContext,
@@ -115,8 +115,8 @@ class MutableDictionaryInstantiation(private val pairTypeSymbol: ParameterizedRe
                 validateSubstitution(ctx, errors, terminus.typeParams.first(), explicitTypeArgs.first())
                 validateSubstitution(ctx, errors, terminus.typeParams[1], explicitTypeArgs[1])
                 validateSubstitution(ctx, errors, terminus.typeParams[2], explicitTypeArgs[2])
-                if (explicitTypeArgs[2] is FinTypeSymbol) {
-                    val fin = explicitTypeArgs[2] as FinTypeSymbol
+                if (explicitTypeArgs[2] is Fin) {
+                    val fin = explicitTypeArgs[2] as Fin
                     if (args.size.toLong() > fin.magnitude) {
                         errors.add(ctx, TooManyElements(fin.magnitude, args.size.toLong()))
                     }

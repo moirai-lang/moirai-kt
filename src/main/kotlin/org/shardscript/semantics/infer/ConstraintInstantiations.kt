@@ -75,27 +75,27 @@ fun instantiateFunction(
 fun instantiateRecord(
     ctx: SourceContext,
     args: List<Ast>,
-    parameterizedRecordTypeSymbol: ParameterizedRecordTypeSymbol,
+    parameterizedRecordType: ParameterizedRecordType,
     errors: LanguageErrors
 ): TypeInstantiation {
-    val inOrderParameters = parameterizedRecordTypeSymbol.typeParams
+    val inOrderParameters = parameterizedRecordType.typeParams
     val parameterSet = inOrderParameters.toSet()
-    if (parameterizedRecordTypeSymbol.fields.size == args.size) {
+    if (parameterizedRecordType.fields.size == args.size) {
         val constraints: MutableList<Constraint<TypeParameter, Type>> = ArrayList()
-        parameterizedRecordTypeSymbol.fields.zip(args).forEach {
+        parameterizedRecordType.fields.zip(args).forEach {
             val expected = it.first.ofTypeSymbol
             constraints.addAll(constrainSymbol(ctx, parameterSet, expected, it.second.readType(), errors))
         }
         val substitution = createSubstitution(ctx, constraints, parameterSet, inOrderParameters, errors)
-        return substitution.apply(parameterizedRecordTypeSymbol)
+        return substitution.apply(parameterizedRecordType)
     } else {
         errors.add(
             ctx,
-            IncorrectNumberOfArgs(parameterizedRecordTypeSymbol.fields.size, args.size)
+            IncorrectNumberOfArgs(parameterizedRecordType.fields.size, args.size)
         )
     }
-    val substitution = Substitution(parameterizedRecordTypeSymbol.typeParams, listOf())
-    return substitution.apply(parameterizedRecordTypeSymbol)
+    val substitution = Substitution(parameterizedRecordType.typeParams, listOf())
+    return substitution.apply(parameterizedRecordType)
 }
 
 fun constrainSymbol(
@@ -106,10 +106,10 @@ fun constrainSymbol(
     errors: LanguageErrors
 ): List<Constraint<TypeParameter, Type>> =
     when (expected) {
-        is BasicTypeSymbol -> listOf()
-        is ObjectSymbol -> listOf()
-        is FunctionTypeSymbol -> when (actual) {
-            is FunctionTypeSymbol -> {
+        is BasicType -> listOf()
+        is ObjectType -> listOf()
+        is FunctionType -> when (actual) {
+            is FunctionType -> {
                 val constraints: MutableList<Constraint<TypeParameter, Type>> = ArrayList()
                 if (expected.formalParamTypes.size == actual.formalParamTypes.size) {
                     expected.formalParamTypes.zip(actual.formalParamTypes).forEach {
@@ -180,20 +180,9 @@ fun constrainCost(
     errors: LanguageErrors
 ): List<Constraint<TypeParameter, Type>> =
     when (expected) {
-        is FinTypeSymbol -> listOf()
-        is ConstantFinTypeSymbol -> listOf()
-        is ImmutableFinTypeParameter -> if (typeParams.contains(expected)) {
-            listOf(
-                Constraint(
-                    Left<TypeParameter>(expected),
-                    Right(actual)
-                )
-            )
-        } else {
-            errors.add(ctx, TypeSystemBug)
-            listOf()
-        }
-        is MutableFinTypeParameter -> if (typeParams.contains(expected)) {
+        is Fin -> listOf()
+        is ConstantFin -> listOf()
+        is FinTypeParameter -> if (typeParams.contains(expected)) {
             listOf(
                 Constraint(
                     Left<TypeParameter>(expected),

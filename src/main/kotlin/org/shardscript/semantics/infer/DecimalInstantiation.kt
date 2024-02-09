@@ -26,7 +26,7 @@ class DecimalInstantiation : SingleTypeInstantiation<TerminusType, TypeInstantia
             if (args.isNotEmpty()) {
                 val decimalAst = args.first() as DecimalLiteralAst
                 val decimalString = decimalAst.canonicalForm.toPlainString()
-                val fin = FinTypeSymbol(decimalString.length.toLong())
+                val fin = Fin(decimalString.length.toLong())
                 val substitution = Substitution(inOrderParameters, listOf(fin))
                 return substitution.apply(terminus)
             } else {

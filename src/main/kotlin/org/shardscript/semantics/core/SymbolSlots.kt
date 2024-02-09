@@ -3,8 +3,8 @@ package org.shardscript.semantics.core
 sealed class RefAstSymbolSlot
 
 data object RefSlotError: RefAstSymbolSlot()
-data class RefSlotObject(val payload: ObjectSymbol): RefAstSymbolSlot()
-data class RefSlotPlatformObject(val payload: PlatformObjectSymbol): RefAstSymbolSlot()
+data class RefSlotObject(val payload: ObjectType): RefAstSymbolSlot()
+data class RefSlotPlatformObject(val payload: PlatformObjectType): RefAstSymbolSlot()
 data class RefSlotSTP(val payload: StandardTypeParameter): RefAstSymbolSlot()
 data class RefSlotLVS(val payload: LocalVariableSymbol): RefAstSymbolSlot()
 data class RefSlotFormal(val payload: FunctionFormalParameterSymbol): RefAstSymbolSlot()
@@ -41,4 +41,4 @@ data class GroundApplySlotGF(val payload: GroundFunctionSymbol): GroundApplyAstS
 data class GroundApplySlotSI(val payload: SymbolInstantiation): GroundApplyAstSymbolSlot()
 data class GroundApplySlotTI(val payload: TypeInstantiation): GroundApplyAstSymbolSlot()
 data class GroundApplySlotFormal(val payload: FunctionFormalParameterSymbol): GroundApplyAstSymbolSlot()
-data class GroundApplySlotGRT(val payload: GroundRecordTypeSymbol): GroundApplyAstSymbolSlot()
+data class GroundApplySlotGRT(val payload: GroundRecordType): GroundApplyAstSymbolSlot()

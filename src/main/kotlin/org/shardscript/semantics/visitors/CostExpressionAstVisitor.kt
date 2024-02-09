@@ -4,7 +4,7 @@ import org.shardscript.semantics.core.*
 
 class CostExpressionAstVisitor(private val architecture: Architecture) : UnitAstVisitor() {
     private fun addDefault(costExpression: CostExpression): CostExpression =
-        SumCostExpression(listOf(FinTypeSymbol(architecture.defaultNodeCost), costExpression))
+        SumCostExpression(listOf(Fin(architecture.defaultNodeCost), costExpression))
 
     private fun convertCostExpression(symbolRef: Symbol): CostExpression =
         when (symbolRef) {
@@ -15,13 +15,13 @@ class CostExpressionAstVisitor(private val architecture: Architecture) : UnitAst
                 symbolRef.costExpression
             }
             is SymbolInstantiation -> replaySubstitutions(symbolRef)
-            else -> FinTypeSymbol(architecture.defaultNodeCost)
+            else -> Fin(architecture.defaultNodeCost)
         }
 
     private fun convertCostExpression(typeRef: Type): CostExpression =
         when (typeRef) {
-            is TypeInstantiation -> FinTypeSymbol(architecture.defaultNodeCost)
-            else -> FinTypeSymbol(architecture.defaultNodeCost)
+            is TypeInstantiation -> Fin(architecture.defaultNodeCost)
+            else -> Fin(architecture.defaultNodeCost)
         }
 
     private fun replaySubstitutions(instantiation: SymbolInstantiation): CostExpression =
@@ -41,23 +41,23 @@ class CostExpressionAstVisitor(private val architecture: Architecture) : UnitAst
         }
 
     override fun visit(ast: IntLiteralAst) {
-        ast.costExpression = FinTypeSymbol(architecture.defaultNodeCost)
+        ast.costExpression = Fin(architecture.defaultNodeCost)
     }
 
     override fun visit(ast: DecimalLiteralAst) {
-        ast.costExpression = FinTypeSymbol(architecture.defaultNodeCost)
+        ast.costExpression = Fin(architecture.defaultNodeCost)
     }
 
     override fun visit(ast: BooleanLiteralAst) {
-        ast.costExpression = FinTypeSymbol(architecture.defaultNodeCost)
+        ast.costExpression = Fin(architecture.defaultNodeCost)
     }
 
     override fun visit(ast: CharLiteralAst) {
-        ast.costExpression = FinTypeSymbol(architecture.defaultNodeCost)
+        ast.costExpression = Fin(architecture.defaultNodeCost)
     }
 
     override fun visit(ast: StringLiteralAst) {
-        ast.costExpression = FinTypeSymbol(architecture.defaultNodeCost)
+        ast.costExpression = Fin(architecture.defaultNodeCost)
     }
 
     override fun visit(ast: StringInterpolationAst) {
@@ -77,7 +77,7 @@ class CostExpressionAstVisitor(private val architecture: Architecture) : UnitAst
     }
 
     override fun visit(ast: RefAst) {
-        ast.costExpression = FinTypeSymbol(architecture.defaultNodeCost)
+        ast.costExpression = Fin(architecture.defaultNodeCost)
     }
 
     override fun visit(ast: FileAst) {
@@ -105,7 +105,7 @@ class CostExpressionAstVisitor(private val architecture: Architecture) : UnitAst
     override fun visit(ast: FunctionAst) {
         // The body cost will be calculated after topological sort of all functions,
         // therefore we do not call super.visit(ast)
-        ast.costExpression = FinTypeSymbol(architecture.defaultNodeCost)
+        ast.costExpression = Fin(architecture.defaultNodeCost)
     }
 
     override fun visit(ast: LambdaAst) {
@@ -115,12 +115,12 @@ class CostExpressionAstVisitor(private val architecture: Architecture) : UnitAst
 
     override fun visit(ast: RecordDefinitionAst) {
         super.visit(ast)
-        ast.costExpression = FinTypeSymbol(architecture.defaultNodeCost)
+        ast.costExpression = Fin(architecture.defaultNodeCost)
     }
 
     override fun visit(ast: ObjectDefinitionAst) {
         super.visit(ast)
-        ast.costExpression = FinTypeSymbol(architecture.defaultNodeCost)
+        ast.costExpression = Fin(architecture.defaultNodeCost)
     }
 
     override fun visit(ast: DotAst) {
@@ -250,12 +250,12 @@ class CostExpressionAstVisitor(private val architecture: Architecture) : UnitAst
 
     override fun visit(ast: AssignAst) {
         super.visit(ast)
-        ast.costExpression = FinTypeSymbol(architecture.defaultNodeCost)
+        ast.costExpression = Fin(architecture.defaultNodeCost)
     }
 
     override fun visit(ast: DotAssignAst) {
         super.visit(ast)
-        ast.costExpression = FinTypeSymbol(architecture.defaultNodeCost)
+        ast.costExpression = Fin(architecture.defaultNodeCost)
     }
 
     override fun visit(ast: IfAst) {

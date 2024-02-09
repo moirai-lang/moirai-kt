@@ -13,7 +13,7 @@ class ParameterScanAstVisitor(private val fileName: String) : UnitAstVisitor() {
 
     private fun scanRecord(ast: RecordDefinitionAst, recordMode: RecordMode) {
         if (ast.typeParams.isNotEmpty()) {
-            val parameterizedRecordSymbol = ast.scope as ParameterizedRecordTypeSymbol
+            val parameterizedRecordSymbol = ast.scope as ParameterizedRecordType
             when (recordMode) {
                 is EnumRecord -> {
                     errors.add(
@@ -25,7 +25,7 @@ class ParameterScanAstVisitor(private val fileName: String) : UnitAstVisitor() {
                     val seenTypeParameters: MutableSet<String> = HashSet()
                     parameterizedRecordSymbol.typeParams = ast.typeParams.map {
                         if (it.type == TypeParameterKind.Fin) {
-                            val typeParam = ImmutableFinTypeParameter(qualifiedName(ast.identifier, it.identifier), it.identifier)
+                            val typeParam = FinTypeParameter(qualifiedName(ast.identifier, it.identifier), it.identifier)
                             val postFix = it.identifier.name
                             if (seenTypeParameters.contains(postFix)) {
                                 errors.add(it.identifier.ctx, DuplicateTypeParameter(it.identifier))
@@ -57,7 +57,7 @@ class ParameterScanAstVisitor(private val fileName: String) : UnitAstVisitor() {
                 val seenTypeParameters: MutableSet<String> = HashSet()
                 parameterizedFunctionSymbol.typeParams = ast.typeParams.map {
                     if (it.type == TypeParameterKind.Fin) {
-                        val typeParam = ImmutableFinTypeParameter(qualifiedName(ast.identifier, it.identifier), it.identifier)
+                        val typeParam = FinTypeParameter(qualifiedName(ast.identifier, it.identifier), it.identifier)
                         val postFix = it.identifier.name
                         if (seenTypeParameters.contains(postFix)) {
                             errors.add(it.identifier.ctx, DuplicateTypeParameter(it.identifier))

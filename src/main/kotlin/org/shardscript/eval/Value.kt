@@ -3,7 +3,6 @@ package org.shardscript.eval
 import org.shardscript.semantics.core.*
 import org.shardscript.semantics.prelude.*
 import java.math.BigDecimal
-import kotlin.random.Random
 
 sealed class Value
 
@@ -13,324 +12,8 @@ data object UnitValue : Value() {
     }
 }
 
-data class GroundMemberPlugin(private val plugin: (Value, List<Value>) -> Value) {
-    fun invoke(t: Value, args: List<Value>): Value = plugin(t, args)
-}
-
-data class PlatformField(private val accessor: (Value) -> Value) {
-    fun invoke(t: Value): Value = accessor(t)
-}
-
-object Plugins {
-    val groundMemberPlugins: Map<GroundMemberPluginSymbol, GroundMemberPlugin> = mapOf(
-        IntegerMathOpMembers.add to GroundMemberPlugin { t: Value, args: List<Value> ->
-            (t as MathValue).evalAdd(args.first())
-        },
-        IntegerMathOpMembers.sub to GroundMemberPlugin { t: Value, args: List<Value> ->
-            (t as MathValue).evalSub(args.first())
-        },
-        IntegerMathOpMembers.mul to GroundMemberPlugin { t: Value, args: List<Value> ->
-            (t as MathValue).evalMul(args.first())
-        },
-        IntegerMathOpMembers.div to GroundMemberPlugin { t: Value, args: List<Value> ->
-            (t as MathValue).evalDiv(args.first())
-        },
-        IntegerMathOpMembers.mod to GroundMemberPlugin { t: Value, args: List<Value> ->
-            (t as MathValue).evalMod(args.first())
-        },
-        IntegerMathOpMembers.negate to GroundMemberPlugin { t: Value, _: List<Value> ->
-            (t as MathValue).evalNegate()
-        },
-        IntegerOrderOpMembers.greaterThan to GroundMemberPlugin { t: Value, args: List<Value> ->
-            (t as OrderValue).evalGreaterThan(args.first())
-        },
-        IntegerOrderOpMembers.greaterThanOrEquals to GroundMemberPlugin { t: Value, args: List<Value> ->
-            (t as OrderValue).evalGreaterThanOrEquals(args.first())
-        },
-        IntegerOrderOpMembers.lessThan to GroundMemberPlugin { t: Value, args: List<Value> ->
-            (t as OrderValue).evalLessThan(args.first())
-        },
-        IntegerOrderOpMembers.lessThanOrEquals to GroundMemberPlugin { t: Value, args: List<Value> ->
-            (t as OrderValue).evalLessThanOrEquals(args.first())
-        },
-        IntegerEqualityOpMembers.equals to GroundMemberPlugin { t: Value, args: List<Value> ->
-            (t as EqualityValue).evalEquals(args.first())
-        },
-        IntegerEqualityOpMembers.notEquals to GroundMemberPlugin { t: Value, args: List<Value> ->
-            (t as EqualityValue).evalNotEquals(args.first())
-        },
-        BooleanEqualityOpMembers.equals to GroundMemberPlugin { t: Value, args: List<Value> ->
-            (t as EqualityValue).evalEquals(args.first())
-        },
-        BooleanEqualityOpMembers.notEquals to GroundMemberPlugin { t: Value, args: List<Value> ->
-            (t as EqualityValue).evalNotEquals(args.first())
-        },
-        CharEqualityOpMembers.equals to GroundMemberPlugin { t: Value, args: List<Value> ->
-            (t as EqualityValue).evalEquals(args.first())
-        },
-        CharEqualityOpMembers.notEquals to GroundMemberPlugin { t: Value, args: List<Value> ->
-            (t as EqualityValue).evalNotEquals(args.first())
-        },
-        ValueLogicalOpMembers.and to GroundMemberPlugin { t: Value, args: List<Value> ->
-            (t as LogicalValue).evalAnd(args.first())
-        },
-        ValueLogicalOpMembers.or to GroundMemberPlugin { t: Value, args: List<Value> ->
-            (t as LogicalValue).evalOr(args.first())
-        },
-        ValueLogicalOpMembers.not to GroundMemberPlugin { t: Value, _: List<Value> ->
-            (t as LogicalValue).evalNot()
-        },
-        ListTypes.removeAtFunction to GroundMemberPlugin { t: Value, args: List<Value> ->
-            (t as ListValue).evalRemoveAt(args.first())
-        },
-        StringOpMembers.integerToStringMember to GroundMemberPlugin { t: Value, _: List<Value> ->
-            (t as IntValue).evalToString()
-        },
-        StringOpMembers.unitToStringMember to GroundMemberPlugin { _: Value, _: List<Value> ->
-            UnitValue.evalToString()
-        },
-        StringOpMembers.booleanToStringMember to GroundMemberPlugin { t: Value, _: List<Value> ->
-            (t as BooleanValue).evalToString()
-        },
-        StringOpMembers.charToStringMember to GroundMemberPlugin { t: Value, _: List<Value> ->
-            (t as CharValue).evalToString()
-        }
-    )
-
-    val parameterizedMemberPlugins: Map<ParameterizedMemberPluginSymbol, GroundMemberPlugin> = mapOf(
-        StringOpMembers.decimalToStringMember to GroundMemberPlugin { t: Value, _: List<Value> ->
-            (t as DecimalValue).evalToString()
-        },
-        StringOpMembers.stringToStringMember to GroundMemberPlugin { t: Value, _: List<Value> ->
-            (t as StringValue).evalToString()
-        },
-        StringOpMembers.toCharArray to GroundMemberPlugin { t: Value, _: List<Value> ->
-            (t as StringValue).evalToCharArray()
-        },
-        StringOpMembers.add to GroundMemberPlugin { t: Value, args: List<Value> ->
-            (t as StringValue).evalAdd(args.first())
-        },
-        StringOpMembers.equals to GroundMemberPlugin { t: Value, args: List<Value> ->
-            (t as EqualityValue).evalEquals(args.first())
-        },
-        StringOpMembers.notEquals to GroundMemberPlugin { t: Value, args: List<Value> ->
-            (t as EqualityValue).evalNotEquals(args.first())
-        },
-        DecimalMathOpMembers.add to GroundMemberPlugin { t: Value, args: List<Value> ->
-            (t as MathValue).evalAdd(args.first())
-        },
-        DecimalMathOpMembers.sub to GroundMemberPlugin { t: Value, args: List<Value> ->
-            (t as MathValue).evalSub(args.first())
-        },
-        DecimalMathOpMembers.mul to GroundMemberPlugin { t: Value, args: List<Value> ->
-            (t as MathValue).evalMul(args.first())
-        },
-        DecimalMathOpMembers.div to GroundMemberPlugin { t: Value, args: List<Value> ->
-            (t as MathValue).evalDiv(args.first())
-        },
-        DecimalMathOpMembers.mod to GroundMemberPlugin { t: Value, args: List<Value> ->
-            (t as MathValue).evalMod(args.first())
-        },
-        DecimalMathOpMembers.negate to GroundMemberPlugin { t: Value, _: List<Value> ->
-            (t as MathValue).evalNegate()
-        },
-        DecimalOrderOpMembers.greaterThan to GroundMemberPlugin { t: Value, args: List<Value> ->
-            (t as OrderValue).evalGreaterThan(args.first())
-        },
-        DecimalOrderOpMembers.greaterThanOrEquals to GroundMemberPlugin { t: Value, args: List<Value> ->
-            (t as OrderValue).evalGreaterThanOrEquals(args.first())
-        },
-        DecimalOrderOpMembers.lessThan to GroundMemberPlugin { t: Value, args: List<Value> ->
-            (t as OrderValue).evalLessThan(args.first())
-        },
-        DecimalOrderOpMembers.lessThanOrEquals to GroundMemberPlugin { t: Value, args: List<Value> ->
-            (t as OrderValue).evalLessThanOrEquals(args.first())
-        },
-        DecimalEqualityOpMembers.equals to GroundMemberPlugin { t: Value, args: List<Value> ->
-            (t as EqualityValue).evalEquals(args.first())
-        },
-        DecimalEqualityOpMembers.notEquals to GroundMemberPlugin { t: Value, args: List<Value> ->
-            (t as EqualityValue).evalNotEquals(args.first())
-        },
-        EqualityMembers.listEquals to GroundMemberPlugin { t: Value, args: List<Value> ->
-            (t as EqualityValue).evalEquals(args.first())
-        },
-        EqualityMembers.listNotEquals to GroundMemberPlugin { t: Value, args: List<Value> ->
-            (t as EqualityValue).evalNotEquals(args.first())
-        },
-        EqualityMembers.mutableListEquals to GroundMemberPlugin { t: Value, args: List<Value> ->
-            (t as EqualityValue).evalEquals(args.first())
-        },
-        EqualityMembers.mutableListNotEquals to GroundMemberPlugin { t: Value, args: List<Value> ->
-            (t as EqualityValue).evalNotEquals(args.first())
-        },
-        EqualityMembers.dictionaryEquals to GroundMemberPlugin { t: Value, args: List<Value> ->
-            (t as EqualityValue).evalEquals(args.first())
-        },
-        EqualityMembers.dictionaryNotEquals to GroundMemberPlugin { t: Value, args: List<Value> ->
-            (t as EqualityValue).evalNotEquals(args.first())
-        },
-        EqualityMembers.mutableDictionaryEquals to GroundMemberPlugin { t: Value, args: List<Value> ->
-            (t as EqualityValue).evalEquals(args.first())
-        },
-        EqualityMembers.mutableDictionaryNotEquals to GroundMemberPlugin { t: Value, args: List<Value> ->
-            (t as EqualityValue).evalNotEquals(args.first())
-        },
-        EqualityMembers.setEquals to GroundMemberPlugin { t: Value, args: List<Value> ->
-            (t as EqualityValue).evalEquals(args.first())
-        },
-        EqualityMembers.setNotEquals to GroundMemberPlugin { t: Value, args: List<Value> ->
-            (t as EqualityValue).evalNotEquals(args.first())
-        },
-        EqualityMembers.mutableSetEquals to GroundMemberPlugin { t: Value, args: List<Value> ->
-            (t as EqualityValue).evalEquals(args.first())
-        },
-        EqualityMembers.mutableSetNotEquals to GroundMemberPlugin { t: Value, args: List<Value> ->
-            (t as EqualityValue).evalNotEquals(args.first())
-        },
-        SetTypes.setContains to GroundMemberPlugin { t: Value, args: List<Value> ->
-            (t as SetValue).evalContains(args.first())
-        },
-        SetTypes.mutableSetContains to GroundMemberPlugin { t: Value, args: List<Value> ->
-            (t as SetValue).evalContains(args.first())
-        },
-        SetTypes.mutableSetAdd to GroundMemberPlugin { t: Value, args: List<Value> ->
-            (t as SetValue).evalAdd(args.first())
-        },
-        SetTypes.mutableSetRemove to GroundMemberPlugin { t: Value, args: List<Value> ->
-            (t as SetValue).evalRemove(args.first())
-        },
-        SetTypes.mutableSetToSet to GroundMemberPlugin { t: Value, _: List<Value> ->
-            (t as SetValue).evalToSet()
-        },
-        ListTypes.listGet to GroundMemberPlugin { t: Value, args: List<Value> ->
-            (t as ListValue).evalGet(args.first())
-        },
-        ListTypes.mutableListGet to GroundMemberPlugin { t: Value, args: List<Value> ->
-            (t as ListValue).evalGet(args.first())
-        },
-        ListTypes.mutableListAdd to GroundMemberPlugin { t: Value, args: List<Value> ->
-            (t as ListValue).evalAdd(args.first())
-        },
-        ListTypes.mutableListSet to GroundMemberPlugin { t: Value, args: List<Value> ->
-            (t as ListValue).evalSet(args.first(), args[1])
-        },
-        ListTypes.mutableListToList to GroundMemberPlugin { t: Value, _: List<Value> ->
-            (t as ListValue).evalToList()
-        },
-        DictionaryTypes.getFunction to GroundMemberPlugin { t: Value, args: List<Value> ->
-            (t as DictionaryValue).evalGet(args.first())
-        },
-        DictionaryTypes.mutableGetFunction to GroundMemberPlugin { t: Value, args: List<Value> ->
-            (t as DictionaryValue).evalGet(args.first())
-        },
-        DictionaryTypes.containsFunction to GroundMemberPlugin { t: Value, args: List<Value> ->
-            (t as DictionaryValue).evalContains(args.first())
-        },
-        DictionaryTypes.mutableContainsFunction to GroundMemberPlugin { t: Value, args: List<Value> ->
-            (t as DictionaryValue).evalContains(args.first())
-        },
-        DictionaryTypes.setFunction to GroundMemberPlugin { t: Value, args: List<Value> ->
-            (t as DictionaryValue).evalSet(args.first(), args[1])
-        },
-        DictionaryTypes.removeFunction to GroundMemberPlugin { t: Value, args: List<Value> ->
-            (t as DictionaryValue).evalRemove(args.first())
-        },
-        DictionaryTypes.mutableDictionaryToDictionary to GroundMemberPlugin { t: Value, _: List<Value> ->
-            (t as DictionaryValue).evalToDictionary()
-        }
-    )
-
-    val staticPlugins: Map<ParameterizedStaticPluginSymbol, PluginValue> = mapOf(
-        StaticPlugins.rangePlugin to PluginValue { args ->
-            val originalLowerBound = args[0] as IntValue
-            val originalUpperBound = args[1] as IntValue
-            if (originalLowerBound.canonicalForm < originalUpperBound.canonicalForm) {
-                val lowerBound = originalLowerBound.canonicalForm
-                val upperBound = originalUpperBound.canonicalForm - 1
-                val list: MutableList<Value> = (lowerBound..upperBound).toList().map {
-                    IntValue(it)
-                }.toMutableList()
-                ListValue(ImmutableBasicTypeMode, list)
-            } else {
-                val lowerBound = originalUpperBound.canonicalForm + 1
-                val upperBound = originalLowerBound.canonicalForm
-                val list: MutableList<Value> = (lowerBound..upperBound).toList().map {
-                    IntValue(it)
-                }.toMutableList()
-                list.reverse()
-                ListValue(ImmutableBasicTypeMode, list)
-            }
-        },
-        StaticPlugins.randomPlugin to PluginValue { args ->
-            when (val first = args.first()) {
-                is IntValue -> {
-                    var lowerBound = first.canonicalForm
-                    var upperBound = (args[1] as IntValue).canonicalForm
-                    var lowerBoundInclusive = true
-                    var upperBoundInclusive = false
-
-                    if (lowerBound > upperBound) {
-                        val temp = lowerBound
-                        lowerBound = upperBound
-                        upperBound = temp
-                        lowerBoundInclusive = false
-                        upperBoundInclusive = true
-                    }
-
-                    var offset = 0
-                    if (lowerBound < 0) {
-                        offset = lowerBound
-                        lowerBound += -offset
-                        upperBound += -offset
-                    }
-
-                    if (!lowerBoundInclusive) {
-                        lowerBound += 1
-                    }
-                    if (upperBoundInclusive) {
-                        upperBound += 1
-                    }
-
-                    var res = Random.nextInt(lowerBound, upperBound)
-                    res += offset
-                    IntValue(res)
-                }
-
-                else -> {
-                    langThrow(NotInSource, TypeSystemBug)
-                }
-            }
-        }
-    )
-
-    val fields: Map<PlatformFieldSymbol, PlatformField> = mapOf(
-        StringTypes.sizeFieldSymbol to PlatformField { value ->
-            (value as StringValue).fieldSize()
-        },
-        SetTypes.setSizeFieldSymbol to PlatformField { value ->
-            (value as SetValue).fieldSize()
-        },
-        SetTypes.mutableSizeFieldSymbol to PlatformField { value ->
-            (value as SetValue).fieldSize()
-        },
-        ListTypes.listSizeFieldSymbol to PlatformField { value ->
-            (value as ListValue).fieldSize()
-        },
-        ListTypes.mutableSizeFieldSymbol to PlatformField { value ->
-            (value as ListValue).fieldSize()
-        },
-        DictionaryTypes.dictionarySizeFieldSymbol to PlatformField { value ->
-            (value as DictionaryValue).fieldSize()
-        },
-        DictionaryTypes.mutableSizeFieldSymbol to PlatformField { value ->
-            (value as DictionaryValue).fieldSize()
-        }
-    )
-}
-
 class ObjectValue(
-    val symbol: ObjectSymbol
+    val symbol: ObjectType
 ) : Value() {
     val path = getQualifiedName(symbol)
 
@@ -357,17 +40,9 @@ data class PluginValue(
 data class FunctionValue(
     val formalParams: List<FunctionFormalParameterSymbol>,
     val body: Ast
-) : Value() {
-    fun invoke(args: List<Value>, globalScope: ValueTable, evalCallback: (Ast, ValueTable) -> Value): Value {
-        val functionScope = ValueTable(globalScope)
-        formalParams.zip(args).forEach {
-            functionScope.define(it.first.identifier, it.second)
-        }
-        return evalCallback(body, functionScope)
-    }
-}
+) : Value()
 
-class RecordValue(type: Type, val fields: ValueTable) : Value() {
+class RecordValue(type: Type, val fields: ValueTable, val substitutions: Map<TypeParameter, Type>) : Value() {
     lateinit var scope: Scope
     val path = getQualifiedName(type)
 
@@ -386,65 +61,6 @@ class RecordValue(type: Type, val fields: ValueTable) : Value() {
 
     override fun hashCode(): Int {
         return path.hashCode()
-    }
-}
-
-data class RecordConstructorValue(val prelude: Scope, val type: Type) : Value() {
-    fun apply(args: List<Value>): RecordValue {
-        return when (type) {
-            is GroundRecordTypeSymbol -> {
-                val fields = ValueTable(
-                    SymbolRouterValueTable(prelude, type)
-                )
-                type.fields.zip(args).forEach {
-                    fields.define(it.first.identifier, it.second)
-                }
-                val res = RecordValue(type, fields)
-                res.scope = type
-                res
-            }
-            is ParameterizedRecordTypeSymbol -> {
-                val fields = ValueTable(
-                    SymbolRouterValueTable(prelude, type)
-                )
-                type.fields.zip(args).forEach {
-                    fields.define(it.first.identifier, it.second)
-                }
-                val res = RecordValue(type, fields)
-                res.scope = type
-                res
-            }
-            else -> langThrow(NotInSource, TypeSystemBug)
-        }
-    }
-}
-
-data class ListConstructorValue(val modeSelector: (List<Type>) -> BasicTypeMode) :
-    Value() {
-    fun apply(typeArgs: List<Type>, elements: List<Value>): ListValue {
-        return ListValue(modeSelector(typeArgs), elements.toMutableList())
-    }
-}
-
-data class SetConstructorValue(val modeSelector: (List<Type>) -> BasicTypeMode) :
-    Value() {
-    fun apply(typeArgs: List<Type>, elements: List<Value>): SetValue {
-        return SetValue(modeSelector(typeArgs), elements.toMutableSet())
-    }
-}
-
-data class DictionaryConstructorValue(val modeSelector: (List<Type>) -> BasicTypeMode) :
-    Value() {
-    fun apply(typeArgs: List<Type>, elements: List<Value>): DictionaryValue {
-        val pairs = elements.map {
-            it as RecordValue
-        }.map {
-            Pair(
-                it.fields.fetchHere(Lang.pairFirstId),
-                it.fields.fetchHere(Lang.pairSecondId)
-            )
-        }
-        return DictionaryValue(modeSelector(typeArgs), pairs.toMap().toMutableMap())
     }
 }
 
@@ -562,7 +178,8 @@ data class StringValue(val canonicalForm: String) : Value(), EqualityValue {
 
     fun evalToCharArray(): Value {
         val elements = canonicalForm.toCharArray().map { CharValue(it) }
-        return ListValue(ImmutableBasicTypeMode, elements.toMutableList())
+        val fin = Fin(canonicalForm.length.toLong())
+        return ListValue(elements.toMutableList(), mapOf(Lang.listFinTypeParam to fin), fin.magnitude, false)
     }
 
     fun evalToString(): Value = StringValue(canonicalForm)
@@ -573,19 +190,21 @@ data class StringValue(val canonicalForm: String) : Value(), EqualityValue {
     }
 }
 
-data class ListValue(val mode: BasicTypeMode, val elements: MutableList<Value>) : Value(), EqualityValue {
+data class ListValue(
+    val elements: MutableList<Value>,
+    val substitutions: Map<TypeParameter, Type>,
+    val fin: Long,
+    val mutable: Boolean
+) : Value(), EqualityValue {
     fun fieldSize(): Value {
         return IntValue(elements.size)
     }
 
     fun evalToList(): Value {
-        when (mode) {
-            is ImmutableBasicTypeMode -> {
-                langThrow(NotInSource, RuntimeImmutableViolation)
-            }
-            is MutableBasicTypeMode -> {
-                return ListValue(ImmutableBasicTypeMode, elements.toList().toMutableList())
-            }
+        if (mutable) {
+            return ListValue(elements.toList().toMutableList(), substitutions, fin, false)
+        } else {
+            langThrow(NotInSource, RuntimeImmutableViolation)
         }
     }
 
@@ -603,53 +222,44 @@ data class ListValue(val mode: BasicTypeMode, val elements: MutableList<Value>) 
     }
 
     fun evalSet(index: Value, value: Value): Value {
-        when (mode) {
-            is ImmutableBasicTypeMode -> {
-                langThrow(NotInSource, RuntimeImmutableViolation)
-            }
-            is MutableBasicTypeMode -> {
-                val indexInt = index as IntValue
-                when {
-                    index.canonicalForm < elements.size -> {
-                        elements[indexInt.canonicalForm] = value
-                    }
-                    index.canonicalForm == elements.size -> {
-                        elements.add(value)
-                    }
-                    else -> {
-                        langThrow(IndexOutOfBounds(index.canonicalForm, elements.size))
-                    }
+        if (mutable) {
+            val indexInt = index as IntValue
+            when {
+                index.canonicalForm < elements.size -> {
+                    elements[indexInt.canonicalForm] = value
                 }
-                return UnitValue
+                index.canonicalForm == elements.size -> {
+                    elements.add(value)
+                }
+                else -> {
+                    langThrow(IndexOutOfBounds(index.canonicalForm, elements.size))
+                }
             }
+            return UnitValue
+        } else {
+            langThrow(NotInSource, RuntimeImmutableViolation)
         }
     }
 
     fun evalRemoveAt(value: Value): Value {
-        when (mode) {
-            is ImmutableBasicTypeMode -> {
-                langThrow(NotInSource, RuntimeImmutableViolation)
-            }
-            is MutableBasicTypeMode -> {
-                val index = (value as IntValue).canonicalForm
-                elements.removeAt(index)
-                return UnitValue
-            }
+        if (mutable) {
+            val index = (value as IntValue).canonicalForm
+            elements.removeAt(index)
+            return UnitValue
+        } else {
+            langThrow(NotInSource, RuntimeImmutableViolation)
         }
     }
 
     fun evalAdd(value: Value): Value {
-        when (mode) {
-            is ImmutableBasicTypeMode -> {
-                langThrow(NotInSource, RuntimeImmutableViolation)
+        if (mutable) {
+            elements.add(value)
+            if (elements.size.toLong() > fin) {
+                langThrow(NotInSource, RuntimeFinViolation(fin, elements.size.toLong()))
             }
-            is MutableBasicTypeMode -> {
-                elements.add(value)
-                if (elements.size.toLong() > mode.fin) {
-                    langThrow(NotInSource, RuntimeFinViolation(mode.fin, elements.size.toLong()))
-                }
-                return UnitValue
-            }
+            return UnitValue
+        } else {
+            langThrow(NotInSource, RuntimeImmutableViolation)
         }
     }
 
@@ -665,19 +275,21 @@ data class ListValue(val mode: BasicTypeMode, val elements: MutableList<Value>) 
     }
 }
 
-data class SetValue(val mode: BasicTypeMode, val elements: MutableSet<Value>) : Value(), EqualityValue {
+data class SetValue(
+    val elements: MutableSet<Value>,
+    val substitutions: Map<TypeParameter, Type>,
+    val fin: Long,
+    val mutable: Boolean
+) : Value(), EqualityValue {
     fun fieldSize(): Value {
         return IntValue(elements.size)
     }
 
     fun evalToSet(): Value {
-        when (mode) {
-            is ImmutableBasicTypeMode -> {
-                langThrow(NotInSource, RuntimeImmutableViolation)
-            }
-            is MutableBasicTypeMode -> {
-                return SetValue(ImmutableBasicTypeMode, elements.toSet().toMutableSet())
-            }
+        if (mutable) {
+            return SetValue(elements.toSet().toMutableSet(), substitutions, fin, false)
+        } else {
+            langThrow(NotInSource, RuntimeImmutableViolation)
         }
     }
 
@@ -694,29 +306,23 @@ data class SetValue(val mode: BasicTypeMode, val elements: MutableSet<Value>) : 
     }
 
     fun evalRemove(value: Value): Value {
-        when (mode) {
-            is ImmutableBasicTypeMode -> {
-                langThrow(NotInSource, RuntimeImmutableViolation)
-            }
-            is MutableBasicTypeMode -> {
-                elements.remove(value)
-                return UnitValue
-            }
+        if (mutable) {
+            elements.remove(value)
+            return UnitValue
+        } else {
+            langThrow(NotInSource, RuntimeImmutableViolation)
         }
     }
 
     fun evalAdd(value: Value): Value {
-        when (mode) {
-            is ImmutableBasicTypeMode -> {
-                langThrow(NotInSource, RuntimeImmutableViolation)
+        if (mutable) {
+            elements.add(value)
+            if (elements.size.toLong() > fin) {
+                langThrow(NotInSource, RuntimeFinViolation(fin, elements.size.toLong()))
             }
-            is MutableBasicTypeMode -> {
-                elements.add(value)
-                if (elements.size.toLong() > mode.fin) {
-                    langThrow(NotInSource, RuntimeFinViolation(mode.fin, elements.size.toLong()))
-                }
-                return UnitValue
-            }
+            return UnitValue
+        } else {
+            langThrow(NotInSource, RuntimeImmutableViolation)
         }
     }
 
@@ -733,21 +339,20 @@ data class SetValue(val mode: BasicTypeMode, val elements: MutableSet<Value>) : 
 }
 
 data class DictionaryValue(
-    val mode: BasicTypeMode,
-    val dictionary: MutableMap<Value, Value>
+    val dictionary: MutableMap<Value, Value>,
+    val substitutions: Map<TypeParameter, Type>,
+    val fin: Long,
+    val mutable: Boolean
 ) : Value(), EqualityValue {
     fun fieldSize(): Value {
         return IntValue(dictionary.size)
     }
 
     fun evalToDictionary(): Value {
-        when (mode) {
-            is ImmutableBasicTypeMode -> {
-                langThrow(NotInSource, RuntimeImmutableViolation)
-            }
-            is MutableBasicTypeMode -> {
-                return DictionaryValue(ImmutableBasicTypeMode, dictionary.toMap().toMutableMap())
-            }
+        if (mutable) {
+            return DictionaryValue(dictionary.toMap().toMutableMap(), substitutions, fin, false)
+        } else {
+            langThrow(NotInSource, RuntimeImmutableViolation)
         }
     }
 
@@ -768,29 +373,23 @@ data class DictionaryValue(
     }
 
     fun evalSet(key: Value, value: Value): Value {
-        when (mode) {
-            is ImmutableBasicTypeMode -> {
-                langThrow(NotInSource, RuntimeImmutableViolation)
+        if (mutable) {
+            dictionary[key] = value
+            if (dictionary.size.toLong() > fin) {
+                langThrow(NotInSource, RuntimeFinViolation(fin, dictionary.size.toLong()))
             }
-            is MutableBasicTypeMode -> {
-                dictionary[key] = value
-                if (dictionary.size.toLong() > mode.fin) {
-                    langThrow(NotInSource, RuntimeFinViolation(mode.fin, dictionary.size.toLong()))
-                }
-                return UnitValue
-            }
+            return UnitValue
+        } else {
+            langThrow(NotInSource, RuntimeImmutableViolation)
         }
     }
 
     fun evalRemove(key: Value): Value {
-        when (mode) {
-            is ImmutableBasicTypeMode -> {
-                langThrow(NotInSource, RuntimeImmutableViolation)
-            }
-            is MutableBasicTypeMode -> {
-                dictionary.remove(key)
-                return UnitValue
-            }
+        if (mutable) {
+            dictionary.remove(key)
+            return UnitValue
+        } else {
+            langThrow(NotInSource, RuntimeImmutableViolation)
         }
     }
 
@@ -814,80 +413,23 @@ interface ValueScope {
     fun fetchHere(signifier: Signifier): Value
 }
 
-class SymbolRouterValueTable(private val prelude: Scope, private val symbols: Scope) : ValueScope {
+object NullValueTable : ValueScope {
     override fun define(identifier: Identifier, definition: Value) {
-        langThrow(identifier.ctx, IdentifierCouldNotBeDefined(identifier))
+        langThrow(NotInSource, IdentifierCouldNotBeDefined(identifier))
     }
 
-    override fun exists(signifier: Signifier): Boolean =
-        symbols.exists(signifier)
+    override fun exists(signifier: Signifier): Boolean = false
 
-    override fun existsHere(signifier: Signifier): Boolean =
-        symbols.existsHere(signifier)
+    override fun existsHere(signifier: Signifier): Boolean = false
 
-    override fun fetch(signifier: Signifier): Value =
-        when (val res = symbols.fetch(signifier)) {
-            is GroundFunctionSymbol -> {
-                val fv = FunctionValue(res.formalParams, res.body)
-                fv
-            }
+    override fun fetch(signifier: Signifier): Value {
+        langThrow(NotInSource, IdentifierNotFound(signifier))
+    }
 
-            is ParameterizedFunctionSymbol -> {
-                val fv = FunctionValue(res.formalParams, res.body)
-                fv
-            }
+    override fun fetchHere(signifier: Signifier): Value {
+        langThrow(NotInSource, IdentifierNotFound(signifier))
+    }
 
-            is ParameterizedStaticPluginSymbol -> Plugins.staticPlugins[res]!!
-            is TypePlaceholder -> {
-                when (val type = symbols.fetchType(signifier)) {
-                    is GroundRecordTypeSymbol -> RecordConstructorValue(prelude, type)
-                    is ParameterizedRecordTypeSymbol -> RecordConstructorValue(prelude, type)
-                    is ParameterizedBasicTypeSymbol -> when (type.identifier) {
-                        Lang.listId, Lang.mutableListId -> ListConstructorValue(type.modeSelector)
-                        Lang.dictionaryId, Lang.mutableDictionaryId -> DictionaryConstructorValue(type.modeSelector)
-                        Lang.setId, Lang.mutableSetId -> SetConstructorValue(type.modeSelector)
-                        else -> langThrow(signifier.ctx, IdentifierNotFound(signifier))
-                    }
-                    is PlatformObjectSymbol -> if (type.identifier == Lang.unitId) {
-                        UnitValue
-                    } else {
-                        langThrow(signifier.ctx, TypeSystemBug)
-                    }
-
-                    is ObjectSymbol -> ObjectValue(type)
-                    else -> langThrow(signifier.ctx, IdentifierNotFound(signifier))
-                }
-            }
-            else -> langThrow(signifier.ctx, IdentifierNotFound(signifier))
-        }
-
-    override fun fetchHere(signifier: Signifier): Value =
-        when (val res = symbols.fetchHere(signifier)) {
-            is GroundFunctionSymbol -> {
-                val fv = FunctionValue(res.formalParams, res.body)
-                fv
-            }
-            is ParameterizedFunctionSymbol -> {
-                val fv = FunctionValue(res.formalParams, res.body)
-                fv
-            }
-            is ParameterizedStaticPluginSymbol -> Plugins.staticPlugins[res]!!
-            is TypePlaceholder -> {
-                when (val type = symbols.fetchTypeHere(signifier)) {
-                    is GroundRecordTypeSymbol -> RecordConstructorValue(prelude, type)
-                    is ParameterizedRecordTypeSymbol -> RecordConstructorValue(prelude, type)
-                    is ParameterizedBasicTypeSymbol -> when (type.identifier) {
-                        Lang.listId, Lang.mutableListId -> ListConstructorValue(type.modeSelector)
-                        Lang.dictionaryId, Lang.mutableDictionaryId -> DictionaryConstructorValue(type.modeSelector)
-                        Lang.setId, Lang.mutableSetId -> SetConstructorValue(type.modeSelector)
-                        else -> langThrow(signifier.ctx, IdentifierNotFound(signifier))
-                    }
-                    is ObjectSymbol -> ObjectValue(type)
-                    else -> langThrow(signifier.ctx, IdentifierNotFound(signifier))
-                }
-            }
-            else -> langThrow(signifier.ctx, IdentifierNotFound(signifier))
-        }
 }
 
 class ValueTable(private val parent: ValueScope) : ValueScope {

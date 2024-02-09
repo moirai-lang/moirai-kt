@@ -127,7 +127,7 @@ fun calculateCost(symbol: Symbol, architecture: Architecture) {
             symbol.body.accept(costExpressionAstVisitor)
             val bodyCost = symbol.body.costExpression
             symbol.costExpression = if (bodyCost.accept(CanEvalCostExpressionVisitor)) {
-                FinTypeSymbol(bodyCost.accept(EvalCostExpressionVisitor(architecture)))
+                Fin(bodyCost.accept(EvalCostExpressionVisitor(architecture)))
             } else {
                 bodyCost
             }
@@ -136,7 +136,7 @@ fun calculateCost(symbol: Symbol, architecture: Architecture) {
             symbol.body.accept(costExpressionAstVisitor)
             val bodyCost = symbol.body.costExpression
             symbol.costExpression = if (bodyCost.accept(CanEvalCostExpressionVisitor)) {
-                FinTypeSymbol(bodyCost.accept(EvalCostExpressionVisitor(architecture)))
+                Fin(bodyCost.accept(EvalCostExpressionVisitor(architecture)))
             } else {
                 bodyCost
             }
