@@ -4,6 +4,14 @@ import org.shardscript.semantics.core.*
 import org.shardscript.semantics.prelude.Lang
 
 class EvalAstVisitor(private val globalScope: ValueTable) : ParameterizedAstVisitor<ValueTable, Value> {
+    fun invoke(functionValue: FunctionValue, args: List<Value>): Value {
+        val functionScope = ValueTable(globalScope)
+        functionValue.formalParams.zip(args).forEach {
+            functionScope.define(it.first.identifier, it.second)
+        }
+        return functionValue.body.accept(this, functionScope)
+    }
+
     override fun visit(ast: FileAst, param: ValueTable): Value {
         val blockScope = ValueTable(param)
         val resLines = ast.lines.map { it.accept(this, blockScope) }
@@ -122,9 +130,7 @@ class EvalAstVisitor(private val globalScope: ValueTable) : ParameterizedAstVisi
                 val args = ast.args.map { it.accept(this, param) }
                 when (val toApply = param.fetch(groundApplySlot.payload.identifier)) {
                     is FunctionValue -> {
-                        toApply.invoke(args, globalScope) { a, v ->
-                            a.accept(this, v)
-                        }
+                        invoke(toApply, args)
                     }
                     else -> langThrow(NotInSource, TypeSystemBug)
                 }
@@ -132,9 +138,7 @@ class EvalAstVisitor(private val globalScope: ValueTable) : ParameterizedAstVisi
             is GroundApplySlotGF -> {
                 val args = ast.args.map { it.accept(this, param) }
                 val toApply = FunctionValue(groundApplySlot.payload.formalParams, groundApplySlot.payload.body)
-                toApply.invoke(args, globalScope) { a, v ->
-                    a.accept(this, v)
-                }
+                invoke(toApply, args)
             }
             is GroundApplySlotGRT -> {
                 val args = ast.args.map { it.accept(this, param) }
@@ -151,9 +155,7 @@ class EvalAstVisitor(private val globalScope: ValueTable) : ParameterizedAstVisi
                 when (val terminus = groundApplySlot.payload.substitutionChain.terminus) {
                     is ParameterizedFunctionSymbol -> {
                         val toApply = FunctionValue(terminus.formalParams, terminus.body)
-                        toApply.invoke(args, globalScope) { a, v ->
-                            a.accept(this, v)
-                        }
+                        invoke(toApply, args)
                     }
                     is ParameterizedMemberPluginSymbol -> langThrow(NotInSource, TypeSystemBug)
                     is ParameterizedStaticPluginSymbol -> Plugins.staticPlugins[terminus]!!.invoke(args)

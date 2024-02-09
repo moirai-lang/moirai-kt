@@ -357,15 +357,7 @@ data class PluginValue(
 data class FunctionValue(
     val formalParams: List<FunctionFormalParameterSymbol>,
     val body: Ast
-) : Value() {
-    fun invoke(args: List<Value>, globalScope: ValueTable, evalCallback: (Ast, ValueTable) -> Value): Value {
-        val functionScope = ValueTable(globalScope)
-        formalParams.zip(args).forEach {
-            functionScope.define(it.first.identifier, it.second)
-        }
-        return evalCallback(body, functionScope)
-    }
-}
+) : Value()
 
 class RecordValue(type: Type, val fields: ValueTable) : Value() {
     lateinit var scope: Scope
