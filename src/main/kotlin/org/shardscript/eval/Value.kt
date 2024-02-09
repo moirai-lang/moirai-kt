@@ -1,6 +1,7 @@
 package org.shardscript.eval
 
 import org.shardscript.semantics.core.*
+import org.shardscript.semantics.infer.Substitution
 import org.shardscript.semantics.prelude.*
 import java.math.BigDecimal
 import kotlin.random.Random
@@ -9,7 +10,7 @@ sealed class Value
 
 data object UnitValue : Value() {
     fun evalToString(): Value {
-        return StringValue(Lang.unitId.name)
+        return strToStringValue(Lang.unitId.name)
     }
 }
 
@@ -359,7 +360,7 @@ data class FunctionValue(
     val body: Ast
 ) : Value()
 
-class RecordValue(type: Type, val fields: ValueTable) : Value() {
+class RecordValue(type: Type, val fields: ValueTable, val substitutions: Map<Type, Type>) : Value() {
     lateinit var scope: Scope
     val path = getQualifiedName(type)
 
@@ -417,7 +418,7 @@ data class BooleanValue(val canonicalForm: Boolean) : Value(), EqualityValue, Lo
     override fun evalOr(other: Value): Value = BooleanValue(canonicalForm || (other as BooleanValue).canonicalForm)
     override fun evalNot(): Value = BooleanValue(!canonicalForm)
 
-    fun evalToString(): Value = StringValue(canonicalForm.toString())
+    fun evalToString(): Value = strToStringValue(canonicalForm.toString())
 }
 
 data class IntValue(val canonicalForm: Int) : Value(), MathValue, OrderValue, EqualityValue {
@@ -438,7 +439,7 @@ data class IntValue(val canonicalForm: Int) : Value(), MathValue, OrderValue, Eq
     override fun evalNotEquals(other: Value): Value = BooleanValue(canonicalForm != (other as IntValue).canonicalForm)
     override fun evalNegate(): Value = IntValue(-canonicalForm)
 
-    fun evalToString(): Value = StringValue(canonicalForm.toString())
+    fun evalToString(): Value = strToStringValue(canonicalForm.toString())
 }
 
 data class DecimalValue(val canonicalForm: BigDecimal) : Value(), MathValue, OrderValue, EqualityValue {
@@ -473,7 +474,7 @@ data class DecimalValue(val canonicalForm: BigDecimal) : Value(), MathValue, Ord
 
     override fun evalNegate(): Value = DecimalValue(canonicalForm.negate())
 
-    fun evalToString(): Value = StringValue(canonicalForm.stripTrailingZeros().toPlainString())
+    fun evalToString(): Value = strToStringValue(canonicalForm.stripTrailingZeros().toPlainString())
 }
 
 data class CharValue(val canonicalForm: Char) : Value(), EqualityValue {
@@ -481,10 +482,15 @@ data class CharValue(val canonicalForm: Char) : Value(), EqualityValue {
     override fun evalNotEquals(other: Value): Value =
         BooleanValue(canonicalForm != (other as CharValue).canonicalForm)
 
-    fun evalToString(): Value = StringValue(canonicalForm.toString())
+    fun evalToString(): Value = strToStringValue(canonicalForm.toString())
 }
 
-data class StringValue(val canonicalForm: String) : Value(), EqualityValue {
+fun strToStringValue(str: String): StringValue {
+    val fin = Fin(str.length.toLong())
+    return StringValue(str, mapOf(Lang.stringTypeParam to fin))
+}
+
+data class StringValue(val canonicalForm: String, val substitutions: Map<Type, Type>) : Value(), EqualityValue {
     override fun evalEquals(other: Value): Value = BooleanValue(canonicalForm == (other as StringValue).canonicalForm)
     override fun evalNotEquals(other: Value): Value =
         BooleanValue(canonicalForm != (other as StringValue).canonicalForm)
@@ -498,11 +504,11 @@ data class StringValue(val canonicalForm: String) : Value(), EqualityValue {
         return ListValue(elements.toMutableList(), canonicalForm.length.toLong(), false)
     }
 
-    fun evalToString(): Value = StringValue(canonicalForm)
+    fun evalToString(): Value = strToStringValue(canonicalForm)
 
     fun evalAdd(arg: Value): Value {
         val other = arg as StringValue
-        return StringValue(canonicalForm + other.canonicalForm)
+        return strToStringValue(canonicalForm + other.canonicalForm)
     }
 }
 

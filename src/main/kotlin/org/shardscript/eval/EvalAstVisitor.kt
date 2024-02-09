@@ -58,7 +58,7 @@ class EvalAstVisitor(private val globalScope: ValueTable) : ParameterizedAstVisi
         CharValue(ast.canonicalForm)
 
     override fun visit(ast: StringLiteralAst, param: EvalContext): Value =
-        StringValue(ast.canonicalForm)
+        strToStringValue(ast.canonicalForm)
 
     override fun visit(ast: StringInterpolationAst, param: EvalContext): Value {
         val sb = StringBuilder()
@@ -73,7 +73,7 @@ class EvalAstVisitor(private val globalScope: ValueTable) : ParameterizedAstVisi
                 else -> langThrow(it.ctx, TypeSystemBug)
             }
         }
-        return StringValue(sb.toString())
+        return strToStringValue(sb.toString())
     }
 
     override fun visit(ast: FunctionAst, param: EvalContext): Value =
@@ -148,7 +148,7 @@ class EvalAstVisitor(private val globalScope: ValueTable) : ParameterizedAstVisi
                 groundApplySlot.payload.fields.zip(args).forEach {
                     fields.define(it.first.identifier, it.second)
                 }
-                val res = RecordValue(groundApplySlot.payload, fields)
+                val res = RecordValue(groundApplySlot.payload, fields, mapOf())
                 res.scope = groundApplySlot.payload
                 res
             }
@@ -208,7 +208,9 @@ class EvalAstVisitor(private val globalScope: ValueTable) : ParameterizedAstVisi
                         terminus.fields.zip(args).forEach {
                             fields.define(it.first.identifier, it.second)
                         }
-                        val res = RecordValue(groundApplySlot.payload, fields)
+                        val replayedTypeArgs = groundApplySlot.payload.substitutionChain.replayArgs()
+                        val substitutions = terminus.typeParams.zip(replayedTypeArgs).toMap<Type, Type>()
+                        val res = RecordValue(groundApplySlot.payload, fields, substitutions)
                         res.scope = terminus
                         res
                     }
