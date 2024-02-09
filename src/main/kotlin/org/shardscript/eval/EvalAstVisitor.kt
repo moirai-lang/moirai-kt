@@ -5,13 +5,28 @@ import org.shardscript.semantics.prelude.Lang
 
 data class EvalContext(val values: ValueTable, val substitutions: Map<Type, Type>)
 
-class EvalAstVisitor(private val globalScope: ValueTable) : ParameterizedAstVisitor<EvalContext, Value> {
+class EvalAstVisitor(architecture: Architecture, private val globalScope: ValueTable) : ParameterizedAstVisitor<EvalContext, Value> {
+    private val evalCostVisitor = EvalCostExpressionVisitor(architecture)
+
     fun invoke(functionValue: FunctionValue, args: List<Value>, substitutions: Map<Type, Type>): Value {
         val functionScope = ValueTable(globalScope)
         functionValue.formalParams.zip(args).forEach {
             functionScope.define(it.first.identifier, it.second)
         }
         return functionValue.body.accept(this, EvalContext(functionScope, substitutions))
+    }
+
+    private fun computeFin(typeParameter: FinTypeParameter, substitutions: Map<Type, Type>): Long {
+        if (substitutions.containsKey(typeParameter)) {
+            val mapped = substitutions[typeParameter]!!
+            if (mapped is CostExpression && mapped.accept(CanEvalCostExpressionVisitor)) {
+                return mapped.accept(evalCostVisitor)
+            } else {
+                langThrow(NotInSource, RuntimeCostExpressionEvalFailed)
+            }
+        } else {
+            langThrow(NotInSource, RuntimeCostExpressionEvalFailed)
+        }
     }
 
     override fun visit(ast: FileAst, param: EvalContext): Value {
@@ -58,7 +73,7 @@ class EvalAstVisitor(private val globalScope: ValueTable) : ParameterizedAstVisi
         CharValue(ast.canonicalForm)
 
     override fun visit(ast: StringLiteralAst, param: EvalContext): Value =
-        strToStringValue(ast.canonicalForm)
+        StringValue(ast.canonicalForm)
 
     override fun visit(ast: StringInterpolationAst, param: EvalContext): Value {
         val sb = StringBuilder()
@@ -73,7 +88,7 @@ class EvalAstVisitor(private val globalScope: ValueTable) : ParameterizedAstVisi
                 else -> langThrow(it.ctx, TypeSystemBug)
             }
         }
-        return strToStringValue(sb.toString())
+        return StringValue(sb.toString())
     }
 
     override fun visit(ast: FunctionAst, param: EvalContext): Value =
@@ -169,9 +184,12 @@ class EvalAstVisitor(private val globalScope: ValueTable) : ParameterizedAstVisi
                     is ParameterizedBasicType -> {
                         when (terminus.identifier) {
                             Lang.listId, Lang.mutableListId -> {
+                                val replayedTypeArgs = groundApplySlot.payload.substitutionChain.replayArgs()
+                                val substitutions = terminus.typeParams.zip(replayedTypeArgs).toMap<Type, Type>()
                                 ListValue(
                                     args.toMutableList(),
-                                    args.size.toLong(),
+                                    substitutions,
+                                    computeFin(Lang.listFinTypeParam, substitutions),
                                     terminus.identifier == Lang.mutableListId
                                 )
                             }
@@ -185,17 +203,23 @@ class EvalAstVisitor(private val globalScope: ValueTable) : ParameterizedAstVisi
                                         it.fields.fetchHere(Lang.pairSecondId)
                                     )
                                 }
+                                val replayedTypeArgs = groundApplySlot.payload.substitutionChain.replayArgs()
+                                val substitutions = terminus.typeParams.zip(replayedTypeArgs).toMap<Type, Type>()
                                 DictionaryValue(
                                     pairs.toMap().toMutableMap(),
-                                    args.size.toLong(),
+                                    substitutions,
+                                    computeFin(Lang.dictionaryFinTypeParam, substitutions),
                                     terminus.identifier == Lang.mutableDictionaryId
                                 )
                             }
 
                             Lang.setId, Lang.mutableSetId -> {
+                                val replayedTypeArgs = groundApplySlot.payload.substitutionChain.replayArgs()
+                                val substitutions = terminus.typeParams.zip(replayedTypeArgs).toMap<Type, Type>()
                                 SetValue(
                                     args.toMutableSet(),
-                                    args.size.toLong(),
+                                    substitutions,
+                                    computeFin(Lang.setFinTypeParam, substitutions),
                                     terminus.identifier == Lang.mutableSetId
                                 )
                             }

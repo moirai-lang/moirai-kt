@@ -31,7 +31,7 @@ fun eval(
     val executionArtifacts = frontend.compile(source)
 
     val globalScope = ValueTable(NullValueTable)
-    val evalVisitor = EvalAstVisitor(globalScope)
+    val evalVisitor = EvalAstVisitor(architecture, globalScope)
 
     val executionScope = ValueTable(globalScope)
     return executionArtifacts.processedAst.accept(evalVisitor, EvalContext(executionScope, mapOf()))

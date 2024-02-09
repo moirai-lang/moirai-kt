@@ -67,6 +67,8 @@ data class CannotFindBestType(override val types: List<Type>) : ErrorKind(), Typ
 data class SyntaxError(val msg: String) : ErrorKind()
 data object ResurrectWhitelistError : ErrorKind()
 data object TypeSystemBug : ErrorKind()
+
+data object RuntimeCostExpressionEvalFailed : ErrorKind()
 data object ExpectOtherError : ErrorKind()
 data object CostOverLimit : ErrorKind()
 data object InvalidCostUpperLimit: ErrorKind()

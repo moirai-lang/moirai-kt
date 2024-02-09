@@ -8,7 +8,7 @@ sealed class Value
 
 data object UnitValue : Value() {
     fun evalToString(): Value {
-        return strToStringValue(Lang.unitId.name)
+        return StringValue(Lang.unitId.name)
     }
 }
 
@@ -100,7 +100,7 @@ data class BooleanValue(val canonicalForm: Boolean) : Value(), EqualityValue, Lo
     override fun evalOr(other: Value): Value = BooleanValue(canonicalForm || (other as BooleanValue).canonicalForm)
     override fun evalNot(): Value = BooleanValue(!canonicalForm)
 
-    fun evalToString(): Value = strToStringValue(canonicalForm.toString())
+    fun evalToString(): Value = StringValue(canonicalForm.toString())
 }
 
 data class IntValue(val canonicalForm: Int) : Value(), MathValue, OrderValue, EqualityValue {
@@ -121,7 +121,7 @@ data class IntValue(val canonicalForm: Int) : Value(), MathValue, OrderValue, Eq
     override fun evalNotEquals(other: Value): Value = BooleanValue(canonicalForm != (other as IntValue).canonicalForm)
     override fun evalNegate(): Value = IntValue(-canonicalForm)
 
-    fun evalToString(): Value = strToStringValue(canonicalForm.toString())
+    fun evalToString(): Value = StringValue(canonicalForm.toString())
 }
 
 data class DecimalValue(val canonicalForm: BigDecimal) : Value(), MathValue, OrderValue, EqualityValue {
@@ -156,7 +156,7 @@ data class DecimalValue(val canonicalForm: BigDecimal) : Value(), MathValue, Ord
 
     override fun evalNegate(): Value = DecimalValue(canonicalForm.negate())
 
-    fun evalToString(): Value = strToStringValue(canonicalForm.stripTrailingZeros().toPlainString())
+    fun evalToString(): Value = StringValue(canonicalForm.stripTrailingZeros().toPlainString())
 }
 
 data class CharValue(val canonicalForm: Char) : Value(), EqualityValue {
@@ -164,15 +164,10 @@ data class CharValue(val canonicalForm: Char) : Value(), EqualityValue {
     override fun evalNotEquals(other: Value): Value =
         BooleanValue(canonicalForm != (other as CharValue).canonicalForm)
 
-    fun evalToString(): Value = strToStringValue(canonicalForm.toString())
+    fun evalToString(): Value = StringValue(canonicalForm.toString())
 }
 
-fun strToStringValue(str: String): StringValue {
-    val fin = Fin(str.length.toLong())
-    return StringValue(str, mapOf(Lang.stringTypeParam to fin))
-}
-
-data class StringValue(val canonicalForm: String, val substitutions: Map<Type, Type>) : Value(), EqualityValue {
+data class StringValue(val canonicalForm: String) : Value(), EqualityValue {
     override fun evalEquals(other: Value): Value = BooleanValue(canonicalForm == (other as StringValue).canonicalForm)
     override fun evalNotEquals(other: Value): Value =
         BooleanValue(canonicalForm != (other as StringValue).canonicalForm)
@@ -183,25 +178,31 @@ data class StringValue(val canonicalForm: String, val substitutions: Map<Type, T
 
     fun evalToCharArray(): Value {
         val elements = canonicalForm.toCharArray().map { CharValue(it) }
-        return ListValue(elements.toMutableList(), canonicalForm.length.toLong(), false)
+        val fin = Fin(canonicalForm.length.toLong())
+        return ListValue(elements.toMutableList(), mapOf(Lang.listFinTypeParam to fin), fin.magnitude, false)
     }
 
-    fun evalToString(): Value = strToStringValue(canonicalForm)
+    fun evalToString(): Value = StringValue(canonicalForm)
 
     fun evalAdd(arg: Value): Value {
         val other = arg as StringValue
-        return strToStringValue(canonicalForm + other.canonicalForm)
+        return StringValue(canonicalForm + other.canonicalForm)
     }
 }
 
-data class ListValue(val elements: MutableList<Value>, val fin: Long, val mutable: Boolean) : Value(), EqualityValue {
+data class ListValue(
+    val elements: MutableList<Value>,
+    val substitutions: Map<Type, Type>,
+    val fin: Long,
+    val mutable: Boolean
+) : Value(), EqualityValue {
     fun fieldSize(): Value {
         return IntValue(elements.size)
     }
 
     fun evalToList(): Value {
         if (mutable) {
-            return ListValue(elements.toList().toMutableList(), fin, false)
+            return ListValue(elements.toList().toMutableList(), substitutions, fin, false)
         } else {
             langThrow(NotInSource, RuntimeImmutableViolation)
         }
@@ -274,14 +275,19 @@ data class ListValue(val elements: MutableList<Value>, val fin: Long, val mutabl
     }
 }
 
-data class SetValue(val elements: MutableSet<Value>, val fin: Long, val mutable: Boolean) : Value(), EqualityValue {
+data class SetValue(
+    val elements: MutableSet<Value>,
+    val substitutions: Map<Type, Type>,
+    val fin: Long,
+    val mutable: Boolean
+) : Value(), EqualityValue {
     fun fieldSize(): Value {
         return IntValue(elements.size)
     }
 
     fun evalToSet(): Value {
         if (mutable) {
-            return SetValue(elements.toSet().toMutableSet(), fin, false)
+            return SetValue(elements.toSet().toMutableSet(), substitutions, fin, false)
         } else {
             langThrow(NotInSource, RuntimeImmutableViolation)
         }
@@ -334,6 +340,7 @@ data class SetValue(val elements: MutableSet<Value>, val fin: Long, val mutable:
 
 data class DictionaryValue(
     val dictionary: MutableMap<Value, Value>,
+    val substitutions: Map<Type, Type>,
     val fin: Long,
     val mutable: Boolean
 ) : Value(), EqualityValue {
@@ -343,7 +350,7 @@ data class DictionaryValue(
 
     fun evalToDictionary(): Value {
         if (mutable) {
-            return DictionaryValue(dictionary.toMap().toMutableMap(), fin, false)
+            return DictionaryValue(dictionary.toMap().toMutableMap(), substitutions, fin, false)
         } else {
             langThrow(NotInSource, RuntimeImmutableViolation)
         }
