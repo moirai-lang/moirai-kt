@@ -1,6 +1,7 @@
 package org.shardscript.eval
 
 import org.shardscript.semantics.core.*
+import org.shardscript.semantics.prelude.Lang
 
 class EvalAstVisitor(private val globalScope: ValueTable) : ParameterizedAstVisitor<ValueTable, Value> {
     override fun visit(ast: FileAst, param: ValueTable): Value {
@@ -106,39 +107,99 @@ class EvalAstVisitor(private val globalScope: ValueTable) : ParameterizedAstVisi
     }
 
     override fun visit(ast: GroundApplyAst, param: ValueTable): Value {
-        val args = ast.args.map { it.accept(this, param) }
-        return when (val toApply = param.fetch(ast.tti)) {
-            is FunctionValue -> {
+        return when (val groundApplySlot = ast.groundApplySlot) {
+            GroundApplySlotError -> langThrow(NotInSource, TypeSystemBug)
+            is GroundApplySlotFormal -> {
+                val args = ast.args.map { it.accept(this, param) }
+                when (val toApply = param.fetch(groundApplySlot.payload.identifier)) {
+                    is FunctionValue -> {
+                        toApply.invoke(args, globalScope) { a, v ->
+                            a.accept(this, v)
+                        }
+                    }
+                    else -> langThrow(NotInSource, TypeSystemBug)
+                }
+            }
+            is GroundApplySlotGF -> {
+                val args = ast.args.map { it.accept(this, param) }
+                val toApply = FunctionValue(groundApplySlot.payload.formalParams, groundApplySlot.payload.body)
                 toApply.invoke(args, globalScope) { a, v ->
                     a.accept(this, v)
                 }
             }
-            is RecordConstructorValue -> {
-                toApply.apply(args)
+            is GroundApplySlotGRT -> {
+                val args = ast.args.map { it.accept(this, param) }
+                val fields = ValueTable(NullValueTable)
+                groundApplySlot.payload.fields.zip(args).forEach {
+                    fields.define(it.first.identifier, it.second)
+                }
+                val res = RecordValue(groundApplySlot.payload, fields)
+                res.scope = groundApplySlot.payload
+                res
             }
-            is ListConstructorValue -> {
-                when (val groundApplySlot = ast.groundApplySlot) {
-                    is GroundApplySlotTI -> toApply.apply(groundApplySlot.payload.substitutionChain.replayArgs(), args)
-                    else -> langThrow(ast.ctx, TypeSystemBug)
+            is GroundApplySlotSI -> {
+                val args = ast.args.map { it.accept(this, param) }
+                when (val terminus = groundApplySlot.payload.substitutionChain.terminus) {
+                    is ParameterizedFunctionSymbol -> {
+                        val toApply = FunctionValue(terminus.formalParams, terminus.body)
+                        toApply.invoke(args, globalScope) { a, v ->
+                            a.accept(this, v)
+                        }
+                    }
+                    is ParameterizedMemberPluginSymbol,
+                    is ParameterizedStaticPluginSymbol -> langThrow(NotInSource, TypeSystemBug)
                 }
             }
-            is SetConstructorValue -> {
-                when (val groundApplySlot = ast.groundApplySlot) {
-                    is GroundApplySlotTI -> toApply.apply(groundApplySlot.payload.substitutionChain.replayArgs(), args)
-                    else -> langThrow(ast.ctx, TypeSystemBug)
+            is GroundApplySlotTI -> {
+                val args = ast.args.map { it.accept(this, param) }
+                when (val terminus = groundApplySlot.payload.substitutionChain.terminus) {
+                    is ParameterizedBasicType -> {
+                        when (terminus.identifier) {
+                            Lang.listId, Lang.mutableListId -> {
+                                ListValue(
+                                    args.toMutableList(),
+                                    args.size.toLong(),
+                                    terminus.identifier == Lang.mutableListId
+                                )
+                            }
+
+                            Lang.dictionaryId, Lang.mutableDictionaryId -> {
+                                val pairs = args.map {
+                                    it as RecordValue
+                                }.map {
+                                    Pair(
+                                        it.fields.fetchHere(Lang.pairFirstId),
+                                        it.fields.fetchHere(Lang.pairSecondId)
+                                    )
+                                }
+                                DictionaryValue(
+                                    pairs.toMap().toMutableMap(),
+                                    args.size.toLong(),
+                                    terminus.identifier == Lang.mutableDictionaryId
+                                )
+                            }
+
+                            Lang.setId, Lang.mutableSetId -> {
+                                SetValue(
+                                    args.toMutableSet(),
+                                    args.size.toLong(),
+                                    terminus.identifier == Lang.mutableSetId
+                                )
+                            }
+
+                            else -> langThrow(NotInSource, TypeSystemBug)
+                        }
+                    }
+                    is ParameterizedRecordType -> {
+                        val fields = ValueTable(NullValueTable)
+                        terminus.fields.zip(args).forEach {
+                            fields.define(it.first.identifier, it.second)
+                        }
+                        val res = RecordValue(groundApplySlot.payload, fields)
+                        res.scope = terminus
+                        res
+                    }
                 }
-            }
-            is DictionaryConstructorValue -> {
-                when (val groundApplySlot = ast.groundApplySlot) {
-                    is GroundApplySlotTI -> toApply.apply(groundApplySlot.payload.substitutionChain.replayArgs(), args)
-                    else -> langThrow(ast.ctx, TypeSystemBug)
-                }
-            }
-            is PluginValue -> {
-                toApply.invoke(args)
-            }
-            else -> {
-                langThrow(ast.ctx, TypeSystemBug)
             }
         }
     }

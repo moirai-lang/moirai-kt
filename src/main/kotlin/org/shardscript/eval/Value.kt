@@ -389,32 +389,6 @@ class RecordValue(type: Type, val fields: ValueTable) : Value() {
     }
 }
 
-data class RecordConstructorValue(val prelude: Scope, val type: Type) : Value() {
-    fun apply(args: List<Value>): RecordValue {
-        return when (type) {
-            is GroundRecordType -> {
-                val fields = ValueTable(NullValueTable)
-                type.fields.zip(args).forEach {
-                    fields.define(it.first.identifier, it.second)
-                }
-                val res = RecordValue(type, fields)
-                res.scope = type
-                res
-            }
-            is ParameterizedRecordType -> {
-                val fields = ValueTable(NullValueTable)
-                type.fields.zip(args).forEach {
-                    fields.define(it.first.identifier, it.second)
-                }
-                val res = RecordValue(type, fields)
-                res.scope = type
-                res
-            }
-            else -> langThrow(NotInSource, TypeSystemBug)
-        }
-    }
-}
-
 interface MathValue {
     fun evalAdd(other: Value): Value
     fun evalSub(other: Value): Value
