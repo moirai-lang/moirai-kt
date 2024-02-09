@@ -389,6 +389,11 @@ class PropagateTypesAstVisitor(
                         ast.assignType(errors, type)
                     }
 
+                    is PlatformSumObjectType -> {
+                        ast.refSlot = RefSlotSumObject(type)
+                        ast.assignType(errors, type)
+                    }
+
                     is StandardTypeParameter -> {
                         ast.refSlot = RefSlotSTP(type)
                         ast.assignType(errors, type)
