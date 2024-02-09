@@ -7,8 +7,7 @@ sealed interface CostExpression : Type {
 }
 
 interface CostExpressionVisitor<R> {
-    fun visit(costExpression: ImmutableFinTypeParameter): R
-    fun visit(costExpression: MutableFinTypeParameter): R
+    fun visit(costExpression: FinTypeParameter): R
     fun visit(costExpression: Fin): R
     fun visit(costExpression: ConstantFin): R
     fun visit(costExpression: SumCostExpression): R
@@ -23,11 +22,7 @@ class EvalCostExpressionVisitor(val architecture: Architecture): CostExpressionV
         }
     }
 
-    override fun visit(costExpression: ImmutableFinTypeParameter): Long {
-        langThrow(CalculateCostFailed)
-    }
-
-    override fun visit(costExpression: MutableFinTypeParameter): Long {
+    override fun visit(costExpression: FinTypeParameter): Long {
         langThrow(CalculateCostFailed)
     }
 
@@ -107,11 +102,7 @@ object CommonCostExpressions {
 }
 
 object CanEvalCostExpressionVisitor: CostExpressionVisitor<Boolean> {
-    override fun visit(costExpression: ImmutableFinTypeParameter): Boolean {
-        return false
-    }
-
-    override fun visit(costExpression: MutableFinTypeParameter): Boolean {
+    override fun visit(costExpression: FinTypeParameter): Boolean {
         return false
     }
 

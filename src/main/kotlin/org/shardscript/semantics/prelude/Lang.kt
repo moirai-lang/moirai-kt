@@ -92,7 +92,7 @@ object Lang {
         DecimalInstantiation(),
         userTypeFeatureSupport
     )
-    val decimalTypeParam = ImmutableFinTypeParameter("${decimalId.name}.${decimalTypeId.name}", decimalTypeId)
+    val decimalTypeParam = FinTypeParameter("${decimalId.name}.${decimalTypeId.name}", decimalTypeId)
 
     // List
     val listType = ParameterizedBasicType(
@@ -101,7 +101,7 @@ object Lang {
         immutableOrderedFeatureSupport
     )
     val listElementTypeParam = StandardTypeParameter("${listId.name}.${listElementTypeId.name}", listElementTypeId)
-    val listFinTypeParam = ImmutableFinTypeParameter("${listId.name}.${listFinTypeId.name}", listFinTypeId)
+    val listFinTypeParam = FinTypeParameter("${listId.name}.${listFinTypeId.name}", listFinTypeId)
 
     // MutableList
     val mutableListType = ParameterizedBasicType(
@@ -110,7 +110,7 @@ object Lang {
         noFeatureSupport
     )
     val mutableListElementTypeParam = StandardTypeParameter("${mutableListId.name}.${mutableListElementTypeId.name}", mutableListElementTypeId)
-    val mutableListFinTypeParam = MutableFinTypeParameter("${mutableListId.name}.${mutableListFinTypeId.name}", mutableListFinTypeId)
+    val mutableListFinTypeParam = FinTypeParameter("${mutableListId.name}.${mutableListFinTypeId.name}", mutableListFinTypeId)
 
     // String
     val stringType = ParameterizedBasicType(
@@ -119,7 +119,7 @@ object Lang {
         userTypeFeatureSupport
     )
 
-    val stringTypeParam = ImmutableFinTypeParameter("${stringId.name}.${stringTypeId.name}", stringTypeId)
+    val stringTypeParam = FinTypeParameter("${stringId.name}.${stringTypeId.name}", stringTypeId)
 
     // Pair
     private val pairType = ParameterizedRecordType(
@@ -138,7 +138,7 @@ object Lang {
     )
     val dictionaryKeyTypeParam = StandardTypeParameter("${dictionaryId.name}.${dictionaryKeyTypeId.name}", dictionaryKeyTypeId)
     val dictionaryValueTypeParam = StandardTypeParameter("${dictionaryId.name}.${dictionaryValueTypeId.name}", dictionaryValueTypeId)
-    val dictionaryFinTypeParam = ImmutableFinTypeParameter("${dictionaryId.name}.${dictionaryFinTypeId.name}", dictionaryFinTypeId)
+    val dictionaryFinTypeParam = FinTypeParameter("${dictionaryId.name}.${dictionaryFinTypeId.name}", dictionaryFinTypeId)
 
     val mutableDictionaryType = ParameterizedBasicType(
         mutableDictionaryId,
@@ -147,7 +147,7 @@ object Lang {
     )
     val mutableDictionaryKeyTypeParam = StandardTypeParameter("${mutableDictionaryId.name}.${mutableDictionaryKeyTypeId.name}", mutableDictionaryKeyTypeId)
     val mutableDictionaryValueTypeParam = StandardTypeParameter("${mutableDictionaryId.name}.${mutableDictionaryValueTypeId.name}", mutableDictionaryValueTypeId)
-    val mutableDictionaryFinTypeParam = MutableFinTypeParameter("${mutableDictionaryId.name}.${mutableDictionaryFinTypeId.name}", mutableDictionaryFinTypeId)
+    val mutableDictionaryFinTypeParam = FinTypeParameter("${mutableDictionaryId.name}.${mutableDictionaryFinTypeId.name}", mutableDictionaryFinTypeId)
 
     val setType = ParameterizedBasicType(
         setId,
@@ -155,7 +155,7 @@ object Lang {
         immutableUnorderedFeatureSupport
     )
     val setElementTypeParam = StandardTypeParameter("${setId.name}.${setElementTypeId.name}", setElementTypeId)
-    val setFinTypeParam = ImmutableFinTypeParameter("${setId.name}.${setFinTypeId.name}", setFinTypeId)
+    val setFinTypeParam = FinTypeParameter("${setId.name}.${setFinTypeId.name}", setFinTypeId)
 
     val mutableSetType = ParameterizedBasicType(
         mutableSetId,
@@ -163,7 +163,7 @@ object Lang {
         noFeatureSupport
     )
     val mutableSetElementTypeParam = StandardTypeParameter("${mutableSetId.name}.${mutableSetElementTypeId.name}", mutableSetElementTypeId)
-    val mutableSetFinTypeParam = MutableFinTypeParameter("${mutableSetId.name}.${mutableSetFinTypeId.name}", mutableSetFinTypeId)
+    val mutableSetFinTypeParam = FinTypeParameter("${mutableSetId.name}.${mutableSetFinTypeId.name}", mutableSetFinTypeId)
 
     init {
         IntegerMathOpMembers.members().forEach { (name, plugin) ->

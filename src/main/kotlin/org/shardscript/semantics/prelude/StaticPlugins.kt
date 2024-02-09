@@ -16,7 +16,7 @@ object StaticPlugins {
             RangeInstantiation
         )
 
-        val rangeTypeParam = ImmutableFinTypeParameter("${Lang.rangeId.name}.${Lang.rangeTypeId.name}", Lang.rangeTypeId)
+        val rangeTypeParam = FinTypeParameter("${Lang.rangeId.name}.${Lang.rangeTypeId.name}", Lang.rangeTypeId)
         rangePlugin.defineType(Lang.rangeTypeId, rangeTypeParam)
         rangePlugin.typeParams = listOf(rangeTypeParam)
 

@@ -20,16 +20,7 @@ class StandardTypeParameter(
     val identifier: Identifier
 ) : TypeParameter(), Type
 
-class ImmutableFinTypeParameter(
-    val qualifiedName: String,
-    val identifier: Identifier
-) : TypeParameter(), CostExpression, Type {
-    override fun <R> accept(visitor: CostExpressionVisitor<R>): R {
-        return visitor.visit(this)
-    }
-}
-
-class MutableFinTypeParameter(
+class FinTypeParameter(
     val qualifiedName: String,
     val identifier: Identifier
 ) : TypeParameter(), CostExpression, Type {

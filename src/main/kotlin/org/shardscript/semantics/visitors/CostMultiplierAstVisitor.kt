@@ -111,7 +111,7 @@ class CostMultiplierAstVisitor(val architecture: Architecture) : AstVisitor<List
     override fun visit(ast: ForEachAst): List<ParamCostExMultiplier> {
         val res = ast.source.accept(this).toMutableList()
         val multiplier: CostExpression = when (val fin = ast.sourceFinSymbol) {
-            is ImmutableFinTypeParameter -> fin
+            is FinTypeParameter -> fin
             is Fin -> fin
             else -> {
                 langThrow(ast.ctx, TypeSystemBug)

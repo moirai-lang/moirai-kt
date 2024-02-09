@@ -22,8 +22,7 @@ fun filterValidTypes(ctx: SourceContext, errors: LanguageErrors, type: Type): Ty
 
         is Fin,
         is ConstantFin,
-        is ImmutableFinTypeParameter,
-        is MutableFinTypeParameter -> {
+        is FinTypeParameter -> {
             errors.add(ctx, ExpectOtherError)
             ErrorType
         }
@@ -111,8 +110,7 @@ fun filterValidGroundApply(
         is FunctionType,
         is Fin,
         is ConstantFin,
-        is ImmutableFinTypeParameter,
-        is MutableFinTypeParameter,
+        is FinTypeParameter,
         is BasicType,
         is ObjectType,
         is PlatformObjectType,
@@ -209,11 +207,7 @@ fun getQualifiedName(type: Type): String {
             type.qualifiedName
         }
 
-        is ImmutableFinTypeParameter -> {
-            type.qualifiedName
-        }
-
-        is MutableFinTypeParameter -> {
+        is FinTypeParameter -> {
             type.qualifiedName
         }
 
@@ -658,18 +652,9 @@ fun findBestType(ctx: SourceContext, errors: LanguageErrors, types: List<Type>):
                 ErrorType
             }
         }
-        is ImmutableFinTypeParameter -> {
+        is FinTypeParameter -> {
             val firstPath = getQualifiedName(first)
-            if (types.all { it is ImmutableFinTypeParameter && firstPath == getQualifiedName(it) }) {
-                first
-            } else {
-                errors.add(ctx, CannotFindBestType(types))
-                ErrorType
-            }
-        }
-        is MutableFinTypeParameter -> {
-            val firstPath = getQualifiedName(first)
-            if (types.all { it is MutableFinTypeParameter && firstPath == getQualifiedName(it) }) {
+            if (types.all { it is FinTypeParameter && firstPath == getQualifiedName(it) }) {
                 first
             } else {
                 errors.add(ctx, CannotFindBestType(types))
@@ -709,12 +694,8 @@ fun validateSubstitution(
             }
             else -> errors.add(ctx, InvalidStandardTypeSub(typeParameter, substitutedType))
         }
-        is ImmutableFinTypeParameter -> when (substitutedType) {
+        is FinTypeParameter -> when (substitutedType) {
             is CostExpression -> Unit
-            else -> errors.add(ctx, InvalidFinTypeSub(typeParameter, substitutedType))
-        }
-        is MutableFinTypeParameter -> when (substitutedType) {
-            is Fin -> Unit
             else -> errors.add(ctx, InvalidFinTypeSub(typeParameter, substitutedType))
         }
     }

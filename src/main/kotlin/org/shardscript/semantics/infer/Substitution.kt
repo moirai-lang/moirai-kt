@@ -55,7 +55,7 @@ class Substitution(
                 }
                 res
             }
-            is ImmutableFinTypeParameter -> {
+            is FinTypeParameter -> {
                 val res = if (solutions.containsKey(type)) {
                     solutions[type]!!
                 } else {
@@ -71,18 +71,7 @@ class Substitution(
 
     fun applyCost(costExpression: CostExpression): CostExpression {
         return when (costExpression) {
-            is ImmutableFinTypeParameter -> {
-                val res = if (solutions.containsKey(costExpression)) {
-                    when (val solution = solutions[costExpression]!!) {
-                        is CostExpression -> solution
-                        else -> costExpression
-                    }
-                } else {
-                    costExpression
-                }
-                res
-            }
-            is MutableFinTypeParameter -> {
+            is FinTypeParameter -> {
                 val res = if (solutions.containsKey(costExpression)) {
                     when (val solution = solutions[costExpression]!!) {
                         is CostExpression -> solution

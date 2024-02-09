@@ -182,18 +182,7 @@ fun constrainCost(
     when (expected) {
         is Fin -> listOf()
         is ConstantFin -> listOf()
-        is ImmutableFinTypeParameter -> if (typeParams.contains(expected)) {
-            listOf(
-                Constraint(
-                    Left<TypeParameter>(expected),
-                    Right(actual)
-                )
-            )
-        } else {
-            errors.add(ctx, TypeSystemBug)
-            listOf()
-        }
-        is MutableFinTypeParameter -> if (typeParams.contains(expected)) {
+        is FinTypeParameter -> if (typeParams.contains(expected)) {
             listOf(
                 Constraint(
                     Left<TypeParameter>(expected),
