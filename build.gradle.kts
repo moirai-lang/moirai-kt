@@ -4,7 +4,7 @@ plugins {
 }
 
 group = "org.shardscript"
-version = "0.4.9"
+version = "0.5.0"
 
 repositories {
     mavenCentral()
