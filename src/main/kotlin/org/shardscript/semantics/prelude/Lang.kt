@@ -189,9 +189,6 @@ object Lang {
 
         decimalType.defineType(decimalTypeId, decimalTypeParam)
         decimalType.typeParams = listOf(decimalTypeParam)
-        decimalType.modeSelector = { _ ->
-            ImmutableBasicTypeMode
-        }
         decimalType.fields = listOf()
 
         DecimalMathOpMembers.members().forEach { (name, plugin) ->
@@ -208,9 +205,6 @@ object Lang {
         listType.defineType(listElementTypeId, listElementTypeParam)
         listType.defineType(listFinTypeId, listFinTypeParam)
         listType.typeParams = listOf(listElementTypeParam, listFinTypeParam)
-        listType.modeSelector = { _ ->
-            ImmutableBasicTypeMode
-        }
         
         ListTypes.listCollectionType()
         
@@ -218,17 +212,6 @@ object Lang {
         mutableListType.defineType(mutableListElementTypeId, mutableListElementTypeParam)
         mutableListType.defineType(mutableListFinTypeId, mutableListFinTypeParam)
         mutableListType.typeParams = listOf(mutableListElementTypeParam, mutableListFinTypeParam)
-        mutableListType.modeSelector = { args ->
-            when (val fin = args[1]) {
-                is Fin -> {
-                    MutableBasicTypeMode(fin.magnitude)
-                }
-
-                else -> {
-                    ImmutableBasicTypeMode
-                }
-            }
-        }
         
         ListTypes.mutableListCollectionType()
 
@@ -238,9 +221,6 @@ object Lang {
         dictionaryType.defineType(dictionaryFinTypeId, dictionaryFinTypeParam)
         dictionaryType.typeParams =
             listOf(dictionaryKeyTypeParam, dictionaryValueTypeParam, dictionaryFinTypeParam)
-        dictionaryType.modeSelector = { _ ->
-            ImmutableBasicTypeMode
-        }
 
         DictionaryTypes.dictionaryCollectionType()
 
@@ -254,17 +234,6 @@ object Lang {
                 mutableDictionaryValueTypeParam,
                 mutableDictionaryFinTypeParam
             )
-        mutableDictionaryType.modeSelector = { args ->
-            when (val fin = args[2]) {
-                is Fin -> {
-                    MutableBasicTypeMode(fin.magnitude)
-                }
-
-                else -> {
-                    ImmutableBasicTypeMode
-                }
-            }
-        }
 
         DictionaryTypes.mutableDictionaryCollectionType()
 
@@ -272,9 +241,6 @@ object Lang {
         setType.defineType(setElementTypeId, setElementTypeParam)
         setType.defineType(setFinTypeId, setFinTypeParam)
         setType.typeParams = listOf(setElementTypeParam, setFinTypeParam)
-        setType.modeSelector = { _ ->
-            ImmutableBasicTypeMode
-        }
         
         SetTypes.setCollectionType()
 
@@ -282,17 +248,6 @@ object Lang {
         mutableSetType.defineType(mutableSetElementTypeId, mutableSetElementTypeParam)
         mutableSetType.defineType(mutableSetFinTypeId, mutableSetFinTypeParam)
         mutableSetType.typeParams = listOf(mutableSetElementTypeParam, mutableSetFinTypeParam)
-        mutableSetType.modeSelector = { args ->
-            when (val fin = args[1]) {
-                is Fin -> {
-                    MutableBasicTypeMode(fin.magnitude)
-                }
-
-                else -> {
-                    ImmutableBasicTypeMode
-                }
-            }
-        }
         
         SetTypes.mutableSetCollectionType()
 

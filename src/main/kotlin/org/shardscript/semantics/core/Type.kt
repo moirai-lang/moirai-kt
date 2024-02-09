@@ -106,7 +106,6 @@ class ParameterizedBasicType(
     private val symbolTable: SymbolTable = SymbolTable(NullSymbolTable)
 ) : TerminusType, Scope by symbolTable {
     override lateinit var typeParams: List<TypeParameter>
-    lateinit var modeSelector: (List<Type>) -> BasicTypeMode
     lateinit var fields: List<PlatformFieldSymbol>
 }
 

@@ -251,7 +251,7 @@ object Plugins {
                 val list: MutableList<Value> = (lowerBound..upperBound).toList().map {
                     IntValue(it)
                 }.toMutableList()
-                ListValue(ImmutableBasicTypeMode, list)
+                ListValue(list, list.size.toLong(), false)
             } else {
                 val lowerBound = originalUpperBound.canonicalForm + 1
                 val upperBound = originalLowerBound.canonicalForm
@@ -259,7 +259,7 @@ object Plugins {
                     IntValue(it)
                 }.toMutableList()
                 list.reverse()
-                ListValue(ImmutableBasicTypeMode, list)
+                ListValue(list, list.size.toLong(), false)
             }
         },
         StaticPlugins.randomPlugin to PluginValue { args ->
@@ -562,7 +562,7 @@ data class StringValue(val canonicalForm: String) : Value(), EqualityValue {
 
     fun evalToCharArray(): Value {
         val elements = canonicalForm.toCharArray().map { CharValue(it) }
-        return ListValue(ImmutableBasicTypeMode, elements.toMutableList())
+        return ListValue(elements.toMutableList(), canonicalForm.length.toLong(), false)
     }
 
     fun evalToString(): Value = StringValue(canonicalForm)
@@ -573,19 +573,16 @@ data class StringValue(val canonicalForm: String) : Value(), EqualityValue {
     }
 }
 
-data class ListValue(val mode: BasicTypeMode, val elements: MutableList<Value>) : Value(), EqualityValue {
+data class ListValue(val elements: MutableList<Value>, val fin: Long, val mutable: Boolean) : Value(), EqualityValue {
     fun fieldSize(): Value {
         return IntValue(elements.size)
     }
 
     fun evalToList(): Value {
-        when (mode) {
-            is ImmutableBasicTypeMode -> {
-                langThrow(NotInSource, RuntimeImmutableViolation)
-            }
-            is MutableBasicTypeMode -> {
-                return ListValue(ImmutableBasicTypeMode, elements.toList().toMutableList())
-            }
+        if (mutable) {
+            return ListValue(elements.toList().toMutableList(), fin, false)
+        } else {
+            langThrow(NotInSource, RuntimeImmutableViolation)
         }
     }
 
@@ -603,53 +600,44 @@ data class ListValue(val mode: BasicTypeMode, val elements: MutableList<Value>) 
     }
 
     fun evalSet(index: Value, value: Value): Value {
-        when (mode) {
-            is ImmutableBasicTypeMode -> {
-                langThrow(NotInSource, RuntimeImmutableViolation)
-            }
-            is MutableBasicTypeMode -> {
-                val indexInt = index as IntValue
-                when {
-                    index.canonicalForm < elements.size -> {
-                        elements[indexInt.canonicalForm] = value
-                    }
-                    index.canonicalForm == elements.size -> {
-                        elements.add(value)
-                    }
-                    else -> {
-                        langThrow(IndexOutOfBounds(index.canonicalForm, elements.size))
-                    }
+        if (mutable) {
+            val indexInt = index as IntValue
+            when {
+                index.canonicalForm < elements.size -> {
+                    elements[indexInt.canonicalForm] = value
                 }
-                return UnitValue
+                index.canonicalForm == elements.size -> {
+                    elements.add(value)
+                }
+                else -> {
+                    langThrow(IndexOutOfBounds(index.canonicalForm, elements.size))
+                }
             }
+            return UnitValue
+        } else {
+            langThrow(NotInSource, RuntimeImmutableViolation)
         }
     }
 
     fun evalRemoveAt(value: Value): Value {
-        when (mode) {
-            is ImmutableBasicTypeMode -> {
-                langThrow(NotInSource, RuntimeImmutableViolation)
-            }
-            is MutableBasicTypeMode -> {
-                val index = (value as IntValue).canonicalForm
-                elements.removeAt(index)
-                return UnitValue
-            }
+        if (mutable) {
+            val index = (value as IntValue).canonicalForm
+            elements.removeAt(index)
+            return UnitValue
+        } else {
+            langThrow(NotInSource, RuntimeImmutableViolation)
         }
     }
 
     fun evalAdd(value: Value): Value {
-        when (mode) {
-            is ImmutableBasicTypeMode -> {
-                langThrow(NotInSource, RuntimeImmutableViolation)
+        if (mutable) {
+            elements.add(value)
+            if (elements.size.toLong() > fin) {
+                langThrow(NotInSource, RuntimeFinViolation(fin, elements.size.toLong()))
             }
-            is MutableBasicTypeMode -> {
-                elements.add(value)
-                if (elements.size.toLong() > mode.fin) {
-                    langThrow(NotInSource, RuntimeFinViolation(mode.fin, elements.size.toLong()))
-                }
-                return UnitValue
-            }
+            return UnitValue
+        } else {
+            langThrow(NotInSource, RuntimeImmutableViolation)
         }
     }
 
@@ -665,19 +653,16 @@ data class ListValue(val mode: BasicTypeMode, val elements: MutableList<Value>) 
     }
 }
 
-data class SetValue(val mode: BasicTypeMode, val elements: MutableSet<Value>) : Value(), EqualityValue {
+data class SetValue(val elements: MutableSet<Value>, val fin: Long, val mutable: Boolean) : Value(), EqualityValue {
     fun fieldSize(): Value {
         return IntValue(elements.size)
     }
 
     fun evalToSet(): Value {
-        when (mode) {
-            is ImmutableBasicTypeMode -> {
-                langThrow(NotInSource, RuntimeImmutableViolation)
-            }
-            is MutableBasicTypeMode -> {
-                return SetValue(ImmutableBasicTypeMode, elements.toSet().toMutableSet())
-            }
+        if (mutable) {
+            return SetValue(elements.toSet().toMutableSet(), fin, false)
+        } else {
+            langThrow(NotInSource, RuntimeImmutableViolation)
         }
     }
 
@@ -694,29 +679,23 @@ data class SetValue(val mode: BasicTypeMode, val elements: MutableSet<Value>) : 
     }
 
     fun evalRemove(value: Value): Value {
-        when (mode) {
-            is ImmutableBasicTypeMode -> {
-                langThrow(NotInSource, RuntimeImmutableViolation)
-            }
-            is MutableBasicTypeMode -> {
-                elements.remove(value)
-                return UnitValue
-            }
+        if (mutable) {
+            elements.remove(value)
+            return UnitValue
+        } else {
+            langThrow(NotInSource, RuntimeImmutableViolation)
         }
     }
 
     fun evalAdd(value: Value): Value {
-        when (mode) {
-            is ImmutableBasicTypeMode -> {
-                langThrow(NotInSource, RuntimeImmutableViolation)
+        if (mutable) {
+            elements.add(value)
+            if (elements.size.toLong() > fin) {
+                langThrow(NotInSource, RuntimeFinViolation(fin, elements.size.toLong()))
             }
-            is MutableBasicTypeMode -> {
-                elements.add(value)
-                if (elements.size.toLong() > mode.fin) {
-                    langThrow(NotInSource, RuntimeFinViolation(mode.fin, elements.size.toLong()))
-                }
-                return UnitValue
-            }
+            return UnitValue
+        } else {
+            langThrow(NotInSource, RuntimeImmutableViolation)
         }
     }
 
@@ -733,21 +712,19 @@ data class SetValue(val mode: BasicTypeMode, val elements: MutableSet<Value>) : 
 }
 
 data class DictionaryValue(
-    val mode: BasicTypeMode,
-    val dictionary: MutableMap<Value, Value>
+    val dictionary: MutableMap<Value, Value>,
+    val fin: Long,
+    val mutable: Boolean
 ) : Value(), EqualityValue {
     fun fieldSize(): Value {
         return IntValue(dictionary.size)
     }
 
     fun evalToDictionary(): Value {
-        when (mode) {
-            is ImmutableBasicTypeMode -> {
-                langThrow(NotInSource, RuntimeImmutableViolation)
-            }
-            is MutableBasicTypeMode -> {
-                return DictionaryValue(ImmutableBasicTypeMode, dictionary.toMap().toMutableMap())
-            }
+        if (mutable) {
+            return DictionaryValue(dictionary.toMap().toMutableMap(), fin, false)
+        } else {
+            langThrow(NotInSource, RuntimeImmutableViolation)
         }
     }
 
@@ -768,29 +745,23 @@ data class DictionaryValue(
     }
 
     fun evalSet(key: Value, value: Value): Value {
-        when (mode) {
-            is ImmutableBasicTypeMode -> {
-                langThrow(NotInSource, RuntimeImmutableViolation)
+        if (mutable) {
+            dictionary[key] = value
+            if (dictionary.size.toLong() > fin) {
+                langThrow(NotInSource, RuntimeFinViolation(fin, dictionary.size.toLong()))
             }
-            is MutableBasicTypeMode -> {
-                dictionary[key] = value
-                if (dictionary.size.toLong() > mode.fin) {
-                    langThrow(NotInSource, RuntimeFinViolation(mode.fin, dictionary.size.toLong()))
-                }
-                return UnitValue
-            }
+            return UnitValue
+        } else {
+            langThrow(NotInSource, RuntimeImmutableViolation)
         }
     }
 
     fun evalRemove(key: Value): Value {
-        when (mode) {
-            is ImmutableBasicTypeMode -> {
-                langThrow(NotInSource, RuntimeImmutableViolation)
-            }
-            is MutableBasicTypeMode -> {
-                dictionary.remove(key)
-                return UnitValue
-            }
+        if (mutable) {
+            dictionary.remove(key)
+            return UnitValue
+        } else {
+            langThrow(NotInSource, RuntimeImmutableViolation)
         }
     }
 
