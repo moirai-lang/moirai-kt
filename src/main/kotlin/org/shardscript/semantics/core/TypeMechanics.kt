@@ -296,6 +296,39 @@ fun checkTypes(
                     )
                 }
 
+                expectedParameterized is PlatformSumRecordType && actualParameterized is PlatformSumRecordType -> {
+                    checkTypes(ctx, prelude, errors, expectedParameterized, actualParameterized)
+                    checkTypes(
+                        ctx,
+                        prelude,
+                        errors,
+                        expected.substitutionChain.replayArgs(),
+                        actual.substitutionChain.replayArgs()
+                    )
+                }
+
+                expectedParameterized is PlatformSumType && actualParameterized is PlatformSumType -> {
+                    checkTypes(ctx, prelude, errors, expectedParameterized, actualParameterized)
+                    checkTypes(
+                        ctx,
+                        prelude,
+                        errors,
+                        expected.substitutionChain.replayArgs(),
+                        actual.substitutionChain.replayArgs()
+                    )
+                }
+
+                expectedParameterized is PlatformSumType && actualParameterized is PlatformSumRecordType -> {
+                    checkTypes(ctx, prelude, errors, expectedParameterized, actualParameterized)
+                    checkTypes(
+                        ctx,
+                        prelude,
+                        errors,
+                        expected.substitutionChain.replayArgs(),
+                        actual.substitutionChain.replayArgs()
+                    )
+                }
+
                 expectedParameterized is ParameterizedBasicType && actualParameterized is ParameterizedBasicType -> {
                     checkTypes(ctx, prelude, errors, expectedParameterized, actualParameterized)
                     checkTypes(
@@ -306,6 +339,14 @@ fun checkTypes(
                         actual.substitutionChain.replayArgs()
                     )
                 }
+            }
+        }
+
+        expected is PlatformSumType && actual is PlatformSumRecordType -> {
+            val expectedPath = getQualifiedName(expected)
+            val actualPath = getQualifiedName(actual.sumType)
+            if (expectedPath != actualPath) {
+                errors.add(ctx, TypeMismatch(expected, actual))
             }
         }
 
