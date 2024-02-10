@@ -350,6 +350,14 @@ fun checkTypes(
             }
         }
 
+        expected is TypeInstantiation && actual is PlatformSumObjectType -> {
+            val expectedPath = getQualifiedName(expected.substitutionChain.terminus)
+            val actualPath = getQualifiedName(actual.sumType)
+            if (expectedPath != actualPath) {
+                errors.add(ctx, TypeMismatch(expected, actual))
+            }
+        }
+
         expected is ConstantFin && actual is ConstantFin -> Unit
         expected is MaxCostExpression && actual is MaxCostExpression -> {
             checkTypes(ctx, prelude, errors, expected.children, actual.children)

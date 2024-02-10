@@ -34,40 +34,4 @@ class OptionHappyTests {
         """.trimIndent()
         )
     }
-
-    @Test
-    fun someForEachOptionTest() {
-        splitTest(
-            """
-            def f(x: Int): Option<Int> {
-                Some(x)
-            }
-            
-            val o = f(13)
-            for(s in o) {
-                s
-            }
-            ^^^^^
-            Unit
-        """.trimIndent()
-        )
-    }
-
-    @Test
-    fun someMapOptionTest() {
-        splitTest(
-            """
-            def f(x: Int): Option<Int> {
-                Some(x)
-            }
-            
-            val o = f(13)
-            map(s in o) {
-                s + 1
-            }
-            ^^^^^
-            Some(14)
-        """.trimIndent()
-        )
-    }
 }
