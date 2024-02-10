@@ -14,6 +14,8 @@ object Lang {
     val stringTypeId = Identifier(NotInSource, "O")
     val stringInputTypeId = Identifier(NotInSource, "P")
 
+    val itId = Identifier(NotInSource, "it")
+
     val decimalId = Identifier(NotInSource, "Decimal")
     private val decimalTypeId = Identifier(NotInSource, "O")
     val decimalInputTypeId = Identifier(NotInSource, "P")

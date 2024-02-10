@@ -1023,7 +1023,6 @@ class PropagateTypesAstVisitor(
     override fun visit(ast: MatchAst) {
         try {
             ast.condition.accept(this)
-
             when (val conditionType = ast.condition.readType()) {
                 is TypeInstantiation -> {
                     when (val terminus = conditionType.substitutionChain.terminus) {
@@ -1064,6 +1063,12 @@ class PropagateTypesAstVisitor(
                 }
 
                 else -> errors.add(ast.condition.ctx, SumTypeRequired(conditionType))
+            }
+
+            ast.cases.forEach {
+                val local = LocalVariableSymbol(it.block.scope, Lang.itId, it.itType, false)
+                it.block.scope.define(Lang.itId, local)
+                it.block.accept(this)
             }
 
             ast.assignType(
