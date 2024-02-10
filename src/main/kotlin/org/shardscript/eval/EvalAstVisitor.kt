@@ -130,6 +130,10 @@ class EvalAstVisitor(architecture: Architecture, private val globalScope: ValueT
                 lhs.fields.fetch(ast.identifier)
             }
 
+            is SumRecordValue -> {
+                lhs.fields.fetch(ast.identifier)
+            }
+
             is ListValue -> {
                 when (val dotSlot = ast.dotSlot) {
                     is DotSlotPlatformField -> Plugins.fields[dotSlot.payload]!!.invoke(lhs)

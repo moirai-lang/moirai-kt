@@ -45,6 +45,8 @@ class Substitution(
         when (type) {
             is FunctionType -> applyFunctionType(type)
             is ParameterizedRecordType -> apply(type)
+            is PlatformSumRecordType -> apply(type)
+            is PlatformSumType -> apply(type)
             is ParameterizedBasicType -> apply(type)
             is TypeInstantiation -> apply(type)
             is StandardTypeParameter -> {
