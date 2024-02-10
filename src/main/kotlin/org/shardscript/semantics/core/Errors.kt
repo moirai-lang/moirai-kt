@@ -75,6 +75,8 @@ data class DuplicateCaseDetected(val name: String): ErrorKind()
 
 data class MissingMatchCase(val name: String): ErrorKind()
 
+data class UnknownCaseDetected(val name: String): ErrorKind()
+
 // General Errors
 data class SyntaxError(val msg: String) : ErrorKind()
 data object ResurrectWhitelistError : ErrorKind()

@@ -1031,9 +1031,17 @@ class PropagateTypesAstVisitor(
                 is TypeInstantiation -> {
                     when (val terminus = conditionType.substitutionChain.terminus) {
                         is PlatformSumType -> {
+                            val supportedNames = terminus.memberTypes.map {
+                                when(it) {
+                                    is PlatformSumObjectType -> it.identifier.name
+                                    is PlatformSumRecordType -> it.identifier.name
+                                }
+                            }.toSet()
                             val nameSet: MutableMap<String, CaseBlock> = mutableMapOf()
                             ast.cases.forEach {
-                                if (nameSet.containsKey(it.identifier.name)) {
+                                if (!supportedNames.contains(it.identifier.name)) {
+                                    errors.add(ast.condition.ctx, UnknownCaseDetected(it.identifier.name))
+                                } else if (nameSet.containsKey(it.identifier.name)) {
                                     errors.add(ast.condition.ctx, DuplicateCaseDetected(it.identifier.name))
                                 }
                                 nameSet[it.identifier.name] = it

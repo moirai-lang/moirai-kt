@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test
 import org.shardscript.semantics.core.DuplicateCaseDetected
 import org.shardscript.semantics.core.MissingMatchCase
 import org.shardscript.semantics.core.TypeMismatch
+import org.shardscript.semantics.core.UnknownCaseDetected
 
 class OptionErrorTests {
     @Test
@@ -57,6 +58,26 @@ class OptionErrorTests {
         """.trimIndent(), 1
         ) {
             it.error is DuplicateCaseDetected
+        }
+    }
+
+    @Test
+    fun matchUnknownCase() {
+        failTest(
+            """
+            def f(x: Int): Option<Int> {
+                Some(x)
+            }
+            
+            val o = f(13)
+            match(o) {
+                case Some { 10 }
+                case None { 5 }
+                case Hello { 6 }
+            }
+        """.trimIndent(), 1
+        ) {
+            it.error is UnknownCaseDetected
         }
     }
 }
