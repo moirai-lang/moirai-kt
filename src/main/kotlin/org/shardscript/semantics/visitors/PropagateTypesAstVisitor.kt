@@ -1022,7 +1022,50 @@ class PropagateTypesAstVisitor(
 
     override fun visit(ast: MatchAst) {
         try {
-            super.visit(ast)
+            ast.condition.accept(this)
+
+            when (val conditionType = ast.condition.readType()) {
+                is TypeInstantiation -> {
+                    when (val terminus = conditionType.substitutionChain.terminus) {
+                        is PlatformSumType -> {
+                            val nameSet: MutableMap<String, CaseBlock> = mutableMapOf()
+                            ast.cases.forEach {
+                                if (nameSet.containsKey(it.identifier.name)) {
+                                    errors.add(ast.condition.ctx, DuplicateCaseDetected(it.identifier.name))
+                                }
+                                nameSet[it.identifier.name] = it
+                            }
+                            terminus.memberTypes.forEach {
+                                when (it) {
+                                    is PlatformSumObjectType -> {
+                                        if (!nameSet.containsKey(it.identifier.name)) {
+                                            errors.add(ast.condition.ctx, MissingMatchCase(it.identifier.name))
+                                        } else {
+                                            nameSet[it.identifier.name]!!.member = it
+                                            nameSet[it.identifier.name]!!.itType = it
+                                        }
+                                    }
+
+                                    is PlatformSumRecordType -> {
+                                        if (!nameSet.containsKey(it.identifier.name)) {
+                                            errors.add(ast.condition.ctx, MissingMatchCase(it.identifier.name))
+                                        } else {
+                                            nameSet[it.identifier.name]!!.member = it
+                                            nameSet[it.identifier.name]!!.itType =
+                                                conditionType.substitutionChain.replay(it)
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        else -> errors.add(ast.condition.ctx, SumTypeRequired(conditionType))
+                    }
+                }
+
+                else -> errors.add(ast.condition.ctx, SumTypeRequired(conditionType))
+            }
+
             ast.assignType(
                 errors,
                 findBestType(

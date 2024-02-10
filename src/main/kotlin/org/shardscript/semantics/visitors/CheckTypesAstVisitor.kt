@@ -138,40 +138,6 @@ class CheckTypesAstVisitor(private val prelude: Scope) : UnitAstVisitor() {
     override fun visit(ast: MatchAst) {
         try {
             super.visit(ast)
-            when (val conditionType = ast.condition.readType()) {
-                is TypeInstantiation -> {
-                    when (val terminus = conditionType.substitutionChain.terminus) {
-                        is PlatformSumType -> {
-                            val nameSet: MutableMap<String, CaseBlock> = mutableMapOf()
-                            ast.cases.forEach {
-                                if (nameSet.containsKey(it.identifier.name)) {
-                                    errors.add(ast.condition.ctx, DuplicateCaseDetected(it.identifier.name))
-                                }
-                                nameSet[it.identifier.name] = it
-                            }
-                            terminus.memberTypes.forEach {
-                                when (it) {
-                                    is PlatformSumObjectType -> {
-                                        if (!nameSet.containsKey(it.identifier.name)) {
-                                            errors.add(ast.condition.ctx, MissingMatchCase(it.identifier.name))
-                                        }
-                                    }
-
-                                    is PlatformSumRecordType -> {
-                                        if (!nameSet.containsKey(it.identifier.name)) {
-                                            errors.add(ast.condition.ctx, MissingMatchCase(it.identifier.name))
-                                        }
-                                    }
-                                }
-                            }
-                        }
-
-                        else -> errors.add(ast.condition.ctx, SumTypeRequired(conditionType))
-                    }
-                }
-
-                else -> errors.add(ast.condition.ctx, SumTypeRequired(conditionType))
-            }
         } catch (ex: LanguageException) {
             errors.addAll(ast.ctx, ex.errors)
         }
