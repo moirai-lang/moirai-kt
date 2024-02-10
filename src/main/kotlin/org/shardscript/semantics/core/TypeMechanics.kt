@@ -320,11 +320,13 @@ fun checkTypes(
 
                 expectedParameterized is PlatformSumType && actualParameterized is PlatformSumRecordType -> {
                     checkTypes(ctx, prelude, errors, expectedParameterized, actualParameterized)
+                    val allArgs = expectedParameterized.typeParams.zip(expected.substitutionChain.replayArgs()).toMap()
+                    val selectedArgs = actualParameterized.typeParams.map { allArgs[it]!! }
                     checkTypes(
                         ctx,
                         prelude,
                         errors,
-                        expected.substitutionChain.replayArgs(),
+                        selectedArgs,
                         actual.substitutionChain.replayArgs()
                     )
                 }
