@@ -10,6 +10,7 @@ fun filterValidTypes(ctx: SourceContext, errors: LanguageErrors, type: Type): Ty
         is BasicType,
         is ObjectType,
         is PlatformObjectType,
+        is PlatformSumObjectType,
         is StandardTypeParameter,
         is FunctionType -> type
 
@@ -28,7 +29,9 @@ fun filterValidTypes(ctx: SourceContext, errors: LanguageErrors, type: Type): Ty
         }
 
         is ParameterizedBasicType,
-        is ParameterizedRecordType -> {
+        is ParameterizedRecordType,
+        is PlatformSumType,
+        is PlatformSumRecordType -> {
             errors.add(ctx, CannotUseRawType(type))
             ErrorType
         }
@@ -93,16 +96,22 @@ fun filterValidGroundApply(
         ErrorType,
         is GroundRecordType,
         is ParameterizedBasicType,
-        is ParameterizedRecordType -> type
+        is ParameterizedRecordType,
+        is PlatformSumRecordType -> type
 
         is TypeInstantiation -> {
             when (type.substitutionChain.terminus) {
                 is ParameterizedBasicType,
-                is ParameterizedRecordType -> {
+                is ParameterizedRecordType,
+                is PlatformSumRecordType -> {
                     type.substitutionChain.terminus.typeParams.forEach {
                         validateSubstitution(ctx, errors, it, type.substitutionChain.replay(it))
                     }
                     type
+                }
+                is PlatformSumType -> {
+                    errors.add(ctx, SymbolCouldNotBeApplied(signifier))
+                    ErrorType
                 }
             }
         }
@@ -114,6 +123,8 @@ fun filterValidGroundApply(
         is BasicType,
         is ObjectType,
         is PlatformObjectType,
+        is PlatformSumObjectType,
+        is PlatformSumType,
         is StandardTypeParameter,
         is SumCostExpression,
         is ProductCostExpression,
@@ -175,6 +186,14 @@ fun getQualifiedName(type: Type): String {
             type.qualifiedName
         }
 
+        is PlatformSumType -> {
+            type.identifier.name
+        }
+
+        is PlatformSumRecordType -> {
+            type.identifier.name
+        }
+
         is TypeInstantiation -> {
             when (val parameterizedType = type.substitutionChain.terminus) {
                 is ParameterizedBasicType -> {
@@ -183,6 +202,14 @@ fun getQualifiedName(type: Type): String {
 
                 is ParameterizedRecordType -> {
                     parameterizedType.qualifiedName
+                }
+
+                is PlatformSumType -> {
+                    parameterizedType.identifier.name
+                }
+
+                is PlatformSumRecordType -> {
+                    parameterizedType.identifier.name
                 }
             }
         }
@@ -200,6 +227,10 @@ fun getQualifiedName(type: Type): String {
         }
 
         is PlatformObjectType -> {
+            type.identifier.name
+        }
+
+        is PlatformSumObjectType -> {
             type.identifier.name
         }
 
@@ -265,6 +296,41 @@ fun checkTypes(
                     )
                 }
 
+                expectedParameterized is PlatformSumRecordType && actualParameterized is PlatformSumRecordType -> {
+                    checkTypes(ctx, prelude, errors, expectedParameterized, actualParameterized)
+                    checkTypes(
+                        ctx,
+                        prelude,
+                        errors,
+                        expected.substitutionChain.replayArgs(),
+                        actual.substitutionChain.replayArgs()
+                    )
+                }
+
+                expectedParameterized is PlatformSumType && actualParameterized is PlatformSumType -> {
+                    checkTypes(ctx, prelude, errors, expectedParameterized, actualParameterized)
+                    checkTypes(
+                        ctx,
+                        prelude,
+                        errors,
+                        expected.substitutionChain.replayArgs(),
+                        actual.substitutionChain.replayArgs()
+                    )
+                }
+
+                expectedParameterized is PlatformSumType && actualParameterized is PlatformSumRecordType -> {
+                    checkTypes(ctx, prelude, errors, expectedParameterized, actualParameterized)
+                    val allArgs = expectedParameterized.typeParams.zip(expected.substitutionChain.replayArgs()).toMap()
+                    val selectedArgs = actualParameterized.typeParams.map { allArgs[it]!! }
+                    checkTypes(
+                        ctx,
+                        prelude,
+                        errors,
+                        selectedArgs,
+                        actual.substitutionChain.replayArgs()
+                    )
+                }
+
                 expectedParameterized is ParameterizedBasicType && actualParameterized is ParameterizedBasicType -> {
                     checkTypes(ctx, prelude, errors, expectedParameterized, actualParameterized)
                     checkTypes(
@@ -275,6 +341,22 @@ fun checkTypes(
                         actual.substitutionChain.replayArgs()
                     )
                 }
+            }
+        }
+
+        expected is PlatformSumType && actual is PlatformSumRecordType -> {
+            val expectedPath = getQualifiedName(expected)
+            val actualPath = getQualifiedName(actual.sumType)
+            if (expectedPath != actualPath) {
+                errors.add(ctx, TypeMismatch(expected, actual))
+            }
+        }
+
+        expected is TypeInstantiation && actual is PlatformSumObjectType -> {
+            val expectedPath = getQualifiedName(expected.substitutionChain.terminus)
+            val actualPath = getQualifiedName(actual.sumType)
+            if (expectedPath != actualPath) {
+                errors.add(ctx, TypeMismatch(expected, actual))
             }
         }
 
@@ -433,12 +515,18 @@ fun checkApply(prelude: Scope, errors: LanguageErrors, ast: GroundApplyAst, args
             val type = groundApplySlot.payload
             when (val parameterizedSymbol = type.substitutionChain.terminus) {
                 is ParameterizedRecordType -> {
-                    checkArgs(prelude, errors, type, parameterizedSymbol, ast, args)
+                    checkFields(prelude, errors, type, parameterizedSymbol.fields, ast, args)
                 }
 
                 is ParameterizedBasicType -> {
                     checkArgs(prelude, errors, type, parameterizedSymbol, args)
                 }
+
+                is PlatformSumRecordType -> {
+                    checkFields(prelude, errors, type, parameterizedSymbol.fields, ast, args)
+                }
+
+                is PlatformSumType -> errors.add(ast.ctx, TypeSystemBug)
             }
         }
     }
@@ -465,18 +553,18 @@ fun checkArgs(prelude: Scope, errors: LanguageErrors, type: GroundRecordType, as
     }
 }
 
-fun checkArgs(
+fun checkFields(
     prelude: Scope,
     errors: LanguageErrors,
     instantiation: TypeInstantiation,
-    parameterizedType: ParameterizedRecordType,
+    fields: List<FieldSymbol>,
     ast: Ast,
     args: List<Ast>
 ) {
-    if (parameterizedType.fields.size != args.size) {
-        errors.add(ast.ctx, IncorrectNumberOfArgs(parameterizedType.fields.size, args.size))
+    if (fields.size != args.size) {
+        errors.add(ast.ctx, IncorrectNumberOfArgs(fields.size, args.size))
     } else {
-        parameterizedType.fields.zip(args).forEach {
+        fields.zip(args).forEach {
             val ofTypeSymbol = instantiation.substitutionChain.replay(it.first.ofTypeSymbol)
             checkTypes(it.second.ctx, prelude, errors, ofTypeSymbol, it.second.readType())
         }
@@ -541,36 +629,47 @@ fun findBestType(ctx: SourceContext, errors: LanguageErrors, types: List<Type>):
                 types.all { it is GroundRecordType && firstPath == getQualifiedName(it) } -> {
                     first
                 }
+
                 else -> {
                     errors.add(ctx, CannotFindBestType(types))
                     ErrorType
                 }
             }
         }
+
         is ObjectType -> {
             val firstPath = getQualifiedName(first)
             when {
                 types.all { it is ObjectType && firstPath == getQualifiedName(it) } -> {
                     first
                 }
+
                 else -> {
                     errors.add(ctx, CannotFindBestType(types))
                     ErrorType
                 }
             }
         }
+
         is PlatformObjectType -> {
             val firstPath = getQualifiedName(first)
             when {
                 types.all { it is PlatformObjectType && firstPath == getQualifiedName(it) } -> {
                     first
                 }
+
                 else -> {
                     errors.add(ctx, CannotFindBestType(types))
                     ErrorType
                 }
             }
         }
+
+        is PlatformSumObjectType -> {
+            val sumPath = getQualifiedName(first.sumType)
+            handleSumType(types, sumPath, ctx, errors)
+        }
+
         is TypeInstantiation -> {
             val firstPath = getQualifiedName(first)
             when (val parameterizedType = first.substitutionChain.terminus) {
@@ -594,6 +693,7 @@ fun findBestType(ctx: SourceContext, errors: LanguageErrors, types: List<Type>):
                         ErrorType
                     }
                 }
+
                 is ParameterizedBasicType -> {
                     if (types.all {
                             it is TypeInstantiation &&
@@ -614,6 +714,7 @@ fun findBestType(ctx: SourceContext, errors: LanguageErrors, types: List<Type>):
                         ErrorType
                     }
                 }
+
                 is CostExpression -> {
                     if (types.all { it is CostExpression }) {
                         MaxCostExpression(
@@ -624,8 +725,19 @@ fun findBestType(ctx: SourceContext, errors: LanguageErrors, types: List<Type>):
                         ErrorType
                     }
                 }
+
+                is PlatformSumRecordType -> {
+                    val sumPath = getQualifiedName(parameterizedType.sumType)
+                    handleSumType(types, sumPath, ctx, errors)
+                }
+
+                is PlatformSumType -> {
+                    val sumPath = getQualifiedName(parameterizedType)
+                    handleSumType(types, sumPath, ctx, errors)
+                }
             }
         }
+
         is BasicType -> {
             val firstPath = getQualifiedName(first)
             if (types.all { it is BasicType && firstPath == getQualifiedName(it) }) {
@@ -635,6 +747,7 @@ fun findBestType(ctx: SourceContext, errors: LanguageErrors, types: List<Type>):
                 ErrorType
             }
         }
+
         is StandardTypeParameter -> {
             val firstPath = getQualifiedName(first)
             if (types.all { it is StandardTypeParameter && firstPath == getQualifiedName(it) }) {
@@ -644,6 +757,7 @@ fun findBestType(ctx: SourceContext, errors: LanguageErrors, types: List<Type>):
                 ErrorType
             }
         }
+
         is Fin -> {
             if (types.all { it is Fin }) {
                 Fin(types.maxOf { (it as Fin).magnitude })
@@ -652,6 +766,7 @@ fun findBestType(ctx: SourceContext, errors: LanguageErrors, types: List<Type>):
                 ErrorType
             }
         }
+
         is FinTypeParameter -> {
             val firstPath = getQualifiedName(first)
             if (types.all { it is FinTypeParameter && firstPath == getQualifiedName(it) }) {
@@ -661,12 +776,63 @@ fun findBestType(ctx: SourceContext, errors: LanguageErrors, types: List<Type>):
                 ErrorType
             }
         }
+
         else -> {
             errors.add(ctx, CannotFindBestType(types))
             ErrorType
         }
     }
 }
+
+private fun handleSumType(
+    types: List<Type>,
+    sumPath: String,
+    ctx: SourceContext,
+    errors: LanguageErrors
+): Type {
+    return if (types.any { isCorrectSumRecord(it, sumPath) || isCorrectSumType(it, sumPath) }) {
+        if (types.all {
+                it is PlatformSumObjectType && sumPath == getQualifiedName(it.sumType) || isCorrectSumRecord(
+                    it,
+                    sumPath
+                ) || isCorrectSumType(it, sumPath)
+            }) {
+            // We know that we have nothing but objects and instantiations of compatible sum types
+            val instantiations = types.filterIsInstance<TypeInstantiation>()
+            val firstTerminus = instantiations.first().substitutionChain.terminus
+            val sumType = if (firstTerminus is PlatformSumType) {
+                firstTerminus
+            } else {
+                (firstTerminus as PlatformSumRecordType).sumType
+            }
+
+            val typeArgs = transpose(instantiations.map {
+                it.substitutionChain.replayArgs()
+            }).map {
+                findBestType(ctx, errors, it)
+            }
+            val substitution = Substitution(sumType.typeParams, typeArgs)
+            substitution.apply(sumType)
+        } else {
+            errors.add(ctx, CannotFindBestType(types))
+            ErrorType
+        }
+    } else {
+        errors.add(ctx, CannotFindBestType(types))
+        ErrorType
+    }
+}
+
+private fun isCorrectSumType(it: Type, sumPath: String): Boolean =
+    it is TypeInstantiation && it.substitutionChain.terminus is PlatformSumType && sumPath == getQualifiedName(
+        it.substitutionChain.terminus
+    )
+
+private fun isCorrectSumRecord(
+    it: Type,
+    sumPath: String
+): Boolean = it is TypeInstantiation && it.substitutionChain.terminus is PlatformSumRecordType &&
+        sumPath == getQualifiedName(it.substitutionChain.terminus.sumType)
 
 fun validateSubstitution(
     ctx: SourceContext,
@@ -684,12 +850,27 @@ fun validateSubstitution(
                     is ParameterizedBasicType -> if (!parameterizedType.featureSupport.typeArg) {
                         errors.add(ctx, TypeArgFeatureBan(substitutedType))
                     }
+
                     is ParameterizedRecordType -> if (!parameterizedType.featureSupport.typeArg) {
+                        errors.add(ctx, TypeArgFeatureBan(substitutedType))
+                    }
+
+                    is PlatformSumRecordType -> if (!parameterizedType.featureSupport.typeArg) {
+                        errors.add(ctx, TypeArgFeatureBan(substitutedType))
+                    }
+
+                    is PlatformSumType -> if (!parameterizedType.featureSupport.typeArg) {
                         errors.add(ctx, TypeArgFeatureBan(substitutedType))
                     }
                 }
             }
             is ObjectType -> if (!substitutedType.featureSupport.typeArg) {
+                errors.add(ctx, TypeArgFeatureBan(substitutedType))
+            }
+            is PlatformObjectType -> if (!substitutedType.featureSupport.typeArg) {
+                errors.add(ctx, TypeArgFeatureBan(substitutedType))
+            }
+            is PlatformSumObjectType -> if (!substitutedType.featureSupport.typeArg) {
                 errors.add(ctx, TypeArgFeatureBan(substitutedType))
             }
             else -> errors.add(ctx, InvalidStandardTypeSub(typeParameter, substitutedType))

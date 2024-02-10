@@ -3,6 +3,7 @@ package org.shardscript.semantics.visitors
 import org.shardscript.semantics.core.*
 import org.shardscript.semantics.infer.Substitution
 import org.shardscript.semantics.infer.instantiateFunction
+import org.shardscript.semantics.infer.instantiatePlatformSumRecord
 import org.shardscript.semantics.infer.instantiateRecord
 import org.shardscript.semantics.prelude.Lang
 
@@ -52,6 +53,12 @@ class PropagateTypesAstVisitor(
                         when (val terminus = type.substitutionChain.terminus) {
                             is ParameterizedBasicType -> handleParamBasicType(signifier, ast, terminus, args)
                             is ParameterizedRecordType -> handleParamRecord(signifier, ast, terminus, args)
+                            is PlatformSumRecordType -> handlePlatformSumRecord(signifier, ast, terminus, args)
+                            is PlatformSumType -> {
+                                errors.add(ast.ctx, SymbolCouldNotBeApplied(signifier))
+                                ast.groundApplySlot = GroundApplySlotError
+                                ast.assignType(errors, ErrorType)
+                            }
                         }
                     }
 
@@ -65,6 +72,10 @@ class PropagateTypesAstVisitor(
 
                     is ParameterizedRecordType -> {
                         handleParamRecord(signifier, ast, type, args)
+                    }
+
+                    is PlatformSumRecordType -> {
+                        handlePlatformSumRecord(signifier, ast, type, args)
                     }
 
                     is ParameterizedBasicType -> {
@@ -190,6 +201,31 @@ class PropagateTypesAstVisitor(
             }
         } else {
             val instantiation = instantiateRecord(ast.ctx, args, type, errors)
+            ast.groundApplySlot = GroundApplySlotTI(instantiation)
+            ast.assignType(errors, instantiation)
+        }
+    }
+
+    private fun handlePlatformSumRecord(
+        signifier: Signifier,
+        ast: GroundApplyAst,
+        type: PlatformSumRecordType,
+        args: List<Ast>
+    ) {
+        if (signifier is ParameterizedSignifier) {
+            val idArgs = signifier.args
+            val idArgSymbols = idArgs.map { ast.scope.fetchType(it) }
+            if (idArgs.size == type.typeParams.size) {
+                val substitution = Substitution(type.typeParams, idArgSymbols)
+                val instantiation = substitution.apply(type)
+                ast.groundApplySlot = GroundApplySlotTI(instantiation)
+                ast.assignType(errors, instantiation)
+            } else {
+                errors.add(ast.ctx, IncorrectNumberOfTypeArgs(type.typeParams.size, idArgs.size))
+                ast.assignType(errors, ErrorType)
+            }
+        } else {
+            val instantiation = instantiatePlatformSumRecord(ast.ctx, args, type, errors)
             ast.groundApplySlot = GroundApplySlotTI(instantiation)
             ast.assignType(errors, instantiation)
         }
@@ -354,6 +390,11 @@ class PropagateTypesAstVisitor(
 
                     is PlatformObjectType -> {
                         ast.refSlot = RefSlotPlatformObject(type)
+                        ast.assignType(errors, type)
+                    }
+
+                    is PlatformSumObjectType -> {
+                        ast.refSlot = RefSlotSumObject(type)
                         ast.assignType(errors, type)
                     }
 
@@ -553,9 +594,29 @@ class PropagateTypesAstVisitor(
                                     errors.add(ast.ctx, SymbolIsNotAField(ast.identifier))
                                     ast.dotSlot = DotSlotError
                                     ast.assignType(errors, ErrorType)
-
                                 }
                             }
+                        }
+
+                        is PlatformSumRecordType -> {
+                            when (val member = parameterizedSymbol.fetchHere(ast.identifier)) {
+                                is FieldSymbol -> {
+                                    ast.dotSlot = DotSlotField(member)
+                                    val astType = lhsType.substitutionChain.replay(member.ofTypeSymbol)
+                                    ast.assignType(errors, astType)
+                                }
+
+                                else -> {
+                                    errors.add(ast.ctx, SymbolIsNotAField(ast.identifier))
+                                    ast.dotSlot = DotSlotError
+                                    ast.assignType(errors, ErrorType)
+                                }
+                            }
+                        }
+                        is PlatformSumType -> {
+                            errors.add(ast.ctx, SymbolHasNoFields(ast.identifier, ast.lhs.readType() as Symbol))
+                            ast.dotSlot = DotSlotError
+                            ast.assignType(errors, ErrorType)
                         }
                     }
                 }
@@ -778,6 +839,31 @@ class PropagateTypesAstVisitor(
                                 }
                             }
                         }
+
+                        is PlatformSumRecordType -> {
+                            val member = parameterizedSymbol.fetchHere(ast.tti)
+                            filterValidDotApply(ast.ctx, errors, member, ast.signifier)
+                            when (member) {
+                                is GroundMemberPluginSymbol -> {
+                                    if (ast.signifier is ParameterizedSignifier) {
+                                        errors.add(ast.signifier.ctx, SymbolHasNoParameters(ast.signifier))
+                                    }
+                                    ast.dotApplySlot = DotApplySlotGMP(member)
+                                    ast.assignType(errors, member.returnType)
+                                }
+
+                                else -> {
+                                    errors.add(ast.ctx, SymbolCouldNotBeApplied(ast.signifier))
+                                    ast.dotApplySlot = DotApplySlotError
+                                    ast.assignType(errors, ErrorType)
+                                }
+                            }
+                        }
+                        is PlatformSumType -> {
+                            errors.add(ast.ctx, SymbolHasNoMembers(ast.signifier, ast.lhs.readType() as Symbol))
+                            ast.dotApplySlot = DotApplySlotError
+                            ast.assignType(errors, ErrorType)
+                        }
                     }
                 }
 
@@ -930,6 +1016,79 @@ class PropagateTypesAstVisitor(
                         ast.trueBranch.readType(),
                         ast.falseBranch.readType()
                     )
+                )
+            )
+        } catch (ex: LanguageException) {
+            errors.addAll(ast.ctx, ex.errors)
+            ast.assignType(errors, ErrorType)
+        }
+    }
+
+    override fun visit(ast: MatchAst) {
+        try {
+            ast.condition.accept(this)
+            when (val conditionType = ast.condition.readType()) {
+                is TypeInstantiation -> {
+                    when (val terminus = conditionType.substitutionChain.terminus) {
+                        is PlatformSumType -> {
+                            val supportedNames = terminus.memberTypes.map {
+                                when(it) {
+                                    is PlatformSumObjectType -> it.identifier.name
+                                    is PlatformSumRecordType -> it.identifier.name
+                                }
+                            }.toSet()
+                            val nameSet: MutableMap<String, CaseBlock> = mutableMapOf()
+                            ast.cases.forEach {
+                                if (!supportedNames.contains(it.identifier.name)) {
+                                    errors.add(ast.condition.ctx, UnknownCaseDetected(it.identifier.name))
+                                } else if (nameSet.containsKey(it.identifier.name)) {
+                                    errors.add(ast.condition.ctx, DuplicateCaseDetected(it.identifier.name))
+                                }
+                                nameSet[it.identifier.name] = it
+                            }
+                            terminus.memberTypes.forEach {
+                                when (it) {
+                                    is PlatformSumObjectType -> {
+                                        if (!nameSet.containsKey(it.identifier.name)) {
+                                            errors.add(ast.condition.ctx, MissingMatchCase(it.identifier.name))
+                                        } else {
+                                            nameSet[it.identifier.name]!!.member = it
+                                            nameSet[it.identifier.name]!!.itType = it
+                                        }
+                                    }
+
+                                    is PlatformSumRecordType -> {
+                                        if (!nameSet.containsKey(it.identifier.name)) {
+                                            errors.add(ast.condition.ctx, MissingMatchCase(it.identifier.name))
+                                        } else {
+                                            nameSet[it.identifier.name]!!.member = it
+                                            nameSet[it.identifier.name]!!.itType =
+                                                conditionType.substitutionChain.replay(it)
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        else -> errors.add(ast.condition.ctx, SumTypeRequired(conditionType))
+                    }
+                }
+
+                else -> errors.add(ast.condition.ctx, SumTypeRequired(conditionType))
+            }
+
+            ast.cases.forEach {
+                val local = LocalVariableSymbol(it.block.scope, Lang.itId, it.itType, false)
+                it.block.scope.define(Lang.itId, local)
+                it.block.accept(this)
+            }
+
+            ast.assignType(
+                errors,
+                findBestType(
+                    ast.ctx,
+                    errors,
+                    ast.cases.map { it.block.readType() }
                 )
             )
         } catch (ex: LanguageException) {

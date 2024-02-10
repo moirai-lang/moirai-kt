@@ -145,4 +145,12 @@ class CostMultiplierAstVisitor(val architecture: Architecture) : AstVisitor<List
         res.addAll(ast.falseBranch.accept(this))
         return res
     }
+
+    override fun visit(ast: MatchAst): List<ParamCostExMultiplier> {
+        val res = ast.condition.accept(this).toMutableList()
+        ast.cases.forEach {
+            res.addAll(it.block.accept(this))
+        }
+        return res
+    }
 }

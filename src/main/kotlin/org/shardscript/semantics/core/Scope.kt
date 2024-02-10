@@ -252,6 +252,32 @@ class SymbolTable(private val parent: Scope) : Scope {
                         }
                     }
 
+                    is PlatformSumRecordType -> {
+                        val typeArgs = signifier.args.map { fetchType(it) }
+                        if (typeArgs.size != type.typeParams.size) {
+                            langThrow(
+                                signifier.ctx,
+                                IncorrectNumberOfTypeArgs(type.typeParams.size, typeArgs.size)
+                            )
+                        } else {
+                            val substitution = Substitution(type.typeParams, typeArgs)
+                            substitution.apply(type)
+                        }
+                    }
+
+                    is PlatformSumType -> {
+                        val typeArgs = signifier.args.map { fetchType(it) }
+                        if (typeArgs.size != type.typeParams.size) {
+                            langThrow(
+                                signifier.ctx,
+                                IncorrectNumberOfTypeArgs(type.typeParams.size, typeArgs.size)
+                            )
+                        } else {
+                            val substitution = Substitution(type.typeParams, typeArgs)
+                            substitution.apply(type)
+                        }
+                    }
+
                     is ParameterizedBasicType -> {
                         val typeArgs = signifier.args.map { fetchType(it) }
                         if (typeArgs.size != type.typeParams.size) {
@@ -292,6 +318,32 @@ class SymbolTable(private val parent: Scope) : Scope {
             is ParameterizedSignifier -> {
                 when (val type = fetchTypeHere(signifier.tti)) {
                     is ParameterizedRecordType -> {
+                        val typeArgs = signifier.args.map { fetchType(it) }
+                        if (typeArgs.size != type.typeParams.size) {
+                            langThrow(
+                                signifier.ctx,
+                                IncorrectNumberOfTypeArgs(type.typeParams.size, typeArgs.size)
+                            )
+                        } else {
+                            val substitution = Substitution(type.typeParams, typeArgs)
+                            substitution.apply(type)
+                        }
+                    }
+
+                    is PlatformSumRecordType -> {
+                        val typeArgs = signifier.args.map { fetchType(it) }
+                        if (typeArgs.size != type.typeParams.size) {
+                            langThrow(
+                                signifier.ctx,
+                                IncorrectNumberOfTypeArgs(type.typeParams.size, typeArgs.size)
+                            )
+                        } else {
+                            val substitution = Substitution(type.typeParams, typeArgs)
+                            substitution.apply(type)
+                        }
+                    }
+
+                    is PlatformSumType -> {
                         val typeArgs = signifier.args.map { fetchType(it) }
                         if (typeArgs.size != type.typeParams.size) {
                             langThrow(

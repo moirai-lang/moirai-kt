@@ -5,6 +5,7 @@ sealed class RefAstSymbolSlot
 data object RefSlotError: RefAstSymbolSlot()
 data class RefSlotObject(val payload: ObjectType): RefAstSymbolSlot()
 data class RefSlotPlatformObject(val payload: PlatformObjectType): RefAstSymbolSlot()
+data class RefSlotSumObject(val payload: PlatformSumObjectType): RefAstSymbolSlot()
 data class RefSlotSTP(val payload: StandardTypeParameter): RefAstSymbolSlot()
 data class RefSlotLVS(val payload: LocalVariableSymbol): RefAstSymbolSlot()
 data class RefSlotFormal(val payload: FunctionFormalParameterSymbol): RefAstSymbolSlot()

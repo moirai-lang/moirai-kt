@@ -104,6 +104,7 @@ expr
     |   id=IDENTIFIER params=restrictedTypeExprParams LPAREN args=exprSeq? RPAREN                   # ParamApplyExpr
     |   id=IDENTIFIER LPAREN args=exprSeq? RPAREN                                                   # ApplyExpr
     |   left=expr LBRACK right=expr RBRACK                                                          # IndexExpr
+    |   anymatch=matchExpr                                                                          # AnyMatch
     |   anyif=ifExpr                                                                                # AnyIf
     |   anylambda=lambdaDef                                                                         # AnyLambda
     |   op=NOT right=expr                                                                           # UnaryNot
@@ -121,6 +122,18 @@ expr
     |   value=string                                                                                # StringExpr
     |   left=expr op=TO right=expr                                                                  # ToExpr
     |   id=IDENTIFIER                                                                               # RefExpr
+    ;
+
+matchExpr
+    :   op=MATCH LPAREN condition=expr RPAREN LCURLY cases=caseStats RCURLY
+    ;
+
+caseStats
+    :   caseStat+
+    ;
+
+caseStat
+    : op=CASE id=IDENTIFIER LCURLY stats=stat* RCURLY
     ;
 
 ifExpr

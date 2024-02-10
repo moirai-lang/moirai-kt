@@ -8,6 +8,11 @@ data class Binder(val identifier: Identifier, val ofType: Signifier) {
     lateinit var symbol: Symbol
 }
 
+data class CaseBlock(val identifier: Identifier, val block: BlockAst) {
+    lateinit var member: PlatformSumMember
+    var itType: Type = ErrorType
+}
+
 data class FieldDef(val identifier: Identifier, val ofType: Signifier, val mutable: Boolean) {
     lateinit var symbol: Symbol
 }

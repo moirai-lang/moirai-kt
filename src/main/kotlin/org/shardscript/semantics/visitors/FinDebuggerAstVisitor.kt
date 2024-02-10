@@ -109,4 +109,9 @@ class FinDebuggerAstVisitor(val architecture: Architecture) : UnitAstVisitor() {
         super.visit(ast)
         testNode(ast)
     }
+
+    override fun visit(ast: MatchAst) {
+        super.visit(ast)
+        testNode(ast)
+    }
 }

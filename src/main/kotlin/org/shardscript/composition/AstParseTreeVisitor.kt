@@ -503,4 +503,24 @@ internal class AstParseTreeVisitor(private val fileName: String, val errors: Lan
         val res = IfAst(sourceContext, condition, trueBranch, falseBranch)
         return res
     }
+
+    override fun visitAnyMatch(ctx: ShardScriptParser.AnyMatchContext): Ast {
+        return visit(ctx.anymatch)
+    }
+
+    override fun visitMatchExpr(ctx: ShardScriptParser.MatchExprContext): Ast {
+        val sourceContext = createContext(fileName, ctx.op)
+
+        val condition = visit(ctx.condition)
+        val cases: MutableList<CaseBlock> = mutableListOf()
+        ctx.cases.caseStat().forEach { caseStatCtx ->
+            val id = Identifier(createContext(fileName, caseStatCtx.id), caseStatCtx.id.text)
+            val stats = caseStatCtx.stat().map { visit(it) }
+            val block = BlockAst(createContext(fileName, caseStatCtx.LCURLY().symbol), stats.toMutableList())
+            cases.add(CaseBlock(id, block))
+        }
+
+        val res = MatchAst(sourceContext, condition, cases)
+        return res
+    }
 }

@@ -31,7 +31,7 @@ class EvalAstVisitor(architecture: Architecture, private val globalScope: ValueT
         }
     }
 
-    private fun <T: RawTerminus> createSubstitutions(
+    private fun <T : RawTerminus> createSubstitutions(
         substitutions: Map<TypeParameter, Type>,
         substitutionChain: SubstitutionChain<T>
     ): Map<TypeParameter, Type> {
@@ -68,6 +68,7 @@ class EvalAstVisitor(architecture: Architecture, private val globalScope: ValueT
     override fun visit(ast: RefAst, param: EvalContext): Value {
         return when (val refSlot = ast.refSlot) {
             is RefSlotObject -> ObjectValue(refSlot.payload)
+            is RefSlotSumObject -> SumObjectValue(refSlot.payload)
             is RefSlotPlatformObject -> if (refSlot.payload.identifier == Lang.unitId) {
                 UnitValue
             } else {
@@ -128,30 +129,39 @@ class EvalAstVisitor(architecture: Architecture, private val globalScope: ValueT
             is RecordValue -> {
                 lhs.fields.fetch(ast.identifier)
             }
+
+            is SumRecordValue -> {
+                lhs.fields.fetch(ast.identifier)
+            }
+
             is ListValue -> {
                 when (val dotSlot = ast.dotSlot) {
                     is DotSlotPlatformField -> Plugins.fields[dotSlot.payload]!!.invoke(lhs)
                     else -> langThrow(ast.ctx, TypeSystemBug)
                 }
             }
+
             is DictionaryValue -> {
                 when (val dotSlot = ast.dotSlot) {
                     is DotSlotPlatformField -> Plugins.fields[dotSlot.payload]!!.invoke(lhs)
                     else -> langThrow(ast.ctx, TypeSystemBug)
                 }
             }
+
             is SetValue -> {
                 when (val dotSlot = ast.dotSlot) {
                     is DotSlotPlatformField -> Plugins.fields[dotSlot.payload]!!.invoke(lhs)
                     else -> langThrow(ast.ctx, TypeSystemBug)
                 }
             }
+
             is StringValue -> {
                 when (val dotSlot = ast.dotSlot) {
                     is DotSlotPlatformField -> Plugins.fields[dotSlot.payload]!!.invoke(lhs)
                     else -> langThrow(ast.ctx, TypeSystemBug)
                 }
             }
+
             else -> {
                 langThrow(ast.ctx, TypeSystemBug)
             }
@@ -167,14 +177,17 @@ class EvalAstVisitor(architecture: Architecture, private val globalScope: ValueT
                     is FunctionValue -> {
                         invoke(toApply, args, param.substitutions)
                     }
+
                     else -> langThrow(NotInSource, TypeSystemBug)
                 }
             }
+
             is GroundApplySlotGF -> {
                 val args = ast.args.map { it.accept(this, param) }
                 val toApply = FunctionValue(groundApplySlot.payload.formalParams, groundApplySlot.payload.body)
                 invoke(toApply, args, param.substitutions)
             }
+
             is GroundApplySlotGRT -> {
                 val args = ast.args.map { it.accept(this, param) }
                 val fields = ValueTable(NullValueTable)
@@ -185,25 +198,30 @@ class EvalAstVisitor(architecture: Architecture, private val globalScope: ValueT
                 res.scope = groundApplySlot.payload
                 res
             }
+
             is GroundApplySlotSI -> {
                 val args = ast.args.map { it.accept(this, param) }
                 when (val terminus = groundApplySlot.payload.substitutionChain.terminus) {
                     is ParameterizedFunctionSymbol -> {
-                        val substitutions = createSubstitutions(param.substitutions, groundApplySlot.payload.substitutionChain)
+                        val substitutions =
+                            createSubstitutions(param.substitutions, groundApplySlot.payload.substitutionChain)
                         val toApply = FunctionValue(terminus.formalParams, terminus.body)
                         invoke(toApply, args, substitutions)
                     }
+
                     is ParameterizedMemberPluginSymbol -> langThrow(NotInSource, TypeSystemBug)
                     is ParameterizedStaticPluginSymbol -> Plugins.staticPlugins[terminus]!!.invoke(args)
                 }
             }
+
             is GroundApplySlotTI -> {
                 val args = ast.args.map { it.accept(this, param) }
                 when (val terminus = groundApplySlot.payload.substitutionChain.terminus) {
                     is ParameterizedBasicType -> {
                         when (terminus.identifier) {
                             Lang.listId -> {
-                                val substitutions = createSubstitutions(param.substitutions, groundApplySlot.payload.substitutionChain)
+                                val substitutions =
+                                    createSubstitutions(param.substitutions, groundApplySlot.payload.substitutionChain)
                                 ListValue(
                                     args.toMutableList(),
                                     substitutions,
@@ -213,7 +231,8 @@ class EvalAstVisitor(architecture: Architecture, private val globalScope: ValueT
                             }
 
                             Lang.mutableListId -> {
-                                val substitutions = createSubstitutions(param.substitutions, groundApplySlot.payload.substitutionChain)
+                                val substitutions =
+                                    createSubstitutions(param.substitutions, groundApplySlot.payload.substitutionChain)
                                 ListValue(
                                     args.toMutableList(),
                                     substitutions,
@@ -231,7 +250,8 @@ class EvalAstVisitor(architecture: Architecture, private val globalScope: ValueT
                                         it.fields.fetchHere(Lang.pairSecondId)
                                     )
                                 }
-                                val substitutions = createSubstitutions(param.substitutions, groundApplySlot.payload.substitutionChain)
+                                val substitutions =
+                                    createSubstitutions(param.substitutions, groundApplySlot.payload.substitutionChain)
                                 DictionaryValue(
                                     pairs.toMap().toMutableMap(),
                                     substitutions,
@@ -249,7 +269,8 @@ class EvalAstVisitor(architecture: Architecture, private val globalScope: ValueT
                                         it.fields.fetchHere(Lang.pairSecondId)
                                     )
                                 }
-                                val substitutions = createSubstitutions(param.substitutions, groundApplySlot.payload.substitutionChain)
+                                val substitutions =
+                                    createSubstitutions(param.substitutions, groundApplySlot.payload.substitutionChain)
                                 DictionaryValue(
                                     pairs.toMap().toMutableMap(),
                                     substitutions,
@@ -259,7 +280,8 @@ class EvalAstVisitor(architecture: Architecture, private val globalScope: ValueT
                             }
 
                             Lang.setId -> {
-                                val substitutions = createSubstitutions(param.substitutions, groundApplySlot.payload.substitutionChain)
+                                val substitutions =
+                                    createSubstitutions(param.substitutions, groundApplySlot.payload.substitutionChain)
                                 SetValue(
                                     args.toMutableSet(),
                                     substitutions,
@@ -269,7 +291,8 @@ class EvalAstVisitor(architecture: Architecture, private val globalScope: ValueT
                             }
 
                             Lang.mutableSetId -> {
-                                val substitutions = createSubstitutions(param.substitutions, groundApplySlot.payload.substitutionChain)
+                                val substitutions =
+                                    createSubstitutions(param.substitutions, groundApplySlot.payload.substitutionChain)
                                 SetValue(
                                     args.toMutableSet(),
                                     substitutions,
@@ -281,16 +304,32 @@ class EvalAstVisitor(architecture: Architecture, private val globalScope: ValueT
                             else -> langThrow(NotInSource, TypeSystemBug)
                         }
                     }
+
                     is ParameterizedRecordType -> {
                         val fields = ValueTable(NullValueTable)
                         terminus.fields.zip(args).forEach {
                             fields.define(it.first.identifier, it.second)
                         }
-                        val substitutions = createSubstitutions(param.substitutions, groundApplySlot.payload.substitutionChain)
+                        val substitutions =
+                            createSubstitutions(param.substitutions, groundApplySlot.payload.substitutionChain)
                         val res = RecordValue(groundApplySlot.payload, fields, substitutions)
                         res.scope = terminus
                         res
                     }
+
+                    is PlatformSumRecordType -> {
+                        val fields = ValueTable(NullValueTable)
+                        terminus.fields.zip(args).forEach {
+                            fields.define(it.first.identifier, it.second)
+                        }
+                        val substitutions =
+                            createSubstitutions(param.substitutions, groundApplySlot.payload.substitutionChain)
+                        val res = SumRecordValue(groundApplySlot.payload, terminus, fields, substitutions)
+                        res.scope = terminus
+                        res
+                    }
+
+                    is PlatformSumType -> langThrow(NotInSource, TypeSystemBug)
                 }
             }
         }
@@ -313,15 +352,18 @@ class EvalAstVisitor(architecture: Architecture, private val globalScope: ValueT
                             }
                             return function.accept(this, EvalContext(functionScope, param.substitutions))
                         }
+
                         else -> {
                             langThrow(ast.ctx, TypeSystemBug)
                         }
                     }
                 }
+
                 is DotApplySlotGMP -> {
                     val toApply = dotApplySlot.payload
                     return Plugins.groundMemberPlugins[toApply]!!.invoke(lhs, args)
                 }
+
                 is DotApplySlotSI -> {
                     val toApply = dotApplySlot.payload
                     when (val parameterizedType = toApply.substitutionChain.terminus) {
@@ -335,14 +377,17 @@ class EvalAstVisitor(architecture: Architecture, private val globalScope: ValueT
                                     }
                                     return function.accept(this, EvalContext(functionScope, param.substitutions))
                                 }
+
                                 else -> {
                                     langThrow(ast.ctx, TypeSystemBug)
                                 }
                             }
                         }
+
                         is ParameterizedMemberPluginSymbol -> {
                             return Plugins.parameterizedMemberPlugins[parameterizedType]!!.invoke(lhs, args)
                         }
+
                         else -> langThrow(ast.ctx, TypeSystemBug)
                     }
                 }
@@ -362,6 +407,7 @@ class EvalAstVisitor(architecture: Architecture, private val globalScope: ValueT
                 }
                 return UnitValue
             }
+
             else -> {
                 langThrow(ast.ctx, TypeSystemBug)
             }
@@ -381,6 +427,7 @@ class EvalAstVisitor(architecture: Architecture, private val globalScope: ValueT
                 lhs.fields.assign(ast.identifier, rhs)
                 UnitValue
             }
+
             else -> {
                 langThrow(ast.ctx, TypeSystemBug)
             }
@@ -397,6 +444,30 @@ class EvalAstVisitor(architecture: Architecture, private val globalScope: ValueT
             }
         } else {
             langThrow(ast.ctx, TypeSystemBug)
+        }
+    }
+
+    override fun visit(ast: MatchAst, param: EvalContext): Value {
+        return when (val condition = ast.condition.accept(this, param)) {
+            is SumRecordValue -> {
+                val bodyScope = ValueTable(param.values)
+                bodyScope.define(Lang.itId, condition)
+                ast.cases.first { it.identifier.name == condition.path }.block.accept(
+                    this,
+                    EvalContext(bodyScope, param.substitutions)
+                )
+            }
+
+            is SumObjectValue -> {
+                val bodyScope = ValueTable(param.values)
+                bodyScope.define(Lang.itId, condition)
+                ast.cases.first { it.identifier.name == condition.path }.block.accept(
+                    this,
+                    EvalContext(bodyScope, param.substitutions)
+                )
+            }
+
+            else -> langThrow(ast.ctx, TypeSystemBug)
         }
     }
 }

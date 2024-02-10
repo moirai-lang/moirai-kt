@@ -14,6 +14,8 @@ object Lang {
     val stringTypeId = Identifier(NotInSource, "O")
     val stringInputTypeId = Identifier(NotInSource, "P")
 
+    val itId = Identifier(NotInSource, "it")
+
     val decimalId = Identifier(NotInSource, "Decimal")
     private val decimalTypeId = Identifier(NotInSource, "O")
     val decimalInputTypeId = Identifier(NotInSource, "P")
@@ -56,6 +58,20 @@ object Lang {
     private val mutableSetFinTypeId = Identifier(NotInSource, "O")
     val mutableSetInputFinTypeId = Identifier(NotInSource, "P")
 
+    private val optionId = Identifier(NotInSource, "Option")
+    private val optionTypeParamId = Identifier(NotInSource, "A")
+    private val someId = Identifier(NotInSource, "Some")
+    private val someValueId = Identifier(NotInSource, "value")
+    private val noneId = Identifier(NotInSource, "None")
+
+    private val eitherId = Identifier(NotInSource, "Either")
+    private val eitherLeftTypeParamId = Identifier(NotInSource, "L")
+    private val eitherRightTypeParamId = Identifier(NotInSource, "R")
+    private val leftId = Identifier(NotInSource, "Left")
+    private val leftValueId = Identifier(NotInSource, "value")
+    private val rightId = Identifier(NotInSource, "Right")
+    private val rightValueId = Identifier(NotInSource, "value")
+
     val rangeId = Identifier(NotInSource, "range")
     val rangeTypeId = Identifier(NotInSource, "O")
     val randomId = Identifier(NotInSource, "random")
@@ -68,7 +84,8 @@ object Lang {
 
     // Unit
     val unitObject = PlatformObjectType(
-        unitId
+        unitId,
+        unitFeatureSupport
     )
 
     // Boolean
@@ -260,6 +277,42 @@ object Lang {
         pairType.define(pairFirstId, pairFirstField)
         pairType.define(pairSecondId, pairSecondField)
 
+        // Option
+        val optionType = PlatformSumType(optionId, userTypeFeatureSupport)
+        val optionTypeParam = StandardTypeParameter("${optionId.name}.${optionTypeParamId.name}", optionTypeParamId)
+
+        val someType = PlatformSumRecordType(prelude, optionType, someId, noFeatureSupport)
+        val noneType = PlatformSumObjectType(optionType, noneId, noFeatureSupport)
+
+        optionType.typeParams = listOf(optionTypeParam)
+        optionType.memberTypes = listOf(someType, noneType)
+
+        someType.typeParams = listOf(optionTypeParam)
+        val valueField = FieldSymbol(someType, someValueId, optionTypeParam, mutable = false)
+        someType.fields = listOf(valueField)
+        someType.define(someValueId, valueField)
+        
+        // Either
+        val eitherType = PlatformSumType(eitherId, userTypeFeatureSupport)
+        val eitherLeftTypeParam = StandardTypeParameter("${eitherId.name}.${eitherLeftTypeParamId.name}", eitherLeftTypeParamId)
+        val eitherRightTypeParam = StandardTypeParameter("${eitherId.name}.${eitherRightTypeParamId.name}", eitherRightTypeParamId)
+
+        val leftType = PlatformSumRecordType(prelude, eitherType, leftId, noFeatureSupport)
+        val rightType = PlatformSumRecordType(prelude, eitherType, rightId, noFeatureSupport)
+
+        eitherType.typeParams = listOf(eitherLeftTypeParam, eitherRightTypeParam)
+        eitherType.memberTypes = listOf(leftType, rightType)
+
+        leftType.typeParams = listOf(eitherLeftTypeParam)
+        val leftValueField = FieldSymbol(leftType, leftValueId, eitherLeftTypeParam, mutable = false)
+        leftType.fields = listOf(leftValueField)
+        leftType.define(leftValueId, leftValueField)
+
+        rightType.typeParams = listOf(eitherRightTypeParam)
+        val rightValueField = FieldSymbol(rightType, rightValueId, eitherRightTypeParam, mutable = false)
+        rightType.fields = listOf(rightValueField)
+        rightType.define(rightValueId, rightValueField)
+
         // Compose output
         prelude.defineType(unitId, unitObject)
         prelude.defineType(booleanId, booleanType)
@@ -274,6 +327,12 @@ object Lang {
         prelude.defineType(mutableSetId, mutableSetType)
         prelude.defineType(charId, charType)
         prelude.defineType(stringId, stringType)
+        prelude.defineType(optionId, optionType)
+        prelude.defineType(someId, someType)
+        prelude.defineType(noneId, noneType)
+        prelude.defineType(eitherId, eitherType)
+        prelude.defineType(leftId, leftType)
+        prelude.defineType(rightId, rightType)
         prelude.define(rangeId, StaticPlugins.rangePlugin)
         prelude.define(randomId, StaticPlugins.randomPlugin)
     }

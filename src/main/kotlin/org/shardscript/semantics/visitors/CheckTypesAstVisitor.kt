@@ -134,4 +134,12 @@ class CheckTypesAstVisitor(private val prelude: Scope) : UnitAstVisitor() {
             errors.addAll(ast.ctx, ex.errors)
         }
     }
+
+    override fun visit(ast: MatchAst) {
+        try {
+            super.visit(ast)
+        } catch (ex: LanguageException) {
+            errors.addAll(ast.ctx, ex.errors)
+        }
+    }
 }

@@ -29,6 +29,23 @@ class ObjectValue(
     }
 }
 
+class SumObjectValue(
+    val symbol: PlatformSumObjectType
+) : Value() {
+    val path = getQualifiedName(symbol)
+
+    override fun equals(other: Any?): Boolean {
+        if (other != null && other is SumObjectValue) {
+            return path == other.path
+        }
+        return false
+    }
+
+    override fun hashCode(): Int {
+        return path.hashCode()
+    }
+}
+
 data class PluginValue(
     val plugin: (List<Value>) -> Value
 ) : Value() {
@@ -48,6 +65,28 @@ class RecordValue(type: Type, val fields: ValueTable, val substitutions: Map<Typ
 
     override fun equals(other: Any?): Boolean {
         if (other != null && other is RecordValue) {
+            if (path == other.path) {
+                val valuesHere = fields.valuesHere()
+                val otherValues = other.fields.valuesHere()
+                return valuesHere.keys.all {
+                    valuesHere[it]!! == otherValues[it]!!
+                }
+            }
+        }
+        return false
+    }
+
+    override fun hashCode(): Int {
+        return path.hashCode()
+    }
+}
+
+class SumRecordValue(val instantiation: TypeInstantiation, val type: PlatformSumRecordType, val fields: ValueTable, val substitutions: Map<TypeParameter, Type>) : Value() {
+    lateinit var scope: Scope
+    val path = getQualifiedName(type)
+
+    override fun equals(other: Any?): Boolean {
+        if (other != null && other is SumRecordValue) {
             if (path == other.path) {
                 val valuesHere = fields.valuesHere()
                 val otherValues = other.fields.valuesHere()

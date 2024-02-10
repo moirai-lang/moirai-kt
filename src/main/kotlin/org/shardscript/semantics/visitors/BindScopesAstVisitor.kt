@@ -255,4 +255,13 @@ class BindScopesAstVisitor(
             errors.addAll(ast.ctx, ex.errors)
         }
     }
+
+    override fun visit(ast: MatchAst, param: Scope) {
+        try {
+            ast.scope = param
+            super.visit(ast, param)
+        } catch (ex: LanguageException) {
+            errors.addAll(ast.ctx, ex.errors)
+        }
+    }
 }

@@ -27,6 +27,7 @@ BOOL_FALSE: 'false';
 
 FIN: 'Fin';
 
+CASE: 'case';
 DEF: 'def';
 ELSE: 'else';
 FOR: 'for';
@@ -34,6 +35,7 @@ IF: 'if';
 IMPORT: 'import';
 IN: 'in';
 LAMBDA: 'lambda';
+MATCH: 'match';
 MUTABLE: 'mutable';
 OBJECT: 'object';
 RECORD: 'record';
