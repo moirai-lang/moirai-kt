@@ -115,8 +115,10 @@ class PlatformSumType(
     val featureSupport: FeatureSupport
 ) : TerminusType {
     override lateinit var typeParams: List<TypeParameter>
-    lateinit var memberTypes: List<Type>
+    lateinit var memberTypes: List<PlatformSumMember>
 }
+
+sealed interface PlatformSumMember
 
 class PlatformSumRecordType(
     definitionScopeForTypeChecking: Scope,
@@ -124,7 +126,7 @@ class PlatformSumRecordType(
     val identifier: Identifier,
     val featureSupport: FeatureSupport,
     private val symbolTable: SymbolTable = SymbolTable(definitionScopeForTypeChecking)
-) : TerminusType, Scope by symbolTable {
+) : TerminusType, PlatformSumMember, Scope by symbolTable {
     override lateinit var typeParams: List<TypeParameter>
     lateinit var fields: List<FieldSymbol>
 }
@@ -134,4 +136,4 @@ class PlatformSumObjectType(
     val identifier: Identifier,
     val featureSupport: FeatureSupport,
     private val symbolTable: SymbolTable = SymbolTable(NullSymbolTable)
-) : Type, Scope by symbolTable
+) : Type, PlatformSumMember, Scope by symbolTable

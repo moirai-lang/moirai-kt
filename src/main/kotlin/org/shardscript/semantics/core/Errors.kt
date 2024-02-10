@@ -67,6 +67,14 @@ data class CannotUsePlatformSumTypeMember(val type: Type) : ErrorKind(), TypeHos
 
 data class CannotFindBestType(override val types: List<Type>) : ErrorKind(), TypeHostErrorType
 
+data class SumTypeRequired(val type: Type) : ErrorKind(), TypeHostErrorType {
+    override val types: List<Type> = listOf(type)
+}
+
+data class DuplicateCaseDetected(val name: String): ErrorKind()
+
+data class MissingMatchCase(val name: String): ErrorKind()
+
 // General Errors
 data class SyntaxError(val msg: String) : ErrorKind()
 data object ResurrectWhitelistError : ErrorKind()

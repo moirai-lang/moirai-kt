@@ -275,6 +275,7 @@ object Lang {
         val noneType = PlatformSumObjectType(optionType, noneId, noFeatureSupport)
 
         optionType.typeParams = listOf(optionTypeParam)
+        optionType.memberTypes = listOf(someType, noneType)
 
         someType.typeParams = listOf(optionTypeParam)
         val valueField = FieldSymbol(someType, someValueId, optionTypeParam, mutable = false)

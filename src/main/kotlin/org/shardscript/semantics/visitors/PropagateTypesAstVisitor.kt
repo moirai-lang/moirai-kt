@@ -1019,4 +1019,21 @@ class PropagateTypesAstVisitor(
             ast.assignType(errors, ErrorType)
         }
     }
+
+    override fun visit(ast: MatchAst) {
+        try {
+            super.visit(ast)
+            ast.assignType(
+                errors,
+                findBestType(
+                    ast.ctx,
+                    errors,
+                    ast.cases.map { it.block.readType() }
+                )
+            )
+        } catch (ex: LanguageException) {
+            errors.addAll(ast.ctx, ex.errors)
+            ast.assignType(errors, ErrorType)
+        }
+    }
 }
