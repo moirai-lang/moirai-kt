@@ -442,4 +442,8 @@ class EvalAstVisitor(architecture: Architecture, private val globalScope: ValueT
             langThrow(ast.ctx, TypeSystemBug)
         }
     }
+
+    override fun visit(ast: MatchAst, param: EvalContext): Value {
+        TODO("Not yet implemented")
+    }
 }
