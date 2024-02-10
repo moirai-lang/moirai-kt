@@ -320,7 +320,7 @@ class EvalAstVisitor(architecture: Architecture, private val globalScope: ValueT
                         }
                         val substitutions =
                             createSubstitutions(param.substitutions, groundApplySlot.payload.substitutionChain)
-                        val res = SumRecordValue(groundApplySlot.payload, fields, substitutions)
+                        val res = SumRecordValue(groundApplySlot.payload, terminus, fields, substitutions)
                         res.scope = terminus
                         res
                     }
@@ -444,6 +444,26 @@ class EvalAstVisitor(architecture: Architecture, private val globalScope: ValueT
     }
 
     override fun visit(ast: MatchAst, param: EvalContext): Value {
-        TODO("Not yet implemented")
+        return when (val condition = ast.condition.accept(this, param)) {
+            is SumRecordValue -> {
+                val bodyScope = ValueTable(param.values)
+                bodyScope.define(Lang.itId, condition)
+                ast.cases.first { it.identifier.name == condition.path }.block.accept(
+                    this,
+                    EvalContext(bodyScope, param.substitutions)
+                )
+            }
+
+            is SumObjectValue -> {
+                val bodyScope = ValueTable(param.values)
+                bodyScope.define(Lang.itId, condition)
+                ast.cases.first { it.identifier.name == condition.path }.block.accept(
+                    this,
+                    EvalContext(bodyScope, param.substitutions)
+                )
+            }
+
+            else -> langThrow(ast.ctx, TypeSystemBug)
+        }
     }
 }

@@ -74,6 +74,10 @@ class PropagateTypesAstVisitor(
                         handleParamRecord(signifier, ast, type, args)
                     }
 
+                    is PlatformSumRecordType -> {
+                        handlePlatformSumRecord(signifier, ast, type, args)
+                    }
+
                     is ParameterizedBasicType -> {
                         handleParamBasicType(signifier, ast, type, args)
                     }

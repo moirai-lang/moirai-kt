@@ -35,7 +35,7 @@ class SumObjectValue(
     val path = getQualifiedName(symbol)
 
     override fun equals(other: Any?): Boolean {
-        if (other != null && other is ObjectValue) {
+        if (other != null && other is SumObjectValue) {
             return path == other.path
         }
         return false
@@ -81,12 +81,12 @@ class RecordValue(type: Type, val fields: ValueTable, val substitutions: Map<Typ
     }
 }
 
-class SumRecordValue(type: Type, val fields: ValueTable, val substitutions: Map<TypeParameter, Type>) : Value() {
+class SumRecordValue(val instantiation: TypeInstantiation, val type: PlatformSumRecordType, val fields: ValueTable, val substitutions: Map<TypeParameter, Type>) : Value() {
     lateinit var scope: Scope
     val path = getQualifiedName(type)
 
     override fun equals(other: Any?): Boolean {
-        if (other != null && other is RecordValue) {
+        if (other != null && other is SumRecordValue) {
             if (path == other.path) {
                 val valuesHere = fields.valuesHere()
                 val otherValues = other.fields.valuesHere()
