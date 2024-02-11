@@ -61,7 +61,7 @@ f(lambda (c: Int, d: Int) -> {
     x[0]
 })
 ```
-This code attempts to sneak past the total cost calculator by using higher-order functions. However, the compiler is smart enough to detect that this code will iterate 10,000 times, which is unacceptable. The computation is rejcted and the server returns an error.
+This code attempts to sneak past the total cost calculator by using higher-order functions. However, the compiler is smart enough to detect that this code will iterate 10,000 times, which is unacceptable. The computation is rejected and the server returns an error.
 
 # Etymology
-Moirai is a term from ancient Greek mythology. It refers the three sisters who personify destiny. The Moirai interpreter is able to determine the _destiny_ of a program before it even begins execution.
+Moirai is a term from ancient Greek mythology. It refers the three sisters who personify destiny.
