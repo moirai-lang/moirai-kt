@@ -3,8 +3,8 @@ plugins {
     antlr
 }
 
-group = "org.shardscript"
-version = "0.5.2"
+group = "moirai-lang"
+version = "0.1.0"
 
 repositories {
     mavenCentral()
@@ -29,6 +29,6 @@ tasks.compileKotlin {
 }
 
 tasks.generateGrammarSource {
-    arguments = arguments + listOf("-visitor", "-package", "org.shardscript.grammar")
-    outputDirectory = File("$buildDir/generated-src/antlr/main/org/shardscript/grammar")
+    arguments = arguments + listOf("-visitor", "-package", "moirai.grammar")
+    outputDirectory = File("$buildDir/generated-src/antlr/main/moirai/grammar")
 }
