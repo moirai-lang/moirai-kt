@@ -1,8 +1,10 @@
-# The ShardScript Programming Language
-ShardScript is designed for arbitrary cross-network code injections between machines. For this purpose, most existing products start with JSON and add Lisp-like features or embedded Abstract Syntax Trees.
+# The Moirai Programming Language
+The Moirai programming language is designed for multi-tenant serverless cloud compute. Whereas most serverless technologies use a timeout-based protection system, the Moirai interpreter is able to determine if a program is safe to execute at compile time, before execution even begins.
+
+Arbitrary code sent over a network is also safe to execute. For this purpose, most existing products start with JSON and add Lisp-like features or embedded Abstract Syntax Trees.
 
 ```
-// Naive solution, JSON with an embedded Abstract Syntax Tree.
+// Trivial solution, JSON with an embedded Abstract Syntax Tree.
 
 { "op": "plus", "args": [ { "arg0": 5 }, { "arg1": 6 } ] }
 
@@ -10,14 +12,14 @@ ShardScript is designed for arbitrary cross-network code injections between mach
 
 { "script": "(+ 5 6)" }
 
-// ShardScript code, sent over a network and directly executed by the server.
+// Moirai code, sent over a network and directly executed by the server.
 
 5 + 6
 ```
 
-The absolute upper limit to the execution cost of ShardScript code is determinable at compile-time. The Halting Problem is solved per-request. To accomplish this, all collections are dependently-typed on a pessimistic upper bound, called Fin. Because ShardScript cannot access the file system of the host machine, and because the cost-to-execute is known at compile time, arbitrary cross-network code injections are generally safe.
+The absolute upper limit to the execution cost of Moirai code is determinable at compile-time. The Halting Problem is solved per-request. To accomplish this, all collections are dependently-typed on a pessimistic upper bound, called Fin. Because Moirai cannot access the file system of the host machine, and because the cost-to-execute is known at compile time, arbitrary cross-network code injections are generally safe.
 
-ShardScript is not a JSON generator. ShardScript replaces JSON completely. At no point is JSON sent over the network, and at no point does the destination server deserialize ShardScript into another language. The request sent over the network and the cloud function code are both written in ShardScript.
+Moirai is _not_ a JSON generator. Moirai replaces JSON completely. At no point is JSON sent over the network, and at no point does the destination server deserialize Moirai into another language. The request sent over the network and the cloud function code are both written in Moirai.
 
 # Concept Examples
 The following code can be sent over a network in a POST request to be executed by a server:
@@ -62,6 +64,4 @@ f(lambda (c: Int, d: Int) -> {
 This code attempts to sneak past the total cost calculator by using higher-order functions. However, the compiler is smart enough to detect that this code will iterate 10,000 times, which is unacceptable. The computation is rejcted and the server returns an error.
 
 # Etymology
-The word "shard" in ShardScript comes from Massively Multiplayer Online games in the 1990s. Sharding is a server programming technique that allows several players to inhabit the same location, fighting the same enemies and collecting the same resources, without seeing or interacting with each other.
-
-The metaphor here is that ShardScript is well-suited for multi-tenant environments where the different tenants can execute their code independently on the same hardware.
+Moirai is a term from ancient Greek mythology. It refers the three sisters who personify destiny. The Moirai interpreter is able to determine the _destiny_ of a program before it even begins execution.
