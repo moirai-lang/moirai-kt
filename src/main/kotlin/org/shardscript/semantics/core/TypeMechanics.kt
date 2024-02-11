@@ -806,10 +806,15 @@ private fun handleSumType(
                 (firstTerminus as PlatformSumRecordType).sumType
             }
 
-            val typeArgs = transpose(instantiations.map {
-                it.substitutionChain.replayArgs()
-            }).map {
-                findBestType(ctx, errors, it)
+            val sumTypeParamTable = sumType.typeParams.associateWith { mutableListOf<Type>() }
+            instantiations.map {
+                it.substitutionChain.terminus.typeParams.zip(it.substitutionChain.replayArgs())
+            }.forEach { allSubs ->
+                allSubs.forEach { thisSub -> sumTypeParamTable[thisSub.first]!!.add(thisSub.second) }
+            }
+
+            val typeArgs = sumType.typeParams.map {
+                findBestType(ctx, errors, sumTypeParamTable[it]!!.toList())
             }
             val substitution = Substitution(sumType.typeParams, typeArgs)
             substitution.apply(sumType)
