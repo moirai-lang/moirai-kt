@@ -4,6 +4,7 @@ import org.shardscript.semantics.core.*
 import org.shardscript.semantics.infer.DualFinPluginInstantiation
 import org.shardscript.semantics.infer.SingleParentArgInstantiation
 import org.shardscript.semantics.infer.Substitution
+import org.shardscript.semantics.infer.AscribeInstantiation
 
 object DecimalMathOpMembers {
     val add = pluginAdd()
@@ -466,6 +467,32 @@ object DecimalEqualityOpMembers {
         res.returnType = Lang.booleanType
 
         res.costExpression = outputTypeArg
+        return res
+    }
+}
+
+object DecimalMethodMembers {
+    val ascribe = pluginAscribe()
+
+    private fun pluginAscribe(): ParameterizedMemberPluginSymbol {
+        val res = ParameterizedMemberPluginSymbol(
+            Lang.decimalType,
+            Identifier(NotInSource, DecimalMethods.AscribeFin.idStr),
+            AscribeInstantiation
+        )
+        val inputTypeArg = FinTypeParameter(
+            Lang.ascribeFinTypeParameterQualifiedName,
+            Lang.decimalInputTypeId
+        )
+        res.defineType(inputTypeArg.identifier, inputTypeArg)
+        res.typeParams = listOf(Lang.decimalTypeParam, inputTypeArg)
+        res.formalParams = listOf()
+
+        val outputSubstitution = Substitution(listOf(Lang.decimalTypeParam), listOf(inputTypeArg))
+        val outputType = outputSubstitution.apply(Lang.decimalType)
+        res.returnType = outputType
+
+        res.costExpression = inputTypeArg
         return res
     }
 }

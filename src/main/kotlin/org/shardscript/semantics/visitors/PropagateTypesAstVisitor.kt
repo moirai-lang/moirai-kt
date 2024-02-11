@@ -776,8 +776,14 @@ class PropagateTypesAstVisitor(
                     when (val parameterizedSymbol = lhsType.substitutionChain.terminus) {
                         is ParameterizedBasicType -> {
                             val member = parameterizedSymbol.fetchHere(ast.tti)
-                            if (ast.signifier is ParameterizedSignifier) {
-                                errors.add(ast.ctx, CannotExplicitlyInstantiate(member))
+                            val idArgSymbols = if (ast.signifier is ParameterizedSignifier) {
+                                if (ast.args.isNotEmpty()) {
+                                    errors.add(ast.ctx, CannotExplicitlyInstantiate(member))
+                                }
+                                val idArgs = ast.signifier.args
+                                idArgs.map { ast.scope.fetchType(it) }
+                            } else {
+                                listOf()
                             }
                             when (member) {
                                 is GroundMemberPluginSymbol -> {
@@ -797,7 +803,7 @@ class PropagateTypesAstVisitor(
                                         member,
                                         member.identifier,
                                         lhsType,
-                                        listOf()
+                                        idArgSymbols
                                     )
                                     ast.dotApplySlot = DotApplySlotSI(instantiation)
                                     filterValidDotApply(ast.ctx, errors, instantiation, ast.signifier)

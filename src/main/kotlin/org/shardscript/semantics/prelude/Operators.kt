@@ -30,6 +30,10 @@ enum class StringMethods(val idStr: String) {
     ToString("toString")
 }
 
+enum class DecimalMethods(val idStr: String) {
+    AscribeFin("ascribeFin")
+}
+
 enum class CollectionMethods(val idStr: String) {
     IndexLookup("get"),
     KeyLookup("get"),
@@ -42,8 +46,4 @@ enum class CollectionMethods(val idStr: String) {
     ToImmutableList("toList"),
     ToImmutableSet("toSet"),
     ToImmutableDictionary("toDictionary")
-}
-
-enum class TypeRelations(val idStr: String) {
-    As("as")
 }

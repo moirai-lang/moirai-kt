@@ -361,7 +361,7 @@ class EvalAstVisitor(architecture: Architecture, private val globalScope: ValueT
 
                 is DotApplySlotGMP -> {
                     val toApply = dotApplySlot.payload
-                    return Plugins.groundMemberPlugins[toApply]!!.invoke(lhs, args)
+                    return Plugins.groundMemberPlugins[toApply]!!.invoke(lhs, args, param.substitutions)
                 }
 
                 is DotApplySlotSI -> {
@@ -385,7 +385,13 @@ class EvalAstVisitor(architecture: Architecture, private val globalScope: ValueT
                         }
 
                         is ParameterizedMemberPluginSymbol -> {
-                            return Plugins.parameterizedMemberPlugins[parameterizedType]!!.invoke(lhs, args)
+                            val substitutions =
+                                createSubstitutions(param.substitutions, dotApplySlot.payload.substitutionChain)
+                            return Plugins.parameterizedMemberPlugins[parameterizedType]!!.invoke(
+                                lhs,
+                                args,
+                                substitutions
+                            )
                         }
 
                         else -> langThrow(ast.ctx, TypeSystemBug)

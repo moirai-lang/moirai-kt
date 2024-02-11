@@ -4,8 +4,8 @@ import org.shardscript.semantics.core.*
 import org.shardscript.semantics.prelude.*
 import kotlin.random.Random
 
-data class GroundMemberPlugin(private val plugin: (Value, List<Value>) -> Value) {
-    fun invoke(t: Value, args: List<Value>): Value = plugin(t, args)
+data class GroundMemberPlugin(private val plugin: (Value, List<Value>, Map<TypeParameter, Type>) -> Value) {
+    fun invoke(t: Value, args: List<Value>, subs: Map<TypeParameter, Type>): Value = plugin(t, args, subs)
 }
 
 data class PlatformField(private val accessor: (Value) -> Value) {
@@ -14,220 +14,223 @@ data class PlatformField(private val accessor: (Value) -> Value) {
 
 object Plugins {
     val groundMemberPlugins: Map<GroundMemberPluginSymbol, GroundMemberPlugin> = mapOf(
-        IntegerMathOpMembers.add to GroundMemberPlugin { t: Value, args: List<Value> ->
+        IntegerMathOpMembers.add to GroundMemberPlugin { t: Value, args: List<Value>, _: Map<TypeParameter, Type> ->
             (t as MathValue).evalAdd(args.first())
         },
-        IntegerMathOpMembers.sub to GroundMemberPlugin { t: Value, args: List<Value> ->
+        IntegerMathOpMembers.sub to GroundMemberPlugin { t: Value, args: List<Value>, _: Map<TypeParameter, Type> ->
             (t as MathValue).evalSub(args.first())
         },
-        IntegerMathOpMembers.mul to GroundMemberPlugin { t: Value, args: List<Value> ->
+        IntegerMathOpMembers.mul to GroundMemberPlugin { t: Value, args: List<Value>, _: Map<TypeParameter, Type> ->
             (t as MathValue).evalMul(args.first())
         },
-        IntegerMathOpMembers.div to GroundMemberPlugin { t: Value, args: List<Value> ->
+        IntegerMathOpMembers.div to GroundMemberPlugin { t: Value, args: List<Value>, _: Map<TypeParameter, Type> ->
             (t as MathValue).evalDiv(args.first())
         },
-        IntegerMathOpMembers.mod to GroundMemberPlugin { t: Value, args: List<Value> ->
+        IntegerMathOpMembers.mod to GroundMemberPlugin { t: Value, args: List<Value>, _: Map<TypeParameter, Type> ->
             (t as MathValue).evalMod(args.first())
         },
-        IntegerMathOpMembers.negate to GroundMemberPlugin { t: Value, _: List<Value> ->
+        IntegerMathOpMembers.negate to GroundMemberPlugin { t: Value, _: List<Value>, _: Map<TypeParameter, Type> ->
             (t as MathValue).evalNegate()
         },
-        IntegerOrderOpMembers.greaterThan to GroundMemberPlugin { t: Value, args: List<Value> ->
+        IntegerOrderOpMembers.greaterThan to GroundMemberPlugin { t: Value, args: List<Value>, _: Map<TypeParameter, Type> ->
             (t as OrderValue).evalGreaterThan(args.first())
         },
-        IntegerOrderOpMembers.greaterThanOrEquals to GroundMemberPlugin { t: Value, args: List<Value> ->
+        IntegerOrderOpMembers.greaterThanOrEquals to GroundMemberPlugin { t: Value, args: List<Value>, _: Map<TypeParameter, Type> ->
             (t as OrderValue).evalGreaterThanOrEquals(args.first())
         },
-        IntegerOrderOpMembers.lessThan to GroundMemberPlugin { t: Value, args: List<Value> ->
+        IntegerOrderOpMembers.lessThan to GroundMemberPlugin { t: Value, args: List<Value>, _: Map<TypeParameter, Type> ->
             (t as OrderValue).evalLessThan(args.first())
         },
-        IntegerOrderOpMembers.lessThanOrEquals to GroundMemberPlugin { t: Value, args: List<Value> ->
+        IntegerOrderOpMembers.lessThanOrEquals to GroundMemberPlugin { t: Value, args: List<Value>, _: Map<TypeParameter, Type> ->
             (t as OrderValue).evalLessThanOrEquals(args.first())
         },
-        IntegerEqualityOpMembers.equals to GroundMemberPlugin { t: Value, args: List<Value> ->
+        IntegerEqualityOpMembers.equals to GroundMemberPlugin { t: Value, args: List<Value>, _: Map<TypeParameter, Type> ->
             (t as EqualityValue).evalEquals(args.first())
         },
-        IntegerEqualityOpMembers.notEquals to GroundMemberPlugin { t: Value, args: List<Value> ->
+        IntegerEqualityOpMembers.notEquals to GroundMemberPlugin { t: Value, args: List<Value>, _: Map<TypeParameter, Type> ->
             (t as EqualityValue).evalNotEquals(args.first())
         },
-        BooleanEqualityOpMembers.equals to GroundMemberPlugin { t: Value, args: List<Value> ->
+        BooleanEqualityOpMembers.equals to GroundMemberPlugin { t: Value, args: List<Value>, _: Map<TypeParameter, Type> ->
             (t as EqualityValue).evalEquals(args.first())
         },
-        BooleanEqualityOpMembers.notEquals to GroundMemberPlugin { t: Value, args: List<Value> ->
+        BooleanEqualityOpMembers.notEquals to GroundMemberPlugin { t: Value, args: List<Value>, _: Map<TypeParameter, Type> ->
             (t as EqualityValue).evalNotEquals(args.first())
         },
-        CharEqualityOpMembers.equals to GroundMemberPlugin { t: Value, args: List<Value> ->
+        CharEqualityOpMembers.equals to GroundMemberPlugin { t: Value, args: List<Value>, _: Map<TypeParameter, Type> ->
             (t as EqualityValue).evalEquals(args.first())
         },
-        CharEqualityOpMembers.notEquals to GroundMemberPlugin { t: Value, args: List<Value> ->
+        CharEqualityOpMembers.notEquals to GroundMemberPlugin { t: Value, args: List<Value>, _: Map<TypeParameter, Type> ->
             (t as EqualityValue).evalNotEquals(args.first())
         },
-        ValueLogicalOpMembers.and to GroundMemberPlugin { t: Value, args: List<Value> ->
+        ValueLogicalOpMembers.and to GroundMemberPlugin { t: Value, args: List<Value>, _: Map<TypeParameter, Type> ->
             (t as LogicalValue).evalAnd(args.first())
         },
-        ValueLogicalOpMembers.or to GroundMemberPlugin { t: Value, args: List<Value> ->
+        ValueLogicalOpMembers.or to GroundMemberPlugin { t: Value, args: List<Value>, _: Map<TypeParameter, Type> ->
             (t as LogicalValue).evalOr(args.first())
         },
-        ValueLogicalOpMembers.not to GroundMemberPlugin { t: Value, _: List<Value> ->
+        ValueLogicalOpMembers.not to GroundMemberPlugin { t: Value, _: List<Value>, _: Map<TypeParameter, Type> ->
             (t as LogicalValue).evalNot()
         },
-        ListTypes.removeAtFunction to GroundMemberPlugin { t: Value, args: List<Value> ->
+        ListTypes.removeAtFunction to GroundMemberPlugin { t: Value, args: List<Value>, _: Map<TypeParameter, Type> ->
             (t as ListValue).evalRemoveAt(args.first())
         },
-        StringOpMembers.integerToStringMember to GroundMemberPlugin { t: Value, _: List<Value> ->
+        StringOpMembers.integerToStringMember to GroundMemberPlugin { t: Value, _: List<Value>, _: Map<TypeParameter, Type> ->
             (t as IntValue).evalToString()
         },
-        StringOpMembers.unitToStringMember to GroundMemberPlugin { _: Value, _: List<Value> ->
+        StringOpMembers.unitToStringMember to GroundMemberPlugin { _: Value, _: List<Value>, _: Map<TypeParameter, Type> ->
             UnitValue.evalToString()
         },
-        StringOpMembers.booleanToStringMember to GroundMemberPlugin { t: Value, _: List<Value> ->
+        StringOpMembers.booleanToStringMember to GroundMemberPlugin { t: Value, _: List<Value>, _: Map<TypeParameter, Type> ->
             (t as BooleanValue).evalToString()
         },
-        StringOpMembers.charToStringMember to GroundMemberPlugin { t: Value, _: List<Value> ->
+        StringOpMembers.charToStringMember to GroundMemberPlugin { t: Value, _: List<Value>, _: Map<TypeParameter, Type> ->
             (t as CharValue).evalToString()
         }
     )
 
     val parameterizedMemberPlugins: Map<ParameterizedMemberPluginSymbol, GroundMemberPlugin> = mapOf(
-        StringOpMembers.decimalToStringMember to GroundMemberPlugin { t: Value, _: List<Value> ->
+        StringOpMembers.decimalToStringMember to GroundMemberPlugin { t: Value, _: List<Value>, _: Map<TypeParameter, Type> ->
             (t as DecimalValue).evalToString()
         },
-        StringOpMembers.stringToStringMember to GroundMemberPlugin { t: Value, _: List<Value> ->
+        StringOpMembers.stringToStringMember to GroundMemberPlugin { t: Value, _: List<Value>, _: Map<TypeParameter, Type> ->
             (t as StringValue).evalToString()
         },
-        StringOpMembers.toCharArray to GroundMemberPlugin { t: Value, _: List<Value> ->
+        StringOpMembers.toCharArray to GroundMemberPlugin { t: Value, _: List<Value>, _: Map<TypeParameter, Type> ->
             (t as StringValue).evalToCharArray()
         },
-        StringOpMembers.add to GroundMemberPlugin { t: Value, args: List<Value> ->
+        StringOpMembers.add to GroundMemberPlugin { t: Value, args: List<Value>, _: Map<TypeParameter, Type> ->
             (t as StringValue).evalAdd(args.first())
         },
-        StringOpMembers.equals to GroundMemberPlugin { t: Value, args: List<Value> ->
+        StringOpMembers.equals to GroundMemberPlugin { t: Value, args: List<Value>, _: Map<TypeParameter, Type> ->
             (t as EqualityValue).evalEquals(args.first())
         },
-        StringOpMembers.notEquals to GroundMemberPlugin { t: Value, args: List<Value> ->
+        StringOpMembers.notEquals to GroundMemberPlugin { t: Value, args: List<Value>, _: Map<TypeParameter, Type> ->
             (t as EqualityValue).evalNotEquals(args.first())
         },
-        DecimalMathOpMembers.add to GroundMemberPlugin { t: Value, args: List<Value> ->
+        DecimalMathOpMembers.add to GroundMemberPlugin { t: Value, args: List<Value>, _: Map<TypeParameter, Type> ->
             (t as MathValue).evalAdd(args.first())
         },
-        DecimalMathOpMembers.sub to GroundMemberPlugin { t: Value, args: List<Value> ->
+        DecimalMathOpMembers.sub to GroundMemberPlugin { t: Value, args: List<Value>, _: Map<TypeParameter, Type> ->
             (t as MathValue).evalSub(args.first())
         },
-        DecimalMathOpMembers.mul to GroundMemberPlugin { t: Value, args: List<Value> ->
+        DecimalMathOpMembers.mul to GroundMemberPlugin { t: Value, args: List<Value>, _: Map<TypeParameter, Type> ->
             (t as MathValue).evalMul(args.first())
         },
-        DecimalMathOpMembers.div to GroundMemberPlugin { t: Value, args: List<Value> ->
+        DecimalMathOpMembers.div to GroundMemberPlugin { t: Value, args: List<Value>, _: Map<TypeParameter, Type> ->
             (t as MathValue).evalDiv(args.first())
         },
-        DecimalMathOpMembers.mod to GroundMemberPlugin { t: Value, args: List<Value> ->
+        DecimalMathOpMembers.mod to GroundMemberPlugin { t: Value, args: List<Value>, _: Map<TypeParameter, Type> ->
             (t as MathValue).evalMod(args.first())
         },
-        DecimalMathOpMembers.negate to GroundMemberPlugin { t: Value, _: List<Value> ->
+        DecimalMathOpMembers.negate to GroundMemberPlugin { t: Value, _: List<Value>, _: Map<TypeParameter, Type> ->
             (t as MathValue).evalNegate()
         },
-        DecimalOrderOpMembers.greaterThan to GroundMemberPlugin { t: Value, args: List<Value> ->
+        DecimalOrderOpMembers.greaterThan to GroundMemberPlugin { t: Value, args: List<Value>, _: Map<TypeParameter, Type> ->
             (t as OrderValue).evalGreaterThan(args.first())
         },
-        DecimalOrderOpMembers.greaterThanOrEquals to GroundMemberPlugin { t: Value, args: List<Value> ->
+        DecimalOrderOpMembers.greaterThanOrEquals to GroundMemberPlugin { t: Value, args: List<Value>, _: Map<TypeParameter, Type> ->
             (t as OrderValue).evalGreaterThanOrEquals(args.first())
         },
-        DecimalOrderOpMembers.lessThan to GroundMemberPlugin { t: Value, args: List<Value> ->
+        DecimalOrderOpMembers.lessThan to GroundMemberPlugin { t: Value, args: List<Value>, _: Map<TypeParameter, Type> ->
             (t as OrderValue).evalLessThan(args.first())
         },
-        DecimalOrderOpMembers.lessThanOrEquals to GroundMemberPlugin { t: Value, args: List<Value> ->
+        DecimalOrderOpMembers.lessThanOrEquals to GroundMemberPlugin { t: Value, args: List<Value>, _: Map<TypeParameter, Type> ->
             (t as OrderValue).evalLessThanOrEquals(args.first())
         },
-        DecimalEqualityOpMembers.equals to GroundMemberPlugin { t: Value, args: List<Value> ->
+        DecimalEqualityOpMembers.equals to GroundMemberPlugin { t: Value, args: List<Value>, _: Map<TypeParameter, Type> ->
             (t as EqualityValue).evalEquals(args.first())
         },
-        DecimalEqualityOpMembers.notEquals to GroundMemberPlugin { t: Value, args: List<Value> ->
+        DecimalEqualityOpMembers.notEquals to GroundMemberPlugin { t: Value, args: List<Value>, _: Map<TypeParameter, Type> ->
             (t as EqualityValue).evalNotEquals(args.first())
         },
-        EqualityMembers.listEquals to GroundMemberPlugin { t: Value, args: List<Value> ->
+        DecimalMethodMembers.ascribe to GroundMemberPlugin { t: Value, _: List<Value>, subs: Map<TypeParameter, Type> ->
+            (t as DecimalValue).evalAscribe(subs)
+        },
+        EqualityMembers.listEquals to GroundMemberPlugin { t: Value, args: List<Value>, _: Map<TypeParameter, Type> ->
             (t as EqualityValue).evalEquals(args.first())
         },
-        EqualityMembers.listNotEquals to GroundMemberPlugin { t: Value, args: List<Value> ->
+        EqualityMembers.listNotEquals to GroundMemberPlugin { t: Value, args: List<Value>, _: Map<TypeParameter, Type> ->
             (t as EqualityValue).evalNotEquals(args.first())
         },
-        EqualityMembers.mutableListEquals to GroundMemberPlugin { t: Value, args: List<Value> ->
+        EqualityMembers.mutableListEquals to GroundMemberPlugin { t: Value, args: List<Value>, _: Map<TypeParameter, Type> ->
             (t as EqualityValue).evalEquals(args.first())
         },
-        EqualityMembers.mutableListNotEquals to GroundMemberPlugin { t: Value, args: List<Value> ->
+        EqualityMembers.mutableListNotEquals to GroundMemberPlugin { t: Value, args: List<Value>, _: Map<TypeParameter, Type> ->
             (t as EqualityValue).evalNotEquals(args.first())
         },
-        EqualityMembers.dictionaryEquals to GroundMemberPlugin { t: Value, args: List<Value> ->
+        EqualityMembers.dictionaryEquals to GroundMemberPlugin { t: Value, args: List<Value>, _: Map<TypeParameter, Type> ->
             (t as EqualityValue).evalEquals(args.first())
         },
-        EqualityMembers.dictionaryNotEquals to GroundMemberPlugin { t: Value, args: List<Value> ->
+        EqualityMembers.dictionaryNotEquals to GroundMemberPlugin { t: Value, args: List<Value>, _: Map<TypeParameter, Type> ->
             (t as EqualityValue).evalNotEquals(args.first())
         },
-        EqualityMembers.mutableDictionaryEquals to GroundMemberPlugin { t: Value, args: List<Value> ->
+        EqualityMembers.mutableDictionaryEquals to GroundMemberPlugin { t: Value, args: List<Value>, _: Map<TypeParameter, Type> ->
             (t as EqualityValue).evalEquals(args.first())
         },
-        EqualityMembers.mutableDictionaryNotEquals to GroundMemberPlugin { t: Value, args: List<Value> ->
+        EqualityMembers.mutableDictionaryNotEquals to GroundMemberPlugin { t: Value, args: List<Value>, _: Map<TypeParameter, Type> ->
             (t as EqualityValue).evalNotEquals(args.first())
         },
-        EqualityMembers.setEquals to GroundMemberPlugin { t: Value, args: List<Value> ->
+        EqualityMembers.setEquals to GroundMemberPlugin { t: Value, args: List<Value>, _: Map<TypeParameter, Type> ->
             (t as EqualityValue).evalEquals(args.first())
         },
-        EqualityMembers.setNotEquals to GroundMemberPlugin { t: Value, args: List<Value> ->
+        EqualityMembers.setNotEquals to GroundMemberPlugin { t: Value, args: List<Value>, _: Map<TypeParameter, Type> ->
             (t as EqualityValue).evalNotEquals(args.first())
         },
-        EqualityMembers.mutableSetEquals to GroundMemberPlugin { t: Value, args: List<Value> ->
+        EqualityMembers.mutableSetEquals to GroundMemberPlugin { t: Value, args: List<Value>, _: Map<TypeParameter, Type> ->
             (t as EqualityValue).evalEquals(args.first())
         },
-        EqualityMembers.mutableSetNotEquals to GroundMemberPlugin { t: Value, args: List<Value> ->
+        EqualityMembers.mutableSetNotEquals to GroundMemberPlugin { t: Value, args: List<Value>, _: Map<TypeParameter, Type> ->
             (t as EqualityValue).evalNotEquals(args.first())
         },
-        SetTypes.setContains to GroundMemberPlugin { t: Value, args: List<Value> ->
+        SetTypes.setContains to GroundMemberPlugin { t: Value, args: List<Value>, _: Map<TypeParameter, Type> ->
             (t as SetValue).evalContains(args.first())
         },
-        SetTypes.mutableSetContains to GroundMemberPlugin { t: Value, args: List<Value> ->
+        SetTypes.mutableSetContains to GroundMemberPlugin { t: Value, args: List<Value>, _: Map<TypeParameter, Type> ->
             (t as SetValue).evalContains(args.first())
         },
-        SetTypes.mutableSetAdd to GroundMemberPlugin { t: Value, args: List<Value> ->
+        SetTypes.mutableSetAdd to GroundMemberPlugin { t: Value, args: List<Value>, _: Map<TypeParameter, Type> ->
             (t as SetValue).evalAdd(args.first())
         },
-        SetTypes.mutableSetRemove to GroundMemberPlugin { t: Value, args: List<Value> ->
+        SetTypes.mutableSetRemove to GroundMemberPlugin { t: Value, args: List<Value>, _: Map<TypeParameter, Type> ->
             (t as SetValue).evalRemove(args.first())
         },
-        SetTypes.mutableSetToSet to GroundMemberPlugin { t: Value, _: List<Value> ->
+        SetTypes.mutableSetToSet to GroundMemberPlugin { t: Value, _: List<Value>, _: Map<TypeParameter, Type> ->
             (t as SetValue).evalToSet()
         },
-        ListTypes.listGet to GroundMemberPlugin { t: Value, args: List<Value> ->
+        ListTypes.listGet to GroundMemberPlugin { t: Value, args: List<Value>, _: Map<TypeParameter, Type> ->
             (t as ListValue).evalGet(args.first())
         },
-        ListTypes.mutableListGet to GroundMemberPlugin { t: Value, args: List<Value> ->
+        ListTypes.mutableListGet to GroundMemberPlugin { t: Value, args: List<Value>, _: Map<TypeParameter, Type> ->
             (t as ListValue).evalGet(args.first())
         },
-        ListTypes.mutableListAdd to GroundMemberPlugin { t: Value, args: List<Value> ->
+        ListTypes.mutableListAdd to GroundMemberPlugin { t: Value, args: List<Value>, _: Map<TypeParameter, Type> ->
             (t as ListValue).evalAdd(args.first())
         },
-        ListTypes.mutableListSet to GroundMemberPlugin { t: Value, args: List<Value> ->
+        ListTypes.mutableListSet to GroundMemberPlugin { t: Value, args: List<Value>, _: Map<TypeParameter, Type> ->
             (t as ListValue).evalSet(args.first(), args[1])
         },
-        ListTypes.mutableListToList to GroundMemberPlugin { t: Value, _: List<Value> ->
+        ListTypes.mutableListToList to GroundMemberPlugin { t: Value, _: List<Value>, _: Map<TypeParameter, Type> ->
             (t as ListValue).evalToList()
         },
-        DictionaryTypes.getFunction to GroundMemberPlugin { t: Value, args: List<Value> ->
+        DictionaryTypes.getFunction to GroundMemberPlugin { t: Value, args: List<Value>, _: Map<TypeParameter, Type> ->
             (t as DictionaryValue).evalGet(args.first())
         },
-        DictionaryTypes.mutableGetFunction to GroundMemberPlugin { t: Value, args: List<Value> ->
+        DictionaryTypes.mutableGetFunction to GroundMemberPlugin { t: Value, args: List<Value>, _: Map<TypeParameter, Type> ->
             (t as DictionaryValue).evalGet(args.first())
         },
-        DictionaryTypes.containsFunction to GroundMemberPlugin { t: Value, args: List<Value> ->
+        DictionaryTypes.containsFunction to GroundMemberPlugin { t: Value, args: List<Value>, _: Map<TypeParameter, Type> ->
             (t as DictionaryValue).evalContains(args.first())
         },
-        DictionaryTypes.mutableContainsFunction to GroundMemberPlugin { t: Value, args: List<Value> ->
+        DictionaryTypes.mutableContainsFunction to GroundMemberPlugin { t: Value, args: List<Value>, _: Map<TypeParameter, Type> ->
             (t as DictionaryValue).evalContains(args.first())
         },
-        DictionaryTypes.setFunction to GroundMemberPlugin { t: Value, args: List<Value> ->
+        DictionaryTypes.setFunction to GroundMemberPlugin { t: Value, args: List<Value>, _: Map<TypeParameter, Type> ->
             (t as DictionaryValue).evalSet(args.first(), args[1])
         },
-        DictionaryTypes.removeFunction to GroundMemberPlugin { t: Value, args: List<Value> ->
+        DictionaryTypes.removeFunction to GroundMemberPlugin { t: Value, args: List<Value>, _: Map<TypeParameter, Type> ->
             (t as DictionaryValue).evalRemove(args.first())
         },
-        DictionaryTypes.mutableDictionaryToDictionary to GroundMemberPlugin { t: Value, _: List<Value> ->
+        DictionaryTypes.mutableDictionaryToDictionary to GroundMemberPlugin { t: Value, _: List<Value>, _: Map<TypeParameter, Type> ->
             (t as DictionaryValue).evalToDictionary()
         }
     )

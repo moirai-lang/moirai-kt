@@ -110,6 +110,7 @@ object Lang {
         userTypeFeatureSupport
     )
     val decimalTypeParam = FinTypeParameter("${decimalId.name}.${decimalTypeId.name}", decimalTypeId)
+    val ascribeFinTypeParameterQualifiedName = "${decimalId.name}.${DecimalMethods.AscribeFin.idStr}.${decimalInputTypeId.name}"
 
     // List
     val listType = ParameterizedBasicType(
@@ -217,6 +218,7 @@ object Lang {
         DecimalEqualityOpMembers.members().forEach { (name, plugin) ->
             decimalType.define(Identifier(NotInSource, name), plugin)
         }
+        decimalType.define(Identifier(NotInSource, DecimalMethods.AscribeFin.idStr), DecimalMethodMembers.ascribe)
 
         // List
         listType.defineType(listElementTypeId, listElementTypeParam)
