@@ -201,7 +201,9 @@ data class DecimalValue(val canonicalForm: BigDecimal) : Value(), MathValue, Ord
             langThrow(NotInSource, TypeSystemBug)
         }
 
-        val sub = subs.filter { (it.key as FinTypeParameter).identifier == Lang.decimalInputTypeId }.values.first()
+        val sub = subs.filter {
+            (it.key as FinTypeParameter).qualifiedName == Lang.ascribeFinTypeParameterQualifiedName
+        }.values.first()
         if (sub is Fin) {
             val s = canonicalForm.toString()
             if (s.length > sub.magnitude) {

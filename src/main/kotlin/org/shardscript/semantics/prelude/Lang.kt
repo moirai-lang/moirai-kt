@@ -110,6 +110,7 @@ object Lang {
         userTypeFeatureSupport
     )
     val decimalTypeParam = FinTypeParameter("${decimalId.name}.${decimalTypeId.name}", decimalTypeId)
+    val ascribeFinTypeParameterQualifiedName = "${decimalId.name}.${DecimalMethods.AscribeFin.idStr}.${decimalInputTypeId.name}"
 
     // List
     val listType = ParameterizedBasicType(

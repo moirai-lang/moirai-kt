@@ -481,7 +481,7 @@ object DecimalMethodMembers {
             AscribeInstantiation
         )
         val inputTypeArg = FinTypeParameter(
-            "${Lang.decimalId.name}.${DecimalMethods.AscribeFin.idStr}.${Lang.decimalInputTypeId.name}",
+            Lang.ascribeFinTypeParameterQualifiedName,
             Lang.decimalInputTypeId
         )
         res.defineType(inputTypeArg.identifier, inputTypeArg)
