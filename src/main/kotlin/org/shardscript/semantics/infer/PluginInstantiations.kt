@@ -119,7 +119,7 @@ object TripleParentSingleFinPluginInstantiation : TwoTypeInstantiation<RawTermin
     }
 }
 
-object ZeroArgInstantiation : TwoTypeInstantiation<RawTerminusSymbol, SymbolInstantiation> {
+object AscribeInstantiation : TwoTypeInstantiation<RawTerminusSymbol, SymbolInstantiation> {
     override fun apply(
         ctx: SourceContext,
         errors: LanguageErrors,
@@ -135,12 +135,16 @@ object ZeroArgInstantiation : TwoTypeInstantiation<RawTerminusSymbol, SymbolInst
                 val substitution = Substitution(terminus.typeParams, listOf())
                 return substitution.apply(terminus)
             } else {
-                validateSubstitution(ctx, errors, terminus.typeParams.first(), explicitTypeArgs.first())
-                val substitution = Substitution(terminus.typeParams, explicitTypeArgs)
-                return substitution.apply(terminus)
+                if (explicitTypeArgs[0] is Fin) {
+                    val firstFin = (existingInstantiation.substitutionChain).replayArgs().first()
+                    val substitution = Substitution(terminus.typeParams, listOf(firstFin, explicitTypeArgs[0]))
+                    return substitution.apply(terminus)
+                } else {
+                    langThrow(ctx, TypeRequiresExplicitFin(identifier))
+                }
             }
         } else {
-            langThrow(ctx, TypeRequiresExplicit(identifier))
+            langThrow(ctx, TypeRequiresExplicitFin(identifier))
         }
     }
 }

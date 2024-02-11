@@ -128,6 +128,7 @@ data object DecimalInfiniteDivide : ErrorKind()
 // Type Parameter Errors
 data class DuplicateTypeParameter(val identifier: Identifier) : ErrorKind()
 data class TypeRequiresExplicit(val identifier: Identifier) : ErrorKind()
+data class TypeRequiresExplicitFin(val identifier: Identifier) : ErrorKind()
 data class TooManyElements(val fin: Long, val elements: Long) : ErrorKind()
 
 data class MaskingTypeParameter(val identifier: Identifier) : ErrorKind()
@@ -182,7 +183,7 @@ data class LanguageError(
     val ctx: SourceContext,
     val error: ErrorKind
 ) {
-    val callStack: StackTraceElement = Exception().stackTrace[2]
+    val callStack: StackTraceElement = Exception().stackTrace[3]
 }
 
 class LanguageErrors {

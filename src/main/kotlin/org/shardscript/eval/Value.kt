@@ -196,6 +196,22 @@ data class DecimalValue(val canonicalForm: BigDecimal) : Value(), MathValue, Ord
     override fun evalNegate(): Value = DecimalValue(canonicalForm.negate())
 
     fun evalToString(): Value = StringValue(canonicalForm.stripTrailingZeros().toPlainString())
+    fun evalAscribe(subs: Map<TypeParameter, Type>): Value {
+        if (subs.size != 2) {
+            langThrow(NotInSource, TypeSystemBug)
+        }
+
+        val sub = subs.filter { (it.key as FinTypeParameter).identifier == Lang.decimalInputTypeId }.values.first()
+        if (sub is Fin) {
+            val s = canonicalForm.toString()
+            if (s.length > sub.magnitude) {
+                langThrow(NotInSource, RuntimeFinViolation(sub.magnitude, s.length.toLong()))
+            }
+            return DecimalValue(canonicalForm)
+        } else {
+            langThrow(NotInSource, TypeSystemBug)
+        }
+    }
 }
 
 data class CharValue(val canonicalForm: Char) : Value(), EqualityValue {

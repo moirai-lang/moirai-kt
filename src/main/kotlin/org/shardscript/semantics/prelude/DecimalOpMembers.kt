@@ -4,7 +4,7 @@ import org.shardscript.semantics.core.*
 import org.shardscript.semantics.infer.DualFinPluginInstantiation
 import org.shardscript.semantics.infer.SingleParentArgInstantiation
 import org.shardscript.semantics.infer.Substitution
-import org.shardscript.semantics.infer.ZeroArgInstantiation
+import org.shardscript.semantics.infer.AscribeInstantiation
 
 object DecimalMathOpMembers {
     val add = pluginAdd()
@@ -478,7 +478,7 @@ object DecimalMethodMembers {
         val res = ParameterizedMemberPluginSymbol(
             Lang.decimalType,
             Identifier(NotInSource, DecimalMethods.AscribeFin.idStr),
-            ZeroArgInstantiation
+            AscribeInstantiation
         )
         val inputTypeArg = FinTypeParameter(
             "${Lang.decimalId.name}.${DecimalMethods.AscribeFin.idStr}.${Lang.decimalInputTypeId.name}",
