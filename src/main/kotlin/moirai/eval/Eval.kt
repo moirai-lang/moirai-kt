@@ -11,7 +11,7 @@ fun eval(
 ): Value {
     val frontend = CompilerFrontend(architecture, sourceStore)
 
-    val executionArtifacts = frontend.compile(source)
+    val executionArtifacts = frontend.fullCompileWithTopologicalSort(source)
 
     val globalScope = ValueTable(NullValueTable)
     val evalVisitor = EvalAstVisitor(architecture, globalScope)

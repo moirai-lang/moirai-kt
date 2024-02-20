@@ -7,7 +7,69 @@ internal class CompilerFrontend(
     private val architecture: Architecture,
     private val sourceStore: SourceStore
 ) {
-    fun compile(
+    private fun fetchOrAdd(
+        executionCache: ExecutionCache,
+        scriptType: NamedScriptBase,
+        contents: String
+    ) = when (val res = executionCache.fetchExecutionArtifacts(scriptType.nameParts)) {
+        is InCache -> {
+            res.executionArtifacts
+        }
+
+        NotInCache -> {
+            val ea = fullCompileWithTopologicalSort(contents)
+            executionCache.storeExecutionArtifacts(scriptType.nameParts, ea)
+            ea
+        }
+    }
+
+    private fun quickCompile(
+        initialScan: ImportScan,
+        errors: LanguageErrors,
+        existingSemantics: List<SemanticArtifacts>
+    ): ExecutionArtifacts {
+        val astParseTreeVisitor = AstParseTreeVisitor(initialScan.scriptType.fileName(), errors)
+        val rawAst = astParseTreeVisitor.visit(initialScan.parseTree) as FileAst
+
+        val artifacts = processAstAllPhases(
+            rawAst,
+            initialScan.scriptType.fileName(),
+            architecture,
+            existingSemantics
+        )
+
+        val ea = ExecutionArtifacts(
+            initialScan,
+        )
+        ea.processedAst = artifacts.processedAst
+        ea.semanticArtifacts = artifacts
+        return ea
+    }
+
+    fun compileUsingCache(
+        contents: String,
+        executionCache: ExecutionCache
+    ): ExecutionArtifacts {
+        val initialScan = preScanFile(contents)
+        val errors = LanguageErrors()
+
+        return when (initialScan.scriptType) {
+            is PureTransient -> {
+                quickCompile(initialScan, errors, listOf())
+            }
+
+            is NamedScript -> {
+                fetchOrAdd(executionCache, initialScan.scriptType, contents)
+            }
+
+            is TransientScript -> {
+                val imported = fetchOrAdd(executionCache, initialScan.scriptType, contents)
+                quickCompile(initialScan, errors, listOf(imported.semanticArtifacts))
+            }
+        }
+    }
+
+    fun fullCompileWithTopologicalSort(
         contents: String
     ): ExecutionArtifacts {
         val importFanOut = preScanImportFanOut(sourceStore, contents)
@@ -15,23 +77,7 @@ internal class CompilerFrontend(
 
         if (importFanOut.count() == 1 && importFanOut.first().scriptType is PureTransient) {
             val res = importFanOut.first()
-
-            val astParseTreeVisitor = AstParseTreeVisitor(res.scriptType.fileName(), errors)
-            val rawAst = astParseTreeVisitor.visit(res.parseTree) as FileAst
-
-            val artifacts = processAstAllPhases(
-                rawAst,
-                res.scriptType.fileName(),
-                architecture,
-                listOf()
-            )
-
-            val ea = ExecutionArtifacts(
-                res,
-            )
-            ea.processedAst = artifacts.processedAst
-            ea.semanticArtifacts = artifacts
-            return ea
+            return quickCompile(res, errors, listOf())
         }
 
         if (importFanOut.count() > 1 && importFanOut.any { it.scriptType is PureTransient }) {
