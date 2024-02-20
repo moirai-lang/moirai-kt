@@ -60,7 +60,9 @@ class CompilerFrontend(
 
             is NamedScript -> {
                 executionCache.invalidateCache(initialScan.scriptType.nameParts)
-                fetchOrAdd(executionCache, initialScan.scriptType.nameParts, contents)
+                val ea = fullCompileWithTopologicalSort(contents)
+                executionCache.storeExecutionArtifacts(initialScan.scriptType.nameParts, ea)
+                ea
             }
 
             is TransientScript -> {
