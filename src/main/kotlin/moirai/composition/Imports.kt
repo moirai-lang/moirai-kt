@@ -1,18 +1,10 @@
 package moirai.composition
 
-import moirai.grammar.MoiraiParser
 import moirai.semantics.core.*
 import org.antlr.v4.runtime.tree.ParseTreeWalker
 import java.util.*
 import kotlin.collections.HashMap
 import kotlin.collections.HashSet
-
-internal data class ImportScan(
-    val scriptType: ScriptType,
-    val sourceText: String,
-    val parseTree: MoiraiParser.FileContext,
-    val imports: Set<ImportStat>
-)
 
 internal fun preScanFile(sourceText: String): ImportScan {
     val parser = createParser(sourceText)
@@ -35,7 +27,10 @@ internal fun preScanFile(sourceText: String): ImportScan {
         throw LanguageException(errors.toSet())
     }
 
-    return ImportScan(importsListener.scriptType(), sourceText, parseTree, importStats.toSet())
+    val res = ImportScan(sourceText, importsListener.scriptType())
+    res.parseTree = parseTree
+    res.imports = importStats.toSet()
+    return res
 }
 
 internal fun fetchStoredFileByNamespaceAndScan(sourceStore: SourceStore, nameParts: List<String>): ImportScan {
@@ -70,7 +65,7 @@ internal fun preScanImportFanOut(
         val head = unprocessed.remove()
         val headScriptType = head.scriptType
 
-        if (headScriptType is NamedScriptType) {
+        if (headScriptType is NamedScriptBase) {
             val headImportStat = ImportStat(headScriptType.nameParts)
             if (!processed.contains(headImportStat)) {
                 processed[headImportStat] = head
@@ -78,7 +73,7 @@ internal fun preScanImportFanOut(
                 head.imports.forEach { importedNamespace ->
                     if (!processed.contains(importedNamespace)) {
                         val node = fetchStoredFileByNamespaceAndScan(sourceStore, importedNamespace.path)
-                        if (node.scriptType is NamedScriptType) {
+                        if (node.scriptType is NamedScriptBase) {
                             val nodeImportStat = ImportStat(node.scriptType.nameParts)
                             unprocessed.add(node)
                             edges.add(
@@ -90,7 +85,7 @@ internal fun preScanImportFanOut(
                         }
                     } else {
                         val node = processed[importedNamespace]!!
-                        if (node.scriptType is NamedScriptType) {
+                        if (node.scriptType is NamedScriptBase) {
                             val nodeImportStat = ImportStat(node.scriptType.nameParts)
                             edges.add(
                                 DependencyEdge(

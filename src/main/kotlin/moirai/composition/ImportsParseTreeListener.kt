@@ -16,17 +16,17 @@ internal class ImportsParseTreeListener(val errors: LanguageErrors) :
 
     override fun enterTransientScript(ctx: MoiraiParser.TransientScriptContext) {
         val nameParts = ctx.importIdSeq().IDENTIFIER().map { it.symbol.text }
-        scriptType = TransientShard(nameParts)
+        scriptType = TransientScript(nameParts)
     }
 
     override fun enterScriptStat(ctx: MoiraiParser.ScriptStatContext) {
         val nameParts = ctx.importIdSeq().IDENTIFIER().map { it.symbol.text }
-        scriptType = NamedShard(nameParts)
+        scriptType = NamedScript(nameParts)
     }
 
     override fun enterImportStat(ctx: MoiraiParser.ImportStatContext) {
         val st = scriptType
-        if (st is NamedShard) {
+        if (st is NamedScript) {
             val import = ctx.importIdSeq().IDENTIFIER().map { it.symbol.text }
             val sourceContext = createContext(st.fileName(), ctx.start)
             if (accumulatedImports.contains(import)) {
@@ -45,7 +45,7 @@ internal class ImportsParseTreeListener(val errors: LanguageErrors) :
         val res: MutableList<ImportStat> = ArrayList()
         val st = scriptType
 
-        if (st is NamedScriptType) {
+        if (st is NamedScriptBase) {
             accumulatedImports.forEach {
                 if (st.nameParts == it.key) {
                     errors.add(it.value, SelfImport)
