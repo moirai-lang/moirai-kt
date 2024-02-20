@@ -18,7 +18,7 @@ internal class ParameterScanAstVisitor(private val fileName: String) : UnitAstVi
                 is EnumRecord -> {
                     errors.add(
                         ast.ctx,
-                        ParameterizedGroundMismatch(recordMode.enumGid, parameterizedRecordSymbol.identifier)
+                        ParameterizedGroundMismatch(toError(recordMode.enumGid), toError(parameterizedRecordSymbol.identifier))
                     )
                 }
                 is RecordDef -> {
@@ -28,7 +28,7 @@ internal class ParameterScanAstVisitor(private val fileName: String) : UnitAstVi
                             val typeParam = FinTypeParameter(qualifiedName(ast.identifier, it.identifier), it.identifier)
                             val postFix = it.identifier.name
                             if (seenTypeParameters.contains(postFix)) {
-                                errors.add(it.identifier.ctx, DuplicateTypeParameter(it.identifier))
+                                errors.add(it.identifier.ctx, DuplicateTypeParameter(toError(it.identifier)))
                             } else {
                                 seenTypeParameters.add(postFix)
                                 parameterizedRecordSymbol.defineType(it.identifier, typeParam)
@@ -37,7 +37,7 @@ internal class ParameterScanAstVisitor(private val fileName: String) : UnitAstVi
                         } else {
                             val typeParam = StandardTypeParameter(qualifiedName(ast.identifier, it.identifier), it.identifier)
                             if (seenTypeParameters.contains(it.identifier.name)) {
-                                errors.add(it.identifier.ctx, DuplicateTypeParameter(it.identifier))
+                                errors.add(it.identifier.ctx, DuplicateTypeParameter(toError(it.identifier)))
                             } else {
                                 seenTypeParameters.add(it.identifier.name)
                                 parameterizedRecordSymbol.defineType(it.identifier, typeParam)
@@ -60,7 +60,7 @@ internal class ParameterScanAstVisitor(private val fileName: String) : UnitAstVi
                         val typeParam = FinTypeParameter(qualifiedName(ast.identifier, it.identifier), it.identifier)
                         val postFix = it.identifier.name
                         if (seenTypeParameters.contains(postFix)) {
-                            errors.add(it.identifier.ctx, DuplicateTypeParameter(it.identifier))
+                            errors.add(it.identifier.ctx, DuplicateTypeParameter(toError(it.identifier)))
                         } else {
                             seenTypeParameters.add(postFix)
                             parameterizedFunctionSymbol.defineType(it.identifier, typeParam)
@@ -69,7 +69,7 @@ internal class ParameterScanAstVisitor(private val fileName: String) : UnitAstVi
                     } else {
                         val typeParam = StandardTypeParameter(qualifiedName(ast.identifier, it.identifier), it.identifier)
                         if (seenTypeParameters.contains(it.identifier.name)) {
-                            errors.add(it.identifier.ctx, DuplicateTypeParameter(it.identifier))
+                            errors.add(it.identifier.ctx, DuplicateTypeParameter(toError(it.identifier)))
                         } else {
                             seenTypeParameters.add(it.identifier.name)
                             parameterizedFunctionSymbol.defineType(it.identifier, typeParam)

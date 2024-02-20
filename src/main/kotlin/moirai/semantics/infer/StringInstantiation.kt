@@ -34,7 +34,7 @@ internal class StringInstantiation : SingleTypeInstantiation<TerminusType, TypeI
                     inOrderParameters.forEach {
                         errors.add(
                             ctx,
-                            TypeInferenceFailed(it)
+                            TypeInferenceFailed(toError(it))
                         )
                     }
                 }
@@ -44,7 +44,7 @@ internal class StringInstantiation : SingleTypeInstantiation<TerminusType, TypeI
                         if (isValidStringType(it.readType())) {
                             children.add(costExpressionFromValidStringType(it.readType()))
                         } else {
-                            errors.add(it.ctx, IncompatibleString(it.readType()))
+                            errors.add(it.ctx, IncompatibleString(toError(it.readType())))
                         }
                     }
                     val costExpression = SumCostExpression(children)

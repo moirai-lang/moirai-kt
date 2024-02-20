@@ -18,7 +18,7 @@ internal fun createSubstitution(
         }
         when {
             relation.equivalences.isEmpty() -> {
-                errors.add(ctx, TypeInferenceFailed(typeParam))
+                errors.add(ctx, TypeInferenceFailed(toError(typeParam)))
             }
             relation.equivalences.size > 1 -> {
                 instantiations[relation.someItem.value] = findBestType(ctx, errors, relation.equivalences.map {
@@ -34,7 +34,7 @@ internal fun createSubstitution(
     return if (instantiations.isNotEmpty() && instantiations.all { parameterSet.contains(it.key) }) {
         val typeArgs = parameterSet.flatMap {
             if (!instantiations.containsKey(it)) {
-                errors.add(ctx, TypeInferenceFailed(it))
+                errors.add(ctx, TypeInferenceFailed(toError(it)))
                 listOf()
             } else {
                 listOf(instantiations[it]!!)
@@ -143,12 +143,12 @@ internal fun constrainSymbol(
                     }
                     constraints.addAll(constrainSymbol(ctx, typeParams, expected.returnType, actual.returnType, errors))
                 } else {
-                    errors.add(ctx, TypeMismatch(expected, actual))
+                    errors.add(ctx, TypeMismatch(toError(expected), toError(actual)))
                 }
                 constraints
             }
             else -> {
-                errors.add(ctx, TypeMismatch(expected, actual))
+                errors.add(ctx, TypeMismatch(toError(expected), toError(actual)))
                 listOf()
             }
         }
@@ -163,12 +163,12 @@ internal fun constrainSymbol(
                     }
                     constraints
                 } else {
-                    errors.add(ctx, TypeMismatch(expected, actual))
+                    errors.add(ctx, TypeMismatch(toError(expected), toError(actual)))
                     constraints
                 }
             }
             else -> {
-                errors.add(ctx, TypeMismatch(expected, actual))
+                errors.add(ctx, TypeMismatch(toError(expected), toError(actual)))
                 listOf()
             }
         }
@@ -177,7 +177,7 @@ internal fun constrainSymbol(
                 constrainCost(ctx, typeParams, expected, actual, errors)
             }
             else -> {
-                errors.add(ctx, TypeMismatch(expected, actual))
+                errors.add(ctx, TypeMismatch(toError(expected), toError(actual)))
                 listOf()
             }
         }
@@ -228,8 +228,8 @@ internal fun constrainCost(
                 } else {
                     errors.add(
                         ctx, TypeMismatch(
-                            expected,
-                            actual
+                            toError(expected),
+                            toError(actual)
                         )
                     )
                     listOf()
@@ -238,8 +238,8 @@ internal fun constrainCost(
             else -> {
                 errors.add(
                     ctx, TypeMismatch(
-                        expected,
-                        actual
+                        toError(expected),
+                        toError(actual)
                     )
                 )
                 listOf()
@@ -254,8 +254,8 @@ internal fun constrainCost(
                 } else {
                     errors.add(
                         ctx, TypeMismatch(
-                            expected,
-                            actual
+                            toError(expected),
+                            toError(actual)
                         )
                     )
                     listOf()
@@ -264,8 +264,8 @@ internal fun constrainCost(
             else -> {
                 errors.add(
                     ctx, TypeMismatch(
-                        expected,
-                        actual
+                        toError(expected),
+                        toError(actual)
                     )
                 )
                 listOf()
@@ -280,8 +280,8 @@ internal fun constrainCost(
                 } else {
                     errors.add(
                         ctx, TypeMismatch(
-                            expected,
-                            actual
+                            toError(expected),
+                            toError(actual)
                         )
                     )
                     listOf()
@@ -290,8 +290,8 @@ internal fun constrainCost(
             else -> {
                 errors.add(
                     ctx, TypeMismatch(
-                        expected,
-                        actual
+                        toError(expected),
+                        toError(actual)
                     )
                 )
                 listOf()

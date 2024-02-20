@@ -54,7 +54,7 @@ internal class SetInstantiation : SingleTypeInstantiation<TerminusType, TypeInst
                 inOrderParameters.forEach {
                     errors.add(
                         ctx,
-                        TypeInferenceFailed(it)
+                        TypeInferenceFailed(toError(it))
                     )
                 }
             }
@@ -95,7 +95,7 @@ internal class MutableSetInstantiation : SingleTypeInstantiation<TerminusType, T
                 return substitution.apply(terminus)
             }
         } else {
-            langThrow(ctx, TypeRequiresExplicit(identifier))
+            langThrow(ctx, TypeRequiresExplicit(toError(identifier)))
         }
     }
 }

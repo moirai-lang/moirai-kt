@@ -33,7 +33,7 @@ internal class DecimalInstantiation : SingleTypeInstantiation<TerminusType, Type
                 inOrderParameters.forEach {
                     errors.add(
                         ctx,
-                        TypeInferenceFailed(it)
+                        TypeInferenceFailed(toError(it))
                     )
                 }
             }

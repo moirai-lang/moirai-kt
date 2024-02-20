@@ -110,12 +110,12 @@ data class IdentifierAlreadyExists(val identifier: SignifierErrorString) : Error
 // Fetch errors
 data class IdentifierNotFound(val signifier: SignifierErrorString) : ErrorKind()
 data class SymbolHasNoParameters(val identifier: SignifierErrorString) : ErrorKind()
-data class SymbolHasNoFields(val signifier: SignifierErrorString, val symbol: SymbolErrorString) : ErrorKind(), SymbolHostErrorType {
-    override val symbols: List<SymbolErrorString> = listOf(symbol)
+data class SymbolHasNoFields(val signifier: SignifierErrorString, val type: TypeErrorString) : ErrorKind(), TypeHostErrorType {
+    override val types: List<TypeErrorString> = listOf(type)
 }
 
-data class SymbolHasNoMembers(val signifier: SignifierErrorString, val symbol: SymbolErrorString) : ErrorKind(), SymbolHostErrorType {
-    override val symbols: List<SymbolErrorString> = listOf(symbol)
+data class SymbolHasNoMembers(val signifier: SignifierErrorString, val type: TypeErrorString) : ErrorKind(), TypeHostErrorType {
+    override val types: List<TypeErrorString> = listOf(type)
 }
 
 // TypeErrorString errors

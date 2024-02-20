@@ -21,7 +21,7 @@ internal object DualFinPluginInstantiation : TwoTypeInstantiation<RawTerminusSym
                     (argType.substitutionChain).replayArgs().first()
                 }
                 else -> {
-                    errors.add(ctx, TypeMismatch(existingInstantiation, argType))
+                    errors.add(ctx, TypeMismatch(toError(existingInstantiation), toError(argType)))
                     throw LanguageException(errors.toSet())
                 }
             }
@@ -60,7 +60,7 @@ internal object DoubleParentSingleFinPluginInstantiation : TwoTypeInstantiation<
                     (argType.substitutionChain).replayArgs()[1]
                 }
                 else -> {
-                    errors.add(ctx, TypeMismatch(existingInstantiation, argType))
+                    errors.add(ctx, TypeMismatch(toError(existingInstantiation), toError(argType)))
                     throw LanguageException(errors.toSet())
                 }
             }
@@ -100,7 +100,7 @@ internal object TripleParentSingleFinPluginInstantiation : TwoTypeInstantiation<
                     (argType.substitutionChain).replayArgs()[2]
                 }
                 else -> {
-                    errors.add(ctx, TypeMismatch(existingInstantiation, argType))
+                    errors.add(ctx, TypeMismatch(toError(existingInstantiation), toError(argType)))
                     throw LanguageException(errors.toSet())
                 }
             }
@@ -140,11 +140,11 @@ internal object AscribeInstantiation : TwoTypeInstantiation<RawTerminusSymbol, S
                     val substitution = Substitution(terminus.typeParams, listOf(firstFin, explicitTypeArgs[0]))
                     return substitution.apply(terminus)
                 } else {
-                    langThrow(ctx, TypeRequiresExplicitFin(identifier))
+                    langThrow(ctx, TypeRequiresExplicitFin(toError(identifier)))
                 }
             }
         } else {
-            langThrow(ctx, TypeRequiresExplicitFin(identifier))
+            langThrow(ctx, TypeRequiresExplicitFin(toError(identifier)))
         }
     }
 }

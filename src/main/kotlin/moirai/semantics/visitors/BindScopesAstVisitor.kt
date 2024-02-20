@@ -97,14 +97,14 @@ internal class BindScopesAstVisitor(
             } else {
                 ast.typeParams.forEach {
                     if (it.identifier == ast.identifier) {
-                        errors.add(it.identifier.ctx, MaskingTypeParameter(it.identifier))
+                        errors.add(it.identifier.ctx, MaskingTypeParameter(toError(it.identifier)))
                     }
                 }
                 ParameterizedFunctionSymbol(param, ast.identifier, ast.body)
             }
             ast.definitionSpace = param
             if (ast.definitionSpace.existsHere(ast.identifier)) {
-                errors.add(ast.ctx, IdentifierAlreadyExists(ast.identifier))
+                errors.add(ast.ctx, IdentifierAlreadyExists(toError(ast.identifier)))
             } else {
                 ast.definitionSpace.define(
                     ast.identifier,
@@ -146,14 +146,14 @@ internal class BindScopesAstVisitor(
                 )
                 ast.typeParams.forEach {
                     if (it.identifier == ast.identifier) {
-                        errors.add(it.identifier.ctx, MaskingTypeParameter(it.identifier))
+                        errors.add(it.identifier.ctx, MaskingTypeParameter(toError(it.identifier)))
                     }
                 }
                 res
             }
             ast.definitionSpace = param
             if (ast.definitionSpace.existsHere(ast.identifier)) {
-                errors.add(ast.ctx, IdentifierAlreadyExists(ast.identifier))
+                errors.add(ast.ctx, IdentifierAlreadyExists(toError(ast.identifier)))
             } else {
                 ast.definitionSpace.defineType(
                     ast.identifier,
@@ -176,7 +176,7 @@ internal class BindScopesAstVisitor(
             )
             ast.definitionSpace = param
             if (ast.definitionSpace.existsHere(ast.identifier)) {
-                errors.add(ast.ctx, IdentifierAlreadyExists(ast.identifier))
+                errors.add(ast.ctx, IdentifierAlreadyExists(toError(ast.identifier)))
             } else {
                 ast.definitionSpace.defineType(
                     ast.identifier,

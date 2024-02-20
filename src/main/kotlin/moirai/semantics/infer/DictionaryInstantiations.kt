@@ -15,7 +15,7 @@ internal class DictionaryInstantiation(private val pairTypeSymbol: Parameterized
         args.forEach {
             val argType = it.readType()
             if (argType !is TypeInstantiation || argType.substitutionChain.terminus != pairTypeSymbol) {
-                errors.add(ctx, DictionaryArgsMustBePairs(argType))
+                errors.add(ctx, DictionaryArgsMustBePairs(toError(argType)))
             }
         }
         if (explicitTypeArgs.isNotEmpty()) {
@@ -73,7 +73,7 @@ internal class DictionaryInstantiation(private val pairTypeSymbol: Parameterized
                     inOrderParameters.forEach {
                         errors.add(
                             ctx,
-                            TypeInferenceFailed(it)
+                            TypeInferenceFailed(toError(it))
                         )
                     }
                 }
@@ -81,7 +81,7 @@ internal class DictionaryInstantiation(private val pairTypeSymbol: Parameterized
                 inOrderParameters.forEach {
                     errors.add(
                         ctx,
-                        TypeInferenceFailed(it)
+                        TypeInferenceFailed(toError(it))
                     )
                 }
             }
@@ -103,7 +103,7 @@ internal class MutableDictionaryInstantiation(private val pairTypeSymbol: Parame
         args.forEach {
             val argType = it.readType()
             if (argType !is TypeInstantiation || argType.substitutionChain.terminus != pairTypeSymbol) {
-                errors.add(ctx, DictionaryArgsMustBePairs(argType))
+                errors.add(ctx, DictionaryArgsMustBePairs(toError(argType)))
             }
         }
         if (explicitTypeArgs.isNotEmpty()) {
@@ -125,7 +125,7 @@ internal class MutableDictionaryInstantiation(private val pairTypeSymbol: Parame
                 return substitution.apply(terminus)
             }
         } else {
-            langThrow(ctx, TypeRequiresExplicit(identifier))
+            langThrow(ctx, TypeRequiresExplicit(toError(identifier)))
         }
     }
 }

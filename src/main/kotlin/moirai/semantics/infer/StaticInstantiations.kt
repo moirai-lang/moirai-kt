@@ -14,7 +14,7 @@ internal object RangeInstantiation : SingleTypeInstantiation<RawTerminusSymbol, 
         explicitTypeArgs: List<Type>
     ): SymbolInstantiation {
         if (explicitTypeArgs.isNotEmpty()) {
-            errors.add(ctx, CannotExplicitlyInstantiate(terminus))
+            errors.add(ctx, CannotExplicitlyInstantiate(toError(terminus)))
         }
         val allValid = args.all {
             val valid = it is IntLiteralAst
