@@ -7,12 +7,13 @@ import java.util.*
 import kotlin.collections.HashMap
 import kotlin.collections.HashSet
 
-internal data class ImportScan(
-    val scriptType: ScriptType,
+data class ImportScan(
     val sourceText: String,
-    val parseTree: MoiraiParser.FileContext,
-    val imports: Set<ImportStat>
-)
+) {
+    internal lateinit var scriptType: ScriptType
+    internal lateinit var parseTree: MoiraiParser.FileContext
+    internal lateinit var imports: Set<ImportStat>
+}
 
 internal fun preScanFile(sourceText: String): ImportScan {
     val parser = createParser(sourceText)
@@ -35,7 +36,11 @@ internal fun preScanFile(sourceText: String): ImportScan {
         throw LanguageException(errors.toSet())
     }
 
-    return ImportScan(importsListener.scriptType(), sourceText, parseTree, importStats.toSet())
+    val res = ImportScan(sourceText)
+    res.scriptType = importsListener.scriptType()
+    res.parseTree = parseTree
+    res.imports = importStats.toSet()
+    return res
 }
 
 internal fun fetchStoredFileByNamespaceAndScan(sourceStore: SourceStore, nameParts: List<String>): ImportScan {
@@ -78,8 +83,9 @@ internal fun preScanImportFanOut(
                 head.imports.forEach { importedNamespace ->
                     if (!processed.contains(importedNamespace)) {
                         val node = fetchStoredFileByNamespaceAndScan(sourceStore, importedNamespace.path)
-                        if (node.scriptType is NamedScriptType) {
-                            val nodeImportStat = ImportStat(node.scriptType.nameParts)
+                        val scriptType = node.scriptType
+                        if (scriptType is NamedScriptType) {
+                            val nodeImportStat = ImportStat(scriptType.nameParts)
                             unprocessed.add(node)
                             edges.add(
                                 DependencyEdge(
@@ -90,8 +96,9 @@ internal fun preScanImportFanOut(
                         }
                     } else {
                         val node = processed[importedNamespace]!!
-                        if (node.scriptType is NamedScriptType) {
-                            val nodeImportStat = ImportStat(node.scriptType.nameParts)
+                        val scriptType = node.scriptType
+                        if (scriptType is NamedScriptType) {
+                            val nodeImportStat = ImportStat(scriptType.nameParts)
                             edges.add(
                                 DependencyEdge(
                                     processFirst = nodeImportStat,
