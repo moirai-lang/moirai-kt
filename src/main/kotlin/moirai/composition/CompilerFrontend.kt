@@ -3,7 +3,7 @@ package moirai.composition
 import moirai.semantics.core.*
 import moirai.semantics.workflow.*
 
-internal class CompilerFrontend(
+class CompilerFrontend(
     private val architecture: Architecture,
     private val sourceStore: SourceStore
 ) {

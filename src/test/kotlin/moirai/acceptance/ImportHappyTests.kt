@@ -16,4 +16,18 @@ class ImportHappyTests {
         """.trimIndent()
         )
     }
+
+    @Test
+    fun basicImportTestGradual() {
+        splitTestGradual(
+            """
+            script test.ids.happy
+            import test.imported
+            
+            importedFunction(3, 4)
+            ^^^^^
+            12
+        """.trimIndent()
+        )
+    }
 }
