@@ -21,8 +21,8 @@ data class ExecutionArtifacts(
 
 sealed class ExecutionCacheRequestResult
 
-data object NotInCache
-data class InCache(val executionArtifacts: ExecutionArtifacts)
+data object NotInCache: ExecutionCacheRequestResult()
+data class InCache(val executionArtifacts: ExecutionArtifacts): ExecutionCacheRequestResult()
 
 
 interface ExecutionCache {
