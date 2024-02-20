@@ -13,6 +13,59 @@ data class TypeErrorString(val value: String, val isError: Boolean = false)
 data class SymbolErrorString(val value: String, val isError: Boolean = false)
 data class SignifierErrorString(val value: String)
 
+internal fun toError(type: Type): TypeErrorString {
+    return TypeErrorString(
+        when (type) {
+            is BasicType -> type.identifier.name
+            ConstantFin -> "default"
+            is Fin -> type.magnitude.toString()
+            is FinTypeParameter -> type.identifier.name
+            is MaxCostExpression -> "Max(${type.children.map { toError(it).value }.joinToString { "," }})"
+            is ProductCostExpression -> "Mul(${type.children.map { toError(it).value }.joinToString { "," }})"
+            is SumCostExpression -> "Sum(${type.children.map { toError(it).value }.joinToString { "," }})"
+            ErrorType -> "error"
+            is FunctionType -> "(${
+                type.formalParamTypes.map { toError(it).value }.joinToString { "," }
+            }) -> ${toError(type.returnType).value}"
+
+            is GroundRecordType -> type.identifier.name
+            is ObjectType -> type.identifier.name
+            is PlatformObjectType -> type.identifier.name
+            is PlatformSumObjectType -> type.identifier.name
+            is StandardTypeParameter -> type.identifier.name
+            is ParameterizedBasicType -> type.identifier.name
+            is ParameterizedRecordType -> type.identifier.name
+            is PlatformSumRecordType -> type.identifier.name
+            is PlatformSumType -> type.identifier.name
+            is TypeInstantiation -> "${toError(type.substitutionChain.terminus).value}<${
+                type.substitutionChain.replayArgs().map { toError(it).value }.joinToString { "," }
+            }>"
+        }, type is ErrorType
+    )
+}
+
+internal fun toError(symbol: Symbol): SymbolErrorString {
+
+}
+
+internal fun toError(signifier: Signifier): SignifierErrorString {
+    return SignifierErrorString(
+        when (signifier) {
+            is FunctionTypeLiteral -> "(${
+                signifier.formalParamTypes.map { toError(it).value }.joinToString { "," }
+            }) -> ${toError(signifier.returnType).value}"
+
+            is ParameterizedSignifier -> "${toError(signifier.tti).value}<${
+                signifier.args.map { toError(it).value }.joinToString { "," }
+            }>"
+
+            is FinLiteral -> signifier.magnitude.toString()
+            is ImplicitTypeLiteral -> "_"
+            is Identifier -> signifier.name
+        }
+    )
+}
+
 interface SymbolHostErrorType {
     val symbols: List<SymbolErrorString>
 }
