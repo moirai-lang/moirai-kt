@@ -157,13 +157,8 @@ fun testGradual(source: String, architecture: Architecture): Value {
 
     val executionArtifacts = frontend.fullCompileWithTopologicalSort(source)
 
-    val globalScope = ValueTable(NullValueTable)
-    val evalVisitor = EvalAstVisitor(architecture, globalScope)
-
-    val executionScope = ValueTable(globalScope)
-    return executionArtifacts.processedAst.accept(evalVisitor, EvalContext(executionScope, mapOf()))
+    return eval(architecture, executionArtifacts)
 }
-
 
 fun failTest(source: String, expectedCount: Int, predicate: (LanguageError) -> Boolean) {
     failTest(source, expectedCount, predicate, TestArchitecture)
