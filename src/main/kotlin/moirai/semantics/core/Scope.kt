@@ -17,7 +17,7 @@ internal interface Scope {
 
 internal object NullSymbolTable : Scope {
     override fun define(identifier: Identifier, definition: Symbol) {
-        langThrow(identifier.ctx, IdentifierCouldNotBeDefined(identifier))
+        langThrow(identifier.ctx, IdentifierCouldNotBeDefined(toError(identifier)))
     }
 
     override fun exists(signifier: Signifier): Boolean = false
@@ -25,15 +25,15 @@ internal object NullSymbolTable : Scope {
     override fun existsHere(signifier: Signifier): Boolean = false
 
     override fun fetch(signifier: Signifier): Symbol {
-        langThrow(signifier.ctx, IdentifierNotFound(signifier))
+        langThrow(signifier.ctx, IdentifierNotFound(toError(signifier)))
     }
 
     override fun fetchHere(signifier: Signifier): Symbol {
-        langThrow(signifier.ctx, IdentifierNotFound(signifier))
+        langThrow(signifier.ctx, IdentifierNotFound(toError(signifier)))
     }
 
     override fun defineType(identifier: Identifier, definition: Type) {
-        langThrow(identifier.ctx, IdentifierCouldNotBeDefined(identifier))
+        langThrow(identifier.ctx, IdentifierCouldNotBeDefined(toError(identifier)))
     }
 
     override fun typeExists(signifier: Signifier): Boolean = false
@@ -41,11 +41,11 @@ internal object NullSymbolTable : Scope {
     override fun typeExistsHere(signifier: Signifier): Boolean = false
 
     override fun fetchType(signifier: Signifier): Type {
-        langThrow(signifier.ctx, IdentifierNotFound(signifier))
+        langThrow(signifier.ctx, IdentifierNotFound(toError(signifier)))
     }
 
     override fun fetchTypeHere(signifier: Signifier): Type {
-        langThrow(signifier.ctx, IdentifierNotFound(signifier))
+        langThrow(signifier.ctx, IdentifierNotFound(toError(signifier)))
     }
 }
 
@@ -58,7 +58,7 @@ internal class SymbolTable(private val parent: Scope) : Scope {
 
     override fun define(identifier: Identifier, definition: Symbol) {
         if (symbolTable.containsKey(identifier.name) || typeTable.containsKey(identifier.name)) {
-            langThrow(identifier.ctx, IdentifierAlreadyExists(identifier))
+            langThrow(identifier.ctx, IdentifierAlreadyExists(toError(identifier)))
         } else {
             symbolTable[identifier.name] = definition
             typeTable[identifier.name] = ErrorType
@@ -145,7 +145,7 @@ internal class SymbolTable(private val parent: Scope) : Scope {
                 if (symbolTable.containsKey(signifier.name)) {
                     symbolTable[signifier.name]!!
                 } else {
-                    langThrow(signifier.ctx, IdentifierNotFound(signifier))
+                    langThrow(signifier.ctx, IdentifierNotFound(toError(signifier)))
                 }
             }
 
@@ -197,7 +197,7 @@ internal class SymbolTable(private val parent: Scope) : Scope {
 
     override fun defineType(identifier: Identifier, definition: Type) {
         if (symbolTable.containsKey(identifier.name) || typeTable.containsKey(identifier.name)) {
-            langThrow(identifier.ctx, IdentifierAlreadyExists(identifier))
+            langThrow(identifier.ctx, IdentifierAlreadyExists(toError(identifier)))
         } else {
             symbolTable[identifier.name] = TypePlaceholder
             typeTable[identifier.name] = definition
@@ -292,7 +292,7 @@ internal class SymbolTable(private val parent: Scope) : Scope {
                     }
 
                     is TypeInstantiation -> type
-                    else -> langThrow(signifier.ctx, SymbolHasNoParameters(signifier))
+                    else -> langThrow(signifier.ctx, SymbolHasNoParameters(toError(signifier)))
                 }
             }
 
@@ -306,7 +306,7 @@ internal class SymbolTable(private val parent: Scope) : Scope {
                 if (typeTable.containsKey(signifier.name)) {
                     typeTable[signifier.name]!!
                 } else {
-                    langThrow(signifier.ctx, IdentifierNotFound(signifier))
+                    langThrow(signifier.ctx, IdentifierNotFound(toError(signifier)))
                 }
             }
 
@@ -370,7 +370,7 @@ internal class SymbolTable(private val parent: Scope) : Scope {
                     }
 
                     is TypeInstantiation -> type
-                    else -> langThrow(signifier.ctx, SymbolHasNoParameters(signifier))
+                    else -> langThrow(signifier.ctx, SymbolHasNoParameters(toError(signifier)))
                 }
             }
 

@@ -45,7 +45,26 @@ internal fun toError(type: Type): TypeErrorString {
 }
 
 internal fun toError(symbol: Symbol): SymbolErrorString {
+    return SymbolErrorString(
+        when (symbol) {
+            ErrorSymbol -> "error"
+            is SymbolInstantiation -> "${toError(symbol.substitutionChain.terminus).value}<${
+                symbol.substitutionChain.replayArgs().map { toError(it).value }.joinToString { "," }
+            }>"
 
+            is LambdaSymbol -> "lambda"
+            is FieldSymbol -> symbol.identifier.name
+            is FunctionFormalParameterSymbol -> symbol.identifier.name
+            is LocalVariableSymbol -> symbol.identifier.name
+            is GroundFunctionSymbol -> symbol.identifier.name
+            is GroundMemberPluginSymbol -> symbol.identifier.name
+            is ParameterizedFunctionSymbol -> symbol.identifier.name
+            is ParameterizedMemberPluginSymbol -> symbol.identifier.name
+            is ParameterizedStaticPluginSymbol -> symbol.identifier.name
+            is PlatformFieldSymbol -> symbol.identifier.name
+            TypePlaceholder -> "_"
+        }, symbol is ErrorSymbol
+    )
 }
 
 internal fun toError(signifier: Signifier): SignifierErrorString {

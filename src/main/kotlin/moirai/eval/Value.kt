@@ -483,7 +483,7 @@ internal interface ValueScope {
 
 internal object NullValueTable : ValueScope {
     override fun define(identifier: Identifier, definition: Value) {
-        langThrow(NotInSource, IdentifierCouldNotBeDefined(identifier))
+        langThrow(NotInSource, IdentifierCouldNotBeDefined(toError(identifier)))
     }
 
     override fun exists(signifier: Signifier): Boolean = false
@@ -491,11 +491,11 @@ internal object NullValueTable : ValueScope {
     override fun existsHere(signifier: Signifier): Boolean = false
 
     override fun fetch(signifier: Signifier): Value {
-        langThrow(NotInSource, IdentifierNotFound(signifier))
+        langThrow(NotInSource, IdentifierNotFound(toError(signifier)))
     }
 
     override fun fetchHere(signifier: Signifier): Value {
-        langThrow(NotInSource, IdentifierNotFound(signifier))
+        langThrow(NotInSource, IdentifierNotFound(toError(signifier)))
     }
 
 }
@@ -558,7 +558,7 @@ internal class ValueTable(private val parent: ValueScope) : ValueScope {
                 if (slotTable.containsKey(signifier.name)) {
                     slotTable[signifier.name]!!.value
                 } else {
-                    langThrow(signifier.ctx, IdentifierNotFound(signifier))
+                    langThrow(signifier.ctx, IdentifierNotFound(toError(signifier)))
                 }
             }
 
