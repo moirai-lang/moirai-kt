@@ -13,9 +13,8 @@ data object UnitValue : Value() {
 }
 
 class ObjectValue(
-    val symbol: ObjectType
+    val path: String
 ) : Value() {
-    val path = getQualifiedName(symbol)
 
     override fun equals(other: Any?): Boolean {
         if (other != null && other is ObjectValue) {
@@ -30,10 +29,8 @@ class ObjectValue(
 }
 
 class SumObjectValue(
-    val symbol: PlatformSumObjectType
+    val path: String
 ) : Value() {
-    val path = getQualifiedName(symbol)
-
     override fun equals(other: Any?): Boolean {
         if (other != null && other is SumObjectValue) {
             return path == other.path
@@ -54,14 +51,14 @@ data class PluginValue(
     }
 }
 
-data class FunctionValue(
+internal data class FunctionValue(
     val formalParams: List<FunctionFormalParameterSymbol>,
     val body: Ast
 ) : Value()
 
-class RecordValue(type: Type, val fields: ValueTable, val substitutions: Map<TypeParameter, Type>) : Value() {
-    lateinit var scope: Scope
-    val path = getQualifiedName(type)
+class RecordValue(val path: String, val fields: ValueTable) : Value() {
+    internal lateinit var scope: Scope
+    internal lateinit var substitutions: Map<TypeParameter, Type>
 
     override fun equals(other: Any?): Boolean {
         if (other != null && other is RecordValue) {
@@ -81,9 +78,10 @@ class RecordValue(type: Type, val fields: ValueTable, val substitutions: Map<Typ
     }
 }
 
-class SumRecordValue(val instantiation: TypeInstantiation, val type: PlatformSumRecordType, val fields: ValueTable, val substitutions: Map<TypeParameter, Type>) : Value() {
-    lateinit var scope: Scope
-    val path = getQualifiedName(type)
+class SumRecordValue(val path: String, val fields: ValueTable) : Value() {
+    internal lateinit var scope: Scope
+    internal lateinit var instantiation: TypeInstantiation
+    internal lateinit var substitutions: Map<TypeParameter, Type>
 
     override fun equals(other: Any?): Boolean {
         if (other != null && other is SumRecordValue) {

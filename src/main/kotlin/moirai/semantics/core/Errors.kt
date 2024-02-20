@@ -189,11 +189,11 @@ data class LanguageError(
 class LanguageErrors {
     private val collectedErrors: MutableSet<LanguageError> = HashSet()
 
-    fun add(ctx: SourceContext, error: ErrorKind) {
+    internal fun add(ctx: SourceContext, error: ErrorKind) {
         collectedErrors.add(LanguageError(ctx, error))
     }
 
-    fun addAll(ctx: SourceContext, errors: Set<LanguageError>) {
+    internal fun addAll(ctx: SourceContext, errors: Set<LanguageError>) {
         collectedErrors.addAll(mapErrorContexts(ctx, errors))
     }
 
@@ -202,15 +202,15 @@ class LanguageErrors {
 
 data class LanguageException(val errors: Set<LanguageError>) : Exception()
 
-fun langThrow(ctx: SourceContext, error: ErrorKind): Nothing {
+internal fun langThrow(ctx: SourceContext, error: ErrorKind): Nothing {
     throw LanguageException(setOf(LanguageError(ctx, error)))
 }
 
-fun langThrow(error: ErrorKind): Nothing {
+internal fun langThrow(error: ErrorKind): Nothing {
     throw LanguageException(setOf(LanguageError(NotInSource, error)))
 }
 
-fun filterThrow(errors: Set<LanguageError>): Nothing {
+internal fun filterThrow(errors: Set<LanguageError>): Nothing {
     val filtered = errors.filter {
         when (it.error) {
             is SymbolHostErrorType -> {
@@ -233,7 +233,7 @@ fun filterThrow(errors: Set<LanguageError>): Nothing {
     }
 }
 
-fun mapErrorContexts(ctx: SourceContext, errors: Set<LanguageError>): Set<LanguageError> =
+internal fun mapErrorContexts(ctx: SourceContext, errors: Set<LanguageError>): Set<LanguageError> =
     errors.map {
         if (it.ctx == NotInSource) {
             LanguageError(ctx, it.error)

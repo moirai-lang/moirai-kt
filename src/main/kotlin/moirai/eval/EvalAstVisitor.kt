@@ -67,8 +67,8 @@ internal class EvalAstVisitor(architecture: Architecture, private val globalScop
 
     override fun visit(ast: RefAst, param: EvalContext): Value {
         return when (val refSlot = ast.refSlot) {
-            is RefSlotObject -> ObjectValue(refSlot.payload)
-            is RefSlotSumObject -> SumObjectValue(refSlot.payload)
+            is RefSlotObject -> ObjectValue(getQualifiedName(refSlot.payload))
+            is RefSlotSumObject -> SumObjectValue(getQualifiedName(refSlot.payload))
             is RefSlotPlatformObject -> if (refSlot.payload.identifier == Lang.unitId) {
                 UnitValue
             } else {
@@ -194,8 +194,9 @@ internal class EvalAstVisitor(architecture: Architecture, private val globalScop
                 groundApplySlot.payload.fields.zip(args).forEach {
                     fields.define(it.first.identifier, it.second)
                 }
-                val res = RecordValue(groundApplySlot.payload, fields, mapOf())
+                val res = RecordValue(getQualifiedName(groundApplySlot.payload), fields)
                 res.scope = groundApplySlot.payload
+                res.substitutions = mapOf()
                 res
             }
 
@@ -312,8 +313,9 @@ internal class EvalAstVisitor(architecture: Architecture, private val globalScop
                         }
                         val substitutions =
                             createSubstitutions(param.substitutions, groundApplySlot.payload.substitutionChain)
-                        val res = RecordValue(groundApplySlot.payload, fields, substitutions)
+                        val res = RecordValue(getQualifiedName(groundApplySlot.payload), fields)
                         res.scope = terminus
+                        res.substitutions = substitutions
                         res
                     }
 
@@ -324,8 +326,10 @@ internal class EvalAstVisitor(architecture: Architecture, private val globalScop
                         }
                         val substitutions =
                             createSubstitutions(param.substitutions, groundApplySlot.payload.substitutionChain)
-                        val res = SumRecordValue(groundApplySlot.payload, terminus, fields, substitutions)
+                        val res = SumRecordValue(getQualifiedName(terminus), fields)
                         res.scope = terminus
+                        res.instantiation = groundApplySlot.payload
+                        res.substitutions = substitutions
                         res
                     }
 
