@@ -3,11 +3,12 @@ package moirai.composition
 import moirai.semantics.core.*
 import moirai.semantics.workflow.*
 
-internal data class ExecutionArtifacts(
+data class ExecutionArtifacts(
     val importScan: ImportScan,
-    val processedAst: Ast,
-    val semanticArtifacts: SemanticArtifacts
-)
+) {
+    internal lateinit var processedAst: Ast
+    internal lateinit var semanticArtifacts: SemanticArtifacts
+}
 
 internal class CompilerFrontend(
     private val architecture: Architecture,
@@ -32,11 +33,12 @@ internal class CompilerFrontend(
                 listOf()
             )
 
-            return ExecutionArtifacts(
+            val ea = ExecutionArtifacts(
                 res,
-                artifacts.processedAst,
-                artifacts
             )
+            ea.processedAst = artifacts.processedAst
+            ea.semanticArtifacts = artifacts
+            return ea
         }
 
         if (importFanOut.count() > 1 && importFanOut.any { it.scriptType is PureTransient }) {
@@ -57,7 +59,7 @@ internal class CompilerFrontend(
                 semanticsMap[it.path]!!
             }
 
-            val scriptType = importScan.scriptType as NamedScriptType
+            val scriptType = importScan.scriptType as NamedScriptBase
 
             val artifacts = processAstAllPhases(
                 rawAst,
@@ -70,11 +72,12 @@ internal class CompilerFrontend(
         }
 
         val res = importFanOut.last()
-        val resScriptType = res.scriptType as NamedScriptType
-        return ExecutionArtifacts(
+        val resScriptType = res.scriptType as NamedScriptBase
+        val ea = ExecutionArtifacts(
             res,
-            astMap[resScriptType.nameParts]!!,
-            semanticsMap[resScriptType.nameParts]!!
         )
+        ea.processedAst = astMap[resScriptType.nameParts]!!
+        ea.semanticArtifacts = semanticsMap[resScriptType.nameParts]!!
+        return ea
     }
 }

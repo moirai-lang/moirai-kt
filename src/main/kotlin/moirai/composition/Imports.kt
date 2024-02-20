@@ -9,8 +9,8 @@ import kotlin.collections.HashSet
 
 data class ImportScan(
     val sourceText: String,
+    val scriptType: ScriptType
 ) {
-    internal lateinit var scriptType: ScriptType
     internal lateinit var parseTree: MoiraiParser.FileContext
     internal lateinit var imports: Set<ImportStat>
 }
@@ -36,8 +36,7 @@ internal fun preScanFile(sourceText: String): ImportScan {
         throw LanguageException(errors.toSet())
     }
 
-    val res = ImportScan(sourceText)
-    res.scriptType = importsListener.scriptType()
+    val res = ImportScan(sourceText, importsListener.scriptType())
     res.parseTree = parseTree
     res.imports = importStats.toSet()
     return res
@@ -75,7 +74,7 @@ internal fun preScanImportFanOut(
         val head = unprocessed.remove()
         val headScriptType = head.scriptType
 
-        if (headScriptType is NamedScriptType) {
+        if (headScriptType is NamedScriptBase) {
             val headImportStat = ImportStat(headScriptType.nameParts)
             if (!processed.contains(headImportStat)) {
                 processed[headImportStat] = head
@@ -83,9 +82,8 @@ internal fun preScanImportFanOut(
                 head.imports.forEach { importedNamespace ->
                     if (!processed.contains(importedNamespace)) {
                         val node = fetchStoredFileByNamespaceAndScan(sourceStore, importedNamespace.path)
-                        val scriptType = node.scriptType
-                        if (scriptType is NamedScriptType) {
-                            val nodeImportStat = ImportStat(scriptType.nameParts)
+                        if (node.scriptType is NamedScriptBase) {
+                            val nodeImportStat = ImportStat(node.scriptType.nameParts)
                             unprocessed.add(node)
                             edges.add(
                                 DependencyEdge(
@@ -96,9 +94,8 @@ internal fun preScanImportFanOut(
                         }
                     } else {
                         val node = processed[importedNamespace]!!
-                        val scriptType = node.scriptType
-                        if (scriptType is NamedScriptType) {
-                            val nodeImportStat = ImportStat(scriptType.nameParts)
+                        if (node.scriptType is NamedScriptBase) {
+                            val nodeImportStat = ImportStat(node.scriptType.nameParts)
                             edges.add(
                                 DependencyEdge(
                                     processFirst = nodeImportStat,

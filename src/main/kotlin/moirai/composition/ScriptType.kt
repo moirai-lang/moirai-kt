@@ -1,21 +1,21 @@
 package moirai.composition
 
-internal sealed class ScriptType {
+sealed class ScriptType {
     abstract fun fileName(): String
 }
 
-internal sealed class NamedScriptType : ScriptType() {
+sealed class NamedScriptBase : ScriptType() {
     abstract val nameParts: List<String>
     override fun fileName() = nameParts.joinToString(".")
 }
 
 // A named artifact that can contain multiple imports, and can itself be imported.
-internal data class NamedShard(override val nameParts: List<String>) : NamedScriptType()
+data class NamedScript(override val nameParts: List<String>) : NamedScriptBase()
 
 // An unnamed artifact that can contain exactly one import and cannot itself be imported.
-internal data class TransientShard(override val nameParts: List<String>) : NamedScriptType()
+data class TransientScript(override val nameParts: List<String>) : NamedScriptBase()
 
 // An unnamed artifact with no imports and cannot itself be imported.
-internal data object PureTransient : ScriptType() {
+data object PureTransient : ScriptType() {
     override fun fileName() = "transient"
 }
