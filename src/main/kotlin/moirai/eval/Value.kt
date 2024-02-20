@@ -194,7 +194,7 @@ data class DecimalValue(val canonicalForm: BigDecimal) : Value(), MathValue, Ord
     override fun evalNegate(): Value = DecimalValue(canonicalForm.negate())
 
     fun evalToString(): Value = StringValue(canonicalForm.stripTrailingZeros().toPlainString())
-    fun evalAscribe(subs: Map<TypeParameter, Type>): Value {
+    internal fun evalAscribe(subs: Map<TypeParameter, Type>): Value {
         if (subs.size != 2) {
             langThrow(NotInSource, TypeSystemBug)
         }
@@ -234,7 +234,9 @@ data class StringValue(val canonicalForm: String) : Value(), EqualityValue {
     fun evalToCharArray(): Value {
         val elements = canonicalForm.toCharArray().map { CharValue(it) }
         val fin = Fin(canonicalForm.length.toLong())
-        return ListValue(elements.toMutableList(), mapOf(Lang.listFinTypeParam to fin), fin.magnitude, false)
+        val listRes = ListValue(elements.toMutableList(), fin.magnitude, false)
+        listRes.substitutions = mapOf(Lang.listFinTypeParam to fin)
+        return listRes
     }
 
     fun evalToString(): Value = StringValue(canonicalForm)
@@ -247,17 +249,20 @@ data class StringValue(val canonicalForm: String) : Value(), EqualityValue {
 
 data class ListValue(
     val elements: MutableList<Value>,
-    val substitutions: Map<TypeParameter, Type>,
     val fin: Long,
     val mutable: Boolean
 ) : Value(), EqualityValue {
+    internal lateinit var substitutions: Map<TypeParameter, Type>
+
     fun fieldSize(): Value {
         return IntValue(elements.size)
     }
 
     fun evalToList(): Value {
         if (mutable) {
-            return ListValue(elements.toList().toMutableList(), substitutions, fin, false)
+            val res = ListValue(elements.toList().toMutableList(), fin, false)
+            res.substitutions = substitutions
+            return res
         } else {
             langThrow(NotInSource, RuntimeImmutableViolation)
         }

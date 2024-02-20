@@ -223,23 +223,25 @@ internal class EvalAstVisitor(architecture: Architecture, private val globalScop
                             Lang.listId -> {
                                 val substitutions =
                                     createSubstitutions(param.substitutions, groundApplySlot.payload.substitutionChain)
-                                ListValue(
+                                val listRes = ListValue(
                                     args.toMutableList(),
-                                    substitutions,
                                     computeFin(Lang.listFinTypeParam, substitutions),
                                     false
                                 )
+                                listRes.substitutions = substitutions
+                                listRes
                             }
 
                             Lang.mutableListId -> {
                                 val substitutions =
                                     createSubstitutions(param.substitutions, groundApplySlot.payload.substitutionChain)
-                                ListValue(
+                                val listRes = ListValue(
                                     args.toMutableList(),
-                                    substitutions,
                                     computeFin(Lang.mutableListFinTypeParam, substitutions),
                                     true
                                 )
+                                listRes.substitutions = substitutions
+                                listRes
                             }
 
                             Lang.dictionaryId -> {
