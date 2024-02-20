@@ -5,41 +5,41 @@ import moirai.semantics.infer.SubstitutionChain
 /**
  * Core Primitives
  */
-sealed class Symbol
+internal sealed class Symbol
 
-data object ErrorSymbol: Symbol()
+internal data object ErrorSymbol: Symbol()
 
-data object TypePlaceholder: Symbol()
+internal data object TypePlaceholder: Symbol()
 
-sealed class SymbolTableElement: Symbol() {
+internal sealed class SymbolTableElement: Symbol() {
     abstract val parent: Scope
 }
 
-sealed class NamedSymbolTableElement: SymbolTableElement() {
+internal sealed class NamedSymbolTableElement: SymbolTableElement() {
     abstract val identifier: Identifier
 }
 
-sealed class NamedSymbolWithMembers(
+internal sealed class NamedSymbolWithMembers(
     override val parent: Scope,
     private val symbolTable: SymbolTable = SymbolTable(parent)
 ): NamedSymbolTableElement(), Scope by symbolTable
 
-sealed class RawTerminusSymbol(
+internal sealed class RawTerminusSymbol(
     override val parent: Scope
 ): NamedSymbolWithMembers(parent), RawTerminus
 
-class SymbolInstantiation(
+internal class SymbolInstantiation(
     val substitutionChain: SubstitutionChain<RawTerminusSymbol>
 ) : Symbol()
 
-class LocalVariableSymbol(
+internal class LocalVariableSymbol(
     override val parent: Scope,
     override val identifier: Identifier,
     val ofTypeSymbol: Type,
     val mutable: Boolean
 ) : NamedSymbolTableElement()
 
-class FunctionFormalParameterSymbol(
+internal class FunctionFormalParameterSymbol(
     override val parent: Scope,
     override val identifier: Identifier,
     val ofTypeSymbol: Type
@@ -47,7 +47,7 @@ class FunctionFormalParameterSymbol(
     var costMultiplier: CostExpression = CommonCostExpressions.defaultMultiplier
 }
 
-class GroundFunctionSymbol(
+internal class GroundFunctionSymbol(
     override val parent: Scope,
     override val identifier: Identifier,
     val body: Ast
@@ -59,7 +59,7 @@ class GroundFunctionSymbol(
     fun type() = FunctionType(formalParams.map { it.ofTypeSymbol }, returnType)
 }
 
-class LambdaSymbol(
+internal class LambdaSymbol(
     override val parent: Scope,
     private val symbolTable: SymbolTable = SymbolTable(parent)
 ): SymbolTableElement(), Scope by symbolTable {
@@ -70,7 +70,7 @@ class LambdaSymbol(
     fun type() = FunctionType(formalParams.map { it.ofTypeSymbol }, returnType)
 }
 
-class ParameterizedFunctionSymbol(
+internal class ParameterizedFunctionSymbol(
     override val parent: Scope,
     override val identifier: Identifier,
     val body: Ast
@@ -84,14 +84,14 @@ class ParameterizedFunctionSymbol(
     fun type() = FunctionType(formalParams.map { it.ofTypeSymbol }, returnType)
 }
 
-class FieldSymbol(
+internal class FieldSymbol(
     override val parent: Scope,
     override val identifier: Identifier,
     val ofTypeSymbol: Type,
     val mutable: Boolean
 ) : NamedSymbolTableElement()
 
-data class PlatformFieldSymbol(
+internal data class PlatformFieldSymbol(
     override val parent: Scope,
     override val identifier: Identifier,
     val ofTypeSymbol: BasicType
@@ -100,7 +100,7 @@ data class PlatformFieldSymbol(
 /**
  * Plugins
  */
-data class GroundMemberPluginSymbol(
+internal data class GroundMemberPluginSymbol(
     override val parent: Scope,
     override val identifier: Identifier
 ) : NamedSymbolWithMembers(parent) {
@@ -111,7 +111,7 @@ data class GroundMemberPluginSymbol(
     fun type() = FunctionType(formalParams.map { it.ofTypeSymbol }, returnType)
 }
 
-data class ParameterizedMemberPluginSymbol(
+internal data class ParameterizedMemberPluginSymbol(
     override val parent: Scope,
     override val identifier: Identifier,
     val instantiation: TwoTypeInstantiation<RawTerminusSymbol, SymbolInstantiation>
@@ -125,7 +125,7 @@ data class ParameterizedMemberPluginSymbol(
     fun type() = FunctionType(formalParams.map { it.ofTypeSymbol }, returnType)
 }
 
-data class ParameterizedStaticPluginSymbol(
+internal data class ParameterizedStaticPluginSymbol(
     override val parent: Scope,
     override val identifier: Identifier,
     val instantiation: SingleTypeInstantiation<RawTerminusSymbol, SymbolInstantiation>,

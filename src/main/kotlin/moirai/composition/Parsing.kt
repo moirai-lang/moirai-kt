@@ -10,9 +10,9 @@ import org.antlr.v4.runtime.CommonTokenStream
 import org.antlr.v4.runtime.Token
 import org.apache.commons.lang3.StringEscapeUtils
 
-data class Parser(val grammar: MoiraiParser, val listener: SyntaxErrorListener)
+internal data class Parser(val grammar: MoiraiParser, val listener: SyntaxErrorListener)
 
-fun createParser(contents: String): Parser {
+internal fun createParser(contents: String): Parser {
     val syntaxListener = SyntaxErrorListener()
     val stream = CharStreams.fromString(contents)
     val lexer = MoiraiLexer(stream)
@@ -56,12 +56,12 @@ internal fun rewriteAsDotApply(
     return res
 }
 
-fun resurrectString(original: String): String {
+internal fun resurrectString(original: String): String {
     val trimmed = original.replace(Regex.fromLiteral("^\""), "").replace(Regex.fromLiteral("\"$"), "")
     return StringEscapeUtils.unescapeJava(trimmed)
 }
 
-fun resurrectChar(original: String): Char {
+internal fun resurrectChar(original: String): Char {
     val trimmed = original.removeSurrounding("'")
     return StringEscapeUtils.unescapeJava(trimmed).toCharArray().first()
 }

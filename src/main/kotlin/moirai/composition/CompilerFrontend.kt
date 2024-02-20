@@ -3,13 +3,13 @@ package moirai.composition
 import moirai.semantics.core.*
 import moirai.semantics.workflow.*
 
-data class ExecutionArtifacts(
+internal data class ExecutionArtifacts(
     val importScan: ImportScan,
     val processedAst: Ast,
     val semanticArtifacts: SemanticArtifacts
 )
 
-class CompilerFrontend(
+internal class CompilerFrontend(
     private val architecture: Architecture,
     private val sourceStore: SourceStore
 ) {

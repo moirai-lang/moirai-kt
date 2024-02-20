@@ -2,7 +2,7 @@ package moirai.semantics.visitors
 
 import moirai.semantics.core.*
 
-class BanSecondDegreeAstVisitor : UnitAstVisitor() {
+internal class BanSecondDegreeAstVisitor : UnitAstVisitor() {
     private fun checkForSecondDegree(ctx: SourceContext, identifier: Identifier, ofTypeSymbol: FunctionType) {
         if (ofTypeSymbol.returnType is FunctionType) {
             errors.add(ctx, FunctionReturnType(identifier))

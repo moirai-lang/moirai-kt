@@ -3,7 +3,7 @@ package moirai.semantics.visitors
 import moirai.semantics.core.*
 import moirai.semantics.prelude.Lang
 
-class CheckTypesAstVisitor(private val prelude: Scope) : UnitAstVisitor() {
+internal class CheckTypesAstVisitor(private val prelude: Scope) : UnitAstVisitor() {
     override fun visit(ast: StringInterpolationAst) {
         try {
             super.visit(ast)

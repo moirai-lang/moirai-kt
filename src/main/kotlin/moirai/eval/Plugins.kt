@@ -4,15 +4,15 @@ import moirai.semantics.core.*
 import moirai.semantics.prelude.*
 import kotlin.random.Random
 
-data class GroundMemberPlugin(private val plugin: (Value, List<Value>, Map<TypeParameter, Type>) -> Value) {
+internal data class GroundMemberPlugin(private val plugin: (Value, List<Value>, Map<TypeParameter, Type>) -> Value) {
     fun invoke(t: Value, args: List<Value>, subs: Map<TypeParameter, Type>): Value = plugin(t, args, subs)
 }
 
-data class PlatformField(private val accessor: (Value) -> Value) {
+internal data class PlatformField(private val accessor: (Value) -> Value) {
     fun invoke(t: Value): Value = accessor(t)
 }
 
-object Plugins {
+internal object Plugins {
     val groundMemberPlugins: Map<GroundMemberPluginSymbol, GroundMemberPlugin> = mapOf(
         IntegerMathOpMembers.add to GroundMemberPlugin { t: Value, args: List<Value>, _: Map<TypeParameter, Type> ->
             (t as MathValue).evalAdd(args.first())

@@ -2,7 +2,7 @@ package moirai.semantics.visitors
 
 import moirai.semantics.core.*
 
-class BanFeaturePositionsAstVisitor : UnitAstVisitor() {
+internal class BanFeaturePositionsAstVisitor : UnitAstVisitor() {
     override fun visit(ast: FunctionAst) {
         super.visit(ast)
         when (val returnType = ast.scope.fetchType(ast.returnType)) {

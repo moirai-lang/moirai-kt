@@ -2,7 +2,7 @@ package moirai.semantics.infer
 
 import moirai.semantics.core.*
 
-fun createSubstitution(
+internal fun createSubstitution(
     ctx: SourceContext,
     constraints: MutableList<Constraint<TypeParameter, Type>>,
     parameterSet: Set<TypeParameter>,
@@ -47,7 +47,7 @@ fun createSubstitution(
     }
 }
 
-fun instantiateFunction(
+internal fun instantiateFunction(
     ctx: SourceContext,
     args: List<Ast>,
     parameterizedFunctionSymbol: ParameterizedFunctionSymbol,
@@ -72,7 +72,7 @@ fun instantiateFunction(
     return substitution.apply(parameterizedFunctionSymbol)
 }
 
-fun instantiateRecord(
+internal fun instantiateRecord(
     ctx: SourceContext,
     args: List<Ast>,
     parameterizedRecordType: ParameterizedRecordType,
@@ -98,7 +98,7 @@ fun instantiateRecord(
     return substitution.apply(parameterizedRecordType)
 }
 
-fun instantiatePlatformSumRecord(
+internal fun instantiatePlatformSumRecord(
     ctx: SourceContext,
     args: List<Ast>,
     platformSumRecordType: PlatformSumRecordType,
@@ -124,7 +124,7 @@ fun instantiatePlatformSumRecord(
     return substitution.apply(platformSumRecordType)
 }
 
-fun constrainSymbol(
+internal fun constrainSymbol(
     ctx: SourceContext,
     typeParams: Set<TypeParameter>,
     expected: Type,
@@ -198,7 +198,7 @@ fun constrainSymbol(
         }
     }
 
-fun constrainCost(
+internal fun constrainCost(
     ctx: SourceContext,
     typeParams: Set<TypeParameter>,
     expected: CostExpression,

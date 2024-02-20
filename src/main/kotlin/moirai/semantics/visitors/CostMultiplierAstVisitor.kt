@@ -2,12 +2,12 @@ package moirai.semantics.visitors
 
 import moirai.semantics.core.*
 
-data class ParamCostExMultiplier(
+internal data class ParamCostExMultiplier(
     val formalParameterSymbol: FunctionFormalParameterSymbol,
     val costExpression: CostExpression
 )
 
-class CostMultiplierAstVisitor(val architecture: Architecture) : AstVisitor<List<ParamCostExMultiplier>> {
+internal class CostMultiplierAstVisitor(val architecture: Architecture) : AstVisitor<List<ParamCostExMultiplier>> {
     override fun visit(ast: IntLiteralAst): List<ParamCostExMultiplier> {
         return listOf()
     }

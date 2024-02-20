@@ -2,7 +2,7 @@ package moirai.semantics.prelude
 
 import moirai.semantics.core.*
 
-object IntegerMathOpMembers {
+internal object IntegerMathOpMembers {
     val add = pluginAdd()
     val sub = pluginSub()
     val mul = pluginMul()
@@ -106,7 +106,7 @@ object IntegerMathOpMembers {
     }
 }
 
-object IntegerOrderOpMembers {
+internal object IntegerOrderOpMembers {
     val greaterThan = pluginGreaterThan()
     val greaterThanOrEquals = pluginGreaterThanOrEquals()
     val lessThan = pluginLessThan()
@@ -180,7 +180,7 @@ object IntegerOrderOpMembers {
     }
 }
 
-object IntegerEqualityOpMembers {
+internal object IntegerEqualityOpMembers {
     val equals = pluginEquals()
     val notEquals = pluginNotEquals()
 
@@ -220,7 +220,7 @@ object IntegerEqualityOpMembers {
     }
 }
 
-object BooleanEqualityOpMembers {
+internal object BooleanEqualityOpMembers {
     val equals = pluginEquals()
     val notEquals = pluginNotEquals()
 
@@ -260,7 +260,7 @@ object BooleanEqualityOpMembers {
     }
 }
 
-object CharEqualityOpMembers {
+internal object CharEqualityOpMembers {
     val equals = pluginEquals()
     val notEquals = pluginNotEquals()
 
@@ -300,7 +300,7 @@ object CharEqualityOpMembers {
     }
 }
 
-object ValueLogicalOpMembers {
+internal object ValueLogicalOpMembers {
     val and = pluginAnd()
     val or = pluginOr()
     val not = pluginNot()

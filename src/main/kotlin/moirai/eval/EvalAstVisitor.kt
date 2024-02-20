@@ -5,12 +5,12 @@ import moirai.semantics.infer.Substitution
 import moirai.semantics.infer.SubstitutionChain
 import moirai.semantics.prelude.Lang
 
-data class EvalContext(val values: ValueTable, val substitutions: Map<TypeParameter, Type>)
+internal data class EvalContext(val values: ValueTable, val substitutions: Map<TypeParameter, Type>)
 
-class EvalAstVisitor(architecture: Architecture, private val globalScope: ValueTable) : ParameterizedAstVisitor<EvalContext, Value> {
+internal class EvalAstVisitor(architecture: Architecture, private val globalScope: ValueTable) : ParameterizedAstVisitor<EvalContext, Value> {
     private val evalCostVisitor = EvalCostExpressionVisitor(architecture)
 
-    fun invoke(functionValue: FunctionValue, args: List<Value>, substitutions: Map<TypeParameter, Type>): Value {
+    private fun invoke(functionValue: FunctionValue, args: List<Value>, substitutions: Map<TypeParameter, Type>): Value {
         val functionScope = ValueTable(globalScope)
         functionValue.formalParams.zip(args).forEach {
             functionScope.define(it.first.identifier, it.second)

@@ -1,6 +1,6 @@
 package moirai.semantics.core
 
-interface AstVisitor<R> {
+internal interface AstVisitor<R> {
     fun visit(ast: IntLiteralAst): R
     fun visit(ast: DecimalLiteralAst): R
     fun visit(ast: BooleanLiteralAst): R
@@ -25,7 +25,7 @@ interface AstVisitor<R> {
     fun visit(ast: MatchAst): R
 }
 
-interface ParameterizedAstVisitor<P, R> {
+internal interface ParameterizedAstVisitor<P, R> {
     fun visit(ast: IntLiteralAst, param: P): R
     fun visit(ast: DecimalLiteralAst, param: P): R
     fun visit(ast: BooleanLiteralAst, param: P): R

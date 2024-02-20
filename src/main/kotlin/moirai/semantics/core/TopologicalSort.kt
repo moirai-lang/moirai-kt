@@ -1,19 +1,19 @@
 package moirai.semantics.core
 
-data class DependencyEdge<T>(val processFirst: T, val processSecond: T)
+internal data class DependencyEdge<T>(val processFirst: T, val processSecond: T)
 
-sealed class Either<out A, out B>
+internal sealed class Either<out A, out B>
 
-data class Left<out A>(val value: A) : Either<A, Nothing>()
-data class Right<out B>(val value: B) : Either<Nothing, B>()
+internal data class Left<out A>(val value: A) : Either<A, Nothing>()
+internal data class Right<out B>(val value: B) : Either<Nothing, B>()
 
-data class SortResult<T>(
+internal data class SortResult<T>(
     val edges: Set<DependencyEdge<T>>,
     val nodes: Set<T>,
     val sorted: List<T>
 )
 
-fun <T> topologicalSort(nodes: Set<T>, edges: Set<DependencyEdge<T>>): Either<Set<T>, List<T>> {
+internal fun <T> topologicalSort(nodes: Set<T>, edges: Set<DependencyEdge<T>>): Either<Set<T>, List<T>> {
     data class EdgeCount<T>(val node: T, var count: Int)
 
     val edgeCounts: MutableMap<T, EdgeCount<T>> = HashMap()

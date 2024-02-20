@@ -7,7 +7,7 @@ import moirai.semantics.infer.instantiatePlatformSumRecord
 import moirai.semantics.infer.instantiateRecord
 import moirai.semantics.prelude.Lang
 
-class PropagateTypesAstVisitor(
+internal class PropagateTypesAstVisitor(
     private val preludeTable: Scope
 ) : UnitAstVisitor() {
     private fun groundApply(ast: GroundApplyAst, signifier: Signifier, args: List<Ast>, scope: Scope) {

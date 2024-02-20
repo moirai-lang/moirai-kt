@@ -3,7 +3,7 @@ package moirai.semantics.visitors
 import moirai.semantics.core.*
 
 // Omit FileAst, root scope created in earlier phases
-class BindScopesAstVisitor(
+internal class BindScopesAstVisitor(
     val architecture: Architecture,
     val fileName: String
 ) :

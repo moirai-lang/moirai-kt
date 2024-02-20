@@ -2,7 +2,7 @@ package moirai.semantics.infer
 
 import moirai.semantics.core.*
 
-class DictionaryInstantiation(private val pairTypeSymbol: ParameterizedRecordType) :
+internal class DictionaryInstantiation(private val pairTypeSymbol: ParameterizedRecordType) :
     SingleTypeInstantiation<TerminusType, TypeInstantiation> {
     override fun apply(
         ctx: SourceContext,
@@ -90,7 +90,7 @@ class DictionaryInstantiation(private val pairTypeSymbol: ParameterizedRecordTyp
     }
 }
 
-class MutableDictionaryInstantiation(private val pairTypeSymbol: ParameterizedRecordType) :
+internal class MutableDictionaryInstantiation(private val pairTypeSymbol: ParameterizedRecordType) :
     SingleTypeInstantiation<TerminusType, TypeInstantiation> {
     override fun apply(
         ctx: SourceContext,

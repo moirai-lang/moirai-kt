@@ -10,31 +10,13 @@ import moirai.eval.*
 
 object TestArchitecture : Architecture {
     override val defaultNodeCost: Long = (1).toLong()
-    override val distributedPluginCost: Long = (1000).toLong()
     override val costUpperLimit: Long = (5000).toLong()
 }
 
 
 object LargeComputationArchitecture : Architecture {
     override val defaultNodeCost: Long = (1).toLong()
-    override val distributedPluginCost: Long = (1000).toLong()
     override val costUpperLimit: Long = (100000000).toLong()
-}
-
-fun eval(
-    source: String,
-    architecture: Architecture,
-    sourceStore: SourceStore
-): Value {
-    val frontend = CompilerFrontend(architecture, sourceStore)
-
-    val executionArtifacts = frontend.compile(source)
-
-    val globalScope = ValueTable(NullValueTable)
-    val evalVisitor = EvalAstVisitor(architecture, globalScope)
-
-    val executionScope = ValueTable(globalScope)
-    return executionArtifacts.processedAst.accept(evalVisitor, EvalContext(executionScope, mapOf()))
 }
 
 fun testEval(

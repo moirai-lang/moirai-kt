@@ -7,7 +7,7 @@ import moirai.semantics.core.LanguageErrors
 import moirai.semantics.core.SelfImport
 import moirai.semantics.core.SourceContext
 
-data class ImportStat(val path: List<String>)
+internal data class ImportStat(val path: List<String>)
 
 internal class ImportsParseTreeListener(val errors: LanguageErrors) :
     MoiraiParserBaseListener() {

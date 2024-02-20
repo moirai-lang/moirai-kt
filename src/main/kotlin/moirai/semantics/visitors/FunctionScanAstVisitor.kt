@@ -2,7 +2,7 @@ package moirai.semantics.visitors
 
 import moirai.semantics.core.*
 
-class FunctionScanAstVisitor : UnitAstVisitor() {
+internal class FunctionScanAstVisitor : UnitAstVisitor() {
     override fun visit(ast: FunctionAst) {
         try {
             if (ast.typeParams.isEmpty()) {

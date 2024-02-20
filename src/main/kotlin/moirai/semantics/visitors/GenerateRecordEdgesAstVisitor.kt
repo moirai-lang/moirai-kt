@@ -2,7 +2,7 @@ package moirai.semantics.visitors
 
 import moirai.semantics.core.*
 
-fun addRecordEdge(
+internal fun addRecordEdge(
     processFirst: Type,
     processSecond: Type,
     edges: MutableSet<DependencyEdge<Type>>,
@@ -13,7 +13,7 @@ fun addRecordEdge(
     edges.add(DependencyEdge(processFirst, processSecond))
 }
 
-class GenerateRecordEdgesAstVisitor : UnitAstVisitor() {
+internal class GenerateRecordEdgesAstVisitor : UnitAstVisitor() {
     val edges: MutableSet<DependencyEdge<Type>> = HashSet()
     val nodes: MutableSet<Type> = HashSet()
 

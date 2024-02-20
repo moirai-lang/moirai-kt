@@ -2,7 +2,7 @@ package moirai.semantics.visitors
 
 import moirai.semantics.core.*
 
-open class UnitAstVisitor : AstVisitor<Unit> {
+internal open class UnitAstVisitor : AstVisitor<Unit> {
     val errors = LanguageErrors()
     override fun visit(ast: IntLiteralAst) = Unit
 
@@ -95,7 +95,7 @@ open class UnitAstVisitor : AstVisitor<Unit> {
     }
 }
 
-open class ParameterizedUnitAstVisitor<P> : ParameterizedAstVisitor<P, Unit> {
+internal open class ParameterizedUnitAstVisitor<P> : ParameterizedAstVisitor<P, Unit> {
     val errors = LanguageErrors()
     override fun visit(ast: IntLiteralAst, param: P) = Unit
 

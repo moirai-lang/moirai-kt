@@ -2,7 +2,7 @@ package moirai.semantics.visitors
 
 import moirai.semantics.core.*
 
-class FinDebuggerAstVisitor(val architecture: Architecture) : UnitAstVisitor() {
+internal class FinDebuggerAstVisitor(val architecture: Architecture) : UnitAstVisitor() {
     private fun testNode(ast: Ast) {
         val cost = ast.costExpression.accept(EvalCostExpressionVisitor(architecture))
         if (cost > architecture.costUpperLimit) {

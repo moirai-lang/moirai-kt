@@ -2,7 +2,7 @@ package moirai.semantics.prelude
 
 import moirai.semantics.core.*
 
-object StringTypes {
+internal object StringTypes {
     private val sizeId = Identifier(NotInSource, CollectionFields.Size.idStr)
     val sizeFieldSymbol = PlatformFieldSymbol(
         Lang.stringType,

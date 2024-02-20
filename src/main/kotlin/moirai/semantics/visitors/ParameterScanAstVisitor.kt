@@ -2,12 +2,12 @@ package moirai.semantics.visitors
 
 import moirai.semantics.core.*
 
-sealed class RecordMode
+internal sealed class RecordMode
 
-data class EnumRecord(val enumGid: Identifier) : RecordMode()
-data object RecordDef : RecordMode()
+internal data class EnumRecord(val enumGid: Identifier) : RecordMode()
+internal data object RecordDef : RecordMode()
 
-class ParameterScanAstVisitor(private val fileName: String) : UnitAstVisitor() {
+internal class ParameterScanAstVisitor(private val fileName: String) : UnitAstVisitor() {
     private fun qualifiedName(parentId: Identifier, id: Identifier): String =
         "${fileName}.${parentId.name}.${id.name}"
 

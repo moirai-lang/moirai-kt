@@ -2,7 +2,7 @@ package moirai.semantics.core
 
 import moirai.semantics.infer.Substitution
 
-interface Scope {
+internal interface Scope {
     fun define(identifier: Identifier, definition: Symbol)
     fun exists(signifier: Signifier): Boolean
     fun existsHere(signifier: Signifier): Boolean
@@ -15,7 +15,7 @@ interface Scope {
     fun fetchTypeHere(signifier: Signifier): Type
 }
 
-object NullSymbolTable : Scope {
+internal object NullSymbolTable : Scope {
     override fun define(identifier: Identifier, definition: Symbol) {
         langThrow(identifier.ctx, IdentifierCouldNotBeDefined(identifier))
     }
@@ -49,7 +49,7 @@ object NullSymbolTable : Scope {
     }
 }
 
-class SymbolTable(private val parent: Scope) : Scope {
+internal class SymbolTable(private val parent: Scope) : Scope {
     private val symbolTable: MutableMap<String, Symbol> = HashMap()
     private val typeTable: MutableMap<String, Type> = HashMap()
 

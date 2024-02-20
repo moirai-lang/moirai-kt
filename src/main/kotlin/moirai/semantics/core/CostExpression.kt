@@ -2,11 +2,11 @@ package moirai.semantics.core
 
 import kotlin.math.sqrt
 
-sealed interface CostExpression : Type {
+internal sealed interface CostExpression : Type {
     fun <R> accept(visitor: CostExpressionVisitor<R>): R
 }
 
-interface CostExpressionVisitor<R> {
+internal interface CostExpressionVisitor<R> {
     fun visit(costExpression: FinTypeParameter): R
     fun visit(costExpression: Fin): R
     fun visit(costExpression: ConstantFin): R
@@ -15,7 +15,7 @@ interface CostExpressionVisitor<R> {
     fun visit(costExpression: MaxCostExpression): R
 }
 
-class EvalCostExpressionVisitor(val architecture: Architecture): CostExpressionVisitor<Long> {
+internal class EvalCostExpressionVisitor(val architecture: Architecture): CostExpressionVisitor<Long> {
     init {
         if(architecture.costUpperLimit > sqrt(Long.MAX_VALUE.toDouble()).toLong() - 2) {
             langThrow(InvalidCostUpperLimit)
@@ -96,12 +96,12 @@ class EvalCostExpressionVisitor(val architecture: Architecture): CostExpressionV
 
 }
 
-object CommonCostExpressions {
+internal object CommonCostExpressions {
     val defaultMultiplier = Fin(1L)
     val twoPass = Fin(2L)
 }
 
-object CanEvalCostExpressionVisitor: CostExpressionVisitor<Boolean> {
+internal object CanEvalCostExpressionVisitor: CostExpressionVisitor<Boolean> {
     override fun visit(costExpression: FinTypeParameter): Boolean {
         return false
     }

@@ -5,7 +5,7 @@ import moirai.semantics.infer.DualFinPluginInstantiation
 import moirai.semantics.infer.SingleParentArgInstantiation
 import moirai.semantics.infer.Substitution
 
-object StringOpMembers {
+internal object StringOpMembers {
     val toCharArray = pluginToCharArray()
     val add = pluginAdd()
     val equals = pluginEquals()

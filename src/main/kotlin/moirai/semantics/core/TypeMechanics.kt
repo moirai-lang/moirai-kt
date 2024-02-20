@@ -3,7 +3,7 @@ package moirai.semantics.core
 import moirai.semantics.infer.Substitution
 import moirai.semantics.prelude.Lang
 
-fun filterValidTypes(ctx: SourceContext, errors: LanguageErrors, type: Type): Type =
+internal fun filterValidTypes(ctx: SourceContext, errors: LanguageErrors, type: Type): Type =
     when (type) {
         ErrorType,
         is GroundRecordType,
@@ -44,7 +44,7 @@ fun filterValidTypes(ctx: SourceContext, errors: LanguageErrors, type: Type): Ty
         }
     }
 
-fun filterValidGroundApply(
+internal fun filterValidGroundApply(
     ctx: SourceContext,
     errors: LanguageErrors,
     symbol: Symbol,
@@ -86,7 +86,7 @@ fun filterValidGroundApply(
         }
     }
 
-fun filterValidGroundApply(
+internal fun filterValidGroundApply(
     ctx: SourceContext,
     errors: LanguageErrors,
     type: Type,
@@ -134,7 +134,7 @@ fun filterValidGroundApply(
         }
     }
 
-fun filterValidDotApply(
+internal fun filterValidDotApply(
     ctx: SourceContext,
     errors: LanguageErrors,
     symbol: Symbol,
@@ -176,7 +176,7 @@ fun filterValidDotApply(
         }
     }
 
-fun getQualifiedName(type: Type): String {
+internal fun getQualifiedName(type: Type): String {
     return when (type) {
         is GroundRecordType -> {
             type.qualifiedName
@@ -254,7 +254,7 @@ fun getQualifiedName(type: Type): String {
     }
 }
 
-fun checkTypes(
+internal fun checkTypes(
     ctx: SourceContext,
     prelude: Scope,
     errors: LanguageErrors,
@@ -387,7 +387,7 @@ fun checkTypes(
     }
 }
 
-fun checkTypes(
+internal fun checkTypes(
     ctx: SourceContext,
     prelude: Scope,
     errors: LanguageErrors,
@@ -403,7 +403,7 @@ fun checkTypes(
     }
 }
 
-fun checkApply(prelude: Scope, errors: LanguageErrors, ast: DotApplyAst) {
+internal fun checkApply(prelude: Scope, errors: LanguageErrors, ast: DotApplyAst) {
     when (val dotApplySlot = ast.dotApplySlot) {
         is DotApplySlotGF -> {
             checkArgs(prelude, errors, dotApplySlot.payload.type(), ast, ast.args)
@@ -452,7 +452,7 @@ fun checkApply(prelude: Scope, errors: LanguageErrors, ast: DotApplyAst) {
     }
 }
 
-fun checkApply(prelude: Scope, errors: LanguageErrors, ast: GroundApplyAst, args: List<Ast>) {
+internal fun checkApply(prelude: Scope, errors: LanguageErrors, ast: GroundApplyAst, args: List<Ast>) {
     when (val groundApplySlot = ast.groundApplySlot) {
         GroundApplySlotError -> langThrow(NotInSource, TypeSystemBug)
         is GroundApplySlotFormal -> {
@@ -532,7 +532,7 @@ fun checkApply(prelude: Scope, errors: LanguageErrors, ast: GroundApplyAst, args
     }
 }
 
-fun checkArgs(prelude: Scope, errors: LanguageErrors, type: FunctionType, ast: Ast, args: List<Ast>) {
+internal fun checkArgs(prelude: Scope, errors: LanguageErrors, type: FunctionType, ast: Ast, args: List<Ast>) {
     if (type.formalParamTypes.size != args.size) {
         errors.add(ast.ctx, IncorrectNumberOfArgs(type.formalParamTypes.size, args.size))
     } else {
@@ -543,7 +543,7 @@ fun checkArgs(prelude: Scope, errors: LanguageErrors, type: FunctionType, ast: A
     }
 }
 
-fun checkArgs(prelude: Scope, errors: LanguageErrors, type: GroundRecordType, ast: Ast, args: List<Ast>) {
+internal fun checkArgs(prelude: Scope, errors: LanguageErrors, type: GroundRecordType, ast: Ast, args: List<Ast>) {
     if (type.fields.size != args.size) {
         errors.add(ast.ctx, IncorrectNumberOfArgs(type.fields.size, args.size))
     } else {
@@ -553,7 +553,7 @@ fun checkArgs(prelude: Scope, errors: LanguageErrors, type: GroundRecordType, as
     }
 }
 
-fun checkFields(
+internal fun checkFields(
     prelude: Scope,
     errors: LanguageErrors,
     instantiation: TypeInstantiation,
@@ -571,7 +571,7 @@ fun checkFields(
     }
 }
 
-fun checkArgs(
+internal fun checkArgs(
     prelude: Scope,
     errors: LanguageErrors,
     instantiation: TypeInstantiation,
@@ -617,7 +617,7 @@ private fun <T> transpose(table: List<List<T>>): List<List<T>> {
     return res
 }
 
-fun findBestType(ctx: SourceContext, errors: LanguageErrors, types: List<Type>): Type {
+internal fun findBestType(ctx: SourceContext, errors: LanguageErrors, types: List<Type>): Type {
     if (types.isEmpty()) {
         errors.add(ctx, TypeSystemBug)
         return ErrorType
@@ -839,7 +839,7 @@ private fun isCorrectSumRecord(
 ): Boolean = it is TypeInstantiation && it.substitutionChain.terminus is PlatformSumRecordType &&
         sumPath == getQualifiedName(it.substitutionChain.terminus.sumType)
 
-fun validateSubstitution(
+internal fun validateSubstitution(
     ctx: SourceContext,
     errors: LanguageErrors,
     typeParameter: TypeParameter,
