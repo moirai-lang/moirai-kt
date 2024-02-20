@@ -9,16 +9,16 @@ internal class CompilerFrontend(
 ) {
     private fun fetchOrAdd(
         executionCache: ExecutionCache,
-        scriptType: NamedScriptBase,
+        nameParts: List<String>,
         contents: String
-    ) = when (val res = executionCache.fetchExecutionArtifacts(scriptType.nameParts)) {
+    ) = when (val res = executionCache.fetchExecutionArtifacts(nameParts)) {
         is InCache -> {
             res.executionArtifacts
         }
 
         NotInCache -> {
             val ea = fullCompileWithTopologicalSort(contents)
-            executionCache.storeExecutionArtifacts(scriptType.nameParts, ea)
+            executionCache.storeExecutionArtifacts(nameParts, ea)
             ea
         }
     }
@@ -59,11 +59,13 @@ internal class CompilerFrontend(
             }
 
             is NamedScript -> {
-                fetchOrAdd(executionCache, initialScan.scriptType, contents)
+                executionCache.invalidateCache(initialScan.scriptType.nameParts)
+                fetchOrAdd(executionCache, initialScan.scriptType.nameParts, contents)
             }
 
             is TransientScript -> {
-                val imported = fetchOrAdd(executionCache, initialScan.scriptType, contents)
+                val importContents = sourceStore.fetchSourceText(initialScan.imports.first().path)
+                val imported = fetchOrAdd(executionCache, initialScan.scriptType.nameParts, importContents)
                 quickCompile(initialScan, errors, listOf(imported.semanticArtifacts))
             }
         }
