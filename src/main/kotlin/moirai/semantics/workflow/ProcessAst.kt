@@ -46,7 +46,7 @@ internal fun topologicallySortAllArtifacts(
     when (val sortedRecords = topologicalSort(allRecordNodes, allRecordEdges)) {
         is Left -> {
             sortedRecords.value.forEach {
-                errors.add(NotInSource, RecursiveRecordDetected(it))
+                errors.add(NotInSource, RecursiveRecordDetected(toError(it)))
             }
 
         }
@@ -56,7 +56,7 @@ internal fun topologicallySortAllArtifacts(
     when (val sortedFunctions = topologicalSort(allFunctionNodes, allFunctionEdges)) {
         is Left -> {
             sortedFunctions.value.forEach {
-                errors.add(NotInSource, RecursiveFunctionDetected(it))
+                errors.add(NotInSource, RecursiveFunctionDetected(toError(it)))
             }
 
         }

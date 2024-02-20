@@ -32,7 +32,7 @@ internal fun simpleRecursiveRecordDetection(ast: FileAst): SortResult<Type> {
         is Left -> {
             val errors = LanguageErrors()
             sorted.value.forEach {
-                errors.add(NotInSource, RecursiveRecordDetected(it))
+                errors.add(NotInSource, RecursiveRecordDetected(toError(it)))
             }
             filterThrow(errors.toSet())
         }
@@ -107,7 +107,7 @@ internal fun sortFunctions(ast: FileAst): SortResult<Symbol> {
         is Left -> {
             val errors = LanguageErrors()
             sorted.value.forEach {
-                errors.add(NotInSource, RecursiveFunctionDetected(it))
+                errors.add(NotInSource, RecursiveFunctionDetected(toError(it)))
             }
             filterThrow(errors.toSet())
         }
