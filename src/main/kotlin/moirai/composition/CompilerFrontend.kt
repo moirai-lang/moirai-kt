@@ -3,13 +3,6 @@ package moirai.composition
 import moirai.semantics.core.*
 import moirai.semantics.workflow.*
 
-data class ExecutionArtifacts(
-    val importScan: ImportScan,
-) {
-    internal lateinit var processedAst: Ast
-    internal lateinit var semanticArtifacts: SemanticArtifacts
-}
-
 internal class CompilerFrontend(
     private val architecture: Architecture,
     private val sourceStore: SourceStore

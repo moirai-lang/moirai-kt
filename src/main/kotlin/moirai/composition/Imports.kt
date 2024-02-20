@@ -1,19 +1,10 @@
 package moirai.composition
 
-import moirai.grammar.MoiraiParser
 import moirai.semantics.core.*
 import org.antlr.v4.runtime.tree.ParseTreeWalker
 import java.util.*
 import kotlin.collections.HashMap
 import kotlin.collections.HashSet
-
-data class ImportScan(
-    val sourceText: String,
-    val scriptType: ScriptType
-) {
-    internal lateinit var parseTree: MoiraiParser.FileContext
-    internal lateinit var imports: Set<ImportStat>
-}
 
 internal fun preScanFile(sourceText: String): ImportScan {
     val parser = createParser(sourceText)
