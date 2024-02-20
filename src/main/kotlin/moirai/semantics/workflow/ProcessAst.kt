@@ -3,13 +3,13 @@ package moirai.semantics.workflow
 import moirai.semantics.core.*
 import moirai.semantics.prelude.Lang
 
-data class UserScopes(
+internal data class UserScopes(
     val prelude: SymbolTable,
     val imports: SymbolTable,
     val exports: SymbolTable
 )
 
-data class SemanticArtifacts(
+internal data class SemanticArtifacts(
     val processedAst: FileAst,
     val userScopes: UserScopes,
     val file: Scope,
@@ -17,13 +17,13 @@ data class SemanticArtifacts(
     val sortedFunctions: SortResult<Symbol>
 )
 
-fun createUserScopes(): UserScopes {
+internal fun createUserScopes(): UserScopes {
     val imports = SymbolTable(Lang.prelude)
     val userRoot = SymbolTable(imports)
     return UserScopes(Lang.prelude, imports, userRoot)
 }
 
-fun topologicallySortAllArtifacts(
+internal fun topologicallySortAllArtifacts(
     semanticArtifacts: SemanticArtifacts,
     existingArtifacts: List<SemanticArtifacts>
 ) {
@@ -46,7 +46,7 @@ fun topologicallySortAllArtifacts(
     when (val sortedRecords = topologicalSort(allRecordNodes, allRecordEdges)) {
         is Left -> {
             sortedRecords.value.forEach {
-                errors.add(NotInSource, RecursiveRecordDetected(it))
+                errors.add(NotInSource, RecursiveRecordDetected(toError(it)))
             }
 
         }
@@ -56,7 +56,7 @@ fun topologicallySortAllArtifacts(
     when (val sortedFunctions = topologicalSort(allFunctionNodes, allFunctionEdges)) {
         is Left -> {
             sortedFunctions.value.forEach {
-                errors.add(NotInSource, RecursiveFunctionDetected(it))
+                errors.add(NotInSource, RecursiveFunctionDetected(toError(it)))
             }
 
         }
@@ -68,7 +68,7 @@ fun topologicallySortAllArtifacts(
     }
 }
 
-fun processAstAllPhases(
+internal fun processAstAllPhases(
     ast: FileAst,
     fileName: String,
     architecture: Architecture,

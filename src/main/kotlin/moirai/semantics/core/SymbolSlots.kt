@@ -1,45 +1,45 @@
 package moirai.semantics.core
 
-sealed class RefAstSymbolSlot
+internal sealed class RefAstSymbolSlot
 
-data object RefSlotError: RefAstSymbolSlot()
-data class RefSlotObject(val payload: ObjectType): RefAstSymbolSlot()
-data class RefSlotPlatformObject(val payload: PlatformObjectType): RefAstSymbolSlot()
-data class RefSlotSumObject(val payload: PlatformSumObjectType): RefAstSymbolSlot()
-data class RefSlotSTP(val payload: StandardTypeParameter): RefAstSymbolSlot()
-data class RefSlotLVS(val payload: LocalVariableSymbol): RefAstSymbolSlot()
-data class RefSlotFormal(val payload: FunctionFormalParameterSymbol): RefAstSymbolSlot()
-data class RefSlotField(val payload: FieldSymbol): RefAstSymbolSlot()
+internal data object RefSlotError: RefAstSymbolSlot()
+internal data class RefSlotObject(val payload: ObjectType): RefAstSymbolSlot()
+internal data class RefSlotPlatformObject(val payload: PlatformObjectType): RefAstSymbolSlot()
+internal data class RefSlotSumObject(val payload: PlatformSumObjectType): RefAstSymbolSlot()
+internal data class RefSlotSTP(val payload: StandardTypeParameter): RefAstSymbolSlot()
+internal data class RefSlotLVS(val payload: LocalVariableSymbol): RefAstSymbolSlot()
+internal data class RefSlotFormal(val payload: FunctionFormalParameterSymbol): RefAstSymbolSlot()
+internal data class RefSlotField(val payload: FieldSymbol): RefAstSymbolSlot()
 
-sealed class AssignAstSymbolSlot
+internal sealed class AssignAstSymbolSlot
 
-data object AssignSlotError: AssignAstSymbolSlot()
-data class AssignSlotLVS(val payload: LocalVariableSymbol): AssignAstSymbolSlot()
+internal data object AssignSlotError: AssignAstSymbolSlot()
+internal data class AssignSlotLVS(val payload: LocalVariableSymbol): AssignAstSymbolSlot()
 
-sealed class DotAssignAstSymbolSlot
+internal sealed class DotAssignAstSymbolSlot
 
-data object DotAssignSlotError: DotAssignAstSymbolSlot()
-data class DotAssignSlotField(val payload: FieldSymbol): DotAssignAstSymbolSlot()
+internal data object DotAssignSlotError: DotAssignAstSymbolSlot()
+internal data class DotAssignSlotField(val payload: FieldSymbol): DotAssignAstSymbolSlot()
 
-sealed class DotAstSymbolSlot
+internal sealed class DotAstSymbolSlot
 
-data object DotSlotError: DotAstSymbolSlot()
-data class DotSlotField(val payload: FieldSymbol): DotAstSymbolSlot()
+internal data object DotSlotError: DotAstSymbolSlot()
+internal data class DotSlotField(val payload: FieldSymbol): DotAstSymbolSlot()
 
-data class DotSlotPlatformField(val payload: PlatformFieldSymbol): DotAstSymbolSlot()
+internal data class DotSlotPlatformField(val payload: PlatformFieldSymbol): DotAstSymbolSlot()
 
-sealed class DotApplyAstSymbolSlot
+internal sealed class DotApplyAstSymbolSlot
 
-data object DotApplySlotError: DotApplyAstSymbolSlot()
-data class DotApplySlotGF(val payload: GroundFunctionSymbol): DotApplyAstSymbolSlot()
-data class DotApplySlotGMP(val payload: GroundMemberPluginSymbol): DotApplyAstSymbolSlot()
-data class DotApplySlotSI(val payload: SymbolInstantiation): DotApplyAstSymbolSlot()
+internal data object DotApplySlotError: DotApplyAstSymbolSlot()
+internal data class DotApplySlotGF(val payload: GroundFunctionSymbol): DotApplyAstSymbolSlot()
+internal data class DotApplySlotGMP(val payload: GroundMemberPluginSymbol): DotApplyAstSymbolSlot()
+internal data class DotApplySlotSI(val payload: SymbolInstantiation): DotApplyAstSymbolSlot()
 
-sealed class GroundApplyAstSymbolSlot
+internal sealed class GroundApplyAstSymbolSlot
 
-data object GroundApplySlotError: GroundApplyAstSymbolSlot()
-data class GroundApplySlotGF(val payload: GroundFunctionSymbol): GroundApplyAstSymbolSlot()
-data class GroundApplySlotSI(val payload: SymbolInstantiation): GroundApplyAstSymbolSlot()
-data class GroundApplySlotTI(val payload: TypeInstantiation): GroundApplyAstSymbolSlot()
-data class GroundApplySlotFormal(val payload: FunctionFormalParameterSymbol): GroundApplyAstSymbolSlot()
-data class GroundApplySlotGRT(val payload: GroundRecordType): GroundApplyAstSymbolSlot()
+internal data object GroundApplySlotError: GroundApplyAstSymbolSlot()
+internal data class GroundApplySlotGF(val payload: GroundFunctionSymbol): GroundApplyAstSymbolSlot()
+internal data class GroundApplySlotSI(val payload: SymbolInstantiation): GroundApplyAstSymbolSlot()
+internal data class GroundApplySlotTI(val payload: TypeInstantiation): GroundApplyAstSymbolSlot()
+internal data class GroundApplySlotFormal(val payload: FunctionFormalParameterSymbol): GroundApplyAstSymbolSlot()
+internal data class GroundApplySlotGRT(val payload: GroundRecordType): GroundApplyAstSymbolSlot()

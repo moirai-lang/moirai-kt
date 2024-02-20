@@ -1,6 +1,6 @@
 package moirai.semantics.prelude
 
-enum class BinaryOperator(val opStr: String, val idStr: String) {
+internal enum class BinaryOperator(val opStr: String, val idStr: String) {
     Add("+", "add"),
     Sub("-", "sub"),
     Mul("*", "mul"),
@@ -16,25 +16,25 @@ enum class BinaryOperator(val opStr: String, val idStr: String) {
     Or("||", "or")
 }
 
-enum class UnaryOperator(val idStr: String) {
+internal enum class UnaryOperator(val idStr: String) {
     Not("not"),
     Negate("negate")
 }
 
-enum class CollectionFields(val idStr: String) {
+internal enum class CollectionFields(val idStr: String) {
     Size("size")
 }
 
-enum class StringMethods(val idStr: String) {
+internal enum class StringMethods(val idStr: String) {
     ToCharArray("toCharList"),
     ToString("toString")
 }
 
-enum class DecimalMethods(val idStr: String) {
+internal enum class DecimalMethods(val idStr: String) {
     AscribeFin("ascribeFin")
 }
 
-enum class CollectionMethods(val idStr: String) {
+internal enum class CollectionMethods(val idStr: String) {
     IndexLookup("get"),
     KeyLookup("get"),
     Contains("contains"),

@@ -2,7 +2,7 @@ package moirai.semantics.infer
 
 import moirai.semantics.core.*
 
-class Substitution(
+internal class Substitution(
     inOrderParameters: List<TypeParameter>,
     inOrderTypeArgs: List<Type>
 ) {

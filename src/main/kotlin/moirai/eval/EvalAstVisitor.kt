@@ -5,12 +5,12 @@ import moirai.semantics.infer.Substitution
 import moirai.semantics.infer.SubstitutionChain
 import moirai.semantics.prelude.Lang
 
-data class EvalContext(val values: ValueTable, val substitutions: Map<TypeParameter, Type>)
+internal data class EvalContext(val values: ValueTable, val substitutions: Map<TypeParameter, Type>)
 
-class EvalAstVisitor(architecture: Architecture, private val globalScope: ValueTable) : ParameterizedAstVisitor<EvalContext, Value> {
+internal class EvalAstVisitor(architecture: Architecture, private val globalScope: ValueTable) : ParameterizedAstVisitor<EvalContext, Value> {
     private val evalCostVisitor = EvalCostExpressionVisitor(architecture)
 
-    fun invoke(functionValue: FunctionValue, args: List<Value>, substitutions: Map<TypeParameter, Type>): Value {
+    private fun invoke(functionValue: FunctionValue, args: List<Value>, substitutions: Map<TypeParameter, Type>): Value {
         val functionScope = ValueTable(globalScope)
         functionValue.formalParams.zip(args).forEach {
             functionScope.define(it.first.identifier, it.second)
@@ -67,8 +67,8 @@ class EvalAstVisitor(architecture: Architecture, private val globalScope: ValueT
 
     override fun visit(ast: RefAst, param: EvalContext): Value {
         return when (val refSlot = ast.refSlot) {
-            is RefSlotObject -> ObjectValue(refSlot.payload)
-            is RefSlotSumObject -> SumObjectValue(refSlot.payload)
+            is RefSlotObject -> ObjectValue(getQualifiedName(refSlot.payload))
+            is RefSlotSumObject -> SumObjectValue(getQualifiedName(refSlot.payload))
             is RefSlotPlatformObject -> if (refSlot.payload.identifier == Lang.unitId) {
                 UnitValue
             } else {
@@ -194,8 +194,10 @@ class EvalAstVisitor(architecture: Architecture, private val globalScope: ValueT
                 groundApplySlot.payload.fields.zip(args).forEach {
                     fields.define(it.first.identifier, it.second)
                 }
-                val res = RecordValue(groundApplySlot.payload, fields, mapOf())
+                val res = RecordValue(getQualifiedName(groundApplySlot.payload))
+                res.fields = fields
                 res.scope = groundApplySlot.payload
+                res.substitutions = mapOf()
                 res
             }
 
@@ -222,23 +224,25 @@ class EvalAstVisitor(architecture: Architecture, private val globalScope: ValueT
                             Lang.listId -> {
                                 val substitutions =
                                     createSubstitutions(param.substitutions, groundApplySlot.payload.substitutionChain)
-                                ListValue(
+                                val listRes = ListValue(
                                     args.toMutableList(),
-                                    substitutions,
                                     computeFin(Lang.listFinTypeParam, substitutions),
                                     false
                                 )
+                                listRes.substitutions = substitutions
+                                listRes
                             }
 
                             Lang.mutableListId -> {
                                 val substitutions =
                                     createSubstitutions(param.substitutions, groundApplySlot.payload.substitutionChain)
-                                ListValue(
+                                val listRes = ListValue(
                                     args.toMutableList(),
-                                    substitutions,
                                     computeFin(Lang.mutableListFinTypeParam, substitutions),
                                     true
                                 )
+                                listRes.substitutions = substitutions
+                                listRes
                             }
 
                             Lang.dictionaryId -> {
@@ -252,12 +256,13 @@ class EvalAstVisitor(architecture: Architecture, private val globalScope: ValueT
                                 }
                                 val substitutions =
                                     createSubstitutions(param.substitutions, groundApplySlot.payload.substitutionChain)
-                                DictionaryValue(
+                                val resDict = DictionaryValue(
                                     pairs.toMap().toMutableMap(),
-                                    substitutions,
                                     computeFin(Lang.dictionaryFinTypeParam, substitutions),
                                     false
                                 )
+                                resDict.substitutions = substitutions
+                                resDict
                             }
 
                             Lang.mutableDictionaryId -> {
@@ -271,34 +276,37 @@ class EvalAstVisitor(architecture: Architecture, private val globalScope: ValueT
                                 }
                                 val substitutions =
                                     createSubstitutions(param.substitutions, groundApplySlot.payload.substitutionChain)
-                                DictionaryValue(
+                                val resDict = DictionaryValue(
                                     pairs.toMap().toMutableMap(),
-                                    substitutions,
                                     computeFin(Lang.mutableDictionaryFinTypeParam, substitutions),
                                     true
                                 )
+                                resDict.substitutions = substitutions
+                                resDict
                             }
 
                             Lang.setId -> {
                                 val substitutions =
                                     createSubstitutions(param.substitutions, groundApplySlot.payload.substitutionChain)
-                                SetValue(
+                                val resSet = SetValue(
                                     args.toMutableSet(),
-                                    substitutions,
                                     computeFin(Lang.setFinTypeParam, substitutions),
                                     false
                                 )
+                                resSet.substitutions = substitutions
+                                resSet
                             }
 
                             Lang.mutableSetId -> {
                                 val substitutions =
                                     createSubstitutions(param.substitutions, groundApplySlot.payload.substitutionChain)
-                                SetValue(
+                                val resSet = SetValue(
                                     args.toMutableSet(),
-                                    substitutions,
                                     computeFin(Lang.mutableSetFinTypeParam, substitutions),
                                     true
                                 )
+                                resSet.substitutions = substitutions
+                                resSet
                             }
 
                             else -> langThrow(NotInSource, TypeSystemBug)
@@ -312,8 +320,10 @@ class EvalAstVisitor(architecture: Architecture, private val globalScope: ValueT
                         }
                         val substitutions =
                             createSubstitutions(param.substitutions, groundApplySlot.payload.substitutionChain)
-                        val res = RecordValue(groundApplySlot.payload, fields, substitutions)
+                        val res = RecordValue(getQualifiedName(groundApplySlot.payload))
+                        res.fields = fields
                         res.scope = terminus
+                        res.substitutions = substitutions
                         res
                     }
 
@@ -324,8 +334,11 @@ class EvalAstVisitor(architecture: Architecture, private val globalScope: ValueT
                         }
                         val substitutions =
                             createSubstitutions(param.substitutions, groundApplySlot.payload.substitutionChain)
-                        val res = SumRecordValue(groundApplySlot.payload, terminus, fields, substitutions)
+                        val res = SumRecordValue(getQualifiedName(terminus))
+                        res.fields = fields
                         res.scope = terminus
+                        res.instantiation = groundApplySlot.payload
+                        res.substitutions = substitutions
                         res
                     }
 

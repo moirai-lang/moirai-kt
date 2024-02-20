@@ -2,7 +2,7 @@ package moirai.semantics.visitors
 
 import moirai.semantics.core.*
 
-class RecordScanAstVisitor : UnitAstVisitor() {
+internal class RecordScanAstVisitor : UnitAstVisitor() {
     private fun scanRecord(ast: RecordDefinitionAst) {
         if (ast.typeParams.isEmpty()) {
             val groundRecordType = ast.scope as GroundRecordType

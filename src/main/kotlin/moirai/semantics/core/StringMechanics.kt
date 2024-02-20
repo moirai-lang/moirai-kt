@@ -2,7 +2,7 @@ package moirai.semantics.core
 
 import moirai.semantics.prelude.StringMethods
 
-fun isValidStringType(type: Type): Boolean =
+internal fun isValidStringType(type: Type): Boolean =
     when (type) {
         is ObjectType -> {
             false
@@ -24,7 +24,7 @@ fun isValidStringType(type: Type): Boolean =
         else -> false
     }
 
-fun costExpressionFromValidStringType(type: Type): CostExpression {
+internal fun costExpressionFromValidStringType(type: Type): CostExpression {
     val member = when (type) {
         is PlatformObjectType -> {
             type.fetchHere(Identifier(NotInSource, StringMethods.ToString.idStr))

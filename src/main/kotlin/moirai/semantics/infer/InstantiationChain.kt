@@ -5,16 +5,16 @@ import moirai.semantics.core.FunctionType
 import moirai.semantics.core.RawTerminus
 import moirai.semantics.core.Type
 
-sealed class InstantiationChain<T: RawTerminus> {
+internal sealed class InstantiationChain<T: RawTerminus> {
     abstract val terminus: T
     abstract fun toList(): List<Substitution>
 }
 
-data class TerminalChain<T: RawTerminus>(override val terminus: T) : InstantiationChain<T>() {
+internal data class TerminalChain<T: RawTerminus>(override val terminus: T) : InstantiationChain<T>() {
     override fun toList(): List<Substitution> = listOf()
 }
 
-data class SubstitutionChain<T: RawTerminus>(val substitution: Substitution, val chain: InstantiationChain<T>) : InstantiationChain<T>() {
+internal data class SubstitutionChain<T: RawTerminus>(val substitution: Substitution, val chain: InstantiationChain<T>) : InstantiationChain<T>() {
     override val terminus: T = chain.terminus
     override fun toList(): List<Substitution> {
         val res = chain.toList().toMutableList()

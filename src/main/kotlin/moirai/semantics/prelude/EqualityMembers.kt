@@ -5,7 +5,7 @@ import moirai.semantics.infer.DoubleParentSingleFinPluginInstantiation
 import moirai.semantics.infer.Substitution
 import moirai.semantics.infer.TripleParentSingleFinPluginInstantiation
 
-object EqualityMembers {
+internal object EqualityMembers {
     val listEquals = createListEqualsMember()
     val listNotEquals = createListNotEqualsMember()
     val mutableListEquals = createMutableListEqualsMember()

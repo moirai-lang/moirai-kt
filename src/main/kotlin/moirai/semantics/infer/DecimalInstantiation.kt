@@ -2,7 +2,7 @@ package moirai.semantics.infer
 
 import moirai.semantics.core.*
 
-class DecimalInstantiation : SingleTypeInstantiation<TerminusType, TypeInstantiation> {
+internal class DecimalInstantiation : SingleTypeInstantiation<TerminusType, TypeInstantiation> {
     override fun apply(
         ctx: SourceContext,
         errors: LanguageErrors,
@@ -33,7 +33,7 @@ class DecimalInstantiation : SingleTypeInstantiation<TerminusType, TypeInstantia
                 inOrderParameters.forEach {
                     errors.add(
                         ctx,
-                        TypeInferenceFailed(it)
+                        TypeInferenceFailed(toError(it))
                     )
                 }
             }

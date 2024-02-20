@@ -3,7 +3,7 @@ package moirai.semantics.core
 import moirai.semantics.infer.Substitution
 import moirai.semantics.prelude.Lang
 
-fun filterValidTypes(ctx: SourceContext, errors: LanguageErrors, type: Type): Type =
+internal fun filterValidTypes(ctx: SourceContext, errors: LanguageErrors, type: Type): Type =
     when (type) {
         ErrorType,
         is GroundRecordType,
@@ -32,7 +32,7 @@ fun filterValidTypes(ctx: SourceContext, errors: LanguageErrors, type: Type): Ty
         is ParameterizedRecordType,
         is PlatformSumType,
         is PlatformSumRecordType -> {
-            errors.add(ctx, CannotUseRawType(type))
+            errors.add(ctx, CannotUseRawType(toError(type)))
             ErrorType
         }
 
@@ -44,7 +44,7 @@ fun filterValidTypes(ctx: SourceContext, errors: LanguageErrors, type: Type): Ty
         }
     }
 
-fun filterValidGroundApply(
+internal fun filterValidGroundApply(
     ctx: SourceContext,
     errors: LanguageErrors,
     symbol: Symbol,
@@ -67,7 +67,7 @@ fun filterValidGroundApply(
                 }
 
                 else -> {
-                    errors.add(ctx, SymbolCouldNotBeApplied(signifier))
+                    errors.add(ctx, SymbolCouldNotBeApplied(toError(signifier)))
                     ErrorSymbol
                 }
             }
@@ -81,12 +81,12 @@ fun filterValidGroundApply(
         is PlatformFieldSymbol,
         is LambdaSymbol,
         is LocalVariableSymbol -> {
-            errors.add(ctx, SymbolCouldNotBeApplied(signifier))
+            errors.add(ctx, SymbolCouldNotBeApplied(toError(signifier)))
             ErrorSymbol
         }
     }
 
-fun filterValidGroundApply(
+internal fun filterValidGroundApply(
     ctx: SourceContext,
     errors: LanguageErrors,
     type: Type,
@@ -110,7 +110,7 @@ fun filterValidGroundApply(
                     type
                 }
                 is PlatformSumType -> {
-                    errors.add(ctx, SymbolCouldNotBeApplied(signifier))
+                    errors.add(ctx, SymbolCouldNotBeApplied(toError(signifier)))
                     ErrorType
                 }
             }
@@ -129,12 +129,12 @@ fun filterValidGroundApply(
         is SumCostExpression,
         is ProductCostExpression,
         is MaxCostExpression -> {
-            errors.add(ctx, SymbolCouldNotBeApplied(signifier))
+            errors.add(ctx, SymbolCouldNotBeApplied(toError(signifier)))
             ErrorType
         }
     }
 
-fun filterValidDotApply(
+internal fun filterValidDotApply(
     ctx: SourceContext,
     errors: LanguageErrors,
     symbol: Symbol,
@@ -155,7 +155,7 @@ fun filterValidDotApply(
 
                 is ParameterizedStaticPluginSymbol,
                 is ParameterizedFunctionSymbol -> {
-                    errors.add(ctx, SymbolCouldNotBeApplied(signifier))
+                    errors.add(ctx, SymbolCouldNotBeApplied(toError(signifier)))
                     ErrorSymbol
                 }
             }
@@ -171,12 +171,12 @@ fun filterValidDotApply(
         is LocalVariableSymbol,
         is ParameterizedStaticPluginSymbol,
         is ParameterizedFunctionSymbol -> {
-            errors.add(ctx, SymbolCouldNotBeApplied(signifier))
+            errors.add(ctx, SymbolCouldNotBeApplied(toError(signifier)))
             ErrorSymbol
         }
     }
 
-fun getQualifiedName(type: Type): String {
+internal fun getQualifiedName(type: Type): String {
     return when (type) {
         is GroundRecordType -> {
             type.qualifiedName
@@ -254,7 +254,7 @@ fun getQualifiedName(type: Type): String {
     }
 }
 
-fun checkTypes(
+internal fun checkTypes(
     ctx: SourceContext,
     prelude: Scope,
     errors: LanguageErrors,
@@ -268,11 +268,11 @@ fun checkTypes(
         }
 
         expected is FunctionType && actual !is FunctionType -> {
-            errors.add(ctx, TypeMismatch(expected, actual))
+            errors.add(ctx, TypeMismatch(toError(expected), toError(actual)))
         }
 
         expected !is FunctionType && actual is FunctionType -> {
-            errors.add(ctx, TypeMismatch(expected, actual))
+            errors.add(ctx, TypeMismatch(toError(expected), toError(actual)))
         }
 
         expected is Fin && actual is Fin -> {
@@ -348,7 +348,7 @@ fun checkTypes(
             val expectedPath = getQualifiedName(expected)
             val actualPath = getQualifiedName(actual.sumType)
             if (expectedPath != actualPath) {
-                errors.add(ctx, TypeMismatch(expected, actual))
+                errors.add(ctx, TypeMismatch(toError(expected), toError(actual)))
             }
         }
 
@@ -356,7 +356,7 @@ fun checkTypes(
             val expectedPath = getQualifiedName(expected.substitutionChain.terminus)
             val actualPath = getQualifiedName(actual.sumType)
             if (expectedPath != actualPath) {
-                errors.add(ctx, TypeMismatch(expected, actual))
+                errors.add(ctx, TypeMismatch(toError(expected), toError(actual)))
             }
         }
 
@@ -381,13 +381,13 @@ fun checkTypes(
             val expectedPath = getQualifiedName(expected)
             val actualPath = getQualifiedName(actual)
             if (expectedPath != actualPath) {
-                errors.add(ctx, TypeMismatch(expected, actual))
+                errors.add(ctx, TypeMismatch(toError(expected), toError(actual)))
             }
         }
     }
 }
 
-fun checkTypes(
+internal fun checkTypes(
     ctx: SourceContext,
     prelude: Scope,
     errors: LanguageErrors,
@@ -403,7 +403,7 @@ fun checkTypes(
     }
 }
 
-fun checkApply(prelude: Scope, errors: LanguageErrors, ast: DotApplyAst) {
+internal fun checkApply(prelude: Scope, errors: LanguageErrors, ast: DotApplyAst) {
     when (val dotApplySlot = ast.dotApplySlot) {
         is DotApplySlotGF -> {
             checkArgs(prelude, errors, dotApplySlot.payload.type(), ast, ast.args)
@@ -452,7 +452,7 @@ fun checkApply(prelude: Scope, errors: LanguageErrors, ast: DotApplyAst) {
     }
 }
 
-fun checkApply(prelude: Scope, errors: LanguageErrors, ast: GroundApplyAst, args: List<Ast>) {
+internal fun checkApply(prelude: Scope, errors: LanguageErrors, ast: GroundApplyAst, args: List<Ast>) {
     when (val groundApplySlot = ast.groundApplySlot) {
         GroundApplySlotError -> langThrow(NotInSource, TypeSystemBug)
         is GroundApplySlotFormal -> {
@@ -532,7 +532,7 @@ fun checkApply(prelude: Scope, errors: LanguageErrors, ast: GroundApplyAst, args
     }
 }
 
-fun checkArgs(prelude: Scope, errors: LanguageErrors, type: FunctionType, ast: Ast, args: List<Ast>) {
+internal fun checkArgs(prelude: Scope, errors: LanguageErrors, type: FunctionType, ast: Ast, args: List<Ast>) {
     if (type.formalParamTypes.size != args.size) {
         errors.add(ast.ctx, IncorrectNumberOfArgs(type.formalParamTypes.size, args.size))
     } else {
@@ -543,7 +543,7 @@ fun checkArgs(prelude: Scope, errors: LanguageErrors, type: FunctionType, ast: A
     }
 }
 
-fun checkArgs(prelude: Scope, errors: LanguageErrors, type: GroundRecordType, ast: Ast, args: List<Ast>) {
+internal fun checkArgs(prelude: Scope, errors: LanguageErrors, type: GroundRecordType, ast: Ast, args: List<Ast>) {
     if (type.fields.size != args.size) {
         errors.add(ast.ctx, IncorrectNumberOfArgs(type.fields.size, args.size))
     } else {
@@ -553,7 +553,7 @@ fun checkArgs(prelude: Scope, errors: LanguageErrors, type: GroundRecordType, as
     }
 }
 
-fun checkFields(
+internal fun checkFields(
     prelude: Scope,
     errors: LanguageErrors,
     instantiation: TypeInstantiation,
@@ -571,7 +571,7 @@ fun checkFields(
     }
 }
 
-fun checkArgs(
+internal fun checkArgs(
     prelude: Scope,
     errors: LanguageErrors,
     instantiation: TypeInstantiation,
@@ -617,7 +617,7 @@ private fun <T> transpose(table: List<List<T>>): List<List<T>> {
     return res
 }
 
-fun findBestType(ctx: SourceContext, errors: LanguageErrors, types: List<Type>): Type {
+internal fun findBestType(ctx: SourceContext, errors: LanguageErrors, types: List<Type>): Type {
     if (types.isEmpty()) {
         errors.add(ctx, TypeSystemBug)
         return ErrorType
@@ -631,7 +631,7 @@ fun findBestType(ctx: SourceContext, errors: LanguageErrors, types: List<Type>):
                 }
 
                 else -> {
-                    errors.add(ctx, CannotFindBestType(types))
+                    errors.add(ctx, CannotFindBestType(types.map { toError(it) }))
                     ErrorType
                 }
             }
@@ -645,7 +645,7 @@ fun findBestType(ctx: SourceContext, errors: LanguageErrors, types: List<Type>):
                 }
 
                 else -> {
-                    errors.add(ctx, CannotFindBestType(types))
+                    errors.add(ctx, CannotFindBestType(types.map { toError(it) }))
                     ErrorType
                 }
             }
@@ -659,7 +659,7 @@ fun findBestType(ctx: SourceContext, errors: LanguageErrors, types: List<Type>):
                 }
 
                 else -> {
-                    errors.add(ctx, CannotFindBestType(types))
+                    errors.add(ctx, CannotFindBestType(types.map { toError(it) }))
                     ErrorType
                 }
             }
@@ -689,7 +689,7 @@ fun findBestType(ctx: SourceContext, errors: LanguageErrors, types: List<Type>):
                         val substitution = Substitution(parameterizedType.typeParams, typeArgs)
                         substitution.apply(parameterizedType)
                     } else {
-                        errors.add(ctx, CannotFindBestType(types))
+                        errors.add(ctx, CannotFindBestType(types.map { toError(it) }))
                         ErrorType
                     }
                 }
@@ -710,7 +710,7 @@ fun findBestType(ctx: SourceContext, errors: LanguageErrors, types: List<Type>):
                         val substitution = Substitution(parameterizedType.typeParams, typeArgs)
                         substitution.apply(parameterizedType)
                     } else {
-                        errors.add(ctx, CannotFindBestType(types))
+                        errors.add(ctx, CannotFindBestType(types.map { toError(it) }))
                         ErrorType
                     }
                 }
@@ -721,7 +721,7 @@ fun findBestType(ctx: SourceContext, errors: LanguageErrors, types: List<Type>):
                             types.map { (it as CostExpression) }
                         )
                     } else {
-                        errors.add(ctx, CannotFindBestType(types))
+                        errors.add(ctx, CannotFindBestType(types.map { toError(it) }))
                         ErrorType
                     }
                 }
@@ -743,7 +743,7 @@ fun findBestType(ctx: SourceContext, errors: LanguageErrors, types: List<Type>):
             if (types.all { it is BasicType && firstPath == getQualifiedName(it) }) {
                 first
             } else {
-                errors.add(ctx, CannotFindBestType(types))
+                errors.add(ctx, CannotFindBestType(types.map { toError(it) }))
                 ErrorType
             }
         }
@@ -753,7 +753,7 @@ fun findBestType(ctx: SourceContext, errors: LanguageErrors, types: List<Type>):
             if (types.all { it is StandardTypeParameter && firstPath == getQualifiedName(it) }) {
                 first
             } else {
-                errors.add(ctx, CannotFindBestType(types))
+                errors.add(ctx, CannotFindBestType(types.map { toError(it) }))
                 ErrorType
             }
         }
@@ -762,7 +762,7 @@ fun findBestType(ctx: SourceContext, errors: LanguageErrors, types: List<Type>):
             if (types.all { it is Fin }) {
                 Fin(types.maxOf { (it as Fin).magnitude })
             } else {
-                errors.add(ctx, CannotFindBestType(types))
+                errors.add(ctx, CannotFindBestType(types.map { toError(it) }))
                 ErrorType
             }
         }
@@ -772,13 +772,13 @@ fun findBestType(ctx: SourceContext, errors: LanguageErrors, types: List<Type>):
             if (types.all { it is FinTypeParameter && firstPath == getQualifiedName(it) }) {
                 first
             } else {
-                errors.add(ctx, CannotFindBestType(types))
+                errors.add(ctx, CannotFindBestType(types.map { toError(it) }))
                 ErrorType
             }
         }
 
         else -> {
-            errors.add(ctx, CannotFindBestType(types))
+            errors.add(ctx, CannotFindBestType(types.map { toError(it) }))
             ErrorType
         }
     }
@@ -819,11 +819,11 @@ private fun handleSumType(
             val substitution = Substitution(sumType.typeParams, typeArgs)
             substitution.apply(sumType)
         } else {
-            errors.add(ctx, CannotFindBestType(types))
+            errors.add(ctx, CannotFindBestType(types.map { toError(it) }))
             ErrorType
         }
     } else {
-        errors.add(ctx, CannotFindBestType(types))
+        errors.add(ctx, CannotFindBestType(types.map { toError(it) }))
         ErrorType
     }
 }
@@ -839,7 +839,7 @@ private fun isCorrectSumRecord(
 ): Boolean = it is TypeInstantiation && it.substitutionChain.terminus is PlatformSumRecordType &&
         sumPath == getQualifiedName(it.substitutionChain.terminus.sumType)
 
-fun validateSubstitution(
+internal fun validateSubstitution(
     ctx: SourceContext,
     errors: LanguageErrors,
     typeParameter: TypeParameter,
@@ -853,36 +853,36 @@ fun validateSubstitution(
             is TypeInstantiation -> {
                 when (val parameterizedType = substitutedType.substitutionChain.terminus) {
                     is ParameterizedBasicType -> if (!parameterizedType.featureSupport.typeArg) {
-                        errors.add(ctx, TypeArgFeatureBan(substitutedType))
+                        errors.add(ctx, TypeArgFeatureBan(toError(substitutedType)))
                     }
 
                     is ParameterizedRecordType -> if (!parameterizedType.featureSupport.typeArg) {
-                        errors.add(ctx, TypeArgFeatureBan(substitutedType))
+                        errors.add(ctx, TypeArgFeatureBan(toError(substitutedType)))
                     }
 
                     is PlatformSumRecordType -> if (!parameterizedType.featureSupport.typeArg) {
-                        errors.add(ctx, TypeArgFeatureBan(substitutedType))
+                        errors.add(ctx, TypeArgFeatureBan(toError(substitutedType)))
                     }
 
                     is PlatformSumType -> if (!parameterizedType.featureSupport.typeArg) {
-                        errors.add(ctx, TypeArgFeatureBan(substitutedType))
+                        errors.add(ctx, TypeArgFeatureBan(toError(substitutedType)))
                     }
                 }
             }
             is ObjectType -> if (!substitutedType.featureSupport.typeArg) {
-                errors.add(ctx, TypeArgFeatureBan(substitutedType))
+                errors.add(ctx, TypeArgFeatureBan(toError(substitutedType)))
             }
             is PlatformObjectType -> if (!substitutedType.featureSupport.typeArg) {
-                errors.add(ctx, TypeArgFeatureBan(substitutedType))
+                errors.add(ctx, TypeArgFeatureBan(toError(substitutedType)))
             }
             is PlatformSumObjectType -> if (!substitutedType.featureSupport.typeArg) {
-                errors.add(ctx, TypeArgFeatureBan(substitutedType))
+                errors.add(ctx, TypeArgFeatureBan(toError(substitutedType)))
             }
-            else -> errors.add(ctx, InvalidStandardTypeSub(typeParameter, substitutedType))
+            else -> errors.add(ctx, InvalidStandardTypeSub(toError(typeParameter), toError(substitutedType)))
         }
         is FinTypeParameter -> when (substitutedType) {
             is CostExpression -> Unit
-            else -> errors.add(ctx, InvalidFinTypeSub(typeParameter, substitutedType))
+            else -> errors.add(ctx, InvalidFinTypeSub(toError(typeParameter), toError(substitutedType)))
         }
     }
 }

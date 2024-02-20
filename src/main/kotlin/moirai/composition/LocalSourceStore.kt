@@ -6,7 +6,7 @@ import moirai.semantics.core.langThrow
 /**
  * Can be used in tests and tools. Should not be used in the prod interpreter.
  */
-class LocalSourceStore : SourceStore {
+internal class LocalSourceStore : SourceStore {
     private val fileNamespace = listOf("local", "source")
     private val fileText = """
         artifact local.source

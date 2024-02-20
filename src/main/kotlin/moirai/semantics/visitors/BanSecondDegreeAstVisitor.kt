@@ -2,15 +2,15 @@ package moirai.semantics.visitors
 
 import moirai.semantics.core.*
 
-class BanSecondDegreeAstVisitor : UnitAstVisitor() {
+internal class BanSecondDegreeAstVisitor : UnitAstVisitor() {
     private fun checkForSecondDegree(ctx: SourceContext, identifier: Identifier, ofTypeSymbol: FunctionType) {
         if (ofTypeSymbol.returnType is FunctionType) {
-            errors.add(ctx, FunctionReturnType(identifier))
-            errors.add(ctx, SecondDegreeHigherOrderFunction(identifier))
+            errors.add(ctx, FunctionReturnType(toError(identifier)))
+            errors.add(ctx, SecondDegreeHigherOrderFunction(toError(identifier)))
         }
         ofTypeSymbol.formalParamTypes.forEach {
             if (it is FunctionType) {
-                errors.add(ctx, SecondDegreeHigherOrderFunction(identifier))
+                errors.add(ctx, SecondDegreeHigherOrderFunction(toError(identifier)))
             }
         }
     }

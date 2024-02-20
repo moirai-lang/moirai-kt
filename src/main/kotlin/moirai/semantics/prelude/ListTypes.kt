@@ -3,7 +3,7 @@ package moirai.semantics.prelude
 import moirai.semantics.core.*
 import moirai.semantics.infer.*
 
-object ListTypes {
+internal object ListTypes {
     val listGet = createGetFunction()
     val mutableListGet = createMutableListGetFunction()
     val mutableListAdd = createAddFunction()

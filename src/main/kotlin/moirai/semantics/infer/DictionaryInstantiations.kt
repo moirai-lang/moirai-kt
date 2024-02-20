@@ -2,7 +2,7 @@ package moirai.semantics.infer
 
 import moirai.semantics.core.*
 
-class DictionaryInstantiation(private val pairTypeSymbol: ParameterizedRecordType) :
+internal class DictionaryInstantiation(private val pairTypeSymbol: ParameterizedRecordType) :
     SingleTypeInstantiation<TerminusType, TypeInstantiation> {
     override fun apply(
         ctx: SourceContext,
@@ -15,7 +15,7 @@ class DictionaryInstantiation(private val pairTypeSymbol: ParameterizedRecordTyp
         args.forEach {
             val argType = it.readType()
             if (argType !is TypeInstantiation || argType.substitutionChain.terminus != pairTypeSymbol) {
-                errors.add(ctx, DictionaryArgsMustBePairs(argType))
+                errors.add(ctx, DictionaryArgsMustBePairs(toError(argType)))
             }
         }
         if (explicitTypeArgs.isNotEmpty()) {
@@ -73,7 +73,7 @@ class DictionaryInstantiation(private val pairTypeSymbol: ParameterizedRecordTyp
                     inOrderParameters.forEach {
                         errors.add(
                             ctx,
-                            TypeInferenceFailed(it)
+                            TypeInferenceFailed(toError(it))
                         )
                     }
                 }
@@ -81,7 +81,7 @@ class DictionaryInstantiation(private val pairTypeSymbol: ParameterizedRecordTyp
                 inOrderParameters.forEach {
                     errors.add(
                         ctx,
-                        TypeInferenceFailed(it)
+                        TypeInferenceFailed(toError(it))
                     )
                 }
             }
@@ -90,7 +90,7 @@ class DictionaryInstantiation(private val pairTypeSymbol: ParameterizedRecordTyp
     }
 }
 
-class MutableDictionaryInstantiation(private val pairTypeSymbol: ParameterizedRecordType) :
+internal class MutableDictionaryInstantiation(private val pairTypeSymbol: ParameterizedRecordType) :
     SingleTypeInstantiation<TerminusType, TypeInstantiation> {
     override fun apply(
         ctx: SourceContext,
@@ -103,7 +103,7 @@ class MutableDictionaryInstantiation(private val pairTypeSymbol: ParameterizedRe
         args.forEach {
             val argType = it.readType()
             if (argType !is TypeInstantiation || argType.substitutionChain.terminus != pairTypeSymbol) {
-                errors.add(ctx, DictionaryArgsMustBePairs(argType))
+                errors.add(ctx, DictionaryArgsMustBePairs(toError(argType)))
             }
         }
         if (explicitTypeArgs.isNotEmpty()) {
@@ -125,7 +125,7 @@ class MutableDictionaryInstantiation(private val pairTypeSymbol: ParameterizedRe
                 return substitution.apply(terminus)
             }
         } else {
-            langThrow(ctx, TypeRequiresExplicit(identifier))
+            langThrow(ctx, TypeRequiresExplicit(toError(identifier)))
         }
     }
 }

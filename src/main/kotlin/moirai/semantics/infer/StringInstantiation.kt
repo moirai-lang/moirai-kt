@@ -2,7 +2,7 @@ package moirai.semantics.infer
 
 import moirai.semantics.core.*
 
-class StringInstantiation : SingleTypeInstantiation<TerminusType, TypeInstantiation> {
+internal class StringInstantiation : SingleTypeInstantiation<TerminusType, TypeInstantiation> {
     override fun apply(
         ctx: SourceContext,
         errors: LanguageErrors,
@@ -34,7 +34,7 @@ class StringInstantiation : SingleTypeInstantiation<TerminusType, TypeInstantiat
                     inOrderParameters.forEach {
                         errors.add(
                             ctx,
-                            TypeInferenceFailed(it)
+                            TypeInferenceFailed(toError(it))
                         )
                     }
                 }
@@ -44,7 +44,7 @@ class StringInstantiation : SingleTypeInstantiation<TerminusType, TypeInstantiat
                         if (isValidStringType(it.readType())) {
                             children.add(costExpressionFromValidStringType(it.readType()))
                         } else {
-                            errors.add(it.ctx, IncompatibleString(it.readType()))
+                            errors.add(it.ctx, IncompatibleString(toError(it.readType())))
                         }
                     }
                     val costExpression = SumCostExpression(children)

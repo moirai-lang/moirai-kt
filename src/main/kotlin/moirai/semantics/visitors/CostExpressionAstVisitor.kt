@@ -2,7 +2,7 @@ package moirai.semantics.visitors
 
 import moirai.semantics.core.*
 
-class CostExpressionAstVisitor(private val architecture: Architecture) : UnitAstVisitor() {
+internal class CostExpressionAstVisitor(private val architecture: Architecture) : UnitAstVisitor() {
     private fun addDefault(costExpression: CostExpression): CostExpression =
         SumCostExpression(listOf(Fin(architecture.defaultNodeCost), costExpression))
 

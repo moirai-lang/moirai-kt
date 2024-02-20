@@ -1,30 +1,30 @@
 package moirai.semantics.core
 
-interface LanguageElement {
+internal interface LanguageElement {
     val ctx: SourceContext
 }
 
-data class Binder(val identifier: Identifier, val ofType: Signifier) {
+internal data class Binder(val identifier: Identifier, val ofType: Signifier) {
     lateinit var symbol: Symbol
 }
 
-data class CaseBlock(val identifier: Identifier, val block: BlockAst) {
+internal data class CaseBlock(val identifier: Identifier, val block: BlockAst) {
     lateinit var member: PlatformSumMember
     var itType: Type = ErrorType
 }
 
-data class FieldDef(val identifier: Identifier, val ofType: Signifier, val mutable: Boolean) {
+internal data class FieldDef(val identifier: Identifier, val ofType: Signifier, val mutable: Boolean) {
     lateinit var symbol: Symbol
 }
 
-enum class TypeParameterKind {
+internal enum class TypeParameterKind {
     Type,
     Fin
 }
 
-data class TypeParameterDefinition(val identifier: Identifier, val type: TypeParameterKind)
+internal data class TypeParameterDefinition(val identifier: Identifier, val type: TypeParameterKind)
 
-interface SingleTypeInstantiation<T: RawTerminus, S> {
+internal interface SingleTypeInstantiation<T: RawTerminus, S> {
     fun apply(
         ctx: SourceContext,
         errors: LanguageErrors,
@@ -35,7 +35,7 @@ interface SingleTypeInstantiation<T: RawTerminus, S> {
     ): S
 }
 
-interface TwoTypeInstantiation<T: RawTerminus, S> {
+internal interface TwoTypeInstantiation<T: RawTerminus, S> {
     fun apply(
         ctx: SourceContext,
         errors: LanguageErrors,

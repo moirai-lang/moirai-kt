@@ -5,7 +5,7 @@ import moirai.semantics.infer.RandomInstantiation
 import moirai.semantics.infer.RangeInstantiation
 import moirai.semantics.infer.Substitution
 
-object StaticPlugins {
+internal object StaticPlugins {
     val rangePlugin = createRangePlugin()
     val randomPlugin = createRandomPlugin()
 

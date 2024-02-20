@@ -2,25 +2,25 @@ package moirai.semantics.core
 
 import moirai.semantics.infer.SubstitutionChain
 
-sealed interface Type
+internal sealed interface Type
 
-sealed interface TerminusType: Type, RawTerminus
+internal sealed interface TerminusType: Type, RawTerminus
 
-data object ErrorType : Type
+internal data object ErrorType : Type
 
-class FunctionType(
+internal class FunctionType(
     val formalParamTypes: List<Type>,
     val returnType: Type
 ) : Type
 
-sealed class TypeParameter : Type
+internal sealed class TypeParameter : Type
 
-class StandardTypeParameter(
+internal class StandardTypeParameter(
     val qualifiedName: String,
     val identifier: Identifier
 ) : TypeParameter(), Type
 
-class FinTypeParameter(
+internal class FinTypeParameter(
     val qualifiedName: String,
     val identifier: Identifier
 ) : TypeParameter(), CostExpression, Type {
@@ -29,53 +29,53 @@ class FinTypeParameter(
     }
 }
 
-class Fin(val magnitude: Long) : CostExpression, Type {
+internal class Fin(val magnitude: Long) : CostExpression, Type {
     override fun <R> accept(visitor: CostExpressionVisitor<R>): R {
         return visitor.visit(this)
     }
 }
 
-data object ConstantFin : CostExpression, Type {
+internal data object ConstantFin : CostExpression, Type {
     override fun <R> accept(visitor: CostExpressionVisitor<R>): R {
         return visitor.visit(this)
     }
 }
 
-class SumCostExpression(val children: List<CostExpression>) : CostExpression {
+internal class SumCostExpression(val children: List<CostExpression>) : CostExpression {
     override fun <R> accept(visitor: CostExpressionVisitor<R>): R {
         return visitor.visit(this)
     }
 }
 
-class ProductCostExpression(val children: List<CostExpression>) : CostExpression {
+internal class ProductCostExpression(val children: List<CostExpression>) : CostExpression {
     override fun <R> accept(visitor: CostExpressionVisitor<R>): R {
         return visitor.visit(this)
     }
 }
 
-class MaxCostExpression(val children: List<CostExpression>) : CostExpression {
+internal class MaxCostExpression(val children: List<CostExpression>) : CostExpression {
     override fun <R> accept(visitor: CostExpressionVisitor<R>): R {
         return visitor.visit(this)
     }
 }
 
-class TypeInstantiation(
+internal class TypeInstantiation(
     val substitutionChain: SubstitutionChain<TerminusType>
 ) : Type
 
-class PlatformObjectType(
+internal class PlatformObjectType(
     val identifier: Identifier,
     val featureSupport: FeatureSupport,
     private val symbolTable: SymbolTable = SymbolTable(NullSymbolTable)
 ) : Type, Scope by symbolTable
 
-class ObjectType(
+internal class ObjectType(
     val qualifiedName: String,
     val identifier: Identifier,
     val featureSupport: FeatureSupport
 ) : Type
 
-class GroundRecordType(
+internal class GroundRecordType(
     definitionScopeForTypeChecking: Scope,
     val qualifiedName: String,
     val identifier: Identifier,
@@ -84,7 +84,7 @@ class GroundRecordType(
     lateinit var fields: List<FieldSymbol>
 }
 
-class ParameterizedRecordType(
+internal class ParameterizedRecordType(
     definitionScopeForTypeChecking: Scope,
     val qualifiedName: String,
     val identifier: Identifier,
@@ -95,12 +95,12 @@ class ParameterizedRecordType(
     lateinit var fields: List<FieldSymbol>
 }
 
-class BasicType(
+internal class BasicType(
     val identifier: Identifier,
     private val symbolTable: SymbolTable = SymbolTable(NullSymbolTable)
 ) : Type, Scope by symbolTable
 
-class ParameterizedBasicType(
+internal class ParameterizedBasicType(
     val identifier: Identifier,
     val instantiation: SingleTypeInstantiation<TerminusType, TypeInstantiation>,
     val featureSupport: FeatureSupport,
@@ -110,7 +110,7 @@ class ParameterizedBasicType(
     lateinit var fields: List<PlatformFieldSymbol>
 }
 
-class PlatformSumType(
+internal class PlatformSumType(
     val identifier: Identifier,
     val featureSupport: FeatureSupport
 ) : TerminusType {
@@ -118,9 +118,9 @@ class PlatformSumType(
     lateinit var memberTypes: List<PlatformSumMember>
 }
 
-sealed interface PlatformSumMember
+internal sealed interface PlatformSumMember
 
-class PlatformSumRecordType(
+internal class PlatformSumRecordType(
     definitionScopeForTypeChecking: Scope,
     val sumType: PlatformSumType,
     val identifier: Identifier,
@@ -131,7 +131,7 @@ class PlatformSumRecordType(
     lateinit var fields: List<FieldSymbol>
 }
 
-class PlatformSumObjectType(
+internal class PlatformSumObjectType(
     val sumType: PlatformSumType,
     val identifier: Identifier,
     val featureSupport: FeatureSupport,

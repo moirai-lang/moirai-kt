@@ -5,7 +5,7 @@ import org.antlr.v4.runtime.RecognitionException
 import org.antlr.v4.runtime.Recognizer
 import moirai.semantics.core.*
 
-class SyntaxErrorListener : BaseErrorListener() {
+internal class SyntaxErrorListener : BaseErrorListener() {
     private data class SyntaxErrorInternal(val msg: String, val line: Int, val charPositionInLine: Int)
     private val errorsInternal: MutableList<SyntaxErrorInternal> = ArrayList()
 

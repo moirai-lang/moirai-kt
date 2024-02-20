@@ -3,7 +3,7 @@ package moirai.semantics.prelude
 import moirai.semantics.core.*
 import moirai.semantics.infer.*
 
-object DictionaryTypes {
+internal object DictionaryTypes {
     val getFunction = createGetFunction()
     val mutableGetFunction = createMutableGetFunction()
     val containsFunction = createContainsFunction()

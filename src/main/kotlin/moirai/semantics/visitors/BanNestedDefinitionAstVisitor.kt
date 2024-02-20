@@ -2,14 +2,14 @@ package moirai.semantics.visitors
 
 import moirai.semantics.core.*
 
-sealed class NestedDefinitionIndicator
+internal sealed class NestedDefinitionIndicator
 
-data object TopLevelIndicator : NestedDefinitionIndicator()
-data object WithinEnumIndicator : NestedDefinitionIndicator()
-data object WithinRecordIndicator : NestedDefinitionIndicator()
-data object OtherIndicator : NestedDefinitionIndicator()
+internal data object TopLevelIndicator : NestedDefinitionIndicator()
+internal data object WithinEnumIndicator : NestedDefinitionIndicator()
+internal data object WithinRecordIndicator : NestedDefinitionIndicator()
+internal data object OtherIndicator : NestedDefinitionIndicator()
 
-class BanNestedDefinitionAstVisitor : ParameterizedUnitAstVisitor<NestedDefinitionIndicator>() {
+internal class BanNestedDefinitionAstVisitor : ParameterizedUnitAstVisitor<NestedDefinitionIndicator>() {
     override fun visit(ast: StringInterpolationAst, param: NestedDefinitionIndicator) {
         super.visit(ast, OtherIndicator)
     }
@@ -30,7 +30,7 @@ class BanNestedDefinitionAstVisitor : ParameterizedUnitAstVisitor<NestedDefiniti
         when (param) {
             is WithinRecordIndicator,
             is TopLevelIndicator -> Unit
-            else -> errors.add(ast.ctx, InvalidDefinitionLocation(ast.identifier))
+            else -> errors.add(ast.ctx, InvalidDefinitionLocation(toError(ast.identifier)))
         }
         super.visit(ast, OtherIndicator)
     }
@@ -39,7 +39,7 @@ class BanNestedDefinitionAstVisitor : ParameterizedUnitAstVisitor<NestedDefiniti
         when (param) {
             is WithinEnumIndicator,
             is TopLevelIndicator -> Unit
-            else -> errors.add(ast.ctx, InvalidDefinitionLocation(ast.identifier))
+            else -> errors.add(ast.ctx, InvalidDefinitionLocation(toError(ast.identifier)))
         }
         super.visit(ast, WithinRecordIndicator)
     }
@@ -48,7 +48,7 @@ class BanNestedDefinitionAstVisitor : ParameterizedUnitAstVisitor<NestedDefiniti
         when (param) {
             is WithinEnumIndicator,
             is TopLevelIndicator -> Unit
-            else -> errors.add(ast.ctx, InvalidDefinitionLocation(ast.identifier))
+            else -> errors.add(ast.ctx, InvalidDefinitionLocation(toError(ast.identifier)))
         }
         super.visit(ast, OtherIndicator)
     }

@@ -2,7 +2,7 @@ package moirai.semantics.infer
 
 import moirai.semantics.core.*
 
-object DualFinPluginInstantiation : TwoTypeInstantiation<RawTerminusSymbol, SymbolInstantiation> {
+internal object DualFinPluginInstantiation : TwoTypeInstantiation<RawTerminusSymbol, SymbolInstantiation> {
     override fun apply(
         ctx: SourceContext,
         errors: LanguageErrors,
@@ -21,7 +21,7 @@ object DualFinPluginInstantiation : TwoTypeInstantiation<RawTerminusSymbol, Symb
                     (argType.substitutionChain).replayArgs().first()
                 }
                 else -> {
-                    errors.add(ctx, TypeMismatch(existingInstantiation, argType))
+                    errors.add(ctx, TypeMismatch(toError(existingInstantiation), toError(argType)))
                     throw LanguageException(errors.toSet())
                 }
             }
@@ -40,7 +40,7 @@ object DualFinPluginInstantiation : TwoTypeInstantiation<RawTerminusSymbol, Symb
     }
 }
 
-object DoubleParentSingleFinPluginInstantiation : TwoTypeInstantiation<RawTerminusSymbol, SymbolInstantiation> {
+internal object DoubleParentSingleFinPluginInstantiation : TwoTypeInstantiation<RawTerminusSymbol, SymbolInstantiation> {
     override fun apply(
         ctx: SourceContext,
         errors: LanguageErrors,
@@ -60,7 +60,7 @@ object DoubleParentSingleFinPluginInstantiation : TwoTypeInstantiation<RawTermin
                     (argType.substitutionChain).replayArgs()[1]
                 }
                 else -> {
-                    errors.add(ctx, TypeMismatch(existingInstantiation, argType))
+                    errors.add(ctx, TypeMismatch(toError(existingInstantiation), toError(argType)))
                     throw LanguageException(errors.toSet())
                 }
             }
@@ -79,7 +79,7 @@ object DoubleParentSingleFinPluginInstantiation : TwoTypeInstantiation<RawTermin
     }
 }
 
-object TripleParentSingleFinPluginInstantiation : TwoTypeInstantiation<RawTerminusSymbol, SymbolInstantiation> {
+internal object TripleParentSingleFinPluginInstantiation : TwoTypeInstantiation<RawTerminusSymbol, SymbolInstantiation> {
     override fun apply(
         ctx: SourceContext,
         errors: LanguageErrors,
@@ -100,7 +100,7 @@ object TripleParentSingleFinPluginInstantiation : TwoTypeInstantiation<RawTermin
                     (argType.substitutionChain).replayArgs()[2]
                 }
                 else -> {
-                    errors.add(ctx, TypeMismatch(existingInstantiation, argType))
+                    errors.add(ctx, TypeMismatch(toError(existingInstantiation), toError(argType)))
                     throw LanguageException(errors.toSet())
                 }
             }
@@ -119,7 +119,7 @@ object TripleParentSingleFinPluginInstantiation : TwoTypeInstantiation<RawTermin
     }
 }
 
-object AscribeInstantiation : TwoTypeInstantiation<RawTerminusSymbol, SymbolInstantiation> {
+internal object AscribeInstantiation : TwoTypeInstantiation<RawTerminusSymbol, SymbolInstantiation> {
     override fun apply(
         ctx: SourceContext,
         errors: LanguageErrors,
@@ -140,16 +140,16 @@ object AscribeInstantiation : TwoTypeInstantiation<RawTerminusSymbol, SymbolInst
                     val substitution = Substitution(terminus.typeParams, listOf(firstFin, explicitTypeArgs[0]))
                     return substitution.apply(terminus)
                 } else {
-                    langThrow(ctx, TypeRequiresExplicitFin(identifier))
+                    langThrow(ctx, TypeRequiresExplicitFin(toError(identifier)))
                 }
             }
         } else {
-            langThrow(ctx, TypeRequiresExplicitFin(identifier))
+            langThrow(ctx, TypeRequiresExplicitFin(toError(identifier)))
         }
     }
 }
 
-object SingleParentArgInstantiation : TwoTypeInstantiation<RawTerminusSymbol, SymbolInstantiation> {
+internal object SingleParentArgInstantiation : TwoTypeInstantiation<RawTerminusSymbol, SymbolInstantiation> {
     override fun apply(
         ctx: SourceContext,
         errors: LanguageErrors,
@@ -178,7 +178,7 @@ object SingleParentArgInstantiation : TwoTypeInstantiation<RawTerminusSymbol, Sy
     }
 }
 
-object DoubleParentArgInstantiation : TwoTypeInstantiation<RawTerminusSymbol, SymbolInstantiation> {
+internal object DoubleParentArgInstantiation : TwoTypeInstantiation<RawTerminusSymbol, SymbolInstantiation> {
     override fun apply(
         ctx: SourceContext,
         errors: LanguageErrors,
@@ -208,7 +208,7 @@ object DoubleParentArgInstantiation : TwoTypeInstantiation<RawTerminusSymbol, Sy
     }
 }
 
-object TripleParentArgInstantiation : TwoTypeInstantiation<RawTerminusSymbol, SymbolInstantiation> {
+internal object TripleParentArgInstantiation : TwoTypeInstantiation<RawTerminusSymbol, SymbolInstantiation> {
     override fun apply(
         ctx: SourceContext,
         errors: LanguageErrors,

@@ -3,7 +3,7 @@ package moirai.semantics.prelude
 import moirai.semantics.core.*
 import moirai.semantics.infer.*
 
-object Lang {
+internal object Lang {
     val prelude = SymbolTable(NullSymbolTable)
 
     val unitId = Identifier(NotInSource, "Unit")

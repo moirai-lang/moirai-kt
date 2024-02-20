@@ -1,6 +1,6 @@
 package moirai.semantics.core
 
-data class FeatureSupport(
+internal data class FeatureSupport(
     val forEachBlock: Boolean,
     val recordField: Boolean,
     val paramType: Boolean,
@@ -8,7 +8,7 @@ data class FeatureSupport(
     val typeArg: Boolean
 )
 
-val immutableOrderedFeatureSupport = FeatureSupport(
+internal val immutableOrderedFeatureSupport = FeatureSupport(
     forEachBlock = true,
     recordField = true,
     paramType = true,
@@ -16,7 +16,7 @@ val immutableOrderedFeatureSupport = FeatureSupport(
     typeArg = true
 )
 
-val immutableUnorderedFeatureSupport = FeatureSupport(
+internal val immutableUnorderedFeatureSupport = FeatureSupport(
     forEachBlock = false,
     recordField = true,
     paramType = true,
@@ -24,7 +24,7 @@ val immutableUnorderedFeatureSupport = FeatureSupport(
     typeArg = true
 )
 
-val noFeatureSupport = FeatureSupport(
+internal val noFeatureSupport = FeatureSupport(
     forEachBlock = false,
     recordField = false,
     paramType = false,
@@ -32,7 +32,7 @@ val noFeatureSupport = FeatureSupport(
     typeArg = false
 )
 
-val userTypeFeatureSupport = FeatureSupport(
+internal val userTypeFeatureSupport = FeatureSupport(
     forEachBlock = false,
     recordField = true,
     paramType = true,
@@ -40,7 +40,7 @@ val userTypeFeatureSupport = FeatureSupport(
     typeArg = true
 )
 
-val unitFeatureSupport = FeatureSupport(
+internal val unitFeatureSupport = FeatureSupport(
     forEachBlock = false,
     recordField = false,
     paramType = true,

@@ -13,9 +13,8 @@ data object UnitValue : Value() {
 }
 
 class ObjectValue(
-    val symbol: ObjectType
+    val path: String
 ) : Value() {
-    val path = getQualifiedName(symbol)
 
     override fun equals(other: Any?): Boolean {
         if (other != null && other is ObjectValue) {
@@ -30,10 +29,8 @@ class ObjectValue(
 }
 
 class SumObjectValue(
-    val symbol: PlatformSumObjectType
+    val path: String
 ) : Value() {
-    val path = getQualifiedName(symbol)
-
     override fun equals(other: Any?): Boolean {
         if (other != null && other is SumObjectValue) {
             return path == other.path
@@ -54,14 +51,15 @@ data class PluginValue(
     }
 }
 
-data class FunctionValue(
+internal data class FunctionValue(
     val formalParams: List<FunctionFormalParameterSymbol>,
     val body: Ast
 ) : Value()
 
-class RecordValue(type: Type, val fields: ValueTable, val substitutions: Map<TypeParameter, Type>) : Value() {
-    lateinit var scope: Scope
-    val path = getQualifiedName(type)
+class RecordValue(val path: String) : Value() {
+    internal lateinit var scope: Scope
+    internal lateinit var substitutions: Map<TypeParameter, Type>
+    internal lateinit var fields: ValueTable
 
     override fun equals(other: Any?): Boolean {
         if (other != null && other is RecordValue) {
@@ -81,9 +79,11 @@ class RecordValue(type: Type, val fields: ValueTable, val substitutions: Map<Typ
     }
 }
 
-class SumRecordValue(val instantiation: TypeInstantiation, val type: PlatformSumRecordType, val fields: ValueTable, val substitutions: Map<TypeParameter, Type>) : Value() {
-    lateinit var scope: Scope
-    val path = getQualifiedName(type)
+class SumRecordValue(val path: String) : Value() {
+    internal lateinit var scope: Scope
+    internal lateinit var instantiation: TypeInstantiation
+    internal lateinit var substitutions: Map<TypeParameter, Type>
+    internal lateinit var fields: ValueTable
 
     override fun equals(other: Any?): Boolean {
         if (other != null && other is SumRecordValue) {
@@ -196,7 +196,7 @@ data class DecimalValue(val canonicalForm: BigDecimal) : Value(), MathValue, Ord
     override fun evalNegate(): Value = DecimalValue(canonicalForm.negate())
 
     fun evalToString(): Value = StringValue(canonicalForm.stripTrailingZeros().toPlainString())
-    fun evalAscribe(subs: Map<TypeParameter, Type>): Value {
+    internal fun evalAscribe(subs: Map<TypeParameter, Type>): Value {
         if (subs.size != 2) {
             langThrow(NotInSource, TypeSystemBug)
         }
@@ -236,7 +236,9 @@ data class StringValue(val canonicalForm: String) : Value(), EqualityValue {
     fun evalToCharArray(): Value {
         val elements = canonicalForm.toCharArray().map { CharValue(it) }
         val fin = Fin(canonicalForm.length.toLong())
-        return ListValue(elements.toMutableList(), mapOf(Lang.listFinTypeParam to fin), fin.magnitude, false)
+        val listRes = ListValue(elements.toMutableList(), fin.magnitude, false)
+        listRes.substitutions = mapOf(Lang.listFinTypeParam to fin)
+        return listRes
     }
 
     fun evalToString(): Value = StringValue(canonicalForm)
@@ -249,17 +251,20 @@ data class StringValue(val canonicalForm: String) : Value(), EqualityValue {
 
 data class ListValue(
     val elements: MutableList<Value>,
-    val substitutions: Map<TypeParameter, Type>,
     val fin: Long,
     val mutable: Boolean
 ) : Value(), EqualityValue {
+    internal lateinit var substitutions: Map<TypeParameter, Type>
+
     fun fieldSize(): Value {
         return IntValue(elements.size)
     }
 
     fun evalToList(): Value {
         if (mutable) {
-            return ListValue(elements.toList().toMutableList(), substitutions, fin, false)
+            val res = ListValue(elements.toList().toMutableList(), fin, false)
+            res.substitutions = substitutions
+            return res
         } else {
             langThrow(NotInSource, RuntimeImmutableViolation)
         }
@@ -334,17 +339,20 @@ data class ListValue(
 
 data class SetValue(
     val elements: MutableSet<Value>,
-    val substitutions: Map<TypeParameter, Type>,
     val fin: Long,
     val mutable: Boolean
 ) : Value(), EqualityValue {
+    internal lateinit var substitutions: Map<TypeParameter, Type>
+
     fun fieldSize(): Value {
         return IntValue(elements.size)
     }
 
     fun evalToSet(): Value {
         if (mutable) {
-            return SetValue(elements.toSet().toMutableSet(), substitutions, fin, false)
+            val res = SetValue(elements.toSet().toMutableSet(), fin, false)
+            res.substitutions = substitutions
+            return res
         } else {
             langThrow(NotInSource, RuntimeImmutableViolation)
         }
@@ -397,17 +405,20 @@ data class SetValue(
 
 data class DictionaryValue(
     val dictionary: MutableMap<Value, Value>,
-    val substitutions: Map<TypeParameter, Type>,
     val fin: Long,
     val mutable: Boolean
 ) : Value(), EqualityValue {
+    internal lateinit var substitutions: Map<TypeParameter, Type>
+
     fun fieldSize(): Value {
         return IntValue(dictionary.size)
     }
 
     fun evalToDictionary(): Value {
         if (mutable) {
-            return DictionaryValue(dictionary.toMap().toMutableMap(), substitutions, fin, false)
+            val res = DictionaryValue(dictionary.toMap().toMutableMap(), fin, false)
+            res.substitutions = substitutions
+            return res
         } else {
             langThrow(NotInSource, RuntimeImmutableViolation)
         }
@@ -462,7 +473,7 @@ data class DictionaryValue(
     }
 }
 
-interface ValueScope {
+internal interface ValueScope {
     fun define(identifier: Identifier, definition: Value)
     fun exists(signifier: Signifier): Boolean
     fun existsHere(signifier: Signifier): Boolean
@@ -470,9 +481,9 @@ interface ValueScope {
     fun fetchHere(signifier: Signifier): Value
 }
 
-object NullValueTable : ValueScope {
+internal object NullValueTable : ValueScope {
     override fun define(identifier: Identifier, definition: Value) {
-        langThrow(NotInSource, IdentifierCouldNotBeDefined(identifier))
+        langThrow(NotInSource, IdentifierCouldNotBeDefined(toError(identifier)))
     }
 
     override fun exists(signifier: Signifier): Boolean = false
@@ -480,16 +491,16 @@ object NullValueTable : ValueScope {
     override fun existsHere(signifier: Signifier): Boolean = false
 
     override fun fetch(signifier: Signifier): Value {
-        langThrow(NotInSource, IdentifierNotFound(signifier))
+        langThrow(NotInSource, IdentifierNotFound(toError(signifier)))
     }
 
     override fun fetchHere(signifier: Signifier): Value {
-        langThrow(NotInSource, IdentifierNotFound(signifier))
+        langThrow(NotInSource, IdentifierNotFound(toError(signifier)))
     }
 
 }
 
-class ValueTable(private val parent: ValueScope) : ValueScope {
+internal class ValueTable(private val parent: ValueScope) : ValueScope {
     data class ScopeSlot(var value: Value)
 
     private val slotTable: MutableMap<String, ScopeSlot> = HashMap()
@@ -547,7 +558,7 @@ class ValueTable(private val parent: ValueScope) : ValueScope {
                 if (slotTable.containsKey(signifier.name)) {
                     slotTable[signifier.name]!!.value
                 } else {
-                    langThrow(signifier.ctx, IdentifierNotFound(signifier))
+                    langThrow(signifier.ctx, IdentifierNotFound(toError(signifier)))
                 }
             }
 

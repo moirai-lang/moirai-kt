@@ -3,7 +3,7 @@ package moirai.semantics.prelude
 import moirai.semantics.core.*
 import moirai.semantics.infer.*
 
-object SetTypes {
+internal object SetTypes {
     val setContains = createSetContainsFunction()
     val mutableSetContains = createMutableSetContainsFunction()
     val mutableSetAdd = createMutableSetAddFunction()

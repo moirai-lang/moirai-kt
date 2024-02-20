@@ -2,7 +2,7 @@ package moirai.semantics.infer
 
 import moirai.semantics.core.*
 
-class SetInstantiation : SingleTypeInstantiation<TerminusType, TypeInstantiation> {
+internal class SetInstantiation : SingleTypeInstantiation<TerminusType, TypeInstantiation> {
     override fun apply(
         ctx: SourceContext,
         errors: LanguageErrors,
@@ -54,7 +54,7 @@ class SetInstantiation : SingleTypeInstantiation<TerminusType, TypeInstantiation
                 inOrderParameters.forEach {
                     errors.add(
                         ctx,
-                        TypeInferenceFailed(it)
+                        TypeInferenceFailed(toError(it))
                     )
                 }
             }
@@ -63,7 +63,7 @@ class SetInstantiation : SingleTypeInstantiation<TerminusType, TypeInstantiation
     }
 }
 
-class MutableSetInstantiation : SingleTypeInstantiation<TerminusType, TypeInstantiation> {
+internal class MutableSetInstantiation : SingleTypeInstantiation<TerminusType, TypeInstantiation> {
     override fun apply(
         ctx: SourceContext,
         errors: LanguageErrors,
@@ -95,7 +95,7 @@ class MutableSetInstantiation : SingleTypeInstantiation<TerminusType, TypeInstan
                 return substitution.apply(terminus)
             }
         } else {
-            langThrow(ctx, TypeRequiresExplicit(identifier))
+            langThrow(ctx, TypeRequiresExplicit(toError(identifier)))
         }
     }
 }

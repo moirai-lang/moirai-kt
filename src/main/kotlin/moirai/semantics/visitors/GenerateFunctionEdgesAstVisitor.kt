@@ -2,7 +2,7 @@ package moirai.semantics.visitors
 
 import moirai.semantics.core.*
 
-fun addFunctionEdge(
+internal fun addFunctionEdge(
     processFirst: Symbol,
     processSecond: Symbol,
     edges: MutableSet<DependencyEdge<Symbol>>,
@@ -35,7 +35,7 @@ fun addFunctionEdge(
     edges.add(DependencyEdge(first, second))
 }
 
-class GenerateFunctionEdgesAstVisitor : UnitAstVisitor() {
+internal class GenerateFunctionEdgesAstVisitor : UnitAstVisitor() {
     val edges: MutableSet<DependencyEdge<Symbol>> = HashSet()
     val nodes: MutableSet<Symbol> = HashSet()
 
@@ -49,7 +49,7 @@ class GenerateFunctionEdgesAstVisitor : UnitAstVisitor() {
     }
 }
 
-class GenerateFunctionEdgesParameterizedAstVisitor(
+internal class GenerateFunctionEdgesParameterizedAstVisitor(
     private val edges: MutableSet<DependencyEdge<Symbol>>,
     private val nodes: MutableSet<Symbol>
 ) : ParameterizedUnitAstVisitor<Symbol>() {

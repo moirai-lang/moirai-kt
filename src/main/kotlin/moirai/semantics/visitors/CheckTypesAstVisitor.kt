@@ -3,13 +3,13 @@ package moirai.semantics.visitors
 import moirai.semantics.core.*
 import moirai.semantics.prelude.Lang
 
-class CheckTypesAstVisitor(private val prelude: Scope) : UnitAstVisitor() {
+internal class CheckTypesAstVisitor(private val prelude: Scope) : UnitAstVisitor() {
     override fun visit(ast: StringInterpolationAst) {
         try {
             super.visit(ast)
             ast.components.forEach {
                 if (!isValidStringType(it.readType())) {
-                    errors.add(it.ctx, IncompatibleString(it.readType()))
+                    errors.add(it.ctx, IncompatibleString(toError(it.readType())))
                 }
             }
         } catch (ex: LanguageException) {
@@ -92,7 +92,7 @@ class CheckTypesAstVisitor(private val prelude: Scope) : UnitAstVisitor() {
                 is AssignSlotLVS -> {
                     val symbolRef = assignSlot.payload
                     if (!symbolRef.mutable) {
-                        errors.add(ast.ctx, ImmutableAssign(symbolRef))
+                        errors.add(ast.ctx, ImmutableAssign(toError(symbolRef)))
                     }
                     checkTypes(ast.ctx, prelude, errors, symbolRef.ofTypeSymbol, ast.rhs.readType())
                 }
@@ -112,13 +112,13 @@ class CheckTypesAstVisitor(private val prelude: Scope) : UnitAstVisitor() {
                 is DotAssignSlotField -> {
                     val symbolRef = dotAssignSlot.payload
                     if (!symbolRef.mutable) {
-                        errors.add(ast.ctx, ImmutableAssign(symbolRef))
+                        errors.add(ast.ctx, ImmutableAssign(toError(symbolRef)))
                     }
                     checkTypes(ast.ctx, prelude, errors, symbolRef.ofTypeSymbol, ast.rhs.readType())
                 }
 
                 else -> {
-                    errors.add(ast.ctx, SymbolIsNotAField(ast.identifier))
+                    errors.add(ast.ctx, SymbolIsNotAField(toError(ast.identifier)))
                 }
             }
         } catch (ex: LanguageException) {

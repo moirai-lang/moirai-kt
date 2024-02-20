@@ -2,7 +2,7 @@ package moirai.semantics.infer
 
 import moirai.semantics.core.*
 
-fun createSubstitution(
+internal fun createSubstitution(
     ctx: SourceContext,
     constraints: MutableList<Constraint<TypeParameter, Type>>,
     parameterSet: Set<TypeParameter>,
@@ -18,7 +18,7 @@ fun createSubstitution(
         }
         when {
             relation.equivalences.isEmpty() -> {
-                errors.add(ctx, TypeInferenceFailed(typeParam))
+                errors.add(ctx, TypeInferenceFailed(toError(typeParam)))
             }
             relation.equivalences.size > 1 -> {
                 instantiations[relation.someItem.value] = findBestType(ctx, errors, relation.equivalences.map {
@@ -34,7 +34,7 @@ fun createSubstitution(
     return if (instantiations.isNotEmpty() && instantiations.all { parameterSet.contains(it.key) }) {
         val typeArgs = parameterSet.flatMap {
             if (!instantiations.containsKey(it)) {
-                errors.add(ctx, TypeInferenceFailed(it))
+                errors.add(ctx, TypeInferenceFailed(toError(it)))
                 listOf()
             } else {
                 listOf(instantiations[it]!!)
@@ -47,7 +47,7 @@ fun createSubstitution(
     }
 }
 
-fun instantiateFunction(
+internal fun instantiateFunction(
     ctx: SourceContext,
     args: List<Ast>,
     parameterizedFunctionSymbol: ParameterizedFunctionSymbol,
@@ -72,7 +72,7 @@ fun instantiateFunction(
     return substitution.apply(parameterizedFunctionSymbol)
 }
 
-fun instantiateRecord(
+internal fun instantiateRecord(
     ctx: SourceContext,
     args: List<Ast>,
     parameterizedRecordType: ParameterizedRecordType,
@@ -98,7 +98,7 @@ fun instantiateRecord(
     return substitution.apply(parameterizedRecordType)
 }
 
-fun instantiatePlatformSumRecord(
+internal fun instantiatePlatformSumRecord(
     ctx: SourceContext,
     args: List<Ast>,
     platformSumRecordType: PlatformSumRecordType,
@@ -124,7 +124,7 @@ fun instantiatePlatformSumRecord(
     return substitution.apply(platformSumRecordType)
 }
 
-fun constrainSymbol(
+internal fun constrainSymbol(
     ctx: SourceContext,
     typeParams: Set<TypeParameter>,
     expected: Type,
@@ -143,12 +143,12 @@ fun constrainSymbol(
                     }
                     constraints.addAll(constrainSymbol(ctx, typeParams, expected.returnType, actual.returnType, errors))
                 } else {
-                    errors.add(ctx, TypeMismatch(expected, actual))
+                    errors.add(ctx, TypeMismatch(toError(expected), toError(actual)))
                 }
                 constraints
             }
             else -> {
-                errors.add(ctx, TypeMismatch(expected, actual))
+                errors.add(ctx, TypeMismatch(toError(expected), toError(actual)))
                 listOf()
             }
         }
@@ -163,12 +163,12 @@ fun constrainSymbol(
                     }
                     constraints
                 } else {
-                    errors.add(ctx, TypeMismatch(expected, actual))
+                    errors.add(ctx, TypeMismatch(toError(expected), toError(actual)))
                     constraints
                 }
             }
             else -> {
-                errors.add(ctx, TypeMismatch(expected, actual))
+                errors.add(ctx, TypeMismatch(toError(expected), toError(actual)))
                 listOf()
             }
         }
@@ -177,7 +177,7 @@ fun constrainSymbol(
                 constrainCost(ctx, typeParams, expected, actual, errors)
             }
             else -> {
-                errors.add(ctx, TypeMismatch(expected, actual))
+                errors.add(ctx, TypeMismatch(toError(expected), toError(actual)))
                 listOf()
             }
         }
@@ -198,7 +198,7 @@ fun constrainSymbol(
         }
     }
 
-fun constrainCost(
+internal fun constrainCost(
     ctx: SourceContext,
     typeParams: Set<TypeParameter>,
     expected: CostExpression,
@@ -228,8 +228,8 @@ fun constrainCost(
                 } else {
                     errors.add(
                         ctx, TypeMismatch(
-                            expected,
-                            actual
+                            toError(expected),
+                            toError(actual)
                         )
                     )
                     listOf()
@@ -238,8 +238,8 @@ fun constrainCost(
             else -> {
                 errors.add(
                     ctx, TypeMismatch(
-                        expected,
-                        actual
+                        toError(expected),
+                        toError(actual)
                     )
                 )
                 listOf()
@@ -254,8 +254,8 @@ fun constrainCost(
                 } else {
                     errors.add(
                         ctx, TypeMismatch(
-                            expected,
-                            actual
+                            toError(expected),
+                            toError(actual)
                         )
                     )
                     listOf()
@@ -264,8 +264,8 @@ fun constrainCost(
             else -> {
                 errors.add(
                     ctx, TypeMismatch(
-                        expected,
-                        actual
+                        toError(expected),
+                        toError(actual)
                     )
                 )
                 listOf()
@@ -280,8 +280,8 @@ fun constrainCost(
                 } else {
                     errors.add(
                         ctx, TypeMismatch(
-                            expected,
-                            actual
+                            toError(expected),
+                            toError(actual)
                         )
                     )
                     listOf()
@@ -290,8 +290,8 @@ fun constrainCost(
             else -> {
                 errors.add(
                     ctx, TypeMismatch(
-                        expected,
-                        actual
+                        toError(expected),
+                        toError(actual)
                     )
                 )
                 listOf()

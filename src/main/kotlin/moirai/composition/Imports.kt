@@ -7,7 +7,7 @@ import java.util.*
 import kotlin.collections.HashMap
 import kotlin.collections.HashSet
 
-data class ImportScan(
+internal data class ImportScan(
     val scriptType: ScriptType,
     val sourceText: String,
     val parseTree: MoiraiParser.FileContext,

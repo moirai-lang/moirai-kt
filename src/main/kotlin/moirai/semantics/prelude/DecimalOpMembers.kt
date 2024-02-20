@@ -6,7 +6,7 @@ import moirai.semantics.infer.SingleParentArgInstantiation
 import moirai.semantics.infer.Substitution
 import moirai.semantics.infer.AscribeInstantiation
 
-object DecimalMathOpMembers {
+internal object DecimalMathOpMembers {
     val add = pluginAdd()
     val sub = pluginSub()
     val mul = pluginMul()
@@ -225,7 +225,7 @@ object DecimalMathOpMembers {
     }
 }
 
-object DecimalOrderOpMembers {
+internal object DecimalOrderOpMembers {
     val greaterThan = pluginGreaterThan()
     val greaterThanOrEquals = pluginGreaterThanOrEquals()
     val lessThan = pluginLessThan()
@@ -387,7 +387,7 @@ object DecimalOrderOpMembers {
     }
 }
 
-object DecimalEqualityOpMembers {
+internal object DecimalEqualityOpMembers {
     val equals = pluginEquals()
     val notEquals = pluginNotEquals()
 
@@ -471,7 +471,7 @@ object DecimalEqualityOpMembers {
     }
 }
 
-object DecimalMethodMembers {
+internal object DecimalMethodMembers {
     val ascribe = pluginAscribe()
 
     private fun pluginAscribe(): ParameterizedMemberPluginSymbol {

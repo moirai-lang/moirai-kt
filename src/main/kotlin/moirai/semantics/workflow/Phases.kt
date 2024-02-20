@@ -3,7 +3,7 @@ package moirai.semantics.workflow
 import moirai.semantics.core.*
 import moirai.semantics.visitors.*
 
-fun bindScopes(
+internal fun bindScopes(
     ast: FileAst,
     fileName: String,
     fileScope: Scope,
@@ -14,7 +14,7 @@ fun bindScopes(
     ast.accept(bindScopeVisitor, fileScope)
 }
 
-fun parameterScan(ast: FileAst, fileName: String) {
+internal fun parameterScan(ast: FileAst, fileName: String) {
     val parameterScanAstVisitor = ParameterScanAstVisitor(fileName)
     ast.accept(parameterScanAstVisitor)
     val errors = parameterScanAstVisitor.errors.toSet()
@@ -23,7 +23,7 @@ fun parameterScan(ast: FileAst, fileName: String) {
     }
 }
 
-fun simpleRecursiveRecordDetection(ast: FileAst): SortResult<Type> {
+internal fun simpleRecursiveRecordDetection(ast: FileAst): SortResult<Type> {
     val generateEdgesAstVisitor = GenerateRecordEdgesAstVisitor()
     ast.accept(generateEdgesAstVisitor)
     val nodes = generateEdgesAstVisitor.nodes
@@ -32,7 +32,7 @@ fun simpleRecursiveRecordDetection(ast: FileAst): SortResult<Type> {
         is Left -> {
             val errors = LanguageErrors()
             sorted.value.forEach {
-                errors.add(NotInSource, RecursiveRecordDetected(it))
+                errors.add(NotInSource, RecursiveRecordDetected(toError(it)))
             }
             filterThrow(errors.toSet())
         }
@@ -40,7 +40,7 @@ fun simpleRecursiveRecordDetection(ast: FileAst): SortResult<Type> {
     }
 }
 
-fun recordScan(ast: FileAst) {
+internal fun recordScan(ast: FileAst) {
     val recordScanAstVisitor = RecordScanAstVisitor()
     ast.accept(recordScanAstVisitor)
     val errors = recordScanAstVisitor.errors.toSet()
@@ -49,7 +49,7 @@ fun recordScan(ast: FileAst) {
     }
 }
 
-fun functionScan(ast: FileAst) {
+internal fun functionScan(ast: FileAst) {
     val functionScanAstVisitor = FunctionScanAstVisitor()
     ast.accept(functionScanAstVisitor)
     val errors = functionScanAstVisitor.errors.toSet()
@@ -58,7 +58,7 @@ fun functionScan(ast: FileAst) {
     }
 }
 
-fun propagateTypes(ast: FileAst, preludeTable: Scope) {
+internal fun propagateTypes(ast: FileAst, preludeTable: Scope) {
     val propagateTypesAstVisitor = PropagateTypesAstVisitor(preludeTable)
     ast.accept(propagateTypesAstVisitor)
     val errors = propagateTypesAstVisitor.errors.toSet()
@@ -67,7 +67,7 @@ fun propagateTypes(ast: FileAst, preludeTable: Scope) {
     }
 }
 
-fun checkTypes(ast: FileAst, prelude: Scope) {
+internal fun checkTypes(ast: FileAst, prelude: Scope) {
     val checkTypesAstVisitor = CheckTypesAstVisitor(prelude)
     ast.accept(checkTypesAstVisitor)
     val errors = checkTypesAstVisitor.errors.toSet()
@@ -76,7 +76,7 @@ fun checkTypes(ast: FileAst, prelude: Scope) {
     }
 }
 
-fun bans(ast: FileAst) {
+internal fun bans(ast: FileAst) {
     val banHigherOrderRefAstVisitor = BanHigherOrderRefAstVisitor()
     ast.accept(banHigherOrderRefAstVisitor)
     val errors = banHigherOrderRefAstVisitor.errors.toSet().toMutableSet()
@@ -98,7 +98,7 @@ fun bans(ast: FileAst) {
     }
 }
 
-fun sortFunctions(ast: FileAst): SortResult<Symbol> {
+internal fun sortFunctions(ast: FileAst): SortResult<Symbol> {
     val generateEdgesAstVisitor = GenerateFunctionEdgesAstVisitor()
     ast.accept(generateEdgesAstVisitor)
     val nodes = generateEdgesAstVisitor.nodes
@@ -107,7 +107,7 @@ fun sortFunctions(ast: FileAst): SortResult<Symbol> {
         is Left -> {
             val errors = LanguageErrors()
             sorted.value.forEach {
-                errors.add(NotInSource, RecursiveFunctionDetected(it))
+                errors.add(NotInSource, RecursiveFunctionDetected(toError(it)))
             }
             filterThrow(errors.toSet())
         }
@@ -115,12 +115,12 @@ fun sortFunctions(ast: FileAst): SortResult<Symbol> {
     }
 }
 
-fun calculateCostMultipliers(ast: FileAst, architecture: Architecture) {
+internal fun calculateCostMultipliers(ast: FileAst, architecture: Architecture) {
     val costMultiplierAstVisitor = CostMultiplierAstVisitor(architecture)
     ast.accept(costMultiplierAstVisitor)
 }
 
-fun calculateCost(symbol: Symbol, architecture: Architecture) {
+internal fun calculateCost(symbol: Symbol, architecture: Architecture) {
     val costExpressionAstVisitor = CostExpressionAstVisitor(architecture)
     when (symbol) {
         is GroundFunctionSymbol -> {
@@ -149,7 +149,7 @@ fun calculateCost(symbol: Symbol, architecture: Architecture) {
     }
 }
 
-fun calculateCost(ast: FileAst, architecture: Architecture) {
+internal fun calculateCost(ast: FileAst, architecture: Architecture) {
     val costExpressionAstVisitor = CostExpressionAstVisitor(architecture)
     ast.accept(costExpressionAstVisitor)
     val errors = costExpressionAstVisitor.errors.toSet()
@@ -158,7 +158,7 @@ fun calculateCost(ast: FileAst, architecture: Architecture) {
     }
 }
 
-fun enforceCostLimit(ast: FileAst, architecture: Architecture) {
+internal fun enforceCostLimit(ast: FileAst, architecture: Architecture) {
     val cost = ast.costExpression.accept(EvalCostExpressionVisitor(architecture))
     if (cost > architecture.costUpperLimit) {
         filterThrow(setOf(LanguageError(NotInSource, CostOverLimit)))
