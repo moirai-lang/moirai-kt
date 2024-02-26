@@ -75,7 +75,9 @@ internal fun preScanImportFanOut(
                         val node = fetchStoredFileByNamespaceAndScan(sourceStore, importedNamespace.path)
                         if (node.scriptType is NamedScriptBase) {
                             val nodeImportStat = ImportStat(node.scriptType.nameParts)
-                            unprocessed.add(node)
+                            if (!processed.contains(nodeImportStat)) {
+                                unprocessed.add(node)
+                            }
                             edges.add(
                                 DependencyEdge(
                                     processFirst = nodeImportStat,
