@@ -124,7 +124,7 @@ internal class PropagateTypesAstVisitor(
             val idArgs = signifier.args
             val idArgSymbols = idArgs.map { ast.scope.fetchType(it) }
             if (idArgs.size == symbol.typeParams.size) {
-                val instantiation = symbol.instantiation.apply(
+                val instantiation = symbol.instantiationValidation.apply(
                     ast.ctx,
                     errors,
                     args,
@@ -140,7 +140,7 @@ internal class PropagateTypesAstVisitor(
                 ast.assignType(errors, ErrorType)
             }
         } else {
-            val instantiation = symbol.instantiation.apply(
+            val instantiation = symbol.instantiationValidation.apply(
                 ast.ctx,
                 errors,
                 args,
@@ -796,7 +796,7 @@ internal class PropagateTypesAstVisitor(
                                 }
 
                                 is ParameterizedMemberPluginSymbol -> {
-                                    val instantiation = member.instantiation.apply(
+                                    val instantiation = member.instantiationValidation.apply(
                                         ast.ctx,
                                         errors,
                                         ast.args,
