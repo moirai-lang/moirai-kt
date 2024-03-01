@@ -102,7 +102,7 @@ internal class BasicType(
 
 internal class ParameterizedBasicType(
     val identifier: Identifier,
-    val instantiation: SingleTypeInstantiation<TerminusType, TypeInstantiation>,
+    val instantiation: GroundInstantiationValidation<TerminusType, TypeInstantiation>,
     val featureSupport: FeatureSupport,
     private val symbolTable: SymbolTable = SymbolTable(NullSymbolTable)
 ) : TerminusType, Scope by symbolTable {

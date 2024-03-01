@@ -106,7 +106,7 @@ internal object Lang {
     // Decimal
     val decimalType = ParameterizedBasicType(
         decimalId,
-        DecimalInstantiation(),
+        DecimalInstantiationValidation(),
         userTypeFeatureSupport
     )
     val decimalTypeParam = FinTypeParameter("${decimalId.name}.${decimalTypeId.name}", decimalTypeId)
@@ -115,7 +115,7 @@ internal object Lang {
     // List
     val listType = ParameterizedBasicType(
         listId,
-        ListInstantiation(),
+        ListInstantiationValidation(),
         immutableOrderedFeatureSupport
     )
     val listElementTypeParam = StandardTypeParameter("${listId.name}.${listElementTypeId.name}", listElementTypeId)
@@ -124,7 +124,7 @@ internal object Lang {
     // MutableList
     val mutableListType = ParameterizedBasicType(
         mutableListId,
-        MutableListInstantiation(),
+        MutableListInstantiationValidation(),
         immutableOrderedFeatureSupport
     )
     val mutableListElementTypeParam = StandardTypeParameter("${mutableListId.name}.${mutableListElementTypeId.name}", mutableListElementTypeId)
@@ -133,7 +133,7 @@ internal object Lang {
     // String
     val stringType = ParameterizedBasicType(
         stringId,
-        StringInstantiation(),
+        StringInstantiationValidation(),
         userTypeFeatureSupport
     )
 
@@ -151,7 +151,7 @@ internal object Lang {
 
     val dictionaryType = ParameterizedBasicType(
         dictionaryId,
-        DictionaryInstantiation(pairType),
+        DictionaryInstantiationValidation(pairType),
         immutableUnorderedFeatureSupport
     )
     val dictionaryKeyTypeParam = StandardTypeParameter("${dictionaryId.name}.${dictionaryKeyTypeId.name}", dictionaryKeyTypeId)
@@ -160,7 +160,7 @@ internal object Lang {
 
     val mutableDictionaryType = ParameterizedBasicType(
         mutableDictionaryId,
-        MutableDictionaryInstantiation(pairType),
+        MutableDictionaryInstantiationValidation(pairType),
         immutableUnorderedFeatureSupport
     )
     val mutableDictionaryKeyTypeParam = StandardTypeParameter("${mutableDictionaryId.name}.${mutableDictionaryKeyTypeId.name}", mutableDictionaryKeyTypeId)
@@ -169,7 +169,7 @@ internal object Lang {
 
     val setType = ParameterizedBasicType(
         setId,
-        SetInstantiation(),
+        SetInstantiationValidation(),
         immutableUnorderedFeatureSupport
     )
     val setElementTypeParam = StandardTypeParameter("${setId.name}.${setElementTypeId.name}", setElementTypeId)
@@ -177,7 +177,7 @@ internal object Lang {
 
     val mutableSetType = ParameterizedBasicType(
         mutableSetId,
-        MutableSetInstantiation(),
+        MutableSetInstantiationValidation(),
         immutableUnorderedFeatureSupport
     )
     val mutableSetElementTypeParam = StandardTypeParameter("${mutableSetId.name}.${mutableSetElementTypeId.name}", mutableSetElementTypeId)

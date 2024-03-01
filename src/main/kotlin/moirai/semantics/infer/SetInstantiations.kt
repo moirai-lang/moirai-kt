@@ -2,7 +2,7 @@ package moirai.semantics.infer
 
 import moirai.semantics.core.*
 
-internal class SetInstantiation : SingleTypeInstantiation<TerminusType, TypeInstantiation> {
+internal class SetInstantiationValidation : GroundInstantiationValidation<TerminusType, TypeInstantiation> {
     override fun apply(
         ctx: SourceContext,
         errors: LanguageErrors,
@@ -63,7 +63,7 @@ internal class SetInstantiation : SingleTypeInstantiation<TerminusType, TypeInst
     }
 }
 
-internal class MutableSetInstantiation : SingleTypeInstantiation<TerminusType, TypeInstantiation> {
+internal class MutableSetInstantiationValidation : GroundInstantiationValidation<TerminusType, TypeInstantiation> {
     override fun apply(
         ctx: SourceContext,
         errors: LanguageErrors,

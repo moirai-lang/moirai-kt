@@ -1,8 +1,8 @@
 package moirai.semantics.prelude
 
 import moirai.semantics.core.*
-import moirai.semantics.infer.RandomInstantiation
-import moirai.semantics.infer.RangeInstantiation
+import moirai.semantics.infer.RandomInstantiationValidation
+import moirai.semantics.infer.RangeInstantiationValidation
 import moirai.semantics.infer.Substitution
 
 internal object StaticPlugins {
@@ -13,7 +13,7 @@ internal object StaticPlugins {
         val rangePlugin = ParameterizedStaticPluginSymbol(
             Lang.prelude,
             Lang.rangeId,
-            RangeInstantiation
+            RangeInstantiationValidation
         )
 
         val rangeTypeParam = FinTypeParameter("${Lang.rangeId.name}.${Lang.rangeTypeId.name}", Lang.rangeTypeId)
@@ -41,7 +41,7 @@ internal object StaticPlugins {
         val randomPlugin = ParameterizedStaticPluginSymbol(
             Lang.prelude,
             Lang.randomId,
-            RandomInstantiation
+            RandomInstantiationValidation
         )
 
         val randomTypeParam = StandardTypeParameter("${Lang.randomId.name}.${Lang.randomTypeId.name}", Lang.randomTypeId)

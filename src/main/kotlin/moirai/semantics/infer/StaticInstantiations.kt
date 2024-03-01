@@ -4,7 +4,7 @@ import moirai.semantics.core.*
 import moirai.semantics.prelude.Lang
 import kotlin.math.abs
 
-internal object RangeInstantiation : SingleTypeInstantiation<RawTerminusSymbol, SymbolInstantiation> {
+internal object RangeInstantiationValidation : GroundInstantiationValidation<RawTerminusSymbol, SymbolInstantiation> {
     override fun apply(
         ctx: SourceContext,
         errors: LanguageErrors,
@@ -41,7 +41,7 @@ internal object RangeInstantiation : SingleTypeInstantiation<RawTerminusSymbol, 
     }
 }
 
-internal object RandomInstantiation : SingleTypeInstantiation<RawTerminusSymbol, SymbolInstantiation> {
+internal object RandomInstantiationValidation : GroundInstantiationValidation<RawTerminusSymbol, SymbolInstantiation> {
     override fun apply(
         ctx: SourceContext,
         errors: LanguageErrors,

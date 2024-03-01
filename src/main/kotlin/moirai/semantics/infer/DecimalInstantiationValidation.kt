@@ -2,7 +2,7 @@ package moirai.semantics.infer
 
 import moirai.semantics.core.*
 
-internal class DecimalInstantiation : SingleTypeInstantiation<TerminusType, TypeInstantiation> {
+internal class DecimalInstantiationValidation : GroundInstantiationValidation<TerminusType, TypeInstantiation> {
     override fun apply(
         ctx: SourceContext,
         errors: LanguageErrors,

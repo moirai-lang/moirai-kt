@@ -23,26 +23,3 @@ internal enum class TypeParameterKind {
 }
 
 internal data class TypeParameterDefinition(val identifier: Identifier, val type: TypeParameterKind)
-
-internal interface SingleTypeInstantiation<T: RawTerminus, S> {
-    fun apply(
-        ctx: SourceContext,
-        errors: LanguageErrors,
-        args: List<Ast>,
-        terminus: T,
-        identifier: Identifier,
-        explicitTypeArgs: List<Type>
-    ): S
-}
-
-internal interface TwoTypeInstantiation<T: RawTerminus, S> {
-    fun apply(
-        ctx: SourceContext,
-        errors: LanguageErrors,
-        args: List<Ast>,
-        terminus: T,
-        identifier: Identifier,
-        existingInstantiation: TypeInstantiation,
-        explicitTypeArgs: List<Type>
-    ): S
-}
