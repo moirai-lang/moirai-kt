@@ -255,6 +255,10 @@ internal class AstParseTreeVisitor(private val fileName: String, val errors: Lan
         return res
     }
 
+    override fun visitPluginFunDefStat(ctx: MoiraiParser.PluginFunDefStatContext): Ast {
+        langThrow(createContext(fileName, ctx.start), InvalidPluginLocation(SignifierErrorString(ctx.id.text)))
+    }
+
     override fun visitLambdaDef(ctx: MoiraiParser.LambdaDefContext): Ast {
         val params: MutableList<Binder> = ArrayList()
         if (ctx.params != null) {

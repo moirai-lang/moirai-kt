@@ -26,6 +26,7 @@ stat
     :   letStat
     |   forStat
     |   funDefStat
+    |   pluginFunDefStat
     |   objectDefStat
     |   recordDefStat
     |   assignStat
@@ -51,6 +52,10 @@ forStat
 
 funDefStat
     :   DEF id=IDENTIFIER tp=typeParams? LPAREN params=paramSeq? RPAREN ret=restrictedOfType? body=block
+    ;
+
+pluginFunDefStat
+    :   PLUGIN DEF id=IDENTIFIER tp=typeParams? LPAREN params=paramSeq? RPAREN ret=restrictedOfType?
     ;
 
 typeParams

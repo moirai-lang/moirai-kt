@@ -189,6 +189,7 @@ data class ImmutableAssign(val symbol: SymbolErrorString) : ErrorKind(), SymbolH
 }
 
 data class InvalidDefinitionLocation(val identifier: SignifierErrorString) : ErrorKind()
+data class InvalidPluginLocation(val identifier: SignifierErrorString) : ErrorKind()
 data class IncompatibleString(val type: TypeErrorString) : ErrorKind(), TypeHostErrorType {
     override val types: List<TypeErrorString> = listOf(type)
 }
