@@ -204,7 +204,7 @@ restrictedTypeExprSeq
     ;
 
 pluginFunDefStat
-    :   PLUGIN DEF id=IDENTIFIER LCURLY SIGNATURE ft=funTypeExpr COST ce=costExpr RCURLY
+    :   PLUGIN DEF id=IDENTIFIER tp=typeParams? LCURLY SIGNATURE ft=funTypeExpr COST ce=costExpr RCURLY
     ;
 
 costExpr
