@@ -54,10 +54,6 @@ funDefStat
     :   DEF id=IDENTIFIER tp=typeParams? LPAREN params=paramSeq? RPAREN ret=restrictedOfType? body=block
     ;
 
-pluginFunDefStat
-    :   PLUGIN DEF id=IDENTIFIER tp=typeParams? LPAREN params=paramSeq? RPAREN ret=restrictedOfType?
-    ;
-
 typeParams
     :   LT typeParam (COMMA typeParam)* GT
     ;
@@ -201,4 +197,18 @@ restrictedTypeExprOrLiteral
 
 restrictedTypeExprSeq
     :   restrictedTypeExpr (COMMA restrictedTypeExpr)*
+    ;
+
+pluginFunDefStat
+    :   PLUGIN DEF id=IDENTIFIER LCURLY SIGNATURE tp=typeParams? LPAREN params=paramSeq? RPAREN ret=restrictedOfType COST costExpr RCURLY
+    ;
+
+costExpr
+    :   id=IDENTIFIER LPAREN args=costExprSeq? RPAREN   # CostApply
+    |   value=INT                                       # CostMag
+    |   id=IDENTIFIER                                   # CostIdent
+    ;
+
+costExprSeq
+    :   costExpr (COMMA costExpr)*
     ;

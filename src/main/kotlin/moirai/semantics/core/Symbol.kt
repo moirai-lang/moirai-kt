@@ -137,3 +137,16 @@ internal data class ParameterizedStaticPluginSymbol(
 
     fun type() = FunctionType(formalParams.map { it.ofTypeSymbol }, returnType)
 }
+
+internal data class UserStaticPluginSymbol(
+    override val parent: Scope,
+    override val identifier: Identifier,
+    val instantiationValidation: GroundInstantiationValidation<RawTerminusSymbol, SymbolInstantiation>,
+) : RawTerminusSymbol(parent) {
+    override lateinit var typeParams: List<TypeParameter>
+    lateinit var formalParams: List<FunctionFormalParameterSymbol>
+    lateinit var returnType: Type
+    lateinit var costExpression: CostExpression
+
+    fun type() = FunctionType(formalParams.map { it.ofTypeSymbol }, returnType)
+}

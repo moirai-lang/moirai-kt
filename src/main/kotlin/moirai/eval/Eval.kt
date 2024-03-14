@@ -31,3 +31,21 @@ fun eval(
     val executionScope = ValueTable(globalScope)
     return executionArtifacts.processedAst.accept(evalVisitor, EvalContext(executionScope, mapOf()))
 }
+
+fun eval(
+    source: String,
+    architecture: Architecture,
+    sourceStore: SourceStore,
+    pluginSource: String,
+    userPlugins: List<UserPlugin>
+): Value {
+    val frontend = CompilerFrontend(architecture, sourceStore)
+
+    val executionArtifacts = frontend.fullCompileWithTopologicalSort(source)
+
+    val globalScope = ValueTable(NullValueTable)
+    val evalVisitor = EvalAstVisitor(architecture, globalScope)
+
+    val executionScope = ValueTable(globalScope)
+    return executionArtifacts.processedAst.accept(evalVisitor, EvalContext(executionScope, mapOf()))
+}
