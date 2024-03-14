@@ -54,6 +54,7 @@ internal fun filterValidGroundApply(
         is FunctionFormalParameterSymbol,
         is GroundFunctionSymbol,
         is ParameterizedStaticPluginSymbol,
+        is UserStaticPluginSymbol,
         is ParameterizedFunctionSymbol -> symbol
 
         is SymbolInstantiation -> {
@@ -154,6 +155,7 @@ internal fun filterValidDotApply(
                 }
 
                 is ParameterizedStaticPluginSymbol,
+                is UserStaticPluginSymbol,
                 is ParameterizedFunctionSymbol -> {
                     errors.add(ctx, SymbolCouldNotBeApplied(toError(signifier)))
                     ErrorSymbol
@@ -170,6 +172,7 @@ internal fun filterValidDotApply(
         is LambdaSymbol,
         is LocalVariableSymbol,
         is ParameterizedStaticPluginSymbol,
+        is UserStaticPluginSymbol,
         is ParameterizedFunctionSymbol -> {
             errors.add(ctx, SymbolCouldNotBeApplied(toError(signifier)))
             ErrorSymbol
@@ -445,6 +448,16 @@ internal fun checkApply(prelude: Scope, errors: LanguageErrors, ast: DotApplyAst
                         ast.args
                     )
                 }
+
+                is UserStaticPluginSymbol -> {
+                    checkArgs(
+                        prelude,
+                        errors,
+                        symbol.substitutionChain.replay(parameterizedSymbol.type()),
+                        ast,
+                        ast.args
+                    )
+                }
             }
         }
 
@@ -500,6 +513,16 @@ internal fun checkApply(prelude: Scope, errors: LanguageErrors, ast: GroundApply
                 }
 
                 is ParameterizedStaticPluginSymbol -> {
+                    checkArgs(
+                        prelude,
+                        errors,
+                        symbol.substitutionChain.replay(parameterizedSymbol.type()),
+                        ast,
+                        args
+                    )
+                }
+
+                is UserStaticPluginSymbol -> {
                     checkArgs(
                         prelude,
                         errors,

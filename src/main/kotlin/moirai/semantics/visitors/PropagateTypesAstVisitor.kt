@@ -98,6 +98,7 @@ internal class PropagateTypesAstVisitor(
                 when (val terminus = symbol.substitutionChain.terminus) {
                     is ParameterizedFunctionSymbol -> handleParamFunc(signifier, ast, terminus, args)
                     is ParameterizedStaticPluginSymbol -> handleParamStatic(signifier, ast, terminus, args)
+                    is UserStaticPluginSymbol -> handleParamStatic(signifier, ast, terminus, args)
                     is ParameterizedMemberPluginSymbol -> {
                         errors.add(ast.ctx, SymbolCouldNotBeApplied(toError(signifier)))
                         ast.groundApplySlot = GroundApplySlotError
@@ -118,6 +119,46 @@ internal class PropagateTypesAstVisitor(
         signifier: Signifier,
         ast: GroundApplyAst,
         symbol: ParameterizedStaticPluginSymbol,
+        args: List<Ast>
+    ) {
+        if (signifier is ParameterizedSignifier) {
+            val idArgs = signifier.args
+            val idArgSymbols = idArgs.map { ast.scope.fetchType(it) }
+            if (idArgs.size == symbol.typeParams.size) {
+                val instantiation = symbol.instantiationValidation.apply(
+                    ast.ctx,
+                    errors,
+                    args,
+                    symbol,
+                    symbol.identifier,
+                    idArgSymbols
+                )
+                ast.groundApplySlot = GroundApplySlotSI(instantiation)
+                val returnType = instantiation.substitutionChain.replay(symbol.returnType)
+                ast.assignType(errors, returnType)
+            } else {
+                errors.add(ast.ctx, IncorrectNumberOfTypeArgs(symbol.typeParams.size, idArgs.size))
+                ast.assignType(errors, ErrorType)
+            }
+        } else {
+            val instantiation = symbol.instantiationValidation.apply(
+                ast.ctx,
+                errors,
+                args,
+                symbol,
+                symbol.identifier,
+                listOf()
+            )
+            ast.groundApplySlot = GroundApplySlotSI(instantiation)
+            val returnType = instantiation.substitutionChain.replay(symbol.returnType)
+            ast.assignType(errors, returnType)
+        }
+    }
+
+    private fun handleParamStatic(
+        signifier: Signifier,
+        ast: GroundApplyAst,
+        symbol: UserStaticPluginSymbol,
         args: List<Ast>
     ) {
         if (signifier is ParameterizedSignifier) {
