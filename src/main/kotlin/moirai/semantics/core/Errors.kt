@@ -96,6 +96,7 @@ interface TypeHostErrorType {
 // Frontend Errors
 data object InvalidAssign : ErrorKind()
 data class InvalidIntegerLiteral(val typeId: String, val text: String) : ErrorKind()
+data class InvalidFinLiteral(val text: String) : ErrorKind()
 data class DuplicateImport(val import: List<String>) : ErrorKind()
 data class NoSuchFile(val import: List<String>) : ErrorKind()
 data object SelfImport : ErrorKind()
@@ -252,6 +253,8 @@ data class FormalParamFeatureBan(val type: TypeErrorString) : ErrorKind(), TypeH
 data class TypeArgFeatureBan(val type: TypeErrorString) : ErrorKind(), TypeHostErrorType {
     override val types: List<TypeErrorString> = listOf(type)
 }
+
+data class InvalidCostExpressionFunctionName(val name: String): ErrorKind()
 
 data class LanguageError(
     val ctx: SourceContext,

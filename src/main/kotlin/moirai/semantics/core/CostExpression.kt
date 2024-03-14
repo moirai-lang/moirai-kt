@@ -15,6 +15,12 @@ internal interface CostExpressionVisitor<R> {
     fun visit(costExpression: MaxCostExpression): R
 }
 
+internal enum class CostOperator(val idStr: String) {
+    Sum("Sum"),
+    Mul("Mul"),
+    Max("Max")
+}
+
 internal class EvalCostExpressionVisitor(val architecture: Architecture): CostExpressionVisitor<Long> {
     init {
         if(architecture.costUpperLimit > sqrt(Long.MAX_VALUE.toDouble()).toLong() - 2) {
