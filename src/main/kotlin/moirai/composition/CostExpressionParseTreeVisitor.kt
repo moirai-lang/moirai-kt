@@ -4,7 +4,7 @@ import moirai.grammar.MoiraiParser
 import moirai.grammar.MoiraiParserBaseVisitor
 import moirai.semantics.core.*
 
-internal class CostExpressionAstVisitor(
+internal class CostExpressionParseTreeVisitor(
     private val fileName: String,
     private val errors: LanguageErrors
 ) : MoiraiParserBaseVisitor<CostExpression>() {

@@ -170,11 +170,15 @@ ofType
     ;
 
 typeExpr
+    :   funTypeExpr                                     # FunType
+    |   id=IDENTIFIER params=restrictedTypeExprParams   # ParameterizedType
+    |   id=IDENTIFIER                                   # GroundType
+    ;
+
+funTypeExpr
     :   LPAREN params=restrictedTypeExprSeq RPAREN ARROW ret=restrictedTypeExpr     # MultiParamFunctionType
     |   LPAREN RPAREN ARROW ret=restrictedTypeExpr                                  # NoParamFunctionType
     |   input=restrictedTypeExpr ARROW ret=restrictedTypeExpr                       # OneParamFunctionType
-    |   id=IDENTIFIER params=restrictedTypeExprParams                               # ParameterizedType
-    |   id=IDENTIFIER                                                               # GroundType
     ;
 
 restrictedOfType
@@ -200,7 +204,7 @@ restrictedTypeExprSeq
     ;
 
 pluginFunDefStat
-    :   PLUGIN DEF id=IDENTIFIER LCURLY SIGNATURE tp=typeParams? LPAREN params=paramSeq? RPAREN ret=restrictedOfType COST costExpr RCURLY
+    :   PLUGIN DEF id=IDENTIFIER LCURLY SIGNATURE ft=funTypeExpr COST ce=costExpr RCURLY
     ;
 
 costExpr
