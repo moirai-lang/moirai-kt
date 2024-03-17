@@ -216,8 +216,11 @@ internal class EvalAstVisitor(
                     }
 
                     is ParameterizedMemberPluginSymbol -> langThrow(NotInSource, TypeSystemBug)
-                    is ParameterizedStaticPluginSymbol -> Plugins.staticPlugins[terminus]!!.invoke(args)
-                    is UserStaticPluginSymbol -> userPlugins[terminus.identifier.name]!!.evaluate(args)
+                    is ParameterizedStaticPluginSymbol -> if (terminus.isUserDefined) {
+                        userPlugins[terminus.identifier.name]!!.evaluate(args)
+                    } else {
+                        Plugins.staticPlugins[terminus]!!.invoke(args)
+                    }
                 }
             }
 

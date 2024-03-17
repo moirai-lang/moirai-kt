@@ -38,10 +38,6 @@ internal class CostExpressionAstVisitor(private val architecture: Architecture) 
                 val original = parameterizedSymbol.costExpression
                 instantiation.substitutionChain.replay(original)
             }
-            is UserStaticPluginSymbol -> {
-                val original = parameterizedSymbol.costExpression
-                instantiation.substitutionChain.replay(original)
-            }
         }
 
     override fun visit(ast: IntLiteralAst) {

@@ -61,7 +61,6 @@ internal fun toError(symbol: Symbol): SymbolErrorString {
             is ParameterizedFunctionSymbol -> symbol.identifier.name
             is ParameterizedMemberPluginSymbol -> symbol.identifier.name
             is ParameterizedStaticPluginSymbol -> symbol.identifier.name
-            is UserStaticPluginSymbol -> symbol.identifier.name
             is PlatformFieldSymbol -> symbol.identifier.name
             TypePlaceholder -> "_"
         }, symbol is ErrorSymbol
