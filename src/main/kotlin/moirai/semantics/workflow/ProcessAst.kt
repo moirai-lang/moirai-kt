@@ -5,6 +5,7 @@ import moirai.semantics.prelude.Lang
 
 internal data class UserScopes(
     val prelude: SymbolTable,
+    val plugins: SymbolTable,
     val imports: SymbolTable,
     val exports: SymbolTable
 )
@@ -18,9 +19,10 @@ internal data class SemanticArtifacts(
 )
 
 internal fun createUserScopes(): UserScopes {
-    val imports = SymbolTable(Lang.prelude)
+    val plugins = SymbolTable(Lang.prelude)
+    val imports = SymbolTable(plugins)
     val userRoot = SymbolTable(imports)
-    return UserScopes(Lang.prelude, imports, userRoot)
+    return UserScopes(Lang.prelude, plugins, imports, userRoot)
 }
 
 internal fun topologicallySortAllArtifacts(
