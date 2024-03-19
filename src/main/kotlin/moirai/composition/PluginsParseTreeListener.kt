@@ -5,7 +5,7 @@ import moirai.grammar.MoiraiParserBaseListener
 import moirai.semantics.core.*
 
 internal data class PluginDefLiteral(
-    val name: Identifier,
+    val id: Identifier,
     val typeParams: List<TypeParameterDefinition>,
     val typeLiteral: FunctionTypeLiteral,
     val costExpression: CostExpression
