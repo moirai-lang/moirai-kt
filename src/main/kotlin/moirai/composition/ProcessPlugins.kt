@@ -1,9 +1,7 @@
 package moirai.composition
 
-import moirai.semantics.core.IdentifierAlreadyExists
-import moirai.semantics.core.LanguageErrors
-import moirai.semantics.core.LanguageException
-import moirai.semantics.core.toError
+import moirai.semantics.core.*
+import moirai.semantics.prelude.Lang
 import org.antlr.v4.runtime.tree.ParseTreeWalker
 
 internal fun parsePlugins(fileName: String, pluginSource: String): List<PluginDefLiteral> {
@@ -38,4 +36,26 @@ internal fun parsePlugins(fileName: String, pluginSource: String): List<PluginDe
     }
 
     return plugins
+}
+
+internal fun processPlugins(fileName: String, pluginSource: String): List<ParameterizedStaticPluginSymbol> {
+    val plugins = parsePlugins(fileName, pluginSource)
+    val res: MutableList<ParameterizedStaticPluginSymbol> = mutableListOf()
+
+    
+
+    return res.toList()
+}
+
+internal fun createPluginScope(pluginSource: String): SymbolTable {
+    val res = SymbolTable(Lang.prelude)
+
+    if (pluginSource.isNotEmpty()) {
+        val plugins = processPlugins("plugins", pluginSource)
+        plugins.forEach {
+            res.define(it.identifier, it)
+        }
+    }
+
+    return res
 }

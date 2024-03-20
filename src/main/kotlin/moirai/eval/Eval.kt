@@ -42,7 +42,7 @@ fun eval(
     pluginSource: String,
     userPlugins: List<UserPlugin>
 ): Value {
-    val frontend = CompilerFrontend(architecture, sourceStore)
+    val frontend = CompilerFrontend(architecture, sourceStore, pluginSource)
 
     val executionArtifacts = frontend.fullCompileWithTopologicalSort(source)
 

@@ -18,8 +18,7 @@ internal data class SemanticArtifacts(
     val sortedFunctions: SortResult<Symbol>
 )
 
-internal fun createUserScopes(): UserScopes {
-    val plugins = SymbolTable(Lang.prelude)
+internal fun createUserScopes(plugins: SymbolTable): UserScopes {
     val imports = SymbolTable(plugins)
     val userRoot = SymbolTable(imports)
     return UserScopes(Lang.prelude, plugins, imports, userRoot)
@@ -74,9 +73,10 @@ internal fun processAstAllPhases(
     ast: FileAst,
     fileName: String,
     architecture: Architecture,
+    plugins: SymbolTable,
     existingArtifacts: List<SemanticArtifacts>
 ): SemanticArtifacts {
-    val userScopes = createUserScopes()
+    val userScopes = createUserScopes(plugins)
     existingArtifacts.forEach { artifact ->
         artifact.userScopes.exports.symbolsToMap().forEach { entry ->
             userScopes.imports.define(Identifier(NotInSource, entry.key), entry.value)
