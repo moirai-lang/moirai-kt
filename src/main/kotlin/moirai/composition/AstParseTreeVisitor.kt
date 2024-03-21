@@ -8,7 +8,7 @@ import java.math.BigDecimal
 
 internal class AstParseTreeVisitor(private val fileName: String, val errors: LanguageErrors) :
     MoiraiParserBaseVisitor<Ast>() {
-    private val typeVisitor = TypeLiteralParseTreeVisitor(fileName)
+    private val typeVisitor = TypeLiteralParseTreeVisitor(fileName, errors)
 
     override fun visitFile(ctx: MoiraiParser.FileContext): Ast {
         val stats = ctx.stat().map { visit(it) }
@@ -253,6 +253,10 @@ internal class AstParseTreeVisitor(private val fileName: String, val errors: Lan
         val id = Identifier(createContext(fileName, ctx.id), ctx.id.text)
         val res = FunctionAst(createContext(fileName, ctx.id), id, typeParams, params, ret, body)
         return res
+    }
+
+    override fun visitPluginFunDefStat(ctx: MoiraiParser.PluginFunDefStatContext): Ast {
+        langThrow(createContext(fileName, ctx.start), InvalidPluginLocation(SignifierErrorString(ctx.id.text)))
     }
 
     override fun visitLambdaDef(ctx: MoiraiParser.LambdaDefContext): Ast {

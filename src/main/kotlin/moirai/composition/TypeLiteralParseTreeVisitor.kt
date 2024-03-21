@@ -4,7 +4,10 @@ import moirai.grammar.MoiraiParser
 import moirai.grammar.MoiraiParserBaseVisitor
 import moirai.semantics.core.*
 
-internal class TypeLiteralParseTreeVisitor(private val fileName: String) : MoiraiParserBaseVisitor<Signifier>() {
+internal class TypeLiteralParseTreeVisitor(
+    private val fileName: String,
+    private val errors: LanguageErrors
+) : MoiraiParserBaseVisitor<Signifier>() {
     override fun visitGroundType(ctx: MoiraiParser.GroundTypeContext): Signifier {
         val res = Identifier(createContext(fileName, ctx.IDENTIFIER().symbol), ctx.IDENTIFIER().text.toString())
         return res
@@ -42,7 +45,13 @@ internal class TypeLiteralParseTreeVisitor(private val fileName: String) : Moira
     }
 
     override fun visitFinLiteral(ctx: MoiraiParser.FinLiteralContext): Signifier {
-        val res = FinLiteral(createContext(fileName, ctx.magnitude), ctx.magnitude.text.toLong())
+        val sourceContext = createContext(fileName, ctx.magnitude)
+        val res = try {
+            FinLiteral(sourceContext, ctx.magnitude.text.toLong())
+        } catch (_: Exception) {
+            errors.add(sourceContext, InvalidFinLiteral(ctx.magnitude.text))
+            FinLiteral(sourceContext, 0)
+        }
         return res
     }
 

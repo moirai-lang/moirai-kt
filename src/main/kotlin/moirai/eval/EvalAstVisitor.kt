@@ -7,7 +7,11 @@ import moirai.semantics.prelude.Lang
 
 internal data class EvalContext(val values: ValueTable, val substitutions: Map<TypeParameter, Type>)
 
-internal class EvalAstVisitor(architecture: Architecture, private val globalScope: ValueTable) : ParameterizedAstVisitor<EvalContext, Value> {
+internal class EvalAstVisitor(
+    architecture: Architecture,
+    private val globalScope: ValueTable,
+    private val userPlugins: Map<String, UserPlugin>
+) : ParameterizedAstVisitor<EvalContext, Value> {
     private val evalCostVisitor = EvalCostExpressionVisitor(architecture)
 
     private fun invoke(functionValue: FunctionValue, args: List<Value>, substitutions: Map<TypeParameter, Type>): Value {
@@ -188,6 +192,16 @@ internal class EvalAstVisitor(architecture: Architecture, private val globalScop
                 invoke(toApply, args, param.substitutions)
             }
 
+            is GroundApplySlotGSPS -> {
+                val args = ast.args.map { it.accept(this, param) }
+
+                if (groundApplySlot.payload.isUserDefined) {
+                    userPlugins[groundApplySlot.payload.identifier.name]!!.evaluate(args)
+                } else {
+                    langThrow(NotInSource, TypeSystemBug)
+                }
+            }
+
             is GroundApplySlotGRT -> {
                 val args = ast.args.map { it.accept(this, param) }
                 val fields = ValueTable(NullValueTable)
@@ -212,7 +226,11 @@ internal class EvalAstVisitor(architecture: Architecture, private val globalScop
                     }
 
                     is ParameterizedMemberPluginSymbol -> langThrow(NotInSource, TypeSystemBug)
-                    is ParameterizedStaticPluginSymbol -> Plugins.staticPlugins[terminus]!!.invoke(args)
+                    is ParameterizedStaticPluginSymbol -> if (terminus.isUserDefined) {
+                        userPlugins[terminus.identifier.name]!!.evaluate(args)
+                    } else {
+                        Plugins.staticPlugins[terminus]!!.invoke(args)
+                    }
                 }
             }
 

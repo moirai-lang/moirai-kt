@@ -38,7 +38,6 @@ LAMBDA: 'lambda';
 MATCH: 'match';
 MUTABLE: 'mutable';
 OBJECT: 'object';
-PLUGIN: 'plugin';
 RECORD: 'record';
 SCRIPT: 'script';
 TO: 'to';
@@ -46,6 +45,10 @@ TYPE: 'type';
 TRANSIENT: 'transient';
 VAL: 'val';
 VARIANT: 'variant';
+
+COST: 'cost';
+PLUGIN: 'plugin';
+SIGNATURE: 'signature';
 
 ASSIGN: '=';
 DOT: '.';

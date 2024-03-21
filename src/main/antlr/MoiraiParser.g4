@@ -26,6 +26,7 @@ stat
     :   letStat
     |   forStat
     |   funDefStat
+    |   pluginFunDefStat
     |   objectDefStat
     |   recordDefStat
     |   assignStat
@@ -169,11 +170,15 @@ ofType
     ;
 
 typeExpr
+    :   funTypeExpr                                     # FunType
+    |   id=IDENTIFIER params=restrictedTypeExprParams   # ParameterizedType
+    |   id=IDENTIFIER                                   # GroundType
+    ;
+
+funTypeExpr
     :   LPAREN params=restrictedTypeExprSeq RPAREN ARROW ret=restrictedTypeExpr     # MultiParamFunctionType
     |   LPAREN RPAREN ARROW ret=restrictedTypeExpr                                  # NoParamFunctionType
     |   input=restrictedTypeExpr ARROW ret=restrictedTypeExpr                       # OneParamFunctionType
-    |   id=IDENTIFIER params=restrictedTypeExprParams                               # ParameterizedType
-    |   id=IDENTIFIER                                                               # GroundType
     ;
 
 restrictedOfType
@@ -196,4 +201,18 @@ restrictedTypeExprOrLiteral
 
 restrictedTypeExprSeq
     :   restrictedTypeExpr (COMMA restrictedTypeExpr)*
+    ;
+
+pluginFunDefStat
+    :   PLUGIN DEF id=IDENTIFIER tp=typeParams? LCURLY SIGNATURE ft=funTypeExpr COST ce=costExpr RCURLY
+    ;
+
+costExpr
+    :   id=IDENTIFIER LPAREN args=costExprSeq? RPAREN   # CostApply
+    |   value=INT                                       # CostMag
+    |   id=IDENTIFIER                                   # CostIdent
+    ;
+
+costExprSeq
+    :   costExpr (COMMA costExpr)*
     ;

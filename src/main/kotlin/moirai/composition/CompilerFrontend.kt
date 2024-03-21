@@ -5,8 +5,11 @@ import moirai.semantics.workflow.*
 
 class CompilerFrontend(
     private val architecture: Architecture,
-    private val sourceStore: SourceStore
+    private val sourceStore: SourceStore,
+    pluginSource: PluginSource = NoPluginSource
 ) {
+    private val pluginScope = createPluginScope(pluginSource)
+
     private fun fetchOrAdd(
         executionCache: ExecutionCache,
         nameParts: List<String>,
@@ -35,6 +38,7 @@ class CompilerFrontend(
             rawAst,
             initialScan.scriptType.fileName(),
             architecture,
+            pluginScope,
             existingSemantics
         )
 
@@ -108,6 +112,7 @@ class CompilerFrontend(
                 rawAst,
                 scriptType.fileName(),
                 architecture,
+                pluginScope,
                 existingArtifacts
             )
             semanticsMap[scriptType.nameParts] = artifacts

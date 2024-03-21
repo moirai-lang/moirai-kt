@@ -139,6 +139,11 @@ internal class CostExpressionAstVisitor(private val architecture: Architecture) 
                 symbolRef.formalParams.map { it.costMultiplier }
             }
 
+            is GroundApplySlotGSPS -> {
+                val symbolRef = groundApplySlot.payload
+                symbolRef.formalParams.map { it.costMultiplier }
+            }
+
             is GroundApplySlotGRT -> listOf()
             is GroundApplySlotSI -> {
                 val symbolRef = groundApplySlot.payload
@@ -165,6 +170,10 @@ internal class CostExpressionAstVisitor(private val architecture: Architecture) 
             }
 
             is GroundApplySlotGF -> {
+                convertCostExpression(groundApplySlot.payload)
+            }
+
+            is GroundApplySlotGSPS -> {
                 convertCostExpression(groundApplySlot.payload)
             }
 

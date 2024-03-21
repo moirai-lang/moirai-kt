@@ -60,6 +60,7 @@ internal fun toError(symbol: Symbol): SymbolErrorString {
             is GroundMemberPluginSymbol -> symbol.identifier.name
             is ParameterizedFunctionSymbol -> symbol.identifier.name
             is ParameterizedMemberPluginSymbol -> symbol.identifier.name
+            is GroundStaticPluginSymbol -> symbol.identifier.name
             is ParameterizedStaticPluginSymbol -> symbol.identifier.name
             is PlatformFieldSymbol -> symbol.identifier.name
             TypePlaceholder -> "_"
@@ -96,6 +97,7 @@ interface TypeHostErrorType {
 // Frontend Errors
 data object InvalidAssign : ErrorKind()
 data class InvalidIntegerLiteral(val typeId: String, val text: String) : ErrorKind()
+data class InvalidFinLiteral(val text: String) : ErrorKind()
 data class DuplicateImport(val import: List<String>) : ErrorKind()
 data class NoSuchFile(val import: List<String>) : ErrorKind()
 data object SelfImport : ErrorKind()
@@ -189,6 +191,7 @@ data class ImmutableAssign(val symbol: SymbolErrorString) : ErrorKind(), SymbolH
 }
 
 data class InvalidDefinitionLocation(val identifier: SignifierErrorString) : ErrorKind()
+data class InvalidPluginLocation(val identifier: SignifierErrorString) : ErrorKind()
 data class IncompatibleString(val type: TypeErrorString) : ErrorKind(), TypeHostErrorType {
     override val types: List<TypeErrorString> = listOf(type)
 }
@@ -251,6 +254,9 @@ data class FormalParamFeatureBan(val type: TypeErrorString) : ErrorKind(), TypeH
 data class TypeArgFeatureBan(val type: TypeErrorString) : ErrorKind(), TypeHostErrorType {
     override val types: List<TypeErrorString> = listOf(type)
 }
+
+data class InvalidCostExpressionFunctionName(val name: String): ErrorKind()
+data class PluginAlreadyExists(val name: String): ErrorKind()
 
 data class LanguageError(
     val ctx: SourceContext,
