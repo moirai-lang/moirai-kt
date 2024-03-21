@@ -13,4 +13,15 @@ class PluginTests {
     """.trimIndent()
         splitTestPlugins(input)
     }
+
+    @Test
+    fun paramPluginTest() {
+        val input = """
+        val x = paramPlugin(List(5, 6))
+        x
+        ^^^^^
+        6
+    """.trimIndent()
+        splitTestPlugins(input)
+    }
 }

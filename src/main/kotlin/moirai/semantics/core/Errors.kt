@@ -60,6 +60,7 @@ internal fun toError(symbol: Symbol): SymbolErrorString {
             is GroundMemberPluginSymbol -> symbol.identifier.name
             is ParameterizedFunctionSymbol -> symbol.identifier.name
             is ParameterizedMemberPluginSymbol -> symbol.identifier.name
+            is GroundStaticPluginSymbol -> symbol.identifier.name
             is ParameterizedStaticPluginSymbol -> symbol.identifier.name
             is PlatformFieldSymbol -> symbol.identifier.name
             TypePlaceholder -> "_"

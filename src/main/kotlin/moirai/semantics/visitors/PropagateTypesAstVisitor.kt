@@ -25,6 +25,14 @@ internal class PropagateTypesAstVisitor(
                 ast.assignType(errors, symbol.returnType)
             }
 
+            is GroundStaticPluginSymbol -> {
+                if (signifier is ParameterizedSignifier) {
+                    errors.add(signifier.ctx, SymbolHasNoParameters(toError(signifier)))
+                }
+                ast.groundApplySlot = GroundApplySlotGSPS(symbol)
+                ast.assignType(errors, symbol.returnType)
+            }
+
             is ParameterizedFunctionSymbol -> {
                 handleParamFunc(signifier, ast, symbol, args)
             }

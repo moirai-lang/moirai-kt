@@ -39,6 +39,7 @@ internal sealed class GroundApplyAstSymbolSlot
 
 internal data object GroundApplySlotError: GroundApplyAstSymbolSlot()
 internal data class GroundApplySlotGF(val payload: GroundFunctionSymbol): GroundApplyAstSymbolSlot()
+internal data class GroundApplySlotGSPS(val payload: GroundStaticPluginSymbol): GroundApplyAstSymbolSlot()
 internal data class GroundApplySlotSI(val payload: SymbolInstantiation): GroundApplyAstSymbolSlot()
 internal data class GroundApplySlotTI(val payload: TypeInstantiation): GroundApplyAstSymbolSlot()
 internal data class GroundApplySlotFormal(val payload: FunctionFormalParameterSymbol): GroundApplyAstSymbolSlot()

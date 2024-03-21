@@ -192,6 +192,16 @@ internal class EvalAstVisitor(
                 invoke(toApply, args, param.substitutions)
             }
 
+            is GroundApplySlotGSPS -> {
+                val args = ast.args.map { it.accept(this, param) }
+
+                if (groundApplySlot.payload.isUserDefined) {
+                    userPlugins[groundApplySlot.payload.identifier.name]!!.evaluate(args)
+                } else {
+                    langThrow(NotInSource, TypeSystemBug)
+                }
+            }
+
             is GroundApplySlotGRT -> {
                 val args = ast.args.map { it.accept(this, param) }
                 val fields = ValueTable(NullValueTable)

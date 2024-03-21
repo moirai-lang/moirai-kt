@@ -53,6 +53,7 @@ internal fun filterValidGroundApply(
     when (symbol) {
         is FunctionFormalParameterSymbol,
         is GroundFunctionSymbol,
+        is GroundStaticPluginSymbol,
         is ParameterizedStaticPluginSymbol,
         is ParameterizedFunctionSymbol -> symbol
 
@@ -169,6 +170,7 @@ internal fun filterValidDotApply(
         is PlatformFieldSymbol,
         is LambdaSymbol,
         is LocalVariableSymbol,
+        is GroundStaticPluginSymbol,
         is ParameterizedStaticPluginSymbol,
         is ParameterizedFunctionSymbol -> {
             errors.add(ctx, SymbolCouldNotBeApplied(toError(signifier)))
@@ -467,6 +469,11 @@ internal fun checkApply(prelude: Scope, errors: LanguageErrors, ast: GroundApply
         }
 
         is GroundApplySlotGF -> {
+            val symbol = groundApplySlot.payload
+            checkArgs(prelude, errors, symbol.type(), ast, args)
+        }
+
+        is GroundApplySlotGSPS -> {
             val symbol = groundApplySlot.payload
             checkArgs(prelude, errors, symbol.type(), ast, args)
         }
