@@ -6,7 +6,7 @@ import moirai.semantics.workflow.*
 class CompilerFrontend(
     private val architecture: Architecture,
     private val sourceStore: SourceStore,
-    pluginSource: String = ""
+    pluginSource: PluginSource = NoPluginSource
 ) {
     private val pluginScope = createPluginScope(pluginSource)
 

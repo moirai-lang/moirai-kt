@@ -107,11 +107,16 @@ internal fun processPlugins(fileName: String, pluginSource: String, scope: Symbo
     return res.toList()
 }
 
-internal fun createPluginScope(pluginSource: String): SymbolTable {
+sealed class PluginSource
+
+data class UserPluginSource(val text: String): PluginSource()
+data object NoPluginSource: PluginSource()
+
+internal fun createPluginScope(pluginSource: PluginSource): SymbolTable {
     val res = SymbolTable(Lang.prelude)
 
-    if (pluginSource.isNotEmpty()) {
-        val plugins = processPlugins("plugins", pluginSource, res)
+    if (pluginSource is UserPluginSource) {
+        val plugins = processPlugins("plugins", pluginSource.text, res)
         plugins.forEach {
             res.define(it.identifier, it)
         }

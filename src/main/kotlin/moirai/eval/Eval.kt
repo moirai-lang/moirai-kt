@@ -1,8 +1,6 @@
 package moirai.eval
 
-import moirai.composition.CompilerFrontend
-import moirai.composition.ExecutionArtifacts
-import moirai.composition.SourceStore
+import moirai.composition.*
 import moirai.semantics.core.Architecture
 import moirai.semantics.core.NotInSource
 import moirai.semantics.core.PluginAlreadyExists
@@ -42,7 +40,7 @@ fun eval(
     pluginSource: String,
     userPlugins: List<UserPlugin>
 ): Value {
-    val frontend = CompilerFrontend(architecture, sourceStore, pluginSource)
+    val frontend = CompilerFrontend(architecture, sourceStore, UserPluginSource(pluginSource))
 
     val executionArtifacts = frontend.fullCompileWithTopologicalSort(source)
 
