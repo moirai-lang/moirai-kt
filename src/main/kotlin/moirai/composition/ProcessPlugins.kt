@@ -2,6 +2,7 @@ package moirai.composition
 
 import moirai.semantics.core.*
 import moirai.semantics.prelude.Lang
+import moirai.semantics.visitors.bindFormals
 import moirai.semantics.visitors.qualifiedName
 import org.antlr.v4.runtime.tree.ParseTreeWalker
 
@@ -74,7 +75,29 @@ internal fun processPlugins(fileName: String, pluginSource: String, scope: Symbo
                     typeParam
                 }
             }
+        } else {
+            pluginSymbol.typeParams = listOf()
         }
+
+        val binders: MutableList<Binder> = mutableListOf()
+        pluginDef.typeLiteral.formalParamTypes.forEachIndexed { index, signifier ->
+            binders.add(Binder(Identifier(NotInSource, "param${index}"), signifier))
+        }
+
+        try {
+            if (pluginDef.typeParams.isEmpty()) {
+                pluginSymbol.formalParams = bindFormals(binders, pluginSymbol)
+                pluginSymbol.returnType = pluginSymbol.fetchType(pluginDef.typeLiteral.returnType)
+            } else {
+                pluginSymbol.formalParams = bindFormals(binders, pluginSymbol)
+                pluginSymbol.returnType = pluginSymbol.fetchType(pluginDef.typeLiteral.returnType)
+            }
+        } catch (ex: LanguageException) {
+            errors.addAll(pluginDef.id.ctx, ex.errors)
+        }
+
+        pluginSymbol.costExpression = pluginDef.costExpression
+        res.add(pluginSymbol)
     }
 
     if (errors.toSet().isNotEmpty()) {
