@@ -125,6 +125,18 @@ internal data class ParameterizedMemberPluginSymbol(
     fun type() = FunctionType(formalParams.map { it.ofTypeSymbol }, returnType)
 }
 
+internal data class GroundStaticPluginSymbol(
+    override val parent: Scope,
+    override val identifier: Identifier,
+    val isUserDefined: Boolean = false
+) : NamedSymbolWithMembers(parent) {
+    lateinit var formalParams: List<FunctionFormalParameterSymbol>
+    lateinit var returnType: Type
+    lateinit var costExpression: CostExpression
+
+    fun type() = FunctionType(formalParams.map { it.ofTypeSymbol }, returnType)
+}
+
 internal data class ParameterizedStaticPluginSymbol(
     override val parent: Scope,
     override val identifier: Identifier,

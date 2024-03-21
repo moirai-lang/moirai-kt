@@ -160,6 +160,45 @@ fun testGradual(source: String, architecture: Architecture): Value {
     return eval(architecture, executionArtifacts)
 }
 
+data class TestUserPlugin(override val key: String, private val eval: (List<Value>) -> Value): UserPlugin {
+    override fun evaluate(args: List<Value>): Value = eval(args)
+}
+
+fun testPlugins(source: String, architecture: Architecture): Value {
+    val sourceStore = LocalSourceStore()
+    addTestSources(sourceStore)
+
+    val pluginSource = """
+        plugin def simplePlugin {
+            signature (Int, Int) -> Int
+            cost Sum(5, 5)
+        }
+        
+        plugin def paramPlugin<T, K: Fin> {
+            signature List<T, K> -> T
+            cost Mul(5, K)
+        }
+    """.trimIndent()
+
+    val userPlugins: MutableList<UserPlugin> = mutableListOf()
+
+    userPlugins.add(
+        TestUserPlugin("simplePlugin") {
+            val first = it.first() as IntValue
+            val last = it.last() as IntValue
+            IntValue(first.canonicalForm + last.canonicalForm)
+        }
+    )
+    userPlugins.add(
+        TestUserPlugin("paramPlugin") {
+            val l = it.first() as ListValue
+            l.elements.last()
+        }
+    )
+
+    return eval(source, architecture, sourceStore, pluginSource, userPlugins)
+}
+
 fun failTest(source: String, expectedCount: Int, predicate: (LanguageError) -> Boolean) {
     failTest(source, expectedCount, predicate, TestArchitecture)
 }
@@ -211,6 +250,25 @@ fun splitTestGradual(
 
     val actual = testGradual(sourceActual, architecture)
     val expected = testGradual(sourceExpected, architecture)
+
+    when {
+        actual is DecimalValue && expected is DecimalValue -> {
+            Assertions.assertTrue(expected.canonicalForm.compareTo(actual.canonicalForm) == 0)
+        }
+        else -> Assertions.assertEquals(expected, actual)
+    }
+}
+
+fun splitTestPlugins(
+    fullText: String,
+    architecture: Architecture = TestArchitecture
+) {
+    val parts = fullText.split("^^^^^")
+    val sourceActual = parts[0]
+    val sourceExpected = parts[1]
+
+    val actual = testPlugins(sourceActual, architecture)
+    val expected = testPlugins(sourceExpected, architecture)
 
     when {
         actual is DecimalValue && expected is DecimalValue -> {

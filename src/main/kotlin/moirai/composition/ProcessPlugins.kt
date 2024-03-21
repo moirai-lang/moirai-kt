@@ -24,10 +24,9 @@ internal fun parsePlugins(fileName: String, pluginSource: String, errors: Langua
     return pluginsParseTreeListener.listPlugins()
 }
 
-internal fun processPlugins(fileName: String, pluginSource: String, scope: SymbolTable): List<ParameterizedStaticPluginSymbol> {
+internal fun processPlugins(fileName: String, pluginSource: String, scope: SymbolTable) {
     val errors = LanguageErrors()
     val plugins = parsePlugins(fileName, pluginSource, errors)
-    val res: MutableList<ParameterizedStaticPluginSymbol> = mutableListOf()
 
     val seen: HashSet<String> = hashSetOf()
 
@@ -38,8 +37,14 @@ internal fun processPlugins(fileName: String, pluginSource: String, scope: Symbo
             seen.add(pluginDef.id.name)
         }
 
-        val pluginSymbol = ParameterizedStaticPluginSymbol(scope, pluginDef.id, PluginInstantiationValidation(), true)
+        val binders: MutableList<Binder> = mutableListOf()
+        pluginDef.typeLiteral.formalParamTypes.forEachIndexed { index, signifier ->
+            binders.add(Binder(Identifier(NotInSource, "param${index}"), signifier))
+        }
+
         if (pluginDef.typeParams.isNotEmpty()) {
+            val pluginSymbol =
+                ParameterizedStaticPluginSymbol(scope, pluginDef.id, PluginInstantiationValidation(), true)
             val seenTypeParameters: MutableSet<String> = HashSet()
             pluginSymbol.typeParams = pluginDef.typeParams.map { typeParamDef ->
                 if (typeParamDef.type == TypeParameterKind.Fin) {
@@ -75,31 +80,34 @@ internal fun processPlugins(fileName: String, pluginSource: String, scope: Symbo
                     typeParam
                 }
             }
+
+            try {
+                pluginSymbol.formalParams = bindFormals(binders, pluginSymbol)
+                pluginSymbol.returnType = pluginSymbol.fetchType(pluginDef.typeLiteral.returnType)
+            } catch (ex: LanguageException) {
+                errors.addAll(pluginDef.id.ctx, ex.errors)
+            }
+
+            pluginSymbol.costExpression = pluginDef.costExpression
+            scope.define(pluginSymbol.identifier, pluginSymbol)
         } else {
-            pluginSymbol.typeParams = listOf()
-        }
+            val pluginSymbol = GroundStaticPluginSymbol(scope, pluginDef.id, true)
 
-        val binders: MutableList<Binder> = mutableListOf()
-        pluginDef.typeLiteral.formalParamTypes.forEachIndexed { index, signifier ->
-            binders.add(Binder(Identifier(NotInSource, "param${index}"), signifier))
-        }
+            try {
+                pluginSymbol.formalParams = bindFormals(binders, pluginSymbol)
+                pluginSymbol.returnType = pluginSymbol.fetchType(pluginDef.typeLiteral.returnType)
+            } catch (ex: LanguageException) {
+                errors.addAll(pluginDef.id.ctx, ex.errors)
+            }
 
-        try {
-            pluginSymbol.formalParams = bindFormals(binders, pluginSymbol)
-            pluginSymbol.returnType = pluginSymbol.fetchType(pluginDef.typeLiteral.returnType)
-        } catch (ex: LanguageException) {
-            errors.addAll(pluginDef.id.ctx, ex.errors)
+            pluginSymbol.costExpression = pluginDef.costExpression
+            scope.define(pluginSymbol.identifier, pluginSymbol)
         }
-
-        pluginSymbol.costExpression = pluginDef.costExpression
-        res.add(pluginSymbol)
     }
 
     if (errors.toSet().isNotEmpty()) {
         throw LanguageException(errors.toSet())
     }
-
-    return res.toList()
 }
 
 sealed class PluginSource
@@ -111,10 +119,7 @@ internal fun createPluginScope(pluginSource: PluginSource): SymbolTable {
     val res = SymbolTable(Lang.prelude)
 
     if (pluginSource is UserPluginSource) {
-        val plugins = processPlugins("plugins", pluginSource.text, res)
-        plugins.forEach {
-            res.define(it.identifier, it)
-        }
+        processPlugins("plugins", pluginSource.text, res)
     }
 
     return res
