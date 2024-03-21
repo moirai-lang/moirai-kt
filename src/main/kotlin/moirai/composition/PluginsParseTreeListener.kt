@@ -14,7 +14,6 @@ internal data class PluginDefLiteral(
 internal class PluginsParseTreeListener(val fileName: String, val errors: LanguageErrors) :
     MoiraiParserBaseListener() {
     private val typeVisitor = TypeLiteralParseTreeVisitor(fileName, errors)
-    private val costVisitor = CostExpressionParseTreeVisitor(fileName, errors)
     private val accumulatedPlugins: MutableList<PluginDefLiteral> = mutableListOf()
     override fun enterPluginFunDefStat(ctx: MoiraiParser.PluginFunDefStatContext) {
         val sourceContext = createContext(fileName, ctx.id)
@@ -38,7 +37,10 @@ internal class PluginsParseTreeListener(val fileName: String, val errors: Langua
         }
 
         val ft = typeVisitor.visit(ctx.ft) as FunctionTypeLiteral
+
+        val costVisitor = CostExpressionParseTreeVisitor(fileName, errors, ctx.id.text)
         val ce = costVisitor.visit(ctx.ce)
+
         accumulatedPlugins.add(PluginDefLiteral(id, typeParams, ft, ce))
     }
 

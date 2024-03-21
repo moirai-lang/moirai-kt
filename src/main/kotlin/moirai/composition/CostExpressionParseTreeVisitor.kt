@@ -6,7 +6,8 @@ import moirai.semantics.core.*
 
 internal class CostExpressionParseTreeVisitor(
     private val fileName: String,
-    private val errors: LanguageErrors
+    private val errors: LanguageErrors,
+    private val parentName: String
 ) : MoiraiParserBaseVisitor<CostExpression>() {
     override fun visitCostApply(ctx: MoiraiParser.CostApplyContext): CostExpression {
         val args = ctx.args.costExpr().map { visit(it) }
@@ -40,6 +41,9 @@ internal class CostExpressionParseTreeVisitor(
     }
 
     override fun visitCostIdent(ctx: MoiraiParser.CostIdentContext): CostExpression {
-        return FinTypeParameter(ctx.id.text, Identifier(createContext(fileName, ctx.id), ctx.id.text))
+        return FinTypeParameter(
+            "${fileName}.${parentName}.${ctx.id.text}",
+            Identifier(createContext(fileName, ctx.id), ctx.id.text)
+        )
     }
 }
