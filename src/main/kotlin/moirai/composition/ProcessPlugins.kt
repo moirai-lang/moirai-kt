@@ -85,13 +85,8 @@ internal fun processPlugins(fileName: String, pluginSource: String, scope: Symbo
         }
 
         try {
-            if (pluginDef.typeParams.isEmpty()) {
-                pluginSymbol.formalParams = bindFormals(binders, pluginSymbol)
-                pluginSymbol.returnType = pluginSymbol.fetchType(pluginDef.typeLiteral.returnType)
-            } else {
-                pluginSymbol.formalParams = bindFormals(binders, pluginSymbol)
-                pluginSymbol.returnType = pluginSymbol.fetchType(pluginDef.typeLiteral.returnType)
-            }
+            pluginSymbol.formalParams = bindFormals(binders, pluginSymbol)
+            pluginSymbol.returnType = pluginSymbol.fetchType(pluginDef.typeLiteral.returnType)
         } catch (ex: LanguageException) {
             errors.addAll(pluginDef.id.ctx, ex.errors)
         }
