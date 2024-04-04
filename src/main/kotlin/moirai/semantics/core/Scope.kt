@@ -72,6 +72,7 @@ internal class SymbolTable(private val parent: Scope) : Scope {
             is ParameterizedSignifier -> exists(signifier.tti) && signifier.args.all { exists(it) }
             is ImplicitTypeLiteral -> false
             is FinLiteral -> false
+            is InvokeSignifier -> false
         }
 
     override fun existsHere(signifier: Signifier): Boolean =
@@ -81,6 +82,7 @@ internal class SymbolTable(private val parent: Scope) : Scope {
             is ParameterizedSignifier -> existsHere(signifier.tti) && signifier.args.all { exists(it) }
             is ImplicitTypeLiteral -> false
             is FinLiteral -> false
+            is InvokeSignifier -> false
         }
 
     override fun fetch(signifier: Signifier): Symbol =
@@ -137,6 +139,7 @@ internal class SymbolTable(private val parent: Scope) : Scope {
             }
             is ImplicitTypeLiteral -> langThrow(signifier.ctx, TypeSystemBug)
             is FinLiteral -> TypePlaceholder
+            is InvokeSignifier -> TypePlaceholder
         }
 
     override fun fetchHere(signifier: Signifier): Symbol =
@@ -193,6 +196,7 @@ internal class SymbolTable(private val parent: Scope) : Scope {
             }
             is ImplicitTypeLiteral -> langThrow(signifier.ctx, TypeSystemBug)
             is FinLiteral -> TypePlaceholder
+            is InvokeSignifier -> TypePlaceholder
         }
 
     override fun defineType(identifier: Identifier, definition: Type) {
@@ -211,6 +215,7 @@ internal class SymbolTable(private val parent: Scope) : Scope {
             is ParameterizedSignifier -> typeExists(signifier.tti) && signifier.args.all { typeExists(it) }
             is ImplicitTypeLiteral -> false
             is FinLiteral -> false
+            is InvokeSignifier -> false
         }
 
     override fun typeExistsHere(signifier: Signifier): Boolean =
@@ -220,6 +225,7 @@ internal class SymbolTable(private val parent: Scope) : Scope {
             is ParameterizedSignifier -> typeExistsHere(signifier.tti) && signifier.args.all { typeExists(it) }
             is ImplicitTypeLiteral -> false
             is FinLiteral -> false
+            is InvokeSignifier -> false
         }
 
     override fun fetchType(signifier: Signifier): Type =
@@ -298,6 +304,20 @@ internal class SymbolTable(private val parent: Scope) : Scope {
 
             is ImplicitTypeLiteral -> langThrow(signifier.ctx, TypeSystemBug)
             is FinLiteral -> Fin(signifier.magnitude)
+            is InvokeSignifier -> {
+                val typeArgs = signifier.args.map {
+                    val t = fetchType(it)
+                    if (t !is CostExpression) {
+                        langThrow(it.ctx, TypeMustBeCostExpression(toError(t)))
+                    }
+                    t
+                }
+                when (signifier.op) {
+                    CostOperator.Sum -> SumCostExpression(typeArgs)
+                    CostOperator.Mul -> ProductCostExpression(typeArgs)
+                    CostOperator.Max -> MaxCostExpression(typeArgs)
+                }
+            }
         }
 
     override fun fetchTypeHere(signifier: Signifier): Type =
@@ -376,5 +396,19 @@ internal class SymbolTable(private val parent: Scope) : Scope {
 
             is ImplicitTypeLiteral -> langThrow(signifier.ctx, TypeSystemBug)
             is FinLiteral -> Fin(signifier.magnitude)
+            is InvokeSignifier -> {
+                val typeArgs = signifier.args.map {
+                    val t = fetchType(it)
+                    if (t !is CostExpression) {
+                        langThrow(it.ctx, TypeMustBeCostExpression(toError(t)))
+                    }
+                    t
+                }
+                when (signifier.op) {
+                    CostOperator.Sum -> SumCostExpression(typeArgs)
+                    CostOperator.Mul -> ProductCostExpression(typeArgs)
+                    CostOperator.Max -> MaxCostExpression(typeArgs)
+                }
+            }
         }
 }
