@@ -191,12 +191,12 @@ restrictedTypeExpr
     ;
 
 restrictedTypeExprParams
-    :   LT restrictedTypeExprOrLiteral (COMMA restrictedTypeExprOrLiteral)* GT
+    :   LT restrictedTypeExprOrCostExpr (COMMA restrictedTypeExprOrCostExpr)* GT
     ;
 
-restrictedTypeExprOrLiteral
-    :   magnitude=INT                                       # FinLiteral
-    |   te=restrictedTypeExpr                               # NoFin
+restrictedTypeExprOrCostExpr
+    :   costExpr
+    |   restrictedTypeExpr
     ;
 
 restrictedTypeExprSeq

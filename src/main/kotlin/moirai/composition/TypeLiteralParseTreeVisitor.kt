@@ -17,7 +17,7 @@ internal class TypeLiteralParseTreeVisitor(
         val tti = Identifier(createContext(fileName, ctx.start), ctx.IDENTIFIER().text.toString())
 
         val args: MutableList<Signifier> = ArrayList()
-        ctx.params.restrictedTypeExprOrLiteral().forEach {
+        ctx.params.restrictedTypeExprOrCostExpr().forEach {
             val param = visit(it)
             args.add(param)
         }
@@ -35,28 +35,13 @@ internal class TypeLiteralParseTreeVisitor(
         val tti = Identifier(createContext(fileName, ctx.start), ctx.IDENTIFIER().text.toString())
 
         val args: MutableList<Signifier> = ArrayList()
-        ctx.params.restrictedTypeExprOrLiteral().forEach {
+        ctx.params.restrictedTypeExprOrCostExpr().forEach {
             val param = visit(it)
             args.add(param)
         }
 
         val res = ParameterizedSignifier(createContext(fileName, ctx.start), tti, args)
         return res
-    }
-
-    override fun visitFinLiteral(ctx: MoiraiParser.FinLiteralContext): Signifier {
-        val sourceContext = createContext(fileName, ctx.magnitude)
-        val res = try {
-            FinLiteral(sourceContext, ctx.magnitude.text.toLong())
-        } catch (_: Exception) {
-            errors.add(sourceContext, InvalidFinLiteral(ctx.magnitude.text))
-            FinLiteral(sourceContext, 0)
-        }
-        return res
-    }
-
-    override fun visitNoFin(ctx: MoiraiParser.NoFinContext): Signifier {
-        return visit(ctx.te)
     }
 
     override fun visitMultiParamFunctionType(ctx: MoiraiParser.MultiParamFunctionTypeContext): Signifier {
