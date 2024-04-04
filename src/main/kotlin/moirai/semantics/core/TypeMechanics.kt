@@ -624,7 +624,13 @@ private fun <T> transpose(table: List<List<T>>): List<List<T>> {
     return res
 }
 
-internal fun findBestType(ctx: SourceContext, errors: LanguageErrors, types: List<Type>): Type {
+enum class FindBestTypeMode {
+    If,
+    Match,
+    Constraint
+}
+
+internal fun findBestType(ctx: SourceContext, errors: LanguageErrors, types: List<Type>, mode: FindBestTypeMode): Type {
     if (types.isEmpty()) {
         errors.add(ctx, TypeSystemBug)
         return ErrorType
@@ -674,7 +680,7 @@ internal fun findBestType(ctx: SourceContext, errors: LanguageErrors, types: Lis
 
         is PlatformSumObjectType -> {
             val sumPath = getQualifiedName(first.sumType)
-            handleSumType(types, sumPath, ctx, errors)
+            handleSumType(types, sumPath, ctx, errors, mode)
         }
 
         is TypeInstantiation -> {
@@ -691,7 +697,7 @@ internal fun findBestType(ctx: SourceContext, errors: LanguageErrors, types: Lis
                         val typeArgs = transpose(types.map {
                             (it as TypeInstantiation).substitutionChain.replayArgs()
                         }).map {
-                            findBestType(ctx, errors, it)
+                            findBestType(ctx, errors, it, mode)
                         }
                         val substitution = Substitution(parameterizedType.typeParams, typeArgs)
                         substitution.apply(parameterizedType)
@@ -712,7 +718,7 @@ internal fun findBestType(ctx: SourceContext, errors: LanguageErrors, types: Lis
                         val typeArgs = transpose(types.map {
                             (it as TypeInstantiation).substitutionChain.replayArgs()
                         }).map {
-                            findBestType(ctx, errors, it)
+                            findBestType(ctx, errors, it, mode)
                         }
                         val substitution = Substitution(parameterizedType.typeParams, typeArgs)
                         substitution.apply(parameterizedType)
@@ -735,12 +741,12 @@ internal fun findBestType(ctx: SourceContext, errors: LanguageErrors, types: Lis
 
                 is PlatformSumRecordType -> {
                     val sumPath = getQualifiedName(parameterizedType.sumType)
-                    handleSumType(types, sumPath, ctx, errors)
+                    handleSumType(types, sumPath, ctx, errors, mode)
                 }
 
                 is PlatformSumType -> {
                     val sumPath = getQualifiedName(parameterizedType)
-                    handleSumType(types, sumPath, ctx, errors)
+                    handleSumType(types, sumPath, ctx, errors, mode)
                 }
             }
         }
@@ -778,6 +784,10 @@ internal fun findBestType(ctx: SourceContext, errors: LanguageErrors, types: Lis
             val firstPath = getQualifiedName(first)
             if (types.all { it is FinTypeParameter && firstPath == getQualifiedName(it) }) {
                 first
+            } else if ((mode == FindBestTypeMode.If || mode == FindBestTypeMode.Match) && types.all { it is CostExpression }) {
+                // Provided that we are not attempting to perform type inference,
+                // it is safe to just use Max operator on the fin type parameters
+                MaxCostExpression(types.filterIsInstance<CostExpression>())
             } else {
                 errors.add(ctx, CannotFindBestType(types.map { toError(it) }))
                 ErrorType
@@ -795,7 +805,8 @@ private fun handleSumType(
     types: List<Type>,
     sumPath: String,
     ctx: SourceContext,
-    errors: LanguageErrors
+    errors: LanguageErrors,
+    mode: FindBestTypeMode
 ): Type {
     return if (types.any { isCorrectSumRecord(it, sumPath) || isCorrectSumType(it, sumPath) }) {
         if (types.all {
@@ -821,7 +832,7 @@ private fun handleSumType(
             }
 
             val typeArgs = sumType.typeParams.map {
-                findBestType(ctx, errors, sumTypeParamTable[it]!!.toList())
+                findBestType(ctx, errors, sumTypeParamTable[it]!!.toList(), mode)
             }
             val substitution = Substitution(sumType.typeParams, typeArgs)
             substitution.apply(sumType)

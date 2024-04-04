@@ -77,4 +77,23 @@ class FunctionHappyTests {
             """.trimIndent()
         )
     }
+
+    @Test
+    fun costExprLiteralReturnTypeTest() {
+        splitTest(
+            """
+                def maxList<T, M: Fin, N: Fin>(listM: List<T, M>, listN: List<T, N> ): List<T, Max(M, N)> {
+                    if (listM.size > listN.size) {
+                        listM
+                    } else {
+                        listN
+                    }
+                }
+                
+                maxList(List(1, 2, 3), List(1, 2, 3, 4, 5))
+                ^^^^^
+                List(1, 2, 3, 4, 5)
+            """.trimIndent()
+        )
+    }
 }

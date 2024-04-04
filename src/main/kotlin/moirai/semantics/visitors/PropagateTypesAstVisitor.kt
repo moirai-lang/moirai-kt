@@ -1029,7 +1029,8 @@ internal class PropagateTypesAstVisitor(
                     listOf(
                         ast.trueBranch.readType(),
                         ast.falseBranch.readType()
-                    )
+                    ),
+                    FindBestTypeMode.If
                 )
             )
         } catch (ex: LanguageException) {
@@ -1102,7 +1103,8 @@ internal class PropagateTypesAstVisitor(
                 findBestType(
                     ast.ctx,
                     errors,
-                    ast.cases.map { it.block.readType() }
+                    ast.cases.map { it.block.readType() },
+                    FindBestTypeMode.Match
                 )
             )
         } catch (ex: LanguageException) {

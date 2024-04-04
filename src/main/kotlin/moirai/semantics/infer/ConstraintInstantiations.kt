@@ -23,7 +23,7 @@ internal fun createSubstitution(
             relation.equivalences.size > 1 -> {
                 instantiations[relation.someItem.value] = findBestType(ctx, errors, relation.equivalences.map {
                     it.value
-                })
+                }, FindBestTypeMode.Constraint)
             }
             else -> {
                 instantiations[relation.someItem.value] = relation.equivalences.first().value
