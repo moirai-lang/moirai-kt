@@ -296,7 +296,7 @@ internal class AstParseTreeVisitor(private val fileName: String, val errors: Lan
             }
         }
 
-        val typeArgs = ctx.params.restrictedTypeExprOrLiteral().map {
+        val typeArgs = ctx.params.restrictedTypeExprOrCostExpr().map {
             typeVisitor.visit(it)
         }
 
@@ -381,7 +381,7 @@ internal class AstParseTreeVisitor(private val fileName: String, val errors: Lan
             }
         }
 
-        val typeArgs = ctx.params.restrictedTypeExprOrLiteral().map {
+        val typeArgs = ctx.params.restrictedTypeExprOrCostExpr().map {
             typeVisitor.visit(it)
         }
 
