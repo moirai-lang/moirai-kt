@@ -367,7 +367,9 @@ internal fun checkTypes(
             if (expected.children.size != actual.children.size) {
                 errors.add(ctx, TypeMismatch(toError(expected), toError(actual)))
             } else {
-                checkTypes(ctx, prelude, errors, expected.children, actual.children)
+                val expectedChildrenCanonical = sortCanonical(expected.children)
+                val actualChildrenCanonical = sortCanonical(expected.children)
+                checkTypes(ctx, prelude, errors, expectedChildrenCanonical, actualChildrenCanonical)
             }
         }
 
@@ -375,7 +377,9 @@ internal fun checkTypes(
             if (expected.children.size != actual.children.size) {
                 errors.add(ctx, TypeMismatch(toError(expected), toError(actual)))
             } else {
-                checkTypes(ctx, prelude, errors, expected.children, actual.children)
+                val expectedChildrenCanonical = sortCanonical(expected.children)
+                val actualChildrenCanonical = sortCanonical(expected.children)
+                checkTypes(ctx, prelude, errors, expectedChildrenCanonical, actualChildrenCanonical)
             }
         }
 
@@ -383,7 +387,9 @@ internal fun checkTypes(
             if (expected.children.size != actual.children.size) {
                 errors.add(ctx, TypeMismatch(toError(expected), toError(actual)))
             } else {
-                checkTypes(ctx, prelude, errors, expected.children, actual.children)
+                val expectedChildrenCanonical = sortCanonical(expected.children)
+                val actualChildrenCanonical = sortCanonical(expected.children)
+                checkTypes(ctx, prelude, errors, expectedChildrenCanonical, actualChildrenCanonical)
             }
         }
 
@@ -396,6 +402,18 @@ internal fun checkTypes(
         }
     }
 }
+
+private fun sortCanonical(costExpressions: List<CostExpression>): List<CostExpression> {
+    val res: MutableList<CostExpression> = mutableListOf()
+    res.addAll(costExpressions.filterIsInstance<MaxCostExpression>())
+    res.addAll(costExpressions.filterIsInstance<ProductCostExpression>())
+    res.addAll(costExpressions.filterIsInstance<SumCostExpression>())
+    res.addAll(costExpressions.filterIsInstance<FinTypeParameter>().sortedBy { it.qualifiedName })
+    res.addAll(costExpressions.filterIsInstance<Fin>().sortedBy { it.magnitude })
+    res.addAll(costExpressions.filterIsInstance<ConstantFin>())
+    return res
+}
+
 
 internal fun checkTypes(
     ctx: SourceContext,

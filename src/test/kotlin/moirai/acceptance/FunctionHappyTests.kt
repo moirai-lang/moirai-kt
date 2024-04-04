@@ -96,4 +96,23 @@ class FunctionHappyTests {
             """.trimIndent()
         )
     }
+
+    @Test
+    fun costExprLiteralReturnTypeCanonicalTest() {
+        splitTest(
+            """
+                def maxList<T, M: Fin, N: Fin>(listM: List<T, M>, listN: List<T, N> ): List<T, Max(N, M)> {
+                    if (listM.size > listN.size) {
+                        listM
+                    } else {
+                        listN
+                    }
+                }
+                
+                maxList(List(1, 2, 3), List(1, 2, 3, 4, 5))
+                ^^^^^
+                List(1, 2, 3, 4, 5)
+            """.trimIndent()
+        )
+    }
 }
