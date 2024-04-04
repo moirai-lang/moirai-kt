@@ -82,6 +82,9 @@ internal fun toError(signifier: Signifier): SignifierErrorString {
             is FinLiteral -> signifier.magnitude.toString()
             is ImplicitTypeLiteral -> "_"
             is Identifier -> signifier.name
+            is InvokeSignifier -> "${signifier.op.idStr}(${
+                signifier.args.map { toError(it).value }.joinToString { "," }
+            })"
         }
     )
 }
@@ -256,6 +259,9 @@ data class TypeArgFeatureBan(val type: TypeErrorString) : ErrorKind(), TypeHostE
 }
 
 data class InvalidCostExpressionFunctionName(val name: String): ErrorKind()
+data class TypeMustBeCostExpression(val type: TypeErrorString): ErrorKind(), TypeHostErrorType {
+    override val types: List<TypeErrorString> = listOf(type)
+}
 data class PluginAlreadyExists(val name: String): ErrorKind()
 
 data class LanguageError(

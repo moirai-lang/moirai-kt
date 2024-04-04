@@ -18,34 +18,12 @@ internal sealed class TypeParameter : Type
 internal class StandardTypeParameter(
     val qualifiedName: String,
     val identifier: Identifier
-) : TypeParameter(), Type {
-    override fun equals(other: Any?): Boolean {
-        if (other is StandardTypeParameter) {
-            return qualifiedName == other.qualifiedName
-        }
-        return false
-    }
-
-    override fun hashCode(): Int {
-        return qualifiedName.hashCode()
-    }
-}
+) : TypeParameter(), Type
 
 internal class FinTypeParameter(
     val qualifiedName: String,
     val identifier: Identifier
 ) : TypeParameter(), CostExpression, Type {
-    override fun equals(other: Any?): Boolean {
-        if (other is FinTypeParameter) {
-            return qualifiedName == other.qualifiedName
-        }
-        return false
-    }
-
-    override fun hashCode(): Int {
-        return qualifiedName.hashCode()
-    }
-
     override fun <R> accept(visitor: CostExpressionVisitor<R>): R {
         return visitor.visit(this)
     }

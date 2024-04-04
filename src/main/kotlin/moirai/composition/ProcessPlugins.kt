@@ -88,7 +88,12 @@ internal fun processPlugins(fileName: String, pluginSource: String, scope: Symbo
                 errors.addAll(pluginDef.id.ctx, ex.errors)
             }
 
-            pluginSymbol.costExpression = pluginDef.costExpression
+            val cet = pluginSymbol.fetchType(pluginDef.costExpression)
+            if (cet !is CostExpression) {
+                errors.add(pluginDef.costExpression.ctx, TypeMustBeCostExpression(toError(cet)))
+            } else {
+                pluginSymbol.costExpression = cet
+            }
             scope.define(pluginSymbol.identifier, pluginSymbol)
         } else {
             val pluginSymbol = GroundStaticPluginSymbol(scope, pluginDef.id, true)
@@ -100,7 +105,12 @@ internal fun processPlugins(fileName: String, pluginSource: String, scope: Symbo
                 errors.addAll(pluginDef.id.ctx, ex.errors)
             }
 
-            pluginSymbol.costExpression = pluginDef.costExpression
+            val cet = pluginSymbol.fetchType(pluginDef.costExpression)
+            if (cet !is CostExpression) {
+                errors.add(pluginDef.costExpression.ctx, TypeMustBeCostExpression(toError(cet)))
+            } else {
+                pluginSymbol.costExpression = cet
+            }
             scope.define(pluginSymbol.identifier, pluginSymbol)
         }
     }

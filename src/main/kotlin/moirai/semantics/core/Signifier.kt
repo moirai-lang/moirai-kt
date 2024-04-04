@@ -24,6 +24,12 @@ internal data class ParameterizedSignifier(
     val args: List<Signifier>
 ) : Signifier()
 
+internal data class InvokeSignifier(
+    override val ctx: SourceContext,
+    val op: CostOperator,
+    val args: List<Signifier>
+) : Signifier()
+
 internal data class Identifier(override val ctx: SourceContext, val name: String) : TerminalTextSignifier()
 internal data class FinLiteral(override val ctx: SourceContext, val magnitude: Long) : TerminalSignifier()
 
@@ -49,6 +55,12 @@ internal fun linearizeIdentifiers(signifiers: List<Signifier>): List<TerminalSig
             }
             is FinLiteral -> {
                 res.add(signifier)
+            }
+
+            is InvokeSignifier -> {
+                signifier.args.forEach {
+                    linearizeIdentifiersAux(it)
+                }
             }
         }
     }
