@@ -8,7 +8,7 @@ internal data class PluginDefLiteral(
     val id: Identifier,
     val typeParams: List<TypeParameterDefinition>,
     val typeLiteral: FunctionTypeLiteral,
-    val costExpression: CostExpression
+    val costExpression: Signifier
 )
 
 internal class PluginsParseTreeListener(val fileName: String, val errors: LanguageErrors) :
@@ -37,9 +37,7 @@ internal class PluginsParseTreeListener(val fileName: String, val errors: Langua
         }
 
         val ft = typeVisitor.visit(ctx.ft) as FunctionTypeLiteral
-
-        val costVisitor = CostExpressionParseTreeVisitor(fileName, errors, ctx.id.text)
-        val ce = costVisitor.visit(ctx.ce)
+        val ce = typeVisitor.visit(ctx.ce)
 
         accumulatedPlugins.add(PluginDefLiteral(id, typeParams, ft, ce))
     }

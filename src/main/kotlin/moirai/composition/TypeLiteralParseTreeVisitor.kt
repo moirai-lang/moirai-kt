@@ -90,4 +90,43 @@ internal class TypeLiteralParseTreeVisitor(
         val res = FunctionTypeLiteral(createContext(fileName, ctx.start), params, ret)
         return res
     }
+
+    override fun visitCostApply(ctx: MoiraiParser.CostApplyContext): Signifier {
+        val args = ctx.args.costExpr().map { visit(it) }
+        val sourceContext = createContext(fileName, ctx.id)
+        return when (val id = ctx.id.text) {
+            CostOperator.Sum.idStr -> {
+                InvokeSignifier(sourceContext, CostOperator.Sum, args)
+            }
+
+            CostOperator.Mul.idStr -> {
+                InvokeSignifier(sourceContext, CostOperator.Mul, args)
+            }
+
+            CostOperator.Max.idStr -> {
+                InvokeSignifier(sourceContext, CostOperator.Max, args)
+            }
+
+            else -> {
+
+                errors.add(sourceContext, InvalidCostExpressionFunctionName(id))
+                FinLiteral(sourceContext, 0)
+            }
+        }
+    }
+
+    override fun visitCostMag(ctx: MoiraiParser.CostMagContext): Signifier {
+        val sourceContext = createContext(fileName, ctx.value)
+        val res = try {
+            FinLiteral(sourceContext, ctx.value.text.toLong())
+        } catch (_: Exception) {
+            errors.add(sourceContext, InvalidFinLiteral(ctx.value.text))
+            FinLiteral(sourceContext, 0)
+        }
+        return res
+    }
+
+    override fun visitCostIdent(ctx: MoiraiParser.CostIdentContext): Signifier {
+        return Identifier(createContext(fileName, ctx.id), ctx.id.text)
+    }
 }
