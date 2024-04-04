@@ -364,20 +364,28 @@ internal fun checkTypes(
 
         expected is ConstantFin && actual is ConstantFin -> Unit
         expected is MaxCostExpression && actual is MaxCostExpression -> {
-            checkTypes(ctx, prelude, errors, expected.children, actual.children)
+            if (expected.children.size != actual.children.size) {
+                errors.add(ctx, TypeMismatch(toError(expected), toError(actual)))
+            } else {
+                checkTypes(ctx, prelude, errors, expected.children, actual.children)
+            }
         }
 
         expected is ProductCostExpression && actual is ProductCostExpression -> {
-            checkTypes(ctx, prelude, errors, expected.children, actual.children)
+            if (expected.children.size != actual.children.size) {
+                errors.add(ctx, TypeMismatch(toError(expected), toError(actual)))
+            } else {
+                checkTypes(ctx, prelude, errors, expected.children, actual.children)
+            }
         }
 
         expected is SumCostExpression && actual is SumCostExpression -> {
-            checkTypes(ctx, prelude, errors, expected.children, actual.children)
+            if (expected.children.size != actual.children.size) {
+                errors.add(ctx, TypeMismatch(toError(expected), toError(actual)))
+            } else {
+                checkTypes(ctx, prelude, errors, expected.children, actual.children)
+            }
         }
-
-        // We seem to hit this case during string interpolation, and the actual resolution happens during
-        // the CostExpressionAstVisitor phase
-        expected is CostExpression && actual is CostExpression -> Unit
 
         else -> {
             val expectedPath = getQualifiedName(expected)
