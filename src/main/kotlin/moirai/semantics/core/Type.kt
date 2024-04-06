@@ -41,19 +41,25 @@ internal data object ConstantFin : CostExpression, Type {
     }
 }
 
-internal class SumCostExpression(val children: List<CostExpression>) : CostExpression {
+internal class SumCostExpression(args: List<CostExpression>) : CostExpression {
+    val children: List<CostExpression> = sortCanonical(args)
+
     override fun <R> accept(visitor: CostExpressionVisitor<R>): R {
         return visitor.visit(this)
     }
 }
 
-internal class ProductCostExpression(val children: List<CostExpression>) : CostExpression {
+internal class ProductCostExpression(args: List<CostExpression>) : CostExpression {
+    val children: List<CostExpression> = sortCanonical(args)
+
     override fun <R> accept(visitor: CostExpressionVisitor<R>): R {
         return visitor.visit(this)
     }
 }
 
-internal class MaxCostExpression(val children: List<CostExpression>) : CostExpression {
+internal class MaxCostExpression(args: List<CostExpression>) : CostExpression {
+    val children: List<CostExpression> = sortCanonical(args)
+
     override fun <R> accept(visitor: CostExpressionVisitor<R>): R {
         return visitor.visit(this)
     }

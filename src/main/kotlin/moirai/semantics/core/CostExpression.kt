@@ -21,6 +21,17 @@ internal enum class CostOperator(val idStr: String) {
     Max("Max")
 }
 
+internal fun sortCanonical(costExpressions: List<CostExpression>): List<CostExpression> {
+    val res: MutableList<CostExpression> = mutableListOf()
+    res.addAll(costExpressions.filterIsInstance<MaxCostExpression>())
+    res.addAll(costExpressions.filterIsInstance<ProductCostExpression>())
+    res.addAll(costExpressions.filterIsInstance<SumCostExpression>())
+    res.addAll(costExpressions.filterIsInstance<FinTypeParameter>().sortedBy { it.qualifiedName })
+    res.addAll(costExpressions.filterIsInstance<Fin>().sortedBy { it.magnitude })
+    res.addAll(costExpressions.filterIsInstance<ConstantFin>())
+    return res
+}
+
 internal class EvalCostExpressionVisitor(val architecture: Architecture): CostExpressionVisitor<Long> {
     init {
         if(architecture.costUpperLimit > sqrt(Long.MAX_VALUE.toDouble()).toLong() - 2) {
