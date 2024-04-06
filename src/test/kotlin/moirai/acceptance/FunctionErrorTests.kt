@@ -74,4 +74,23 @@ class FunctionErrorTests {
             it.error is InvalidRef
         }
     }
+
+    @Test
+    fun costExprLiteralReturnTypeErrorTest() {
+        failTest(
+            """
+            def maxList<T, M: Fin, N: Fin, O: Fin>(listM: List<T, M>, listN: List<T, N>, listO: List<T, O>): List<T, Max(M, N)> {
+                if (listM.size > listN.size) {
+                    listM
+                } else {
+                    listO
+                }
+            }
+                
+            maxList(List(1, 2, 3), List(1, 2, 3, 4, 5), List(2, 3, 4, 5, 6, 7, 8, 9))
+        """.trimIndent(), 1
+        ) {
+            it.error is TypeMismatch
+        }
+    }
 }
