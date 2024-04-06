@@ -82,7 +82,7 @@ class FunctionHappyTests {
     fun costExprLiteralReturnTypeTest() {
         splitTest(
             """
-                def maxList<T, M: Fin, N: Fin>(listM: List<T, M>, listN: List<T, N> ): List<T, Max(M, N)> {
+                def maxList<T, M: Fin, N: Fin>(listM: List<T, M>, listN: List<T, N>): List<T, Max(M, N)> {
                     if (listM.size > listN.size) {
                         listM
                     } else {
@@ -101,7 +101,7 @@ class FunctionHappyTests {
     fun costExprLiteralReturnTypeCanonicalTest() {
         splitTest(
             """
-                def maxList<T, M: Fin, N: Fin>(listM: List<T, M>, listN: List<T, N> ): List<T, Max(N, M)> {
+                def maxList<T, M: Fin, N: Fin>(listM: List<T, M>, listN: List<T, N>): List<T, Max(N, M)> {
                     if (listM.size > listN.size) {
                         listM
                     } else {
