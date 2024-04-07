@@ -2,9 +2,10 @@ plugins {
     kotlin("jvm") version "1.9.0"
     antlr
     jacoco
+    `maven-publish`
 }
 
-group = "moirai-lang"
+group = "org.moirai-lang"
 version = "0.2.0"
 
 repositories {
@@ -52,5 +53,13 @@ tasks.jacocoTestReport {
         xml.required = false
         csv.required = false
         html.outputLocation = layout.buildDirectory.dir("jacocoHtml")
+    }
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("myLibrary") {
+            from(components["java"])
+        }
     }
 }
