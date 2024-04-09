@@ -58,7 +58,22 @@ class ListHappyTests {
         val input = """
         val x = List(1, 2, 3)
         for(y: Int in x) {
-            x
+            y
+        }
+        
+        x[0]
+        ^^^^^
+        1
+    """.trimIndent()
+        splitTest(input)
+    }
+
+    @Test
+    fun basicForShortFormTest() {
+        val input = """
+        val x = List(1, 2, 3)
+        for(x) {
+            it
         }
         
         x[0]

@@ -420,7 +420,7 @@ internal class AstParseTreeVisitor(private val fileName: String, val errors: Lan
         return rewriteAsDotApply(left, listOf(right), method, sourceContext)
     }
 
-    override fun visitForStat(ctx: MoiraiParser.ForStatContext): Ast {
+    override fun visitLongForStat(ctx: MoiraiParser.LongForStatContext): Ast {
         val right = visit(ctx.source)
         val identifier = Identifier(createContext(fileName, ctx.id), ctx.id.text)
         val of = if (ctx.of != null) {
@@ -431,7 +431,17 @@ internal class AstParseTreeVisitor(private val fileName: String, val errors: Lan
 
         val body = visit(ctx.body)
 
-        val res = ForEachAst(createContext(fileName, ctx.id), identifier, of, right, body)
+        val res = ForEachAst(createContext(fileName, ctx.op), identifier, of, right, body)
+        return res
+    }
+
+    override fun visitShortForStat(ctx: MoiraiParser.ShortForStatContext): Ast {
+        val right = visit(ctx.source)
+        val of = ImplicitTypeLiteral(NotInSource)
+
+        val body = visit(ctx.body)
+
+        val res = ForEachAst(createContext(fileName, ctx.op), Lang.itId, of, right, body)
         return res
     }
 
@@ -512,7 +522,7 @@ internal class AstParseTreeVisitor(private val fileName: String, val errors: Lan
         return visit(ctx.anymatch)
     }
 
-    override fun visitMatchExpr(ctx: MoiraiParser.MatchExprContext): Ast {
+    override fun visitLongMatchExpr(ctx: MoiraiParser.LongMatchExprContext): Ast {
         val sourceContext = createContext(fileName, ctx.op)
         val identifier = Identifier(createContext(fileName, ctx.id), ctx.id.text)
 
@@ -526,6 +536,22 @@ internal class AstParseTreeVisitor(private val fileName: String, val errors: Lan
         }
 
         val res = MatchAst(sourceContext, identifier, condition, cases)
+        return res
+    }
+
+    override fun visitShortMatchExpr(ctx: MoiraiParser.ShortMatchExprContext): Ast {
+        val sourceContext = createContext(fileName, ctx.op)
+
+        val condition = visit(ctx.condition)
+        val cases: MutableList<CaseBlock> = mutableListOf()
+        ctx.cases.caseStat().forEach { caseStatCtx ->
+            val id = Identifier(createContext(fileName, caseStatCtx.id), caseStatCtx.id.text)
+            val stats = caseStatCtx.stat().map { visit(it) }
+            val block = BlockAst(createContext(fileName, caseStatCtx.LCURLY().symbol), stats.toMutableList())
+            cases.add(CaseBlock(id, block))
+        }
+
+        val res = MatchAst(sourceContext, Lang.itId, condition, cases)
         return res
     }
 }
