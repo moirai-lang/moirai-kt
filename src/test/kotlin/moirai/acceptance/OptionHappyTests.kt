@@ -28,8 +28,8 @@ class OptionHappyTests {
             }
             
             val o = f(13)
-            match(o) {
-                case Some { it.value }
+            match(x in o) {
+                case Some { x.value }
                 case None { 5 }
             }
             ^^^^^

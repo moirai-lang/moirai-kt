@@ -514,6 +514,7 @@ internal class AstParseTreeVisitor(private val fileName: String, val errors: Lan
 
     override fun visitMatchExpr(ctx: MoiraiParser.MatchExprContext): Ast {
         val sourceContext = createContext(fileName, ctx.op)
+        val identifier = Identifier(createContext(fileName, ctx.id), ctx.id.text)
 
         val condition = visit(ctx.condition)
         val cases: MutableList<CaseBlock> = mutableListOf()
@@ -524,7 +525,7 @@ internal class AstParseTreeVisitor(private val fileName: String, val errors: Lan
             cases.add(CaseBlock(id, block))
         }
 
-        val res = MatchAst(sourceContext, condition, cases)
+        val res = MatchAst(sourceContext, identifier, condition, cases)
         return res
     }
 }

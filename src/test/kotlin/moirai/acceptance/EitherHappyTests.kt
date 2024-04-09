@@ -45,7 +45,7 @@ class EitherHappyTests {
             } else {
                 Right("5")
             }
-            match(o) {
+            match(x in o) {
                 case Left { 7 }
                 case Right { 10 }
             }
@@ -65,7 +65,7 @@ class EitherHappyTests {
             } else {
                 Right("5")
             }
-            match(o) {
+            match(x in o) {
                 case Left { 7 }
                 case Right { 10 }
             }

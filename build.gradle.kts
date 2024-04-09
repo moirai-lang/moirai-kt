@@ -55,11 +55,3 @@ tasks.jacocoTestReport {
         html.outputLocation = layout.buildDirectory.dir("jacocoHtml")
     }
 }
-
-publishing {
-    publications {
-        create<MavenPublication>("myLibrary") {
-            from(components["java"])
-        }
-    }
-}

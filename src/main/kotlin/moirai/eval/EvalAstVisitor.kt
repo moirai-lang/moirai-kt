@@ -488,7 +488,7 @@ internal class EvalAstVisitor(
         return when (val condition = ast.condition.accept(this, param)) {
             is SumRecordValue -> {
                 val bodyScope = ValueTable(param.values)
-                bodyScope.define(Lang.itId, condition)
+                bodyScope.define(ast.identifier, condition)
                 ast.cases.first { it.identifier.name == condition.path }.block.accept(
                     this,
                     EvalContext(bodyScope, param.substitutions)
@@ -497,7 +497,7 @@ internal class EvalAstVisitor(
 
             is SumObjectValue -> {
                 val bodyScope = ValueTable(param.values)
-                bodyScope.define(Lang.itId, condition)
+                bodyScope.define(ast.identifier, condition)
                 ast.cases.first { it.identifier.name == condition.path }.block.accept(
                     this,
                     EvalContext(bodyScope, param.substitutions)

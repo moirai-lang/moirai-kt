@@ -271,6 +271,7 @@ internal data class IfAst(
 
 internal data class MatchAst(
     override val ctx: SourceContext,
+    val identifier: Identifier,
     val condition: Ast,
     val cases: List<CaseBlock>
 ) : Ast() {

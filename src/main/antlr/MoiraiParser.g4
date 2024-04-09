@@ -126,7 +126,7 @@ expr
     ;
 
 matchExpr
-    :   op=MATCH LPAREN condition=expr RPAREN LCURLY cases=caseStats RCURLY
+    :   op=MATCH LPAREN id=IDENTIFIER IN condition=expr RPAREN LCURLY cases=caseStats RCURLY
     ;
 
 caseStats
