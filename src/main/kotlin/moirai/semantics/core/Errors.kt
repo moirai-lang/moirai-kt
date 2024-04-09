@@ -20,6 +20,7 @@ internal fun toError(type: Type): TypeErrorString {
             ConstantFin -> "default"
             is Fin -> type.magnitude.toString()
             is FinTypeParameter -> type.identifier.name
+            is FinTypeParameterHashCode -> "Hash(${type.identifier.name})"
             is MaxCostExpression -> "Max(${type.children.map { toError(it).value }.joinToString { "," }})"
             is ProductCostExpression -> "Mul(${type.children.map { toError(it).value }.joinToString { "," }})"
             is SumCostExpression -> "Sum(${type.children.map { toError(it).value }.joinToString { "," }})"

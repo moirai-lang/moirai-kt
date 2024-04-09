@@ -12,6 +12,11 @@ internal object DictionaryTypes {
     val removeFunction = createRemoveFunction()
     val mutableDictionaryToDictionary = createToImmutableDictionaryPlugin()
 
+    private val dictionaryKeyFinTypeParamHashCode = FinTypeParameterHashCode(
+        Lang.dictionaryKeyTypeParam.qualifiedName,
+        Lang.dictionaryKeyTypeParam.identifier
+    )
+
     private fun createGetFunction(): ParameterizedMemberPluginSymbol {
         val getId = Identifier(NotInSource, CollectionMethods.KeyLookup.idStr)
         val getMemberFunction = ParameterizedMemberPluginSymbol(
@@ -20,9 +25,10 @@ internal object DictionaryTypes {
             DoubleParentArgInstantiation
         )
         getMemberFunction.typeParams = listOf(Lang.dictionaryKeyTypeParam, Lang.dictionaryValueTypeParam)
-        getMemberFunction.costExpression = ConstantFin
+        getMemberFunction.costExpression = dictionaryKeyFinTypeParamHashCode
         val getFormalParamId = Identifier(NotInSource, "key")
-        val getFormalParam = FunctionFormalParameterSymbol(getMemberFunction, getFormalParamId, Lang.dictionaryKeyTypeParam)
+        val getFormalParam =
+            FunctionFormalParameterSymbol(getMemberFunction, getFormalParamId, Lang.dictionaryKeyTypeParam)
         getMemberFunction.define(getFormalParamId, getFormalParam)
 
         getMemberFunction.formalParams = listOf(getFormalParam)
@@ -39,9 +45,10 @@ internal object DictionaryTypes {
             DoubleParentArgInstantiation
         )
         getMemberFunction.typeParams = listOf(Lang.mutableDictionaryKeyTypeParam, Lang.mutableDictionaryValueTypeParam)
-        getMemberFunction.costExpression = ConstantFin
+        getMemberFunction.costExpression = dictionaryKeyFinTypeParamHashCode
         val getFormalParamId = Identifier(NotInSource, "key")
-        val getFormalParam = FunctionFormalParameterSymbol(getMemberFunction, getFormalParamId, Lang.mutableDictionaryKeyTypeParam)
+        val getFormalParam =
+            FunctionFormalParameterSymbol(getMemberFunction, getFormalParamId, Lang.mutableDictionaryKeyTypeParam)
         getMemberFunction.define(getFormalParamId, getFormalParam)
 
         getMemberFunction.formalParams = listOf(getFormalParam)
@@ -58,7 +65,7 @@ internal object DictionaryTypes {
             SingleParentArgInstantiation
         )
         containsMemberFunction.typeParams = listOf(Lang.dictionaryKeyTypeParam)
-        containsMemberFunction.costExpression = ConstantFin
+        containsMemberFunction.costExpression = dictionaryKeyFinTypeParamHashCode
         val containsFormalParamId = Identifier(NotInSource, "key")
         val containsFormalParam =
             FunctionFormalParameterSymbol(containsMemberFunction, containsFormalParamId, Lang.dictionaryKeyTypeParam)
@@ -78,10 +85,14 @@ internal object DictionaryTypes {
             SingleParentArgInstantiation
         )
         containsMemberFunction.typeParams = listOf(Lang.mutableDictionaryKeyTypeParam)
-        containsMemberFunction.costExpression = ConstantFin
+        containsMemberFunction.costExpression = dictionaryKeyFinTypeParamHashCode
         val containsFormalParamId = Identifier(NotInSource, "key")
         val containsFormalParam =
-            FunctionFormalParameterSymbol(containsMemberFunction, containsFormalParamId, Lang.mutableDictionaryKeyTypeParam)
+            FunctionFormalParameterSymbol(
+                containsMemberFunction,
+                containsFormalParamId,
+                Lang.mutableDictionaryKeyTypeParam
+            )
         containsMemberFunction.define(containsFormalParamId, containsFormalParam)
 
         containsMemberFunction.formalParams = listOf(containsFormalParam)
@@ -98,9 +109,10 @@ internal object DictionaryTypes {
             DoubleParentArgInstantiation
         )
         setMemberFunction.typeParams = listOf(Lang.mutableDictionaryKeyTypeParam, Lang.mutableDictionaryValueTypeParam)
-        setMemberFunction.costExpression = ConstantFin
+        setMemberFunction.costExpression = dictionaryKeyFinTypeParamHashCode
         val keyFormalParamId = Identifier(NotInSource, "key")
-        val keyFormalParam = FunctionFormalParameterSymbol(setMemberFunction, keyFormalParamId, Lang.mutableDictionaryKeyTypeParam)
+        val keyFormalParam =
+            FunctionFormalParameterSymbol(setMemberFunction, keyFormalParamId, Lang.mutableDictionaryKeyTypeParam)
         setMemberFunction.define(keyFormalParamId, keyFormalParam)
 
         val valueFormalParamId = Identifier(NotInSource, "value")
@@ -122,7 +134,7 @@ internal object DictionaryTypes {
             SingleParentArgInstantiation
         )
         removeMemberFunction.typeParams = listOf(Lang.mutableDictionaryKeyTypeParam)
-        removeMemberFunction.costExpression = ConstantFin
+        removeMemberFunction.costExpression = dictionaryKeyFinTypeParamHashCode
         val removeFormalParamId = Identifier(NotInSource, "key")
         val removeFormalParam =
             FunctionFormalParameterSymbol(removeMemberFunction, removeFormalParamId, Lang.mutableDictionaryKeyTypeParam)
@@ -160,7 +172,12 @@ internal object DictionaryTypes {
         plugin.costExpression = ProductCostExpression(
             listOf(
                 CommonCostExpressions.twoPass,
-                Lang.mutableDictionaryFinTypeParam
+                ProductCostExpression(
+                    listOf(
+                        Lang.mutableDictionaryFinTypeParam,
+                        dictionaryKeyFinTypeParamHashCode
+                    )
+                )
             )
         )
         Lang.mutableDictionaryType.define(plugin.identifier, plugin)
