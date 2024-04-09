@@ -45,6 +45,26 @@ class EitherHappyTests {
             } else {
                 Right("5")
             }
+            match(x in o) {
+                case Left { 7 }
+                case Right { 10 }
+            }
+            ^^^^^
+            7
+        """.trimIndent()
+        )
+    }
+
+    @Test
+    fun valInferLeftShortFormTest() {
+        splitTest(
+            """
+            val x = 1
+            val o = if(1 == x) {
+                Left(5)
+            } else {
+                Right("5")
+            }
             match(o) {
                 case Left { 7 }
                 case Right { 10 }
@@ -57,6 +77,26 @@ class EitherHappyTests {
 
     @Test
     fun valInferRightTest() {
+        splitTest(
+            """
+            val x = 2
+            val o = if(1 == x) {
+                Left(5)
+            } else {
+                Right("5")
+            }
+            match(x in o) {
+                case Left { 7 }
+                case Right { 10 }
+            }
+            ^^^^^
+            10
+        """.trimIndent()
+        )
+    }
+
+    @Test
+    fun valInferRightShortFormTest() {
         splitTest(
             """
             val x = 2

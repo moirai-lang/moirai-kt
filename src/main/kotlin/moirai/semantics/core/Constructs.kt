@@ -10,7 +10,7 @@ internal data class Binder(val identifier: Identifier, val ofType: Signifier) {
 
 internal data class CaseBlock(val identifier: Identifier, val block: BlockAst) {
     lateinit var member: PlatformSumMember
-    var itType: Type = ErrorType
+    var refinedType: Type = ErrorType
 }
 
 internal data class FieldDef(val identifier: Identifier, val ofType: Signifier, val mutable: Boolean) {

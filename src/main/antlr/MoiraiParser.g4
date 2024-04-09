@@ -47,7 +47,8 @@ letStat
     ;
 
 forStat
-    :   FOR LPAREN id=IDENTIFIER of=ofType? IN source=expr RPAREN body=block
+    :   op=FOR LPAREN id=IDENTIFIER of=ofType? IN source=expr RPAREN body=block    # LongForStat
+    |   op=FOR LPAREN source=expr RPAREN body=block                                # ShortForStat
     ;
 
 funDefStat
@@ -126,7 +127,8 @@ expr
     ;
 
 matchExpr
-    :   op=MATCH LPAREN condition=expr RPAREN LCURLY cases=caseStats RCURLY
+    :   op=MATCH LPAREN id=IDENTIFIER IN condition=expr RPAREN LCURLY cases=caseStats RCURLY    # LongMatchExpr
+    |   op=MATCH LPAREN condition=expr RPAREN LCURLY cases=caseStats RCURLY                     # ShortMatchExpr
     ;
 
 caseStats

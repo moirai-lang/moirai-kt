@@ -1068,7 +1068,7 @@ internal class PropagateTypesAstVisitor(
                                             errors.add(ast.condition.ctx, MissingMatchCase(it.identifier.name))
                                         } else {
                                             nameSet[it.identifier.name]!!.member = it
-                                            nameSet[it.identifier.name]!!.itType = it
+                                            nameSet[it.identifier.name]!!.refinedType = it
                                         }
                                     }
 
@@ -1077,7 +1077,7 @@ internal class PropagateTypesAstVisitor(
                                             errors.add(ast.condition.ctx, MissingMatchCase(it.identifier.name))
                                         } else {
                                             nameSet[it.identifier.name]!!.member = it
-                                            nameSet[it.identifier.name]!!.itType =
+                                            nameSet[it.identifier.name]!!.refinedType =
                                                 conditionType.substitutionChain.replay(it)
                                         }
                                     }
@@ -1093,8 +1093,8 @@ internal class PropagateTypesAstVisitor(
             }
 
             ast.cases.forEach {
-                val local = LocalVariableSymbol(it.block.scope, Lang.itId, it.itType, false)
-                it.block.scope.define(Lang.itId, local)
+                val local = LocalVariableSymbol(it.block.scope, ast.identifier, it.refinedType, false)
+                it.block.scope.define(ast.identifier, local)
                 it.block.accept(this)
             }
 

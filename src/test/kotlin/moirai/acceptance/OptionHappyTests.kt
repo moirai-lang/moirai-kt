@@ -28,6 +28,25 @@ class OptionHappyTests {
             }
             
             val o = f(13)
+            match(x in o) {
+                case Some { x.value }
+                case None { 5 }
+            }
+            ^^^^^
+            13
+        """.trimIndent()
+        )
+    }
+
+    @Test
+    fun matchShortFormTest() {
+        splitTest(
+            """
+            def f(x: Int): Option<Int> {
+                Some(x)
+            }
+            
+            val o = f(13)
             match(o) {
                 case Some { it.value }
                 case None { 5 }

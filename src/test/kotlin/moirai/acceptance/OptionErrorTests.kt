@@ -32,7 +32,7 @@ class OptionErrorTests {
             }
             
             val o = f(13)
-            match(o) {
+            match(x in o) {
                 case Some { 10 }
             }
         """.trimIndent(), 1
@@ -50,7 +50,7 @@ class OptionErrorTests {
             }
             
             val o = f(13)
-            match(o) {
+            match(x in o) {
                 case Some { 10 }
                 case None { 5 }
                 case None { 6 }
@@ -70,7 +70,7 @@ class OptionErrorTests {
             }
             
             val o = f(13)
-            match(o) {
+            match(x in o) {
                 case Some { 10 }
                 case None { 5 }
                 case Hello { 6 }

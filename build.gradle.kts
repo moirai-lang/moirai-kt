@@ -4,7 +4,7 @@ plugins {
     jacoco
 }
 
-group = "moirai-lang"
+group = "org.moirai-lang"
 version = "0.2.0"
 
 repositories {
