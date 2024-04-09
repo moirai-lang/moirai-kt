@@ -297,4 +297,8 @@ internal fun constrainCost(
                 listOf()
             }
         }
+        is HashCodeCost -> {
+            errors.add(ctx, TypeSystemBug)
+            listOf()
+        }
     }

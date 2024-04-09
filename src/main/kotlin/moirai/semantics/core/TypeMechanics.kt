@@ -36,7 +36,7 @@ internal fun filterValidTypes(ctx: SourceContext, errors: LanguageErrors, type: 
             ErrorType
         }
 
-        is FinTypeParameterHashCode,
+        is HashCodeCost,
         is MaxCostExpression,
         is ProductCostExpression,
         is SumCostExpression -> {
@@ -111,7 +111,9 @@ internal fun filterValidGroundApply(
                     }
                     type
                 }
-                is PlatformSumType -> {
+                is PlatformSumType,
+                is HashCodeCost,
+                -> {
                     errors.add(ctx, SymbolCouldNotBeApplied(toError(signifier)))
                     ErrorType
                 }
@@ -122,7 +124,7 @@ internal fun filterValidGroundApply(
         is Fin,
         is ConstantFin,
         is FinTypeParameter,
-        is FinTypeParameterHashCode,
+        is HashCodeCost,
         is BasicType,
         is ObjectType,
         is PlatformObjectType,
@@ -215,6 +217,10 @@ internal fun getQualifiedName(type: Type): String {
                 is PlatformSumRecordType -> {
                     parameterizedType.identifier.name
                 }
+
+                is HashCodeCost -> {
+                    langThrow(NotInSource, TypeSystemBug)
+                }
             }
         }
 
@@ -248,7 +254,7 @@ internal fun getQualifiedName(type: Type): String {
 
         ConstantFin,
         is Fin,
-        is FinTypeParameterHashCode,
+        is HashCodeCost,
         is MaxCostExpression,
         is ProductCostExpression,
         is SumCostExpression,
@@ -544,7 +550,10 @@ internal fun checkApply(prelude: Scope, errors: LanguageErrors, ast: GroundApply
                     checkFields(prelude, errors, type, parameterizedSymbol.fields, ast, args)
                 }
 
-                is PlatformSumType -> errors.add(ast.ctx, TypeSystemBug)
+                is PlatformSumType,
+                is HashCodeCost -> {
+                    errors.add(ast.ctx, TypeSystemBug)
+                }
             }
         }
     }
@@ -896,6 +905,8 @@ internal fun validateSubstitution(
                     is PlatformSumType -> if (!parameterizedType.featureSupport.typeArg) {
                         errors.add(ctx, TypeArgFeatureBan(toError(substitutedType)))
                     }
+
+                    is HashCodeCost -> errors.add(ctx, TypeSystemBug)
                 }
             }
             is ObjectType -> if (!substitutedType.featureSupport.typeArg) {

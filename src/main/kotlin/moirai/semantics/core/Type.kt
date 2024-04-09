@@ -29,10 +29,11 @@ internal class FinTypeParameter(
     }
 }
 
-internal class FinTypeParameterHashCode(
-    val qualifiedName: String,
-    val identifier: Identifier
-) : TypeParameter(), CostExpression, Type {
+internal class HashCodeCost(
+    val typeParameter: StandardTypeParameter
+) : CostExpression, TerminusType {
+    override val typeParams: List<TypeParameter> = listOf(typeParameter)
+
     override fun <R> accept(visitor: CostExpressionVisitor<R>): R {
         return visitor.visit(this)
     }
