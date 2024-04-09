@@ -2,7 +2,6 @@ plugins {
     kotlin("jvm") version "1.9.0"
     antlr
     jacoco
-    `maven-publish`
 }
 
 group = "org.moirai-lang"
