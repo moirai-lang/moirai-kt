@@ -1,6 +1,8 @@
 package moirai.semantics.visitors
 
 import moirai.semantics.core.*
+import moirai.semantics.infer.SubstitutionChain
+import moirai.semantics.infer.TerminalChain
 
 internal class CostExpressionAstVisitor(private val architecture: Architecture) : UnitAstVisitor() {
     private fun addDefault(costExpression: CostExpression): CostExpression =
@@ -231,13 +233,27 @@ internal class CostExpressionAstVisitor(private val architecture: Architecture) 
             is DotApplySlotGF -> {
                 convertCostExpression(dotApplySlot.payload)
             }
+
             is DotApplySlotGMP -> {
                 convertCostExpression(dotApplySlot.payload)
             }
+
             is DotApplySlotSI -> {
-                convertCostExpression(dotApplySlot.payload)
+                val ce = convertCostExpression(dotApplySlot.payload)
+                if (ce is ParameterHashCodeCost) {
+                    // As a special case, if the function involves generating a hash code,
+                    // we need to create an instantiation using the LHS chain
+                    val chain = SubstitutionChain(
+                        dotApplySlot.payload.substitutionChain.substitution,
+                        TerminalChain<TerminusType>(ce)
+                    )
+                    InstantiationHashCodeCost(TypeInstantiation(chain))
+                } else {
+                    ce
+                }
             }
         }
+
         if (argCosts.isEmpty()) {
             ast.costExpression = addDefault(SumCostExpression(listOf(bodyCost, ast.lhs.costExpression)))
         } else {
