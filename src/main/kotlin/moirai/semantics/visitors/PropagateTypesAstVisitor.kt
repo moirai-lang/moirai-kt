@@ -63,7 +63,7 @@ internal class PropagateTypesAstVisitor(
                             is ParameterizedRecordType -> handleParamRecord(signifier, ast, terminus, args)
                             is PlatformSumRecordType -> handlePlatformSumRecord(signifier, ast, terminus, args)
                             is PlatformSumType,
-                            is HashCodeCost -> {
+                            is ParameterHashCodeCost -> {
                                 errors.add(ast.ctx, SymbolCouldNotBeApplied(toError(signifier)))
                                 ast.groundApplySlot = GroundApplySlotError
                                 ast.assignType(errors, ErrorType)
@@ -626,7 +626,7 @@ internal class PropagateTypesAstVisitor(
                         }
 
                         is PlatformSumType,
-                        is HashCodeCost -> {
+                        is ParameterHashCodeCost -> {
                             errors.add(ast.ctx, SymbolHasNoFields(toError(ast.identifier), toError(ast.lhs.readType())))
                             ast.dotSlot = DotSlotError
                             ast.assignType(errors, ErrorType)
@@ -880,7 +880,7 @@ internal class PropagateTypesAstVisitor(
                         }
 
                         is PlatformSumType,
-                        is HashCodeCost -> {
+                        is ParameterHashCodeCost -> {
                             errors.add(ast.ctx, SymbolHasNoMembers(toError(ast.signifier), toError(ast.lhs.readType())))
                             ast.dotApplySlot = DotApplySlotError
                             ast.assignType(errors, ErrorType)

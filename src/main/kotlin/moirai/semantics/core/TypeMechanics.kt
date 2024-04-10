@@ -36,7 +36,7 @@ internal fun filterValidTypes(ctx: SourceContext, errors: LanguageErrors, type: 
             ErrorType
         }
 
-        is HashCodeCost,
+        is ParameterHashCodeCost,
         is MaxCostExpression,
         is ProductCostExpression,
         is SumCostExpression -> {
@@ -112,7 +112,7 @@ internal fun filterValidGroundApply(
                     type
                 }
                 is PlatformSumType,
-                is HashCodeCost,
+                is ParameterHashCodeCost,
                 -> {
                     errors.add(ctx, SymbolCouldNotBeApplied(toError(signifier)))
                     ErrorType
@@ -124,7 +124,7 @@ internal fun filterValidGroundApply(
         is Fin,
         is ConstantFin,
         is FinTypeParameter,
-        is HashCodeCost,
+        is ParameterHashCodeCost,
         is BasicType,
         is ObjectType,
         is PlatformObjectType,
@@ -218,7 +218,7 @@ internal fun getQualifiedName(type: Type): String {
                     parameterizedType.identifier.name
                 }
 
-                is HashCodeCost -> {
+                is ParameterHashCodeCost -> {
                     langThrow(NotInSource, TypeSystemBug)
                 }
             }
@@ -254,7 +254,7 @@ internal fun getQualifiedName(type: Type): String {
 
         ConstantFin,
         is Fin,
-        is HashCodeCost,
+        is ParameterHashCodeCost,
         is MaxCostExpression,
         is ProductCostExpression,
         is SumCostExpression,
@@ -551,7 +551,7 @@ internal fun checkApply(prelude: Scope, errors: LanguageErrors, ast: GroundApply
                 }
 
                 is PlatformSumType,
-                is HashCodeCost -> {
+                is ParameterHashCodeCost -> {
                     errors.add(ast.ctx, TypeSystemBug)
                 }
             }
@@ -906,7 +906,7 @@ internal fun validateSubstitution(
                         errors.add(ctx, TypeArgFeatureBan(toError(substitutedType)))
                     }
 
-                    is HashCodeCost -> errors.add(ctx, TypeSystemBug)
+                    is ParameterHashCodeCost -> errors.add(ctx, TypeSystemBug)
                 }
             }
             is ObjectType -> if (!substitutedType.featureSupport.typeArg) {

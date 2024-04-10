@@ -361,7 +361,7 @@ internal class EvalAstVisitor(
                     }
 
                     is PlatformSumType,
-                    is HashCodeCost -> {
+                    is ParameterHashCodeCost -> {
                         langThrow(NotInSource, TypeSystemBug)
                     }
                 }

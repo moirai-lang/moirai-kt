@@ -29,7 +29,7 @@ internal class FinTypeParameter(
     }
 }
 
-internal class HashCodeCost(
+internal class ParameterHashCodeCost(
     val typeParameter: StandardTypeParameter
 ) : CostExpression, TerminusType {
     override val typeParams: List<TypeParameter> = listOf(typeParameter)

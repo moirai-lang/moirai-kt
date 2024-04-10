@@ -12,7 +12,7 @@ internal object DictionaryTypes {
     val removeFunction = createRemoveFunction()
     val mutableDictionaryToDictionary = createToImmutableDictionaryPlugin()
 
-    private val dictionaryKeyHashCodeCost = HashCodeCost(Lang.dictionaryKeyTypeParam)
+    private val dictionaryKeyParameterHashCodeCost = ParameterHashCodeCost(Lang.dictionaryKeyTypeParam)
 
     private fun createGetFunction(): ParameterizedMemberPluginSymbol {
         val getId = Identifier(NotInSource, CollectionMethods.KeyLookup.idStr)
@@ -22,7 +22,7 @@ internal object DictionaryTypes {
             DoubleParentArgInstantiation
         )
         getMemberFunction.typeParams = listOf(Lang.dictionaryKeyTypeParam, Lang.dictionaryValueTypeParam)
-        getMemberFunction.costExpression = dictionaryKeyHashCodeCost
+        getMemberFunction.costExpression = dictionaryKeyParameterHashCodeCost
         val getFormalParamId = Identifier(NotInSource, "key")
         val getFormalParam =
             FunctionFormalParameterSymbol(getMemberFunction, getFormalParamId, Lang.dictionaryKeyTypeParam)
@@ -42,7 +42,7 @@ internal object DictionaryTypes {
             DoubleParentArgInstantiation
         )
         getMemberFunction.typeParams = listOf(Lang.mutableDictionaryKeyTypeParam, Lang.mutableDictionaryValueTypeParam)
-        getMemberFunction.costExpression = dictionaryKeyHashCodeCost
+        getMemberFunction.costExpression = dictionaryKeyParameterHashCodeCost
         val getFormalParamId = Identifier(NotInSource, "key")
         val getFormalParam =
             FunctionFormalParameterSymbol(getMemberFunction, getFormalParamId, Lang.mutableDictionaryKeyTypeParam)
@@ -62,7 +62,7 @@ internal object DictionaryTypes {
             SingleParentArgInstantiation
         )
         containsMemberFunction.typeParams = listOf(Lang.dictionaryKeyTypeParam)
-        containsMemberFunction.costExpression = dictionaryKeyHashCodeCost
+        containsMemberFunction.costExpression = dictionaryKeyParameterHashCodeCost
         val containsFormalParamId = Identifier(NotInSource, "key")
         val containsFormalParam =
             FunctionFormalParameterSymbol(containsMemberFunction, containsFormalParamId, Lang.dictionaryKeyTypeParam)
@@ -82,7 +82,7 @@ internal object DictionaryTypes {
             SingleParentArgInstantiation
         )
         containsMemberFunction.typeParams = listOf(Lang.mutableDictionaryKeyTypeParam)
-        containsMemberFunction.costExpression = dictionaryKeyHashCodeCost
+        containsMemberFunction.costExpression = dictionaryKeyParameterHashCodeCost
         val containsFormalParamId = Identifier(NotInSource, "key")
         val containsFormalParam =
             FunctionFormalParameterSymbol(
@@ -106,7 +106,7 @@ internal object DictionaryTypes {
             DoubleParentArgInstantiation
         )
         setMemberFunction.typeParams = listOf(Lang.mutableDictionaryKeyTypeParam, Lang.mutableDictionaryValueTypeParam)
-        setMemberFunction.costExpression = dictionaryKeyHashCodeCost
+        setMemberFunction.costExpression = dictionaryKeyParameterHashCodeCost
         val keyFormalParamId = Identifier(NotInSource, "key")
         val keyFormalParam =
             FunctionFormalParameterSymbol(setMemberFunction, keyFormalParamId, Lang.mutableDictionaryKeyTypeParam)
@@ -131,7 +131,7 @@ internal object DictionaryTypes {
             SingleParentArgInstantiation
         )
         removeMemberFunction.typeParams = listOf(Lang.mutableDictionaryKeyTypeParam)
-        removeMemberFunction.costExpression = dictionaryKeyHashCodeCost
+        removeMemberFunction.costExpression = dictionaryKeyParameterHashCodeCost
         val removeFormalParamId = Identifier(NotInSource, "key")
         val removeFormalParam =
             FunctionFormalParameterSymbol(removeMemberFunction, removeFormalParamId, Lang.mutableDictionaryKeyTypeParam)
@@ -172,7 +172,7 @@ internal object DictionaryTypes {
                 ProductCostExpression(
                     listOf(
                         Lang.mutableDictionaryFinTypeParam,
-                        dictionaryKeyHashCodeCost
+                        dictionaryKeyParameterHashCodeCost
                     )
                 )
             )
