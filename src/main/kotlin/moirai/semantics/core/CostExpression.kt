@@ -1,5 +1,6 @@
 package moirai.semantics.core
 
+import moirai.semantics.prelude.StringMethods
 import kotlin.math.sqrt
 
 internal sealed interface CostExpression : Type {
