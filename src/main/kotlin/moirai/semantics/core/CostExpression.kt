@@ -27,9 +27,15 @@ internal fun sortCanonical(costExpressions: List<CostExpression>): List<CostExpr
     res.addAll(costExpressions.filterIsInstance<MaxCostExpression>())
     res.addAll(costExpressions.filterIsInstance<ProductCostExpression>())
     res.addAll(costExpressions.filterIsInstance<SumCostExpression>())
+    res.addAll(costExpressions.filterIsInstance<ParameterHashCodeCost>().sortedBy { it.typeParameter.qualifiedName })
     res.addAll(costExpressions.filterIsInstance<FinTypeParameter>().sortedBy { it.qualifiedName })
     res.addAll(costExpressions.filterIsInstance<Fin>().sortedBy { it.magnitude })
     res.addAll(costExpressions.filterIsInstance<ConstantFin>())
+
+    if (res.size != costExpressions.size) {
+        langThrow(NotInSource, TypeSystemBug)
+    }
+
     return res
 }
 
