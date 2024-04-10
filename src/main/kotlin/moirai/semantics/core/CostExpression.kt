@@ -9,6 +9,7 @@ internal sealed interface CostExpression : Type {
 internal interface CostExpressionVisitor<R> {
     fun visit(costExpression: FinTypeParameter): R
     fun visit(costExpression: ParameterHashCodeCost): R
+    fun visit(costExpression: InstantiationHashCodeCost): R
     fun visit(costExpression: Fin): R
     fun visit(costExpression: ConstantFin): R
     fun visit(costExpression: SumCostExpression): R
@@ -51,6 +52,10 @@ internal class EvalCostExpressionVisitor(val architecture: Architecture): CostEx
     }
 
     override fun visit(costExpression: ParameterHashCodeCost): Long {
+        langThrow(CalculateCostFailed)
+    }
+
+    override fun visit(costExpression: InstantiationHashCodeCost): Long {
         langThrow(CalculateCostFailed)
     }
 
@@ -135,6 +140,10 @@ internal object CanEvalCostExpressionVisitor: CostExpressionVisitor<Boolean> {
     }
 
     override fun visit(costExpression: ParameterHashCodeCost): Boolean {
+        return false
+    }
+
+    override fun visit(costExpression: InstantiationHashCodeCost): Boolean {
         return false
     }
 

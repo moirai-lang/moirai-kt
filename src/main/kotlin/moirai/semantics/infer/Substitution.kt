@@ -57,6 +57,7 @@ internal class Substitution(
                 }
                 res
             }
+
             is FinTypeParameter -> {
                 val res = if (solutions.containsKey(type)) {
                     solutions[type]!!
@@ -65,9 +66,11 @@ internal class Substitution(
                 }
                 res
             }
+
             is CostExpression -> {
                 applyCost(type)
             }
+
             else -> type
         }
 
@@ -84,6 +87,7 @@ internal class Substitution(
                 }
                 res
             }
+
             is Fin -> costExpression
             is ConstantFin -> costExpression
             is SumCostExpression -> SumCostExpression(costExpression.children.map { applyCost(it) })
@@ -93,6 +97,7 @@ internal class Substitution(
                 val res = if (solutions.containsKey(costExpression)) {
                     when (val solution = solutions[costExpression]!!) {
                         is StandardTypeParameter -> ParameterHashCodeCost(solution)
+                        is TypeInstantiation -> InstantiationHashCodeCost(solution)
                         else -> costExpression
                     }
                 } else {
@@ -100,6 +105,8 @@ internal class Substitution(
                 }
                 res
             }
+
+            is InstantiationHashCodeCost -> InstantiationHashCodeCost(apply(costExpression.instantiation))
         }
     }
 }

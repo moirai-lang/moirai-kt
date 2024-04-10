@@ -219,6 +219,7 @@ internal fun constrainCost(
             errors.add(ctx, TypeSystemBug)
             listOf()
         }
+
         is SumCostExpression -> when (actual) {
             is SumCostExpression -> {
                 if (expected.children.size == actual.children.size) {
@@ -235,6 +236,7 @@ internal fun constrainCost(
                     listOf()
                 }
             }
+
             else -> {
                 errors.add(
                     ctx, TypeMismatch(
@@ -245,6 +247,7 @@ internal fun constrainCost(
                 listOf()
             }
         }
+
         is ProductCostExpression -> when (actual) {
             is ProductCostExpression -> {
                 if (expected.children.size == actual.children.size) {
@@ -261,6 +264,7 @@ internal fun constrainCost(
                     listOf()
                 }
             }
+
             else -> {
                 errors.add(
                     ctx, TypeMismatch(
@@ -271,6 +275,7 @@ internal fun constrainCost(
                 listOf()
             }
         }
+
         is MaxCostExpression -> when (actual) {
             is MaxCostExpression -> {
                 if (expected.children.size == actual.children.size) {
@@ -287,6 +292,7 @@ internal fun constrainCost(
                     listOf()
                 }
             }
+
             else -> {
                 errors.add(
                     ctx, TypeMismatch(
@@ -297,7 +303,9 @@ internal fun constrainCost(
                 listOf()
             }
         }
-        is ParameterHashCodeCost -> {
+
+        is ParameterHashCodeCost,
+        is InstantiationHashCodeCost -> {
             errors.add(ctx, TypeSystemBug)
             listOf()
         }

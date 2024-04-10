@@ -37,6 +37,7 @@ internal fun filterValidTypes(ctx: SourceContext, errors: LanguageErrors, type: 
         }
 
         is ParameterHashCodeCost,
+        is InstantiationHashCodeCost,
         is MaxCostExpression,
         is ProductCostExpression,
         is SumCostExpression -> {
@@ -125,6 +126,7 @@ internal fun filterValidGroundApply(
         is ConstantFin,
         is FinTypeParameter,
         is ParameterHashCodeCost,
+        is InstantiationHashCodeCost,
         is BasicType,
         is ObjectType,
         is PlatformObjectType,
@@ -255,6 +257,7 @@ internal fun getQualifiedName(type: Type): String {
         ConstantFin,
         is Fin,
         is ParameterHashCodeCost,
+        is InstantiationHashCodeCost,
         is MaxCostExpression,
         is ProductCostExpression,
         is SumCostExpression,
