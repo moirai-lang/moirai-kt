@@ -164,17 +164,7 @@ internal object DictionaryTypes {
         val outputType = outputSubstitution.apply(Lang.dictionaryType)
         plugin.returnType = outputType
 
-        plugin.costExpression = ProductCostExpression(
-            listOf(
-                CommonCostExpressions.twoPass,
-                ProductCostExpression(
-                    listOf(
-                        Lang.mutableDictionaryFinTypeParam,
-                        Lang.mutableDictionaryKeyParameterHashCodeCost
-                    )
-                )
-            )
-        )
+        plugin.costExpression = Lang.mutableDictionaryKeyParameterHashCodeCost
         Lang.mutableDictionaryType.define(plugin.identifier, plugin)
         return plugin
     }
