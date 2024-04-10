@@ -89,6 +89,17 @@ internal class Substitution(
             is SumCostExpression -> SumCostExpression(costExpression.children.map { applyCost(it) })
             is ProductCostExpression -> ProductCostExpression(costExpression.children.map { applyCost(it) })
             is MaxCostExpression -> MaxCostExpression(costExpression.children.map { applyCost(it) })
+            is HashCodeCost -> {
+                val res = if (solutions.containsKey(costExpression)) {
+                    when (val solution = solutions[costExpression]!!) {
+                        is StandardTypeParameter -> HashCodeCost(solution)
+                        else -> costExpression
+                    }
+                } else {
+                    costExpression
+                }
+                res
+            }
         }
     }
 }

@@ -360,7 +360,10 @@ internal class EvalAstVisitor(
                         res
                     }
 
-                    is PlatformSumType -> langThrow(NotInSource, TypeSystemBug)
+                    is PlatformSumType,
+                    is HashCodeCost -> {
+                        langThrow(NotInSource, TypeSystemBug)
+                    }
                 }
             }
         }
