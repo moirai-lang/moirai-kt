@@ -154,7 +154,10 @@ internal object Lang {
         DictionaryInstantiationValidation(pairType),
         immutableUnorderedFeatureSupport
     )
+
     val dictionaryKeyTypeParam = StandardTypeParameter("${dictionaryId.name}.${dictionaryKeyTypeId.name}", dictionaryKeyTypeId)
+    val dictionaryKeyParameterHashCodeCost = ParameterHashCodeCost(dictionaryKeyTypeParam)
+
     val dictionaryValueTypeParam = StandardTypeParameter("${dictionaryId.name}.${dictionaryValueTypeId.name}", dictionaryValueTypeId)
     val dictionaryFinTypeParam = FinTypeParameter("${dictionaryId.name}.${dictionaryFinTypeId.name}", dictionaryFinTypeId)
 
@@ -163,7 +166,10 @@ internal object Lang {
         MutableDictionaryInstantiationValidation(pairType),
         immutableUnorderedFeatureSupport
     )
+
     val mutableDictionaryKeyTypeParam = StandardTypeParameter("${mutableDictionaryId.name}.${mutableDictionaryKeyTypeId.name}", mutableDictionaryKeyTypeId)
+    val mutableDictionaryKeyParameterHashCodeCost = ParameterHashCodeCost(mutableDictionaryKeyTypeParam)
+
     val mutableDictionaryValueTypeParam = StandardTypeParameter("${mutableDictionaryId.name}.${mutableDictionaryValueTypeId.name}", mutableDictionaryValueTypeId)
     val mutableDictionaryFinTypeParam = FinTypeParameter("${mutableDictionaryId.name}.${mutableDictionaryFinTypeId.name}", mutableDictionaryFinTypeId)
 
