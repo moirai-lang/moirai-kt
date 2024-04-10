@@ -18,7 +18,7 @@ internal object SetTypes {
             SingleParentArgInstantiation
         )
         containsMemberFunction.typeParams = listOf(Lang.setElementTypeParam)
-        containsMemberFunction.costExpression = ConstantFin
+        containsMemberFunction.costExpression = Lang.setParameterHashCodeCost
         val containsFormalParamId = Identifier(NotInSource, "element")
         val containsFormalParam =
             FunctionFormalParameterSymbol(containsMemberFunction, containsFormalParamId, Lang.setElementTypeParam)
@@ -38,7 +38,7 @@ internal object SetTypes {
             SingleParentArgInstantiation
         )
         containsMemberFunction.typeParams = listOf(Lang.mutableSetElementTypeParam)
-        containsMemberFunction.costExpression = ConstantFin
+        containsMemberFunction.costExpression = Lang.mutableSetParameterHashCodeCost
         val containsFormalParamId = Identifier(NotInSource, "element")
         val containsFormalParam =
             FunctionFormalParameterSymbol(containsMemberFunction, containsFormalParamId, Lang.mutableSetElementTypeParam)
@@ -58,7 +58,7 @@ internal object SetTypes {
             SingleParentArgInstantiation
         )
         addMemberFunction.typeParams = listOf(Lang.mutableSetElementTypeParam)
-        addMemberFunction.costExpression = ConstantFin
+        addMemberFunction.costExpression = Lang.mutableSetParameterHashCodeCost
         val addFormalParamId = Identifier(NotInSource, "element")
         val addFormalParam = FunctionFormalParameterSymbol(addMemberFunction, addFormalParamId, Lang.mutableSetElementTypeParam)
         addMemberFunction.define(addFormalParamId, addFormalParam)
@@ -77,7 +77,7 @@ internal object SetTypes {
             SingleParentArgInstantiation
         )
         removeMemberFunction.typeParams = listOf(Lang.mutableSetElementTypeParam)
-        removeMemberFunction.costExpression = ConstantFin
+        removeMemberFunction.costExpression = Lang.mutableSetParameterHashCodeCost
         val removeFormalParamId = Identifier(NotInSource, "element")
         val removeFormalParam =
             FunctionFormalParameterSymbol(removeMemberFunction, removeFormalParamId, Lang.mutableSetElementTypeParam)
@@ -102,13 +102,7 @@ internal object SetTypes {
         val outputType = outputSubstitution.apply(Lang.setType)
         plugin.returnType = outputType
 
-        plugin.costExpression =
-            ProductCostExpression(
-                listOf(
-                    CommonCostExpressions.twoPass,
-                    Lang.mutableSetFinTypeParam
-                )
-            )
+        plugin.costExpression = Lang.mutableSetParameterHashCodeCost
         Lang.mutableSetType.define(plugin.identifier, plugin)
         return plugin
     }

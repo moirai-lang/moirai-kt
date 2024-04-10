@@ -154,7 +154,10 @@ internal object Lang {
         DictionaryInstantiationValidation(pairType),
         immutableUnorderedFeatureSupport
     )
+
     val dictionaryKeyTypeParam = StandardTypeParameter("${dictionaryId.name}.${dictionaryKeyTypeId.name}", dictionaryKeyTypeId)
+    val dictionaryKeyParameterHashCodeCost = ParameterHashCodeCost(dictionaryKeyTypeParam)
+
     val dictionaryValueTypeParam = StandardTypeParameter("${dictionaryId.name}.${dictionaryValueTypeId.name}", dictionaryValueTypeId)
     val dictionaryFinTypeParam = FinTypeParameter("${dictionaryId.name}.${dictionaryFinTypeId.name}", dictionaryFinTypeId)
 
@@ -163,7 +166,10 @@ internal object Lang {
         MutableDictionaryInstantiationValidation(pairType),
         immutableUnorderedFeatureSupport
     )
+
     val mutableDictionaryKeyTypeParam = StandardTypeParameter("${mutableDictionaryId.name}.${mutableDictionaryKeyTypeId.name}", mutableDictionaryKeyTypeId)
+    val mutableDictionaryKeyParameterHashCodeCost = ParameterHashCodeCost(mutableDictionaryKeyTypeParam)
+
     val mutableDictionaryValueTypeParam = StandardTypeParameter("${mutableDictionaryId.name}.${mutableDictionaryValueTypeId.name}", mutableDictionaryValueTypeId)
     val mutableDictionaryFinTypeParam = FinTypeParameter("${mutableDictionaryId.name}.${mutableDictionaryFinTypeId.name}", mutableDictionaryFinTypeId)
 
@@ -172,7 +178,10 @@ internal object Lang {
         SetInstantiationValidation(),
         immutableUnorderedFeatureSupport
     )
+
     val setElementTypeParam = StandardTypeParameter("${setId.name}.${setElementTypeId.name}", setElementTypeId)
+    val setParameterHashCodeCost = ParameterHashCodeCost(setElementTypeParam)
+
     val setFinTypeParam = FinTypeParameter("${setId.name}.${setFinTypeId.name}", setFinTypeId)
 
     val mutableSetType = ParameterizedBasicType(
@@ -180,7 +189,10 @@ internal object Lang {
         MutableSetInstantiationValidation(),
         immutableUnorderedFeatureSupport
     )
+
     val mutableSetElementTypeParam = StandardTypeParameter("${mutableSetId.name}.${mutableSetElementTypeId.name}", mutableSetElementTypeId)
+    val mutableSetParameterHashCodeCost = ParameterHashCodeCost(mutableSetElementTypeParam)
+
     val mutableSetFinTypeParam = FinTypeParameter("${mutableSetId.name}.${mutableSetFinTypeId.name}", mutableSetFinTypeId)
 
     init {

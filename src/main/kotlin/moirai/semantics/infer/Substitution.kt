@@ -1,6 +1,7 @@
 package moirai.semantics.infer
 
 import moirai.semantics.core.*
+import moirai.semantics.prelude.StringMethods
 
 internal class Substitution(
     inOrderParameters: List<TypeParameter>,
@@ -57,6 +58,7 @@ internal class Substitution(
                 }
                 res
             }
+
             is FinTypeParameter -> {
                 val res = if (solutions.containsKey(type)) {
                     solutions[type]!!
@@ -65,9 +67,11 @@ internal class Substitution(
                 }
                 res
             }
+
             is CostExpression -> {
                 applyCost(type)
             }
+
             else -> type
         }
 
@@ -84,11 +88,25 @@ internal class Substitution(
                 }
                 res
             }
+
             is Fin -> costExpression
             is ConstantFin -> costExpression
             is SumCostExpression -> SumCostExpression(costExpression.children.map { applyCost(it) })
             is ProductCostExpression -> ProductCostExpression(costExpression.children.map { applyCost(it) })
             is MaxCostExpression -> MaxCostExpression(costExpression.children.map { applyCost(it) })
+            is ParameterHashCodeCost -> {
+                val res = if (solutions.containsKey(costExpression)) {
+                    when (val solution = solutions[costExpression]!!) {
+                        is StandardTypeParameter -> ParameterHashCodeCost(solution)
+                        else -> costExpressionFromAnyType(solution)
+                    }
+                } else {
+                    costExpression
+                }
+                res
+            }
+
+            is InstantiationHashCodeCost -> InstantiationHashCodeCost(apply(costExpression.instantiation))
         }
     }
 }

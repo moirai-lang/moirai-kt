@@ -29,6 +29,24 @@ internal class FinTypeParameter(
     }
 }
 
+internal class ParameterHashCodeCost(
+    val typeParameter: StandardTypeParameter
+) : CostExpression, TerminusType {
+    override val typeParams: List<TypeParameter> = listOf(typeParameter)
+
+    override fun <R> accept(visitor: CostExpressionVisitor<R>): R {
+        return visitor.visit(this)
+    }
+}
+
+internal class InstantiationHashCodeCost(
+    val instantiation: TypeInstantiation
+) : CostExpression {
+    override fun <R> accept(visitor: CostExpressionVisitor<R>): R {
+        return visitor.visit(this)
+    }
+}
+
 internal class Fin(val magnitude: Long) : CostExpression, Type {
     override fun <R> accept(visitor: CostExpressionVisitor<R>): R {
         return visitor.visit(this)

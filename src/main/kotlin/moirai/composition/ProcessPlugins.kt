@@ -127,7 +127,6 @@ data object NoPluginSource: PluginSource()
 
 internal fun createPluginScope(pluginSource: PluginSource): SymbolTable {
     val res = SymbolTable(Lang.prelude)
-
     if (pluginSource is UserPluginSource) {
         processPlugins("plugins", pluginSource.text, res)
     }

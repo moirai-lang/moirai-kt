@@ -259,4 +259,16 @@ class DictionaryHappyTests {
             """.trimIndent()
         ) { it is DictionaryValue }
     }
+
+    @Test
+    fun dictionaryRecordTest() {
+        val input = """
+        record R(val x: Int, val y: Int)
+        val x = Dictionary(R(1, 2) to 5, R(2, 3) to 6, R(3, 4) to 7)
+        x[R(1, 2)]
+        ^^^^^
+        5
+    """.trimIndent()
+        splitTest(input)
+    }
 }

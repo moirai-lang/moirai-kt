@@ -62,7 +62,8 @@ internal class PropagateTypesAstVisitor(
                             is ParameterizedBasicType -> handleParamBasicType(signifier, ast, terminus, args)
                             is ParameterizedRecordType -> handleParamRecord(signifier, ast, terminus, args)
                             is PlatformSumRecordType -> handlePlatformSumRecord(signifier, ast, terminus, args)
-                            is PlatformSumType -> {
+                            is PlatformSumType,
+                            is ParameterHashCodeCost -> {
                                 errors.add(ast.ctx, SymbolCouldNotBeApplied(toError(signifier)))
                                 ast.groundApplySlot = GroundApplySlotError
                                 ast.assignType(errors, ErrorType)
@@ -558,12 +559,14 @@ internal class PropagateTypesAstVisitor(
                     ast.dotSlot = DotSlotError
                     ast.assignType(errors, ErrorType)
                 }
+
                 is GroundRecordType -> {
                     when (val symbol = lhsType.fetchHere(ast.identifier)) {
                         is FieldSymbol -> {
                             ast.dotSlot = DotSlotField(symbol)
                             ast.assignType(errors, symbol.ofTypeSymbol)
                         }
+
                         else -> {
                             errors.add(ast.ctx, SymbolIsNotAField(toError(ast.identifier)))
                             ast.dotSlot = DotSlotError
@@ -621,7 +624,9 @@ internal class PropagateTypesAstVisitor(
                                 }
                             }
                         }
-                        is PlatformSumType -> {
+
+                        is PlatformSumType,
+                        is ParameterHashCodeCost -> {
                             errors.add(ast.ctx, SymbolHasNoFields(toError(ast.identifier), toError(ast.lhs.readType())))
                             ast.dotSlot = DotSlotError
                             ast.assignType(errors, ErrorType)
@@ -873,7 +878,9 @@ internal class PropagateTypesAstVisitor(
                                 }
                             }
                         }
-                        is PlatformSumType -> {
+
+                        is PlatformSumType,
+                        is ParameterHashCodeCost -> {
                             errors.add(ast.ctx, SymbolHasNoMembers(toError(ast.signifier), toError(ast.lhs.readType())))
                             ast.dotApplySlot = DotApplySlotError
                             ast.assignType(errors, ErrorType)
@@ -944,6 +951,7 @@ internal class PropagateTypesAstVisitor(
                     ast.assignSlot = AssignSlotLVS(symbol)
                     ast.assignType(errors, preludeTable.fetchType(Lang.unitId))
                 }
+
                 else -> {
                     errors.add(ast.ctx, InvalidRef(toError(symbol)))
                     ast.assignSlot = AssignSlotError
@@ -965,6 +973,7 @@ internal class PropagateTypesAstVisitor(
                     ast.dotAssignSlot = DotAssignSlotError
                     ast.assignType(errors, ErrorType)
                 }
+
                 is GroundRecordType -> {
                     when (val member = lhsType.fetchHere(ast.identifier)) {
                         is FieldSymbol -> {
@@ -1047,7 +1056,7 @@ internal class PropagateTypesAstVisitor(
                     when (val terminus = conditionType.substitutionChain.terminus) {
                         is PlatformSumType -> {
                             val supportedNames = terminus.memberTypes.map {
-                                when(it) {
+                                when (it) {
                                     is PlatformSumObjectType -> it.identifier.name
                                     is PlatformSumRecordType -> it.identifier.name
                                 }

@@ -75,7 +75,8 @@ class RecordValue(val path: String) : Value() {
     }
 
     override fun hashCode(): Int {
-        return path.hashCode()
+        val valuesHere = fields.valuesHere()
+        return valuesHere.hashCode()
     }
 }
 
@@ -99,7 +100,8 @@ class SumRecordValue(val path: String) : Value() {
     }
 
     override fun hashCode(): Int {
-        return path.hashCode()
+        val valuesHere = fields.valuesHere()
+        return valuesHere.hashCode()
     }
 }
 

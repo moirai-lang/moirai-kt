@@ -1,6 +1,8 @@
 package moirai.semantics.visitors
 
 import moirai.semantics.core.*
+import moirai.semantics.infer.SubstitutionChain
+import moirai.semantics.infer.TerminalChain
 
 internal class CostExpressionAstVisitor(private val architecture: Architecture) : UnitAstVisitor() {
     private fun addDefault(costExpression: CostExpression): CostExpression =
@@ -39,6 +41,27 @@ internal class CostExpressionAstVisitor(private val architecture: Architecture) 
                 instantiation.substitutionChain.replay(original)
             }
         }
+
+    private fun handleHash(
+        ce: CostExpression,
+        lhsType: Type
+    ) = if (ce is ParameterHashCodeCost) {
+        // As a special case, if the function involves generating a hash code,
+        // we need to create an instantiation using the LHS chain
+        when (lhsType) {
+            is TypeInstantiation -> {
+                val chain = SubstitutionChain(
+                    lhsType.substitutionChain.substitution,
+                    TerminalChain<TerminusType>(ce)
+                )
+                InstantiationHashCodeCost(TypeInstantiation(chain))
+            }
+
+            else -> langThrow(TypeSystemBug)
+        }
+    } else {
+        ce
+    }
 
     override fun visit(ast: IntLiteralAst) {
         ast.costExpression = Fin(architecture.defaultNodeCost)
@@ -226,18 +249,22 @@ internal class CostExpressionAstVisitor(private val architecture: Architecture) 
         multipliers.zip(ast.args).forEach {
             argCosts.add(ProductCostExpression(listOf(it.second.costExpression, it.first)))
         }
+        val lhsType = ast.lhs.readType()
         val bodyCost = when (val dotApplySlot = ast.dotApplySlot) {
             DotApplySlotError -> langThrow(NotInSource, TypeSystemBug)
             is DotApplySlotGF -> {
-                convertCostExpression(dotApplySlot.payload)
+                handleHash(convertCostExpression(dotApplySlot.payload), lhsType)
             }
+
             is DotApplySlotGMP -> {
-                convertCostExpression(dotApplySlot.payload)
+                handleHash(convertCostExpression(dotApplySlot.payload), lhsType)
             }
+
             is DotApplySlotSI -> {
-                convertCostExpression(dotApplySlot.payload)
+                handleHash(convertCostExpression(dotApplySlot.payload), lhsType)
             }
         }
+
         if (argCosts.isEmpty()) {
             ast.costExpression = addDefault(SumCostExpression(listOf(bodyCost, ast.lhs.costExpression)))
         } else {
