@@ -178,7 +178,10 @@ internal object Lang {
         SetInstantiationValidation(),
         immutableUnorderedFeatureSupport
     )
+
     val setElementTypeParam = StandardTypeParameter("${setId.name}.${setElementTypeId.name}", setElementTypeId)
+    val setParameterHashCodeCost = ParameterHashCodeCost(setElementTypeParam)
+
     val setFinTypeParam = FinTypeParameter("${setId.name}.${setFinTypeId.name}", setFinTypeId)
 
     val mutableSetType = ParameterizedBasicType(
@@ -186,7 +189,10 @@ internal object Lang {
         MutableSetInstantiationValidation(),
         immutableUnorderedFeatureSupport
     )
+
     val mutableSetElementTypeParam = StandardTypeParameter("${mutableSetId.name}.${mutableSetElementTypeId.name}", mutableSetElementTypeId)
+    val mutableSetParameterHashCodeCost = ParameterHashCodeCost(mutableSetElementTypeParam)
+
     val mutableSetFinTypeParam = FinTypeParameter("${mutableSetId.name}.${mutableSetFinTypeId.name}", mutableSetFinTypeId)
 
     init {
