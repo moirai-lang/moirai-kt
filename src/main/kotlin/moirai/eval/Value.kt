@@ -13,7 +13,8 @@ data object UnitValue : Value() {
 }
 
 class ObjectValue(
-    val path: String
+    val path: String,
+    val id: String
 ) : Value() {
 
     override fun equals(other: Any?): Boolean {
@@ -29,7 +30,8 @@ class ObjectValue(
 }
 
 class SumObjectValue(
-    val path: String
+    val path: String,
+    val id: String
 ) : Value() {
     override fun equals(other: Any?): Boolean {
         if (other != null && other is SumObjectValue) {
@@ -56,7 +58,7 @@ internal data class FunctionValue(
     val body: Ast
 ) : Value()
 
-class RecordValue(val path: String) : Value() {
+class RecordValue(val path: String, val id: String, val inOrderValues: List<Value>) : Value() {
     internal lateinit var scope: Scope
     internal lateinit var substitutions: Map<TypeParameter, Type>
     internal lateinit var fields: ValueTable
@@ -80,7 +82,7 @@ class RecordValue(val path: String) : Value() {
     }
 }
 
-class SumRecordValue(val path: String) : Value() {
+class SumRecordValue(val path: String, val id: String, val inOrderValues: List<Value>) : Value() {
     internal lateinit var scope: Scope
     internal lateinit var instantiation: TypeInstantiation
     internal lateinit var substitutions: Map<TypeParameter, Type>
