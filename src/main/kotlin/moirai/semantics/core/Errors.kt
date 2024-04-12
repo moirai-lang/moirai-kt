@@ -266,6 +266,9 @@ data class TypeMustBeCostExpression(val type: TypeErrorString): ErrorKind(), Typ
 }
 data class PluginAlreadyExists(val name: String): ErrorKind()
 
+data object ExpectedNamedScript: ErrorKind()
+data class ExpectedTransientScript(val name: String): ErrorKind()
+
 data class LanguageError(
     val ctx: SourceContext,
     val error: ErrorKind
