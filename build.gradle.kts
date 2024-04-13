@@ -2,6 +2,7 @@ plugins {
     kotlin("jvm") version "1.9.0"
     antlr
     jacoco
+    `maven-publish`
 }
 
 group = "org.moirai-lang"
@@ -40,11 +41,11 @@ tasks.generateGrammarSource {
 }
 
 tasks.test {
-    finalizedBy(tasks.jacocoTestReport) // report is always generated after tests run
+    finalizedBy(tasks.jacocoTestReport)
 }
 
 tasks.jacocoTestReport {
-    dependsOn(tasks.test) // tests are required to run before generating the report
+    dependsOn(tasks.test)
 }
 
 tasks.jacocoTestReport {
@@ -52,5 +53,13 @@ tasks.jacocoTestReport {
         xml.required = false
         csv.required = false
         html.outputLocation = layout.buildDirectory.dir("jacocoHtml")
+    }
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("default") {
+            from(components["java"])
+        }
     }
 }
