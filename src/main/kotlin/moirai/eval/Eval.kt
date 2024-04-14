@@ -34,6 +34,28 @@ fun eval(
 }
 
 fun eval(
+    architecture: Architecture,
+    executionArtifacts: ExecutionArtifacts,
+    userPlugins: List<UserPlugin>
+): Value {
+    val globalScope = ValueTable(NullValueTable)
+
+    val userPluginMap: MutableMap<String, UserPlugin> = mutableMapOf()
+    userPlugins.forEach {
+        if (!userPluginMap.containsKey(it.key)) {
+            userPluginMap[it.key] = it
+        } else {
+            langThrow(NotInSource, PluginAlreadyExists(it.key))
+        }
+    }
+
+    val evalVisitor = EvalAstVisitor(architecture, globalScope, userPluginMap.toMap())
+
+    val executionScope = ValueTable(globalScope)
+    return executionArtifacts.processedAst.accept(evalVisitor, EvalContext(executionScope, mapOf()))
+}
+
+fun eval(
     source: String,
     architecture: Architecture,
     sourceStore: SourceStore,
