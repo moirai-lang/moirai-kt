@@ -8,7 +8,6 @@ package moirai.transport
  */
 sealed interface TransportType
 sealed interface TransportCostExpression : TransportType
-sealed interface TransportTypeParameter : TransportType
 sealed interface TransportPlatformSumMember : TransportType
 
 data class TransportBinder(val name: String, val type: TransportType)
@@ -22,11 +21,11 @@ data class TransportFunctionType(
 
 data class TransportStandardTypeParameter(
     val name: String
-) : TransportTypeParameter
+) : TransportType
 
 data class TransportFinTypeParameter(
     val name: String
-) : TransportTypeParameter, TransportCostExpression
+) : TransportCostExpression
 
 data class TransportFin(val magnitude: Long) : TransportCostExpression
 data object TransportConstantFin : TransportCostExpression
@@ -49,7 +48,7 @@ data class TransportGroundRecordType(
 
 data class TransportParameterizedRecordType(
     val name: String,
-    val typeParams: List<TransportTypeParameter>,
+    val typeArgs: List<TransportType>,
     val fields: List<TransportBinder>
 ) : TransportType
 
@@ -59,19 +58,19 @@ data class TransportBasicType(
 
 data class TransportParameterizedBasicType(
     val name: String,
-    val typeParams: List<TransportTypeParameter>
+    val typeArgs: List<TransportType>
 ) : TransportType
 
 data class TransportPlatformSumType(
     val name: String,
-    val typeParams: List<TransportTypeParameter>,
+    val typeArgs: List<TransportType>,
     val memberTypes: List<TransportPlatformSumMember>
 ) : TransportType
 
 data class TransportPlatformSumRecordType(
     val sumTypeName: String,
     val name: String,
-    val typeParams: List<TransportTypeParameter>,
+    val typeArgs: List<TransportType>,
     val fields: List<TransportBinder>
 ) : TransportPlatformSumMember
 

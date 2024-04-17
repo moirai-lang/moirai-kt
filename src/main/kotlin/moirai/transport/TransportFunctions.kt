@@ -7,7 +7,6 @@ sealed interface FetchTransportFunctionResult
 
 data class TransportFunction(
     val name: String,
-    val typeParams: List<TransportTypeParameter>,
     val formalParams: List<TransportBinder>,
     val returnType: TransportType
 ): FetchTransportFunctionResult
@@ -21,23 +20,6 @@ fun fetchTransportFunction(executionArtifacts: ExecutionArtifacts, functionName:
                 if (symbol.identifier.name == functionName) {
                     return TransportFunction(
                         symbol.identifier.name,
-                        listOf(),
-                        symbol.formalParams.map {
-                            TransportBinder(
-                                it.identifier.name,
-                                convertToTransportType(it.ofTypeSymbol)
-                            )
-                        },
-                        convertToTransportType(symbol.returnType)
-                    )
-                }
-            }
-
-            is ParameterizedFunctionSymbol -> {
-                if (symbol.identifier.name == functionName) {
-                    return TransportFunction(
-                        symbol.identifier.name,
-                        symbol.typeParams.map { convertToTransportType(it) as TransportTypeParameter },
                         symbol.formalParams.map {
                             TransportBinder(
                                 it.identifier.name,
@@ -91,29 +73,56 @@ internal fun convertToTransportType(type: Type): TransportType =
         is PlatformObjectType -> TransportPlatformObjectType(type.identifier.name)
         is PlatformSumObjectType -> TransportPlatformSumObjectType(type.sumType.identifier.name, type.identifier.name)
         is StandardTypeParameter -> TransportStandardTypeParameter(type.identifier.name)
-        is ParameterizedBasicType -> TransportParameterizedBasicType(
-            type.identifier.name,
-            type.typeParams.map { convertToTransportType(it) as TransportTypeParameter }
-        )
+        is ParameterizedBasicType -> NonPublicTransportType
+        is ParameterizedRecordType -> NonPublicTransportType
+        is PlatformSumRecordType -> NonPublicTransportType
+        is PlatformSumType -> NonPublicTransportType
 
-        is ParameterizedRecordType -> TransportParameterizedRecordType(
-            type.identifier.name,
-            type.typeParams.map { convertToTransportType(it) as TransportTypeParameter },
-            type.fields.map { TransportBinder(it.identifier.name, convertToTransportType(it.ofTypeSymbol)) }
-        )
+        is TypeInstantiation -> {
+            val typeArgs = type.substitutionChain.replayArgs().map { convertToTransportType(it) }
+            when (val terminus = type.substitutionChain.chain.terminus) {
+                is ParameterHashCodeCost -> NonPublicTransportType
+                is ParameterizedBasicType -> TransportParameterizedBasicType(
+                    terminus.identifier.name,
+                    typeArgs
+                )
 
-        is PlatformSumRecordType -> TransportPlatformSumRecordType(
-            type.sumType.identifier.name,
-            type.identifier.name,
-            type.typeParams.map { convertToTransportType(it) as TransportTypeParameter },
-            type.fields.map { TransportBinder(it.identifier.name, convertToTransportType(it.ofTypeSymbol)) }
-        )
+                is ParameterizedRecordType -> TransportParameterizedRecordType(
+                    terminus.identifier.name,
+                    typeArgs,
+                    terminus.fields.map {
+                        TransportBinder(
+                            it.identifier.name,
+                            convertToTransportType(type.substitutionChain.replay(it.ofTypeSymbol))
+                        )
+                    }
+                )
 
-        is PlatformSumType -> TransportPlatformSumType(
-            type.identifier.name,
-            type.typeParams.map { convertToTransportType(it) as TransportTypeParameter },
-            type.memberTypes.map { convertToTransportType(it as Type) as TransportPlatformSumMember }
-        )
+                is PlatformSumRecordType -> TransportPlatformSumRecordType(
+                    terminus.sumType.identifier.name,
+                    terminus.identifier.name,
+                    typeArgs,
+                    terminus.fields.map {
+                        TransportBinder(
+                            it.identifier.name,
+                            convertToTransportType(type.substitutionChain.replay(it.ofTypeSymbol))
+                        )
+                    }
+                )
 
-        is TypeInstantiation -> NonPublicTransportType
+                is PlatformSumType -> TransportPlatformSumType(
+                    terminus.identifier.name,
+                    typeArgs,
+                    terminus.memberTypes.map {
+                        when (it) {
+                            is PlatformSumObjectType -> convertToTransportType(it as Type) as TransportPlatformSumMember
+                            is PlatformSumRecordType -> {
+                                val instantiation = type.substitutionChain.replay(it)
+                                convertToTransportType(instantiation) as TransportPlatformSumMember
+                            }
+                        }
+                    }
+                )
+            }
+        }
     }
