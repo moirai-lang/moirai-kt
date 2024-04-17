@@ -5,71 +5,73 @@ sealed interface TransportCostExpression : TransportType
 sealed interface TransportTypeParameter : TransportType
 sealed interface TransportPlatformSumMember : TransportType
 
-class TransportFunctionType(
+data class TransportRecordField(val name: String, val type: TransportType)
+
+data class TransportFunctionType(
     val formalParamTypes: List<TransportType>,
     val returnType: TransportType
 ) : TransportType
 
-class TransportStandardTypeParameter(
+data class TransportStandardTypeParameter(
     val qualifiedName: String,
     val name: String
 ) : TransportTypeParameter
 
-class TransportFinTypeParameter(
+data class TransportFinTypeParameter(
     val qualifiedName: String,
     val name: String
 ) : TransportTypeParameter, TransportCostExpression
 
-class TransportFin(val magnitude: Long) : TransportCostExpression
+data class TransportFin(val magnitude: Long) : TransportCostExpression
 data object TransportConstantFin : TransportCostExpression
-class TransportSumCostExpression(val args: List<TransportCostExpression>) : TransportCostExpression
-class TransportProductCostExpression(val args: List<TransportCostExpression>) : TransportCostExpression
-class TransportMaxCostExpression(val args: List<TransportCostExpression>) : TransportCostExpression
+data class TransportSumCostExpression(val args: List<TransportCostExpression>) : TransportCostExpression
+data class TransportProductCostExpression(val args: List<TransportCostExpression>) : TransportCostExpression
+data class TransportMaxCostExpression(val args: List<TransportCostExpression>) : TransportCostExpression
 
-class TransportPlatformObjectType(
+data class TransportPlatformObjectType(
     val name: String
 ) : TransportType
 
-class TransportObjectType(
+data class TransportObjectType(
     val qualifiedName: String,
     val name: String
 ) : TransportType
 
-class TransportGroundRecordType(
+data class TransportGroundRecordType(
     val qualifiedName: String,
     val name: String,
-    val fields: List<String>
+    val fields: List<TransportRecordField>
 ) : TransportType
 
-class TransportParameterizedRecordType(
+data class TransportParameterizedRecordType(
     val qualifiedName: String,
     val name: String,
     val typeParams: List<TransportTypeParameter>
 ) : TransportType
 
-class TransportBasicType(
+data class TransportBasicType(
     val name: String,
 ) : TransportType
 
-class TransportParameterizedBasicType(
+data class TransportParameterizedBasicType(
     val name: String,
     val typeParams: List<TransportTypeParameter>
 ) : TransportType
 
-class TransportPlatformSumType(
+data class TransportPlatformSumType(
     val name: String,
     val typeParams: List<TransportTypeParameter>,
     val memberTypes: List<TransportPlatformSumMember>
 ) : TransportType
 
-class TransportPlatformSumRecordType(
+data class TransportPlatformSumRecordType(
     val sumType: TransportPlatformSumType,
     val name: String,
     val typeParams: List<TransportTypeParameter>,
-    val fields: List<String>
+    val fields: List<TransportRecordField>
 ) : TransportPlatformSumMember
 
-class TransportPlatformSumObjectType(
+data class TransportPlatformSumObjectType(
     val sumType: TransportPlatformSumType,
     val name: String
 ) : TransportPlatformSumMember
