@@ -11,7 +11,7 @@ sealed interface TransportCostExpression : TransportType
 sealed interface TransportTypeParameter : TransportType
 sealed interface TransportPlatformSumMember : TransportType
 
-data class TransportRecordField(val name: String, val type: TransportType)
+data class TransportBinder(val name: String, val type: TransportType)
 
 data object NonPublicTransportType: TransportType
 
@@ -44,13 +44,13 @@ data class TransportObjectType(
 
 data class TransportGroundRecordType(
     val name: String,
-    val fields: List<TransportRecordField>
+    val fields: List<TransportBinder>
 ) : TransportType
 
 data class TransportParameterizedRecordType(
     val name: String,
     val typeParams: List<TransportTypeParameter>,
-    val fields: List<TransportRecordField>
+    val fields: List<TransportBinder>
 ) : TransportType
 
 data class TransportBasicType(
@@ -72,7 +72,7 @@ data class TransportPlatformSumRecordType(
     val sumTypeName: String,
     val name: String,
     val typeParams: List<TransportTypeParameter>,
-    val fields: List<TransportRecordField>
+    val fields: List<TransportBinder>
 ) : TransportPlatformSumMember
 
 data class TransportPlatformSumObjectType(
