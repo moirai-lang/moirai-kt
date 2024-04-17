@@ -1,5 +1,11 @@
 package moirai.transport
 
+/**
+ * This type provides a stable public surface for the output of the type system. Whereas
+ * the internal type system may change at any time, this public surface should never change
+ * for library consumers. The types in this file can be used as part of a system that translates
+ * transport formats to Moirai code, such as JSON to Moirai conversion.
+ */
 sealed interface TransportType
 sealed interface TransportCostExpression : TransportType
 sealed interface TransportTypeParameter : TransportType
@@ -7,18 +13,18 @@ sealed interface TransportPlatformSumMember : TransportType
 
 data class TransportRecordField(val name: String, val type: TransportType)
 
+data object NonPublicTransportType: TransportType
+
 data class TransportFunctionType(
     val formalParamTypes: List<TransportType>,
     val returnType: TransportType
 ) : TransportType
 
 data class TransportStandardTypeParameter(
-    val qualifiedName: String,
     val name: String
 ) : TransportTypeParameter
 
 data class TransportFinTypeParameter(
-    val qualifiedName: String,
     val name: String
 ) : TransportTypeParameter, TransportCostExpression
 
@@ -33,20 +39,18 @@ data class TransportPlatformObjectType(
 ) : TransportType
 
 data class TransportObjectType(
-    val qualifiedName: String,
     val name: String
 ) : TransportType
 
 data class TransportGroundRecordType(
-    val qualifiedName: String,
     val name: String,
     val fields: List<TransportRecordField>
 ) : TransportType
 
 data class TransportParameterizedRecordType(
-    val qualifiedName: String,
     val name: String,
-    val typeParams: List<TransportTypeParameter>
+    val typeParams: List<TransportTypeParameter>,
+    val fields: List<TransportRecordField>
 ) : TransportType
 
 data class TransportBasicType(
@@ -65,13 +69,13 @@ data class TransportPlatformSumType(
 ) : TransportType
 
 data class TransportPlatformSumRecordType(
-    val sumType: TransportPlatformSumType,
+    val sumTypeName: String,
     val name: String,
     val typeParams: List<TransportTypeParameter>,
     val fields: List<TransportRecordField>
 ) : TransportPlatformSumMember
 
 data class TransportPlatformSumObjectType(
-    val sumType: TransportPlatformSumType,
+    val sumTypeName: String,
     val name: String
 ) : TransportPlatformSumMember
