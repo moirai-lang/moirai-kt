@@ -30,4 +30,17 @@ class ImportHappyTests {
         """.trimIndent()
         )
     }
+
+    @Test
+    fun transientImportTest() {
+        splitTestTransient(
+            """
+            transient script my.library
+            
+            f(R(5, List(3, 4, 5)))
+            ^^^^^
+            60
+        """.trimIndent()
+        )
+    }
 }

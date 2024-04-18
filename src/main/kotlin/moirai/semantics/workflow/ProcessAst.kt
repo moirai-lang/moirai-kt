@@ -79,7 +79,14 @@ internal fun processAstAllPhases(
     val userScopes = createUserScopes(plugins)
     existingArtifacts.forEach { artifact ->
         artifact.userScopes.exports.symbolsToMap().forEach { entry ->
-            userScopes.imports.define(Identifier(NotInSource, entry.key), entry.value)
+            if (entry.value !is TypePlaceholder) {
+                userScopes.imports.define(Identifier(NotInSource, entry.key), entry.value)
+            }
+        }
+        artifact.userScopes.exports.typesToMap().forEach { entry ->
+            if (entry.value !is ErrorType) {
+                userScopes.imports.defineType(Identifier(NotInSource, entry.key), entry.value)
+            }
         }
     }
 

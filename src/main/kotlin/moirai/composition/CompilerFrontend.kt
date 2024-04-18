@@ -10,22 +10,6 @@ class CompilerFrontend(
 ) {
     private val pluginScope = createPluginScope(pluginSource)
 
-    private fun fetchOrAdd(
-        executionCache: ExecutionCache,
-        nameParts: List<String>,
-        contents: String
-    ) = when (val res = executionCache.fetchExecutionArtifacts(nameParts)) {
-        is InCache -> {
-            res.executionArtifacts
-        }
-
-        NotInCache -> {
-            val ea = fullCompileWithTopologicalSort(contents)
-            executionCache.storeExecutionArtifacts(nameParts, ea)
-            ea
-        }
-    }
-
     private fun quickCompile(
         initialScan: ImportScan,
         errors: LanguageErrors,
@@ -70,9 +54,20 @@ class CompilerFrontend(
             }
 
             is TransientScript -> {
-                val importContents = sourceStore.fetchSourceText(initialScan.imports.first().path)
-                val imported = fetchOrAdd(executionCache, initialScan.scriptType.nameParts, importContents)
-                quickCompile(initialScan, errors, listOf(imported.semanticArtifacts))
+                val nameParts = initialScan.scriptType.nameParts
+                val ea = when (val res = executionCache.fetchExecutionArtifacts(nameParts)) {
+                    is InCache -> {
+                        res.executionArtifacts
+                    }
+
+                    NotInCache -> {
+                        val singleImport = sourceStore.fetchSourceText(nameParts)
+                        val toStore = fullCompileWithTopologicalSort(singleImport)
+                        executionCache.storeExecutionArtifacts(nameParts, toStore)
+                        toStore
+                    }
+                }
+                quickCompile(initialScan, errors, listOf(ea.semanticArtifacts))
             }
         }
     }

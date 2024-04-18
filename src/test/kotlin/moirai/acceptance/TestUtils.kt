@@ -20,7 +20,7 @@ object LargeComputationArchitecture : Architecture {
 class LocalSourceStore : SourceStore {
     private val fileNamespace = listOf("local", "source")
     private val fileText = """
-        artifact local.source
+        script local.source
         
         def slope(m: Int, x: Int, b: Int): Int {
             m * x + b
@@ -160,6 +160,31 @@ fun testGradual(source: String, architecture: Architecture): Value {
     return eval(architecture, executionArtifacts)
 }
 
+fun testTransient(source: String, architecture: Architecture): Value {
+    val sourceStore = LocalSourceStore()
+    val executionCache = LocalExecutionCache()
+
+    val frontend = CompilerFrontend(architecture, sourceStore)
+    frontend.compileUsingCache(
+        """
+            script my.library
+            
+            record R(val x: Int, val l: List<Int, 5>)
+            
+            def f(r: R): Int {
+                mutable res = 0
+                for(r.l) {
+                    res = res + (r.x * it)
+                }
+                res
+            }
+        """.trimIndent(), executionCache
+    )
+
+    val executionArtifacts = frontend.compileUsingCache(source, executionCache)
+    return eval(architecture, executionArtifacts)
+}
+
 data class TestUserPlugin(override val key: String, private val eval: (List<Value>) -> Value): UserPlugin {
     override fun evaluate(args: List<Value>): Value = eval(args)
 }
@@ -250,6 +275,25 @@ fun splitTestGradual(
 
     val actual = testGradual(sourceActual, architecture)
     val expected = testGradual(sourceExpected, architecture)
+
+    when {
+        actual is DecimalValue && expected is DecimalValue -> {
+            Assertions.assertTrue(expected.canonicalForm.compareTo(actual.canonicalForm) == 0)
+        }
+        else -> Assertions.assertEquals(expected, actual)
+    }
+}
+
+fun splitTestTransient(
+    fullText: String,
+    architecture: Architecture = TestArchitecture
+) {
+    val parts = fullText.split("^^^^^")
+    val sourceActual = parts[0]
+    val sourceExpected = parts[1]
+
+    val actual = testTransient(sourceActual, architecture)
+    val expected = testTransient(sourceExpected, architecture)
 
     when {
         actual is DecimalValue && expected is DecimalValue -> {
