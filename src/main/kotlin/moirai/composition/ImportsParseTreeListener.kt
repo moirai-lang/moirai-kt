@@ -15,15 +15,8 @@ internal class ImportsParseTreeListener(val errors: LanguageErrors) :
     private var scriptType: ScriptType = PureTransient
 
     override fun enterTransientScript(ctx: MoiraiParser.TransientScriptContext) {
-        val import = ctx.importIdSeq().IDENTIFIER().map { it.symbol.text }
-        scriptType = TransientScript(import)
-        val sourceContext = createContext(scriptType.fileName(), ctx.start)
-
-        if (accumulatedImports.contains(import)) {
-            errors.add(sourceContext, DuplicateImport(import))
-        } else {
-            accumulatedImports[import] = sourceContext
-        }
+        val nameParts = ctx.importIdSeq().IDENTIFIER().map { it.symbol.text }
+        scriptType = TransientScript(nameParts)
     }
 
     override fun enterScriptStat(ctx: MoiraiParser.ScriptStatContext) {
