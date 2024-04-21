@@ -1,12 +1,13 @@
 # The Moirai Programming Language
-Moirai is a programming language for server-based real-time computing (RTC). The worst-case execution time (WCET) is calculated for every script before it is executed. Moirai is ideal for multi-tenant microservices and serverless applications. With a sufficiently pessimistic WCET limit, individual tenants will be unable to take down the server for all tenants.
+Moirai is a programming language for server-based real-time computing (RTC). The worst-case execution time (WCET) is calculated for every script before it is executed. Moirai is ideal for multi-tenant microservices, serverless functions, and computed columns in databases. With a sufficiently pessimistic WCET limit, individual tenants will be unable to take down the server for all tenants.
 
 * [Language Syntax Guide](https://github.com/moirai-lang/moirai-kt/wiki/Language-Syntax-Guide): A detailed overview of the language syntax.
+* [Example Moirai Service](https://github.com/moirai-lang/moirai-service): An example webservice that can serve Moirai or JSON requests.
 * [Using the Moirai Kotlin API](https://github.com/moirai-lang/moirai-kt/wiki/Using-the-Moirai-Kotlin-API): For if you want to import Moirai into your Kotlin or Java projects, for example if you are developing your own web service that will use Moirai.
-* [Getting Started](https://github.com/moirai-lang/moirai-kt/wiki/Getting-Started): There is currently no REPL. The fastest way to write Moirai code is to add new tests.
 
 # Language Use Cases
 * Multi-tenant serverless or cloud compute services with no cold start time.
+* Computed columns in a database
 * Replace JSON requests when invoking web APIs.
 * To very quickly update scripts in a live service without needing a full deployment.
 * As a workflow language.
@@ -60,6 +61,11 @@ f(lambda (c: Int, d: Int) -> {
 ```
 This code attempts to sneak past the total cost calculator by using higher-order functions. However, the compiler is smart enough to detect that this code will iterate 10,000 times, which is unacceptable. The computation is rejected and the server returns an error.
 
+# For Computed Columns
+Some database technologies allow users to define computed columns. These are virtual read-only columns that are calculated using other columns as input. Sometimes, SQL is used as the language to define these computed columns. In other cases, Java or Python are used. In all of these cases, the performance of the database may degrade if the computations are too complex.
+
+Moirai makes an ideal alternative to using Turing-complete programming languages in computed columns. With a sufficiently pessimistic WCET limit, the database software can guarantee a minimum performance service-level agreement (SLA).
+
 # As a Replacement for Data Transfer Formats (JSON/XML)
 Arbitrary code sent over a network is also safe to execute. For this purpose, most existing products start with JSON and add Lisp-like features or embedded Abstract Syntax Trees.
 
@@ -78,6 +84,8 @@ Arbitrary code sent over a network is also safe to execute. For this purpose, mo
 ```
 
 Moirai is _not_ a JSON generator. Moirai replaces JSON completely. At no point is JSON sent over the network, and at no point does the destination server deserialize Moirai into another language. The request sent over the network and the cloud function code are both written in Moirai.
+
+In the [example webservice](https://github.com/moirai-lang/moirai-service), JSON _can_ be sent over the network. However, the Moirai interpreter does not know what JSON is, and it does not add any JSON parsers as a dependency. Only the webservice code adds JSON dependencies, and JSON is only used to generate a Moirai script. This option is provided by the example service in case the user does not feel comfortable executing arbitrary code.
 
 # Etymology
 Moirai is a term from ancient Greek mythology. It refers the three sisters who personify destiny.
