@@ -126,3 +126,17 @@ internal fun convertToTransportType(type: Type): TransportType =
             }
         }
     }
+
+internal fun convertToAst(transportAst: TransportAst): Ast =
+    when(transportAst) {
+        is ApplyTransportAst -> GroundApplyAst(
+            NotInSource,
+            Identifier(NotInSource, transportAst.name),
+            transportAst.args.map { convertToAst(it) })
+
+        is BooleanLiteralTransportAst -> BooleanLiteralAst(NotInSource, transportAst.canonicalForm)
+        is DecimalLiteralTransportAst -> DecimalLiteralAst(NotInSource, transportAst.canonicalForm)
+        is IntLiteralTransportAst -> IntLiteralAst(NotInSource, transportAst.canonicalForm)
+        is RefTransportAst -> RefAst(NotInSource, Identifier(NotInSource, transportAst.name))
+        is StringLiteralTransportAst -> StringLiteralAst(NotInSource, transportAst.canonicalForm)
+    }
