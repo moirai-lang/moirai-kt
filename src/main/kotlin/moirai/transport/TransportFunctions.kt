@@ -139,4 +139,5 @@ internal fun convertToAst(transportAst: TransportAst): Ast =
         is IntLiteralTransportAst -> IntLiteralAst(NotInSource, transportAst.canonicalForm)
         is RefTransportAst -> RefAst(NotInSource, Identifier(NotInSource, transportAst.name))
         is StringLiteralTransportAst -> StringLiteralAst(NotInSource, transportAst.canonicalForm)
+        is CharLiteralTransportAst -> CharLiteralAst(NotInSource, transportAst.canonicalForm)
     }
