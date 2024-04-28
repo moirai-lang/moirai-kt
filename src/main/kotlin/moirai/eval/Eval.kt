@@ -5,6 +5,7 @@ import moirai.semantics.core.Architecture
 import moirai.semantics.core.NotInSource
 import moirai.semantics.core.PluginAlreadyExists
 import moirai.semantics.core.langThrow
+import moirai.transport.TransportAst
 
 fun eval(
     source: String,
@@ -80,4 +81,33 @@ fun eval(
 
     val executionScope = ValueTable(globalScope)
     return executionArtifacts.processedAst.accept(evalVisitor, EvalContext(executionScope, mapOf()))
+}
+
+fun eval(
+    fileName: String,
+    transportAst: TransportAst,
+    architecture: Architecture,
+    sourceStore: SourceStore,
+    executionCache: ExecutionCache,
+    pluginSource: String,
+    userPlugins: List<UserPlugin>
+): Value {
+    val frontend = CompilerFrontend(architecture, sourceStore, UserPluginSource(pluginSource))
+
+    val sa = frontend.compileTransportAst(fileName, transportAst, executionCache)
+
+    val userPluginMap: MutableMap<String, UserPlugin> = mutableMapOf()
+    userPlugins.forEach {
+        if (!userPluginMap.containsKey(it.key)) {
+            userPluginMap[it.key] = it
+        } else {
+            langThrow(NotInSource, PluginAlreadyExists(it.key))
+        }
+    }
+
+    val globalScope = ValueTable(NullValueTable)
+    val evalVisitor = EvalAstVisitor(architecture, globalScope, userPluginMap.toMap())
+
+    val executionScope = ValueTable(globalScope)
+    return sa.processedAst.accept(evalVisitor, EvalContext(executionScope, mapOf()))
 }
