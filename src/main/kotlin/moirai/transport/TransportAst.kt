@@ -2,6 +2,13 @@ package moirai.transport
 
 import java.math.BigDecimal
 
+/**
+ * This type provides a stable public surface for simple Abstract Syntax Trees. It can be used
+ * in contexts where generating raw Moirai code may not be safe. For example, when converting
+ * a transport format to Moirai, the transport format may contain a string interpolation that
+ * creates a security risk if directly converted to Moirai. Instead of converting to raw code,
+ * this AST allows a conversion to a safe in-memory object.
+ */
 sealed class TransportAst
 
 data class IntLiteralTransportAst(val canonicalForm: Int): TransportAst()
