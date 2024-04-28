@@ -5,6 +5,7 @@ import moirai.semantics.core.Architecture
 import moirai.semantics.core.NotInSource
 import moirai.semantics.core.PluginAlreadyExists
 import moirai.semantics.core.langThrow
+import moirai.transport.TransportAst
 
 fun eval(
     source: String,
@@ -80,4 +81,22 @@ fun eval(
 
     val executionScope = ValueTable(globalScope)
     return executionArtifacts.processedAst.accept(evalVisitor, EvalContext(executionScope, mapOf()))
+}
+
+fun eval(
+    fileName: String,
+    transportAst: TransportAst,
+    architecture: Architecture,
+    sourceStore: SourceStore,
+    executionCache: ExecutionCache
+): Value {
+    val frontend = CompilerFrontend(architecture, sourceStore)
+
+    val sa = frontend.compileTransportAst(fileName, transportAst, executionCache)
+
+    val globalScope = ValueTable(NullValueTable)
+    val evalVisitor = EvalAstVisitor(architecture, globalScope, mapOf())
+
+    val executionScope = ValueTable(globalScope)
+    return sa.processedAst.accept(evalVisitor, EvalContext(executionScope, mapOf()))
 }

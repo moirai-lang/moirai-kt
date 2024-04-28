@@ -2,6 +2,8 @@ package moirai.composition
 
 import moirai.semantics.core.*
 import moirai.semantics.workflow.*
+import moirai.transport.TransportAst
+import moirai.transport.convertToAst
 
 class CompilerFrontend(
     private val architecture: Architecture,
@@ -32,6 +34,37 @@ class CompilerFrontend(
         ea.processedAst = artifacts.processedAst
         ea.semanticArtifacts = artifacts
         return ea
+    }
+
+    internal fun compileTransportAst(
+        fileName: String,
+        transportAst: TransportAst,
+        executionCache: ExecutionCache
+    ): SemanticArtifacts {
+        val nameParts = fileName.split(".")
+        val line = convertToAst(transportAst)
+        val file = FileAst(NotInSource, listOf(line))
+
+        val ea = when (val res = executionCache.fetchExecutionArtifacts(nameParts)) {
+            is InCache -> {
+                res.executionArtifacts
+            }
+
+            NotInCache -> {
+                val singleImport = sourceStore.fetchSourceText(nameParts)
+                val toStore = fullCompileWithTopologicalSort(singleImport)
+                executionCache.storeExecutionArtifacts(nameParts, toStore)
+                toStore
+            }
+        }
+
+        return processAstAllPhases(
+            file,
+            fileName,
+            architecture,
+            pluginScope,
+            listOf(ea.semanticArtifacts)
+        )
     }
 
     fun compileUsingCache(
