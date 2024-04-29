@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "org.moirai-lang"
-version = "0.2.7"
+version = "0.2.8"
 
 repositories {
     mavenCentral()

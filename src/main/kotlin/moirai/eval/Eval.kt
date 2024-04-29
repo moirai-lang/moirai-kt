@@ -2,9 +2,6 @@ package moirai.eval
 
 import moirai.composition.*
 import moirai.semantics.core.Architecture
-import moirai.semantics.core.NotInSource
-import moirai.semantics.core.PluginAlreadyExists
-import moirai.semantics.core.langThrow
 import moirai.transport.TransportAst
 
 fun eval(
@@ -41,16 +38,8 @@ fun eval(
 ): Value {
     val globalScope = ValueTable(NullValueTable)
 
-    val userPluginMap: MutableMap<String, UserPlugin> = mutableMapOf()
-    userPlugins.forEach {
-        if (!userPluginMap.containsKey(it.key)) {
-            userPluginMap[it.key] = it
-        } else {
-            langThrow(NotInSource, PluginAlreadyExists(it.key))
-        }
-    }
-
-    val evalVisitor = EvalAstVisitor(architecture, globalScope, userPluginMap.toMap())
+    val userPluginMap = pluginMap(userPlugins)
+    val evalVisitor = EvalAstVisitor(architecture, globalScope, userPluginMap)
 
     val executionScope = ValueTable(globalScope)
     return executionArtifacts.processedAst.accept(evalVisitor, EvalContext(executionScope, mapOf()))
@@ -67,17 +56,9 @@ fun eval(
 
     val executionArtifacts = frontend.fullCompileWithTopologicalSort(source)
 
-    val userPluginMap: MutableMap<String, UserPlugin> = mutableMapOf()
-    userPlugins.forEach {
-        if(!userPluginMap.containsKey(it.key)) {
-            userPluginMap[it.key] = it
-        } else {
-            langThrow(NotInSource, PluginAlreadyExists(it.key))
-        }
-    }
-
+    val userPluginMap = pluginMap(userPlugins)
     val globalScope = ValueTable(NullValueTable)
-    val evalVisitor = EvalAstVisitor(architecture, globalScope, userPluginMap.toMap())
+    val evalVisitor = EvalAstVisitor(architecture, globalScope, userPluginMap)
 
     val executionScope = ValueTable(globalScope)
     return executionArtifacts.processedAst.accept(evalVisitor, EvalContext(executionScope, mapOf()))
@@ -96,17 +77,26 @@ fun eval(
 
     val sa = frontend.compileTransportAst(fileName, transportAst, executionCache)
 
-    val userPluginMap: MutableMap<String, UserPlugin> = mutableMapOf()
-    userPlugins.forEach {
-        if (!userPluginMap.containsKey(it.key)) {
-            userPluginMap[it.key] = it
-        } else {
-            langThrow(NotInSource, PluginAlreadyExists(it.key))
-        }
-    }
-
+    val userPluginMap = pluginMap(userPlugins)
     val globalScope = ValueTable(NullValueTable)
-    val evalVisitor = EvalAstVisitor(architecture, globalScope, userPluginMap.toMap())
+    val evalVisitor = EvalAstVisitor(architecture, globalScope, userPluginMap)
+
+    val executionScope = ValueTable(globalScope)
+    return sa.processedAst.accept(evalVisitor, EvalContext(executionScope, mapOf()))
+}
+
+fun eval(
+    fileName: String,
+    transportAst: TransportAst,
+    frontend: CompilerFrontend,
+    executionCache: ExecutionCache,
+    userPlugins: List<UserPlugin>
+): Value {
+    val sa = frontend.compileTransportAst(fileName, transportAst, executionCache)
+
+    val userPluginMap = pluginMap(userPlugins)
+    val globalScope = ValueTable(NullValueTable)
+    val evalVisitor = EvalAstVisitor(frontend.architecture, globalScope, userPluginMap)
 
     val executionScope = ValueTable(globalScope)
     return sa.processedAst.accept(evalVisitor, EvalContext(executionScope, mapOf()))

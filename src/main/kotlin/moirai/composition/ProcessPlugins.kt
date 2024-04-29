@@ -1,10 +1,23 @@
 package moirai.composition
 
+import moirai.eval.UserPlugin
 import moirai.semantics.core.*
 import moirai.semantics.prelude.Lang
 import moirai.semantics.visitors.bindFormals
 import moirai.semantics.visitors.qualifiedName
 import org.antlr.v4.runtime.tree.ParseTreeWalker
+
+internal fun pluginMap(userPlugins: List<UserPlugin>): Map<String, UserPlugin> {
+    val userPluginMap: MutableMap<String, UserPlugin> = mutableMapOf()
+    userPlugins.forEach {
+        if (!userPluginMap.containsKey(it.key)) {
+            userPluginMap[it.key] = it
+        } else {
+            langThrow(NotInSource, PluginAlreadyExists(it.key))
+        }
+    }
+    return userPluginMap.toMap()
+}
 
 internal fun parsePlugins(fileName: String, pluginSource: String, errors: LanguageErrors): List<PluginDefLiteral> {
     val parser = createParser(pluginSource)
