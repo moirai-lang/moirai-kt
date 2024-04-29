@@ -6,7 +6,7 @@ import moirai.transport.TransportAst
 import moirai.transport.convertToAst
 
 class CompilerFrontend(
-    private val architecture: Architecture,
+    val architecture: Architecture,
     private val sourceStore: SourceStore,
     pluginSource: PluginSource = NoPluginSource
 ) {
