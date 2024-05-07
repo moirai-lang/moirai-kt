@@ -98,6 +98,8 @@ internal data class RefAst(override val ctx: SourceContext, val identifier: Iden
 }
 
 internal data class FileAst(override val ctx: SourceContext, val lines: List<Ast>) : Ast() {
+    var cost: Long = 0
+
     override fun <R> accept(visitor: AstVisitor<R>): R =
         visitor.visit(this)
 

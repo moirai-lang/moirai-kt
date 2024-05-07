@@ -163,4 +163,5 @@ internal fun enforceCostLimit(ast: FileAst, architecture: Architecture) {
     if (cost > architecture.costUpperLimit) {
         filterThrow(setOf(LanguageError(NotInSource, CostOverLimit)))
     }
+    ast.cost = cost
 }
