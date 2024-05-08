@@ -9,12 +9,20 @@ import moirai.eval.*
 object TestArchitecture : Architecture {
     override val defaultNodeCost: Long = (1).toLong()
     override val costUpperLimit: Long = (5000).toLong()
+
+    override fun getNodeCostOverlay(key: String): NodeCostOverlay {
+        return UndefinedOverlay
+    }
 }
 
 
 object LargeComputationArchitecture : Architecture {
     override val defaultNodeCost: Long = (1).toLong()
     override val costUpperLimit: Long = (100000000).toLong()
+
+    override fun getNodeCostOverlay(key: String): NodeCostOverlay {
+        return UndefinedOverlay
+    }
 }
 
 class LocalSourceStore : SourceStore {
