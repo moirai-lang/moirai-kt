@@ -45,9 +45,14 @@ enum class AstNodeNames(val key: String) {
     DotAssignAst("DotAssign"),
     IfAst("If"),
     MatchAst("Match"),
+    Reserved0("Reserved0"),
     Reserved1("Reserved1"),
     Reserved2("Reserved2"),
     Reserved3("Reserved3"),
     Reserved4("Reserved4"),
-    Reserved5("Reserved5")
+    Reserved5("Reserved5"),
+    Reserved6("Reserved6"),
+    Reserved7("Reserved7"),
+    Reserved8("Reserved8"),
+    Reserved9("Reserved9")
 }
