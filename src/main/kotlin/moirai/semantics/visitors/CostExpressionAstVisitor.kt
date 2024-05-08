@@ -146,17 +146,17 @@ internal class CostExpressionAstVisitor(private val architecture: Architecture) 
 
     override fun visit(ast: LambdaAst) {
         super.visit(ast)
-        ast.costExpression = ast.body.costExpression
+        ast.costExpression = addDefault(ast.body.costExpression, AstNodeNames.LambdaAst.key)
     }
 
     override fun visit(ast: RecordDefinitionAst) {
         super.visit(ast)
-        ast.costExpression = Fin(architecture.defaultNodeCost)
+        ast.costExpression = Fin(getDefaultNodeCost(AstNodeNames.RecordDefinitionAst.key))
     }
 
     override fun visit(ast: ObjectDefinitionAst) {
         super.visit(ast)
-        ast.costExpression = Fin(architecture.defaultNodeCost)
+        ast.costExpression = Fin(getDefaultNodeCost(AstNodeNames.ObjectDefinitionAst.key))
     }
 
     override fun visit(ast: DotAst) {
