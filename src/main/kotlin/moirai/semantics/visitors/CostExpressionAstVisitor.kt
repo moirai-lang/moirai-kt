@@ -5,17 +5,25 @@ import moirai.semantics.infer.SubstitutionChain
 import moirai.semantics.infer.TerminalChain
 
 internal class CostExpressionAstVisitor(private val architecture: Architecture) : UnitAstVisitor() {
-    private fun addDefault(costExpression: CostExpression): CostExpression =
-        SumCostExpression(listOf(Fin(architecture.defaultNodeCost), costExpression))
+    private fun addDefault(costExpression: CostExpression, key: String): CostExpression =
+        SumCostExpression(listOf(Fin(getDefaultNodeCost(key)), costExpression))
+
+    private fun getDefaultNodeCost(key: String): Long =
+        when (val overlay = architecture.getNodeCostOverlay(key)) {
+            is DefinedOverlay -> overlay.nodeCost
+            UndefinedOverlay -> architecture.defaultNodeCost
+        }
 
     private fun convertCostExpression(symbolRef: Symbol): CostExpression =
         when (symbolRef) {
             is GroundFunctionSymbol -> {
                 symbolRef.costExpression
             }
+
             is GroundMemberPluginSymbol -> {
                 symbolRef.costExpression
             }
+
             is SymbolInstantiation -> replaySubstitutions(symbolRef)
             else -> Fin(architecture.defaultNodeCost)
         }
@@ -32,10 +40,12 @@ internal class CostExpressionAstVisitor(private val architecture: Architecture) 
                 val original = parameterizedSymbol.costExpression
                 instantiation.substitutionChain.replay(original)
             }
+
             is ParameterizedMemberPluginSymbol -> {
                 val original = parameterizedSymbol.costExpression
                 instantiation.substitutionChain.replay(original)
             }
+
             is ParameterizedStaticPluginSymbol -> {
                 val original = parameterizedSymbol.costExpression
                 instantiation.substitutionChain.replay(original)
@@ -64,23 +74,23 @@ internal class CostExpressionAstVisitor(private val architecture: Architecture) 
     }
 
     override fun visit(ast: IntLiteralAst) {
-        ast.costExpression = Fin(architecture.defaultNodeCost)
+        ast.costExpression = Fin(getDefaultNodeCost(AstNodeNames.IntLiteralAst.key))
     }
 
     override fun visit(ast: DecimalLiteralAst) {
-        ast.costExpression = Fin(architecture.defaultNodeCost)
+        ast.costExpression = Fin(getDefaultNodeCost(AstNodeNames.DecimalLiteralAst.key))
     }
 
     override fun visit(ast: BooleanLiteralAst) {
-        ast.costExpression = Fin(architecture.defaultNodeCost)
+        ast.costExpression = Fin(getDefaultNodeCost(AstNodeNames.BooleanLiteralAst.key))
     }
 
     override fun visit(ast: CharLiteralAst) {
-        ast.costExpression = Fin(architecture.defaultNodeCost)
+        ast.costExpression = Fin(getDefaultNodeCost(AstNodeNames.CharLiteralAst.key))
     }
 
     override fun visit(ast: StringLiteralAst) {
-        ast.costExpression = Fin(architecture.defaultNodeCost)
+        ast.costExpression = Fin(getDefaultNodeCost(AstNodeNames.StringLiteralAst.key))
     }
 
     override fun visit(ast: StringInterpolationAst) {
@@ -90,17 +100,18 @@ internal class CostExpressionAstVisitor(private val architecture: Architecture) 
                 ast.components.map {
                     it.costExpression
                 }
-            )
+            ),
+            AstNodeNames.StringInterpolationAst.key
         )
     }
 
     override fun visit(ast: LetAst) {
         super.visit(ast)
-        ast.costExpression = addDefault(ast.rhs.costExpression)
+        ast.costExpression = addDefault(ast.rhs.costExpression, AstNodeNames.LetAst.key)
     }
 
     override fun visit(ast: RefAst) {
-        ast.costExpression = Fin(architecture.defaultNodeCost)
+        ast.costExpression = Fin(getDefaultNodeCost(AstNodeNames.RefAst.key))
     }
 
     override fun visit(ast: FileAst) {
@@ -110,7 +121,8 @@ internal class CostExpressionAstVisitor(private val architecture: Architecture) 
                 ast.lines.map {
                     it.costExpression
                 }
-            )
+            ),
+            AstNodeNames.FileAst.key
         )
     }
 
@@ -121,34 +133,35 @@ internal class CostExpressionAstVisitor(private val architecture: Architecture) 
                 ast.lines.map {
                     it.costExpression
                 }
-            )
+            ),
+            AstNodeNames.BlockAst.key
         )
     }
 
     override fun visit(ast: FunctionAst) {
         // The body cost will be calculated after topological sort of all functions,
         // therefore we do not call super.visit(ast)
-        ast.costExpression = Fin(architecture.defaultNodeCost)
+        ast.costExpression = Fin(getDefaultNodeCost(AstNodeNames.FunctionAst.key))
     }
 
     override fun visit(ast: LambdaAst) {
         super.visit(ast)
-        ast.costExpression = ast.body.costExpression
+        ast.costExpression = addDefault(ast.body.costExpression, AstNodeNames.LambdaAst.key)
     }
 
     override fun visit(ast: RecordDefinitionAst) {
         super.visit(ast)
-        ast.costExpression = Fin(architecture.defaultNodeCost)
+        ast.costExpression = Fin(getDefaultNodeCost(AstNodeNames.RecordDefinitionAst.key))
     }
 
     override fun visit(ast: ObjectDefinitionAst) {
         super.visit(ast)
-        ast.costExpression = Fin(architecture.defaultNodeCost)
+        ast.costExpression = Fin(getDefaultNodeCost(AstNodeNames.ObjectDefinitionAst.key))
     }
 
     override fun visit(ast: DotAst) {
         super.visit(ast)
-        ast.costExpression = addDefault(ast.lhs.costExpression)
+        ast.costExpression = addDefault(ast.lhs.costExpression, AstNodeNames.DotAst.key)
     }
 
     override fun visit(ast: GroundApplyAst) {
@@ -213,9 +226,12 @@ internal class CostExpressionAstVisitor(private val architecture: Architecture) 
             }
         }
         if (argCosts.isEmpty()) {
-            ast.costExpression = addDefault(bodyCost)
+            ast.costExpression = addDefault(bodyCost, AstNodeNames.GroundApplyAst.key)
         } else {
-            ast.costExpression = addDefault(SumCostExpression(listOf(bodyCost, SumCostExpression(argCosts))))
+            ast.costExpression = addDefault(
+                SumCostExpression(listOf(bodyCost, SumCostExpression(argCosts))),
+                AstNodeNames.GroundApplyAst.key
+            )
         }
     }
 
@@ -228,10 +244,12 @@ internal class CostExpressionAstVisitor(private val architecture: Architecture) 
                 val symbolRef = dotApplySlot.payload
                 symbolRef.formalParams.map { it.costMultiplier }
             }
+
             is DotApplySlotGMP -> {
                 val symbolRef = dotApplySlot.payload
                 symbolRef.formalParams.map { it.costMultiplier }
             }
+
             is DotApplySlotSI -> {
                 val symbolRef = dotApplySlot.payload
                 when (val parameterizedSymbol = symbolRef.substitutionChain.terminus) {
@@ -240,6 +258,7 @@ internal class CostExpressionAstVisitor(private val architecture: Architecture) 
                             symbolRef.substitutionChain.replay(it.costMultiplier)
                         }
                     }
+
                     else -> {
                         listOf()
                     }
@@ -266,10 +285,14 @@ internal class CostExpressionAstVisitor(private val architecture: Architecture) 
         }
 
         if (argCosts.isEmpty()) {
-            ast.costExpression = addDefault(SumCostExpression(listOf(bodyCost, ast.lhs.costExpression)))
+            ast.costExpression =
+                addDefault(SumCostExpression(listOf(bodyCost, ast.lhs.costExpression)), AstNodeNames.DotApplyAst.key)
         } else {
             ast.costExpression =
-                addDefault(SumCostExpression(listOf(bodyCost, ast.lhs.costExpression, SumCostExpression(argCosts))))
+                addDefault(
+                    SumCostExpression(listOf(bodyCost, ast.lhs.costExpression, SumCostExpression(argCosts))),
+                    AstNodeNames.DotApplyAst.key
+                )
         }
     }
 
@@ -281,17 +304,18 @@ internal class CostExpressionAstVisitor(private val architecture: Architecture) 
                 langThrow(ast.ctx, TypeSystemBug)
             }
         }
-        ast.costExpression = addDefault(ProductCostExpression(listOf(multiplier, ast.body.costExpression)))
+        ast.costExpression =
+            addDefault(ProductCostExpression(listOf(multiplier, ast.body.costExpression)), AstNodeNames.ForEachAst.key)
     }
 
     override fun visit(ast: AssignAst) {
         super.visit(ast)
-        ast.costExpression = Fin(architecture.defaultNodeCost)
+        ast.costExpression = Fin(getDefaultNodeCost(AstNodeNames.AssignAst.key))
     }
 
     override fun visit(ast: DotAssignAst) {
         super.visit(ast)
-        ast.costExpression = Fin(architecture.defaultNodeCost)
+        ast.costExpression = Fin(getDefaultNodeCost(AstNodeNames.DotAssignAst.key))
     }
 
     override fun visit(ast: IfAst) {
@@ -307,7 +331,8 @@ internal class CostExpressionAstVisitor(private val architecture: Architecture) 
                         )
                     )
                 )
-            )
+            ),
+            AstNodeNames.IfAst.key
         )
     }
 
@@ -323,7 +348,8 @@ internal class CostExpressionAstVisitor(private val architecture: Architecture) 
                         }
                     )
                 )
-            )
+            ),
+            AstNodeNames.MatchAst.key
         )
     }
 }
