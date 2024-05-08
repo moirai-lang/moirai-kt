@@ -13,46 +13,37 @@ interface Architecture {
      * This method allows architectures to make specific nodes more expensive. The exact
      * weights for each node will need to be determined through load testing on a given
      * architecture. For example, the ForEachAst may need to be one or two orders of
-     * magnitude more expensive than other nodes. A string is used as a key because a
-     * public list of Ast node types may become stale.
+     * magnitude more expensive than other nodes.
      */
-    fun getNodeCostOverlay(key: String): NodeCostOverlay
+    fun getNodeCostOverlay(nodeKind: AstNodeKind): NodeCostOverlay
 }
 
 /**
- * A public list of Ast node types, with some reserved enum values for backwards-compatibility.
+ * A public list of Ast node types. Note that if the list of AST kinds changes,
+ * it can and should be a breaking change so that users can define the new node
+ * cost overlays.
  */
-enum class AstNodeNames(val key: String) {
-    IntLiteralAst("Int"),
-    DecimalLiteralAst("Decimal"),
-    BooleanLiteralAst("Boolean"),
-    CharLiteralAst("Char"),
-    StringLiteralAst("String"),
-    StringInterpolationAst("StringInterpolation"),
-    LetAst("Let"),
-    RefAst("Ref"),
-    FileAst("File"),
-    BlockAst("Block"),
-    FunctionAst("Function"),
-    LambdaAst("Lambda"),
-    RecordDefinitionAst("Record"),
-    ObjectDefinitionAst("Object"),
-    DotAst("Dot"),
-    GroundApplyAst("Apply"),
-    DotApplyAst("DotApply"),
-    ForEachAst("ForEach"),
-    AssignAst("Assign"),
-    DotAssignAst("DotAssign"),
-    IfAst("If"),
-    MatchAst("Match"),
-    Reserved0("Reserved0"),
-    Reserved1("Reserved1"),
-    Reserved2("Reserved2"),
-    Reserved3("Reserved3"),
-    Reserved4("Reserved4"),
-    Reserved5("Reserved5"),
-    Reserved6("Reserved6"),
-    Reserved7("Reserved7"),
-    Reserved8("Reserved8"),
-    Reserved9("Reserved9")
+enum class AstNodeKind {
+    IntLiteralAst,
+    DecimalLiteralAst,
+    BooleanLiteralAst,
+    CharLiteralAst,
+    StringLiteralAst,
+    StringInterpolationAst,
+    LetAst,
+    RefAst,
+    FileAst,
+    BlockAst,
+    FunctionAst,
+    LambdaAst,
+    RecordDefinitionAst,
+    ObjectDefinitionAst,
+    DotAst,
+    GroundApplyAst,
+    DotApplyAst,
+    ForEachAst,
+    AssignAst,
+    DotAssignAst,
+    IfAst,
+    MatchAst
 }
