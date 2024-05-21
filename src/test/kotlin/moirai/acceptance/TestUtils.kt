@@ -8,7 +8,7 @@ import moirai.eval.*
 
 object TestArchitecture : Architecture {
     private val namedCosts: Map<String, Long> = mapOf(
-        "test" to 1000
+        "Test" to 2000
     )
 
     override val defaultNodeCost: Long = (1).toLong()
@@ -30,7 +30,7 @@ object TestArchitecture : Architecture {
 
 object LargeComputationArchitecture : Architecture {
     private val namedCosts: Map<String, Long> = mapOf(
-        "test" to 1000
+        "Test" to 2000
     )
 
     override val defaultNodeCost: Long = (1).toLong()
@@ -235,6 +235,16 @@ fun testPlugins(source: String, architecture: Architecture): Value {
             signature List<T, K> -> T
             cost Mul(5, K)
         }
+        
+        plugin def simplePluginNamed {
+            signature (Int, Int) -> Int
+            cost Sum(Named(Test), 5)
+        }
+        
+        plugin def paramPluginNamed<T, K: Fin> {
+            signature List<T, K> -> T
+            cost Mul(Named(Test), K)
+        }
     """.trimIndent()
 
     val userPlugins: MutableList<UserPlugin> = mutableListOf()
@@ -252,6 +262,19 @@ fun testPlugins(source: String, architecture: Architecture): Value {
             l.elements.last()
         }
     )
+    userPlugins.add(
+        TestUserPlugin("simplePluginNamed") {
+            val first = it.first() as IntValue
+            val last = it.last() as IntValue
+            IntValue(first.canonicalForm + last.canonicalForm)
+        }
+    )
+    userPlugins.add(
+        TestUserPlugin("paramPluginNamed") {
+            val l = it.first() as ListValue
+            l.elements.last()
+        }
+    )
 
     return eval(source, architecture, sourceStore, pluginSource, userPlugins)
 }
@@ -263,6 +286,28 @@ fun failTest(source: String, expectedCount: Int, predicate: (LanguageError) -> B
 fun failTest(source: String, expectedCount: Int, predicate: (LanguageError) -> Boolean, architecture: Architecture) {
     try {
         testEval(source, architecture)
+        Assertions.fail()
+    } catch (ex: LanguageException) {
+        Assertions.assertEquals(expectedCount, ex.errors.size)
+        val predicateFailures: MutableSet<LanguageError> = HashSet()
+        ex.errors.forEach {
+            if (!predicate(it)) {
+                predicateFailures.add(it)
+            }
+        }
+        if (predicateFailures.isNotEmpty()) {
+            throw LanguageException(predicateFailures)
+        }
+    }
+}
+
+fun failTestPlugins(source: String, expectedCount: Int, predicate: (LanguageError) -> Boolean) {
+    failTestPlugins(source, expectedCount, predicate, TestArchitecture)
+}
+
+fun failTestPlugins(source: String, expectedCount: Int, predicate: (LanguageError) -> Boolean, architecture: Architecture) {
+    try {
+        testPlugins(source, architecture)
         Assertions.fail()
     } catch (ex: LanguageException) {
         Assertions.assertEquals(expectedCount, ex.errors.size)
