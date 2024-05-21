@@ -261,6 +261,7 @@ data class TypeArgFeatureBan(val type: TypeErrorString) : ErrorKind(), TypeHostE
 }
 
 data class InvalidCostExpressionFunctionName(val name: String): ErrorKind()
+data object InvalidNamedCostExpressionArgs: ErrorKind()
 data class TypeMustBeCostExpression(val type: TypeErrorString): ErrorKind(), TypeHostErrorType {
     override val types: List<TypeErrorString> = listOf(type)
 }

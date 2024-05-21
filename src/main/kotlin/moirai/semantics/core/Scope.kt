@@ -305,17 +305,35 @@ internal class SymbolTable(private val parent: Scope) : Scope {
             is ImplicitTypeLiteral -> langThrow(signifier.ctx, TypeSystemBug)
             is FinLiteral -> Fin(signifier.magnitude)
             is InvokeSignifier -> {
-                val typeArgs = signifier.args.map {
-                    val t = fetchType(it)
-                    if (t !is CostExpression) {
-                        langThrow(it.ctx, TypeMustBeCostExpression(toError(t)))
-                    }
-                    t
-                }
                 when (signifier.op) {
-                    CostOperator.Sum -> SumCostExpression(typeArgs)
-                    CostOperator.Mul -> ProductCostExpression(typeArgs)
-                    CostOperator.Max -> MaxCostExpression(typeArgs)
+                    CostOperator.Named -> {
+                        if (signifier.args.size == 1) {
+                            val first = signifier.args.first()
+                            if (first is Identifier) {
+                                ConstantFin(NamedFin(first.name))
+                            } else {
+                                langThrow(signifier.ctx, InvalidNamedCostExpressionArgs)
+                            }
+                        } else {
+                            langThrow(signifier.ctx, InvalidNamedCostExpressionArgs)
+                        }
+                    }
+
+                    else -> {
+                        val typeArgs = signifier.args.map {
+                            val t = fetchType(it)
+                            if (t !is CostExpression) {
+                                langThrow(it.ctx, TypeMustBeCostExpression(toError(t)))
+                            }
+                            t
+                        }
+                        when (signifier.op) {
+                            CostOperator.Sum -> SumCostExpression(typeArgs)
+                            CostOperator.Mul -> ProductCostExpression(typeArgs)
+                            CostOperator.Max -> MaxCostExpression(typeArgs)
+                            else -> langThrow(signifier.ctx, ImpossibleState("Never reachable"))
+                        }
+                    }
                 }
             }
         }
@@ -397,17 +415,35 @@ internal class SymbolTable(private val parent: Scope) : Scope {
             is ImplicitTypeLiteral -> langThrow(signifier.ctx, TypeSystemBug)
             is FinLiteral -> Fin(signifier.magnitude)
             is InvokeSignifier -> {
-                val typeArgs = signifier.args.map {
-                    val t = fetchType(it)
-                    if (t !is CostExpression) {
-                        langThrow(it.ctx, TypeMustBeCostExpression(toError(t)))
-                    }
-                    t
-                }
                 when (signifier.op) {
-                    CostOperator.Sum -> SumCostExpression(typeArgs)
-                    CostOperator.Mul -> ProductCostExpression(typeArgs)
-                    CostOperator.Max -> MaxCostExpression(typeArgs)
+                    CostOperator.Named -> {
+                        if (signifier.args.size == 1) {
+                            val first = signifier.args.first()
+                            if (first is Identifier) {
+                                ConstantFin(NamedFin(first.name))
+                            } else {
+                                langThrow(signifier.ctx, InvalidNamedCostExpressionArgs)
+                            }
+                        } else {
+                            langThrow(signifier.ctx, InvalidNamedCostExpressionArgs)
+                        }
+                    }
+
+                    else -> {
+                        val typeArgs = signifier.args.map {
+                            val t = fetchType(it)
+                            if (t !is CostExpression) {
+                                langThrow(it.ctx, TypeMustBeCostExpression(toError(t)))
+                            }
+                            t
+                        }
+                        when (signifier.op) {
+                            CostOperator.Sum -> SumCostExpression(typeArgs)
+                            CostOperator.Mul -> ProductCostExpression(typeArgs)
+                            CostOperator.Max -> MaxCostExpression(typeArgs)
+                            else -> langThrow(signifier.ctx, ImpossibleState("Never reachable"))
+                        }
+                    }
                 }
             }
         }

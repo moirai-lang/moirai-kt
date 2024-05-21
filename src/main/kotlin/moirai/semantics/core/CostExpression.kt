@@ -21,7 +21,8 @@ internal interface CostExpressionVisitor<R> {
 internal enum class CostOperator(val idStr: String) {
     Sum("Sum"),
     Mul("Mul"),
-    Max("Max")
+    Max("Max"),
+    Named("Named")
 }
 
 internal fun sortCanonical(costExpressions: List<CostExpression>): List<CostExpression> {
@@ -149,7 +150,10 @@ internal class EvalCostExpressionVisitor(val architecture: Architecture): CostEx
     }
 
     override fun visit(costExpression: ConstantFin): Long {
-        return architecture.defaultNodeCost
+        return when (val kind = costExpression.kind) {
+            DefaultFin -> architecture.defaultNodeCost
+            is NamedFin -> architecture.getNamedCost(kind.name)
+        }
     }
 
     override fun visit(costExpression: SumCostExpression): Long {
