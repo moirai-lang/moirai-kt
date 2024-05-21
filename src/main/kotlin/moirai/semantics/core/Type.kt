@@ -53,7 +53,7 @@ internal class Fin(val magnitude: Long) : CostExpression, Type {
     }
 }
 
-internal data object ConstantFin : CostExpression, Type {
+internal data class ConstantFin(val kind: FinKind) : CostExpression, Type {
     override fun <R> accept(visitor: CostExpressionVisitor<R>): R {
         return visitor.visit(this)
     }

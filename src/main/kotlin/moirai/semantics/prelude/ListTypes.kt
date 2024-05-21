@@ -19,7 +19,7 @@ internal object ListTypes {
             SingleParentArgInstantiation
         )
         getMemberFunction.typeParams = listOf(Lang.listElementTypeParam)
-        getMemberFunction.costExpression = ConstantFin
+        getMemberFunction.costExpression = ConstantFin(DefaultFin)
         val getFormalParamId = Identifier(NotInSource, "index")
         val getFormalParam = FunctionFormalParameterSymbol(getMemberFunction, getFormalParamId, Lang.intType)
         getMemberFunction.define(getFormalParamId, getFormalParam)
@@ -38,7 +38,7 @@ internal object ListTypes {
             SingleParentArgInstantiation
         )
         getMemberFunction.typeParams = listOf(Lang.mutableListElementTypeParam)
-        getMemberFunction.costExpression = ConstantFin
+        getMemberFunction.costExpression = ConstantFin(DefaultFin)
         val getFormalParamId = Identifier(NotInSource, "index")
         val getFormalParam = FunctionFormalParameterSymbol(getMemberFunction, getFormalParamId, Lang.intType)
         getMemberFunction.define(getFormalParamId, getFormalParam)
@@ -57,7 +57,7 @@ internal object ListTypes {
             SingleParentArgInstantiation
         )
         addMemberFunction.typeParams = listOf(Lang.mutableListElementTypeParam)
-        addMemberFunction.costExpression = ConstantFin
+        addMemberFunction.costExpression = ConstantFin(DefaultFin)
         val addFormalParamId = Identifier(NotInSource, "element")
         val addFormalParam = FunctionFormalParameterSymbol(addMemberFunction, addFormalParamId, Lang.mutableListElementTypeParam)
         addMemberFunction.define(addFormalParamId, addFormalParam)
@@ -76,7 +76,7 @@ internal object ListTypes {
             SingleParentArgInstantiation
         )
         setMemberFunction.typeParams = listOf(Lang.mutableListElementTypeParam)
-        setMemberFunction.costExpression = ConstantFin
+        setMemberFunction.costExpression = ConstantFin(DefaultFin)
         val indexFormalParamId = Identifier(NotInSource, "index")
         val indexFormalParam = FunctionFormalParameterSymbol(setMemberFunction, indexFormalParamId, Lang.intType)
         setMemberFunction.define(indexFormalParamId, indexFormalParam)
@@ -98,7 +98,7 @@ internal object ListTypes {
             Lang.mutableListType,
             removeAtId
         )
-        removeAtMemberFunction.costExpression = ConstantFin
+        removeAtMemberFunction.costExpression = ConstantFin(DefaultFin)
         val removeAtFormalParamId = Identifier(NotInSource, "index")
         val removeAtFormalParam = FunctionFormalParameterSymbol(removeAtMemberFunction, removeAtFormalParamId, Lang.intType)
         removeAtMemberFunction.define(removeAtFormalParamId, removeAtFormalParam)

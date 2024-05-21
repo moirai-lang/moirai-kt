@@ -254,7 +254,7 @@ internal fun getQualifiedName(type: Type): String {
             type.qualifiedName
         }
 
-        ConstantFin,
+        is ConstantFin,
         is Fin,
         is ParameterHashCodeCost,
         is InstantiationHashCodeCost,

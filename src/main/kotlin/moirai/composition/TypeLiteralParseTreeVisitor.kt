@@ -92,6 +92,10 @@ internal class TypeLiteralParseTreeVisitor(
                 InvokeSignifier(sourceContext, CostOperator.Max, args)
             }
 
+            CostOperator.Named.idStr -> {
+                InvokeSignifier(sourceContext, CostOperator.Named, args)
+            }
+
             else -> {
 
                 errors.add(sourceContext, InvalidCostExpressionFunctionName(id))

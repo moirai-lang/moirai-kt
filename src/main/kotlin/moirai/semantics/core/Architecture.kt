@@ -10,6 +10,14 @@ interface Architecture {
     val costUpperLimit: Long
 
     /**
+     * This method allows users to dynamically change the cost of plugins. For example if
+     * a downstream service has a sudden increase in latency, the cost of that plugin can
+     * be increased. This will in effect cause the interpreter to favor requests that do
+     * not call the expensive plugins.
+     */
+    fun getNamedCost(name: String): Long
+
+    /**
      * This method allows architectures to make specific nodes more expensive. The exact
      * weights for each node will need to be determined through load testing on a given
      * architecture. For example, the ForEachAst may need to be one or two orders of

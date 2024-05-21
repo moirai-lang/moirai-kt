@@ -23,3 +23,8 @@ internal enum class TypeParameterKind {
 }
 
 internal data class TypeParameterDefinition(val identifier: Identifier, val type: TypeParameterKind)
+
+internal sealed class FinKind
+
+internal data class NamedFin(val name: String): FinKind()
+internal data object DefaultFin: FinKind()
