@@ -17,7 +17,7 @@ internal fun toError(type: Type): TypeErrorString {
     return TypeErrorString(
         when (type) {
             is BasicType -> type.identifier.name
-            ConstantFin -> "default"
+            is ConstantFin -> "default"
             is Fin -> type.magnitude.toString()
             is FinTypeParameter -> type.identifier.name
             is ParameterHashCodeCost -> "HashCodeCost(${toError(type.typeParameter)})"

@@ -24,7 +24,7 @@ internal object IntegerMathOpMembers {
             Lang.intType,
             Identifier(NotInSource, BinaryOperator.Add.idStr)
         )
-        res.costExpression = ConstantFin
+        res.costExpression = ConstantFin(DefaultFin)
         val formalParamId = Identifier(NotInSource, "other")
         val formalParam = FunctionFormalParameterSymbol(res, formalParamId, Lang.intType)
         res.define(formalParamId, formalParam)
@@ -39,7 +39,7 @@ internal object IntegerMathOpMembers {
             Lang.intType,
             Identifier(NotInSource, BinaryOperator.Sub.idStr)
         )
-        res.costExpression = ConstantFin
+        res.costExpression = ConstantFin(DefaultFin)
         val formalParamId = Identifier(NotInSource, "other")
         val formalParam = FunctionFormalParameterSymbol(res, formalParamId, Lang.intType)
         res.define(formalParamId, formalParam)
@@ -54,7 +54,7 @@ internal object IntegerMathOpMembers {
             Lang.intType,
             Identifier(NotInSource, BinaryOperator.Mul.idStr)
         )
-        res.costExpression = ConstantFin
+        res.costExpression = ConstantFin(DefaultFin)
         val formalParamId = Identifier(NotInSource, "other")
         val formalParam = FunctionFormalParameterSymbol(res, formalParamId, Lang.intType)
         res.define(formalParamId, formalParam)
@@ -69,7 +69,7 @@ internal object IntegerMathOpMembers {
             Lang.intType,
             Identifier(NotInSource, BinaryOperator.Div.idStr)
         )
-        res.costExpression = ConstantFin
+        res.costExpression = ConstantFin(DefaultFin)
         val formalParamId = Identifier(NotInSource, "other")
         val formalParam = FunctionFormalParameterSymbol(res, formalParamId, Lang.intType)
         res.define(formalParamId, formalParam)
@@ -84,7 +84,7 @@ internal object IntegerMathOpMembers {
             Lang.intType,
             Identifier(NotInSource, BinaryOperator.Mod.idStr)
         )
-        res.costExpression = ConstantFin
+        res.costExpression = ConstantFin(DefaultFin)
         val formalParamId = Identifier(NotInSource, "other")
         val formalParam = FunctionFormalParameterSymbol(res, formalParamId, Lang.intType)
         res.define(formalParamId, formalParam)
@@ -99,7 +99,7 @@ internal object IntegerMathOpMembers {
             Lang.intType,
             Identifier(NotInSource, UnaryOperator.Negate.idStr)
         )
-        res.costExpression = ConstantFin
+        res.costExpression = ConstantFin(DefaultFin)
         res.formalParams = listOf()
         res.returnType = Lang.intType
         return res
@@ -124,7 +124,7 @@ internal object IntegerOrderOpMembers {
             Lang.intType,
             Identifier(NotInSource, BinaryOperator.GreaterThan.idStr)
         )
-        res.costExpression = ConstantFin
+        res.costExpression = ConstantFin(DefaultFin)
         val formalParamId = Identifier(NotInSource, "other")
         val formalParam = FunctionFormalParameterSymbol(res, formalParamId, Lang.intType)
         res.define(formalParamId, formalParam)
@@ -139,7 +139,7 @@ internal object IntegerOrderOpMembers {
             Lang.intType,
             Identifier(NotInSource, BinaryOperator.GreaterThanEqual.idStr)
         )
-        res.costExpression = ConstantFin
+        res.costExpression = ConstantFin(DefaultFin)
         val formalParamId = Identifier(NotInSource, "other")
         val formalParam = FunctionFormalParameterSymbol(res, formalParamId, Lang.intType)
         res.define(formalParamId, formalParam)
@@ -154,7 +154,7 @@ internal object IntegerOrderOpMembers {
             Lang.intType,
             Identifier(NotInSource, BinaryOperator.LessThan.idStr)
         )
-        res.costExpression = ConstantFin
+        res.costExpression = ConstantFin(DefaultFin)
         val formalParamId = Identifier(NotInSource, "other")
         val formalParam = FunctionFormalParameterSymbol(res, formalParamId, Lang.intType)
         res.define(formalParamId, formalParam)
@@ -169,7 +169,7 @@ internal object IntegerOrderOpMembers {
             Lang.intType,
             Identifier(NotInSource, BinaryOperator.LessThanEqual.idStr)
         )
-        res.costExpression = ConstantFin
+        res.costExpression = ConstantFin(DefaultFin)
         val formalParamId = Identifier(NotInSource, "other")
         val formalParam = FunctionFormalParameterSymbol(res, formalParamId, Lang.intType)
         res.define(formalParamId, formalParam)
@@ -194,7 +194,7 @@ internal object IntegerEqualityOpMembers {
             Lang.intType,
             Identifier(NotInSource, BinaryOperator.Equal.idStr)
         )
-        res.costExpression = ConstantFin
+        res.costExpression = ConstantFin(DefaultFin)
         val formalParamId = Identifier(NotInSource, "other")
         val formalParam = FunctionFormalParameterSymbol(res, formalParamId, Lang.intType)
         res.define(formalParamId, formalParam)
@@ -209,7 +209,7 @@ internal object IntegerEqualityOpMembers {
             Lang.intType,
             Identifier(NotInSource, BinaryOperator.NotEqual.idStr)
         )
-        res.costExpression = ConstantFin
+        res.costExpression = ConstantFin(DefaultFin)
         val formalParamId = Identifier(NotInSource, "other")
         val formalParam = FunctionFormalParameterSymbol(res, formalParamId, Lang.intType)
         res.define(formalParamId, formalParam)
@@ -234,7 +234,7 @@ internal object BooleanEqualityOpMembers {
             Lang.booleanType,
             Identifier(NotInSource, BinaryOperator.Equal.idStr)
         )
-        res.costExpression = ConstantFin
+        res.costExpression = ConstantFin(DefaultFin)
         val formalParamId = Identifier(NotInSource, "other")
         val formalParam = FunctionFormalParameterSymbol(res, formalParamId, Lang.booleanType)
         res.define(formalParamId, formalParam)
@@ -249,7 +249,7 @@ internal object BooleanEqualityOpMembers {
             Lang.booleanType,
             Identifier(NotInSource, BinaryOperator.NotEqual.idStr)
         )
-        res.costExpression = ConstantFin
+        res.costExpression = ConstantFin(DefaultFin)
         val formalParamId = Identifier(NotInSource, "other")
         val formalParam = FunctionFormalParameterSymbol(res, formalParamId, Lang.booleanType)
         res.define(formalParamId, formalParam)
@@ -274,7 +274,7 @@ internal object CharEqualityOpMembers {
             Lang.charType,
             Identifier(NotInSource, BinaryOperator.Equal.idStr)
         )
-        res.costExpression = ConstantFin
+        res.costExpression = ConstantFin(DefaultFin)
         val formalParamId = Identifier(NotInSource, "other")
         val formalParam = FunctionFormalParameterSymbol(res, formalParamId, Lang.charType)
         res.define(formalParamId, formalParam)
@@ -289,7 +289,7 @@ internal object CharEqualityOpMembers {
             Lang.charType,
             Identifier(NotInSource, BinaryOperator.NotEqual.idStr)
         )
-        res.costExpression = ConstantFin
+        res.costExpression = ConstantFin(DefaultFin)
         val formalParamId = Identifier(NotInSource, "other")
         val formalParam = FunctionFormalParameterSymbol(res, formalParamId, Lang.charType)
         res.define(formalParamId, formalParam)
@@ -317,7 +317,7 @@ internal object ValueLogicalOpMembers {
             Lang.booleanType,
             Identifier(NotInSource, BinaryOperator.And.idStr)
         )
-        res.costExpression = ConstantFin
+        res.costExpression = ConstantFin(DefaultFin)
         val formalParamId = Identifier(NotInSource, "other")
         val formalParam = FunctionFormalParameterSymbol(res, formalParamId, Lang.booleanType)
         res.define(formalParamId, formalParam)
@@ -332,7 +332,7 @@ internal object ValueLogicalOpMembers {
             Lang.booleanType,
             Identifier(NotInSource, BinaryOperator.Or.idStr)
         )
-        res.costExpression = ConstantFin
+        res.costExpression = ConstantFin(DefaultFin)
         val formalParamId = Identifier(NotInSource, "other")
         val formalParam = FunctionFormalParameterSymbol(res, formalParamId, Lang.booleanType)
         res.define(formalParamId, formalParam)
@@ -347,7 +347,7 @@ internal object ValueLogicalOpMembers {
             Lang.booleanType,
             Identifier(NotInSource, UnaryOperator.Not.idStr)
         )
-        res.costExpression = ConstantFin
+        res.costExpression = ConstantFin(DefaultFin)
         res.formalParams = listOf()
         res.returnType = Lang.booleanType
         return res

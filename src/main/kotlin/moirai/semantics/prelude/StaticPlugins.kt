@@ -58,7 +58,7 @@ internal object StaticPlugins {
         randomPlugin.formalParams = listOf(beginFormalParam, endFormalParam)
         randomPlugin.returnType = randomTypeParam
 
-        randomPlugin.costExpression = ConstantFin
+        randomPlugin.costExpression = ConstantFin(DefaultFin)
         return randomPlugin
     }
 }

@@ -42,7 +42,7 @@ fun fetchTransportFunction(executionArtifacts: ExecutionArtifacts, functionName:
 internal fun convertToTransportType(type: Type): TransportType =
     when(type) {
         is BasicType -> TransportBasicType(type.identifier.name)
-        ConstantFin -> TransportConstantFin
+        is ConstantFin -> TransportConstantFin
         is Fin -> TransportFin(type.magnitude)
         is FinTypeParameter -> TransportFinTypeParameter(type.identifier.name)
         is InstantiationHashCodeCost -> NonPublicTransportType
