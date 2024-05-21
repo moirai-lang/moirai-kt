@@ -7,8 +7,20 @@ import org.junit.jupiter.api.Assertions
 import moirai.eval.*
 
 object TestArchitecture : Architecture {
+    private val namedCosts: Map<String, Long> = mapOf(
+        "test" to 1000
+    )
+
     override val defaultNodeCost: Long = (1).toLong()
     override val costUpperLimit: Long = (5000).toLong()
+
+    override fun getNamedCost(name: String): Long {
+        return if (namedCosts.containsKey(name)) {
+            namedCosts[name]!!
+        } else {
+            defaultNodeCost
+        }
+    }
 
     override fun getNodeCostOverlay(nodeKind: AstNodeKind): NodeCostOverlay {
         return UndefinedOverlay
@@ -17,8 +29,20 @@ object TestArchitecture : Architecture {
 
 
 object LargeComputationArchitecture : Architecture {
+    private val namedCosts: Map<String, Long> = mapOf(
+        "test" to 1000
+    )
+
     override val defaultNodeCost: Long = (1).toLong()
     override val costUpperLimit: Long = (100000000).toLong()
+
+    override fun getNamedCost(name: String): Long {
+        return if (namedCosts.containsKey(name)) {
+            namedCosts[name]!!
+        } else {
+            TestArchitecture.defaultNodeCost
+        }
+    }
 
     override fun getNodeCostOverlay(nodeKind: AstNodeKind): NodeCostOverlay {
         return UndefinedOverlay
