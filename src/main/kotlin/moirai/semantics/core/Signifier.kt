@@ -31,6 +31,7 @@ internal data class InvokeSignifier(
 ) : Signifier()
 
 internal data class Identifier(override val ctx: SourceContext, val name: String) : TerminalTextSignifier()
+internal data class NamedCost(override val ctx: SourceContext, val name: String) : TerminalTextSignifier()
 internal data class FinLiteral(override val ctx: SourceContext, val magnitude: Long) : TerminalSignifier()
 
 internal fun linearizeIdentifiers(signifiers: List<Signifier>): List<TerminalSignifier> {
@@ -62,6 +63,8 @@ internal fun linearizeIdentifiers(signifiers: List<Signifier>): List<TerminalSig
                     linearizeIdentifiersAux(it)
                 }
             }
+
+            is NamedCost -> Unit
         }
     }
     signifiers.forEach {

@@ -238,12 +238,12 @@ fun testPlugins(source: String, architecture: Architecture): Value {
         
         plugin def simplePluginNamed {
             signature (Int, Int) -> Int
-            cost Sum(Named(Test), 5)
+            cost Sum(Named("Test"), 5)
         }
         
         plugin def paramPluginNamed<T, K: Fin> {
             signature List<T, K> -> T
-            cost Mul(Named(Test), K)
+            cost Mul(Named("Test"), K)
         }
     """.trimIndent()
 

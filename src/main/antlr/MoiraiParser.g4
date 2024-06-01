@@ -211,6 +211,7 @@ pluginFunDefStat
 
 costExpr
     :   id=IDENTIFIER LPAREN args=costExprSeq? RPAREN   # CostApply
+    |   id=IDENTIFIER LPAREN arg=string RPAREN          # CostNamed
     |   value=INT                                       # CostMag
     |   id=IDENTIFIER                                   # CostIdent
     ;
