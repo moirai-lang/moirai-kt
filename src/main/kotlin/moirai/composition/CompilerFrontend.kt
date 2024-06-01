@@ -8,7 +8,8 @@ import moirai.transport.convertToAst
 class CompilerFrontend(
     val architecture: Architecture,
     private val sourceStore: SourceStore,
-    pluginSource: PluginSource = NoPluginSource
+    pluginSource: PluginSource = NoPluginSource,
+    private val alternativeArchitectures: List<Architecture> = listOf()
 ) {
     private val pluginScope = createPluginScope(pluginSource)
 
@@ -25,7 +26,8 @@ class CompilerFrontend(
             initialScan.scriptType.fileName(),
             architecture,
             pluginScope,
-            existingSemantics
+            existingSemantics,
+            alternativeArchitectures
         )
 
         val ea = ExecutionArtifacts(
@@ -63,7 +65,8 @@ class CompilerFrontend(
             fileName,
             architecture,
             pluginScope,
-            listOf(ea.semanticArtifacts)
+            listOf(ea.semanticArtifacts),
+            alternativeArchitectures
         )
     }
 
@@ -141,7 +144,8 @@ class CompilerFrontend(
                 scriptType.fileName(),
                 architecture,
                 pluginScope,
-                existingArtifacts
+                existingArtifacts,
+                alternativeArchitectures
             )
             semanticsMap[scriptType.nameParts] = artifacts
             astMap[scriptType.nameParts] = rawAst

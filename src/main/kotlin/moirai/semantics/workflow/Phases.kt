@@ -158,10 +158,22 @@ internal fun calculateCost(ast: FileAst, architecture: Architecture) {
     }
 }
 
-internal fun enforceCostLimit(ast: FileAst, architecture: Architecture) {
+internal fun enforceCostLimit(
+    ast: FileAst,
+    architecture: Architecture,
+    alternativeArchitectures: List<Architecture>
+) {
     val cost = ast.costExpression.accept(EvalCostExpressionVisitor(architecture))
+    ast.cost = cost
     if (cost > architecture.costUpperLimit) {
+        val alternativeCosts: MutableMap<Architecture, Long> = HashMap()
+
+        alternativeArchitectures.forEach { alternativeArchitecture ->
+            val ac = ast.costExpression.accept(EvalCostExpressionVisitor(alternativeArchitecture))
+            alternativeCosts[alternativeArchitecture] = ac
+        }
+
+        ast.alternativeCosts = alternativeCosts
         filterThrow(setOf(LanguageError(NotInSource, CostOverLimit)))
     }
-    ast.cost = cost
 }
