@@ -74,7 +74,8 @@ internal fun processAstAllPhases(
     fileName: String,
     architecture: Architecture,
     plugins: SymbolTable,
-    existingArtifacts: List<SemanticArtifacts>
+    existingArtifacts: List<SemanticArtifacts>,
+    alternativeArchitectures: List<Architecture>
 ): SemanticArtifacts {
     val userScopes = createUserScopes(plugins)
     existingArtifacts.forEach { artifact ->
@@ -123,7 +124,7 @@ internal fun processAstAllPhases(
     val sortedFunctions = sortFunctions(ast)
     sortedFunctions.sorted.forEach { calculateCost(it, architecture) }
     calculateCost(ast, architecture)
-    enforceCostLimit(ast, architecture)
+    enforceCostLimit(ast, architecture, alternativeArchitectures)
 
     val res = SemanticArtifacts(ast, userScopes, fileScope, sortedRecords, sortedFunctions)
     topologicallySortAllArtifacts(res, existingArtifacts)

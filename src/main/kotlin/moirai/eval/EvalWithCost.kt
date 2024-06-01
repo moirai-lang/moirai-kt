@@ -7,7 +7,7 @@ import moirai.composition.pluginMap
 import moirai.semantics.core.Architecture
 import moirai.transport.TransportAst
 
-data class EvalWithCostResult(val value: Value, val cost: Long)
+data class EvalWithCostResult(val value: Value, val cost: Long, val alternativeCosts: Map<Architecture, Long>)
 
 fun evalWithCost(
     architecture: Architecture,
@@ -23,8 +23,9 @@ fun evalWithCost(
 
     val value = executionArtifacts.processedAst.accept(evalVisitor, EvalContext(executionScope, mapOf()))
     val cost = executionArtifacts.semanticArtifacts.processedAst.cost
+    val alternativeCosts = executionArtifacts.semanticArtifacts.processedAst.alternativeCosts
 
-    return EvalWithCostResult(value, cost)
+    return EvalWithCostResult(value, cost, alternativeCosts)
 }
 
 fun evalWithCost(
@@ -44,6 +45,7 @@ fun evalWithCost(
 
     val value = sa.processedAst.accept(evalVisitor, EvalContext(executionScope, mapOf()))
     val cost = sa.processedAst.cost
+    val alternativeCosts = sa.processedAst.alternativeCosts
 
-    return EvalWithCostResult(value, cost)
+    return EvalWithCostResult(value, cost, alternativeCosts)
 }
