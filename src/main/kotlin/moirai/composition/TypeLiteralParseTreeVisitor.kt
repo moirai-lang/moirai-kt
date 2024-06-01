@@ -93,7 +93,8 @@ internal class TypeLiteralParseTreeVisitor(
             }
 
             CostOperator.Named.idStr -> {
-                InvokeSignifier(sourceContext, CostOperator.Named, args)
+                errors.add(sourceContext, InvalidNamedCostExpressionArgs)
+                FinLiteral(sourceContext, 0)
             }
 
             else -> {
@@ -102,6 +103,62 @@ internal class TypeLiteralParseTreeVisitor(
                 FinLiteral(sourceContext, 0)
             }
         }
+    }
+
+    override fun visitCostNamed(ctx: MoiraiParser.CostNamedContext): Signifier {
+        val sourceContext = createContext(fileName, ctx.id)
+        return when (val id = ctx.id.text) {
+            CostOperator.Sum.idStr -> {
+                errors.add(sourceContext, InvalidSumCostExpressionArgs)
+                FinLiteral(sourceContext, 0)
+            }
+
+            CostOperator.Mul.idStr -> {
+                errors.add(sourceContext, InvalidMulCostExpressionArgs)
+                FinLiteral(sourceContext, 0)
+            }
+
+            CostOperator.Max.idStr -> {
+                errors.add(sourceContext, InvalidMaxCostExpressionArgs)
+                FinLiteral(sourceContext, 0)
+            }
+
+            CostOperator.Named.idStr -> {
+                visit(ctx.arg)
+            }
+
+            else -> {
+
+                errors.add(sourceContext, InvalidCostExpressionFunctionName(id))
+                FinLiteral(sourceContext, 0)
+            }
+        }
+    }
+
+    override fun visitNonEmptyString(ctx: MoiraiParser.NonEmptyStringContext): Signifier {
+        val sourceContext = createContext(fileName, ctx.start)
+
+        if (ctx.parts.children.size != 1) {
+            errors.add(sourceContext, InvalidNamedCostExpressionArgs)
+            return NamedCost(sourceContext, "")
+        }
+
+        val first = ctx.parts.children.first()
+
+        if (first !is MoiraiParser.StringCharsContext) {
+            errors.add(sourceContext, InvalidNamedCostExpressionArgs)
+            return NamedCost(sourceContext, "")
+        }
+
+        val chars = first.chars
+        val str = resurrectString(chars.text)
+        return NamedCost(sourceContext, str)
+    }
+
+    override fun visitEmptyString(ctx: MoiraiParser.EmptyStringContext): Signifier {
+        val sourceContext = createContext(fileName, ctx.start)
+        errors.add(sourceContext, InvalidNamedCostExpressionArgs)
+        return NamedCost(sourceContext, "")
     }
 
     override fun visitCostMag(ctx: MoiraiParser.CostMagContext): Signifier {

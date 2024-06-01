@@ -87,6 +87,8 @@ internal fun toError(signifier: Signifier): SignifierErrorString {
             is InvokeSignifier -> "${signifier.op.idStr}(${
                 signifier.args.map { toError(it).value }.joinToString { "," }
             })"
+
+            is NamedCost -> "Named(${signifier.name})"
         }
     )
 }
@@ -262,6 +264,9 @@ data class TypeArgFeatureBan(val type: TypeErrorString) : ErrorKind(), TypeHostE
 
 data class InvalidCostExpressionFunctionName(val name: String): ErrorKind()
 data object InvalidNamedCostExpressionArgs: ErrorKind()
+data object InvalidMaxCostExpressionArgs: ErrorKind()
+data object InvalidSumCostExpressionArgs: ErrorKind()
+data object InvalidMulCostExpressionArgs: ErrorKind()
 data class TypeMustBeCostExpression(val type: TypeErrorString): ErrorKind(), TypeHostErrorType {
     override val types: List<TypeErrorString> = listOf(type)
 }
