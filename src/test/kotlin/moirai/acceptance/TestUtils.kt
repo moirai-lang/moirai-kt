@@ -158,7 +158,7 @@ fun testEval(
 ): Value {
     val sourceStore = LocalSourceStore()
     addTestSources(sourceStore)
-    return eval(source, architecture, sourceStore)
+    return evalWithCost(source, architecture, sourceStore).value
 }
 
 fun testGradual(source: String, architecture: Architecture): Value {
@@ -189,7 +189,7 @@ fun testGradual(source: String, architecture: Architecture): Value {
 
     val executionArtifacts = frontend.fullCompileWithTopologicalSort(source)
 
-    return eval(architecture, executionArtifacts)
+    return evalWithCost(architecture, executionArtifacts, listOf()).value
 }
 
 fun testTransient(source: String, architecture: Architecture): Value {
@@ -214,7 +214,7 @@ fun testTransient(source: String, architecture: Architecture): Value {
     )
 
     val executionArtifacts = frontend.compileUsingCache(source, executionCache)
-    return eval(architecture, executionArtifacts)
+    return evalWithCost(architecture, executionArtifacts, listOf()).value
 }
 
 data class TestUserPlugin(override val key: String, private val eval: (List<Value>) -> Value): UserPlugin {
@@ -276,7 +276,7 @@ fun testPlugins(source: String, architecture: Architecture): Value {
         }
     )
 
-    return eval(source, architecture, sourceStore, pluginSource, userPlugins)
+    return evalWithCost(source, architecture, sourceStore, pluginSource, userPlugins).value
 }
 
 fun failTest(source: String, expectedCount: Int, predicate: (LanguageError) -> Boolean) {
