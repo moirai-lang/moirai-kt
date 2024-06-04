@@ -1,5 +1,7 @@
 package moirai.acceptance
 
+import moirai.composition.CompilerFrontend
+import moirai.composition.UserPluginSource
 import moirai.eval.*
 import moirai.semantics.core.Architecture
 import moirai.transport.ApplyTransportAst
@@ -46,8 +48,9 @@ class TransportTests {
         )
 
         val executionCache = LocalExecutionCache()
+        val frontend = CompilerFrontend(architecture, sourceStore, UserPluginSource(pluginSource))
 
-        return eval("my.library", transportAst, architecture, sourceStore, executionCache, pluginSource, userPlugins)
+        return evalWithCost("my.library", transportAst, frontend, executionCache, userPlugins).value
     }
 
     @Test
